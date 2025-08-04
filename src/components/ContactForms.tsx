@@ -19,7 +19,6 @@ const ContactForms = () => {
   });
   const [submissionStatus, setSubmissionStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [statusMessage, setStatusMessage] = useState('');
-  const [activeForm, setActiveForm] = useState<'contact' | 'mailing'>('contact');
 
   const handleSubmit = async (e: React.FormEvent, formType: 'contact' | 'mailing_list') => {
     e.preventDefault();

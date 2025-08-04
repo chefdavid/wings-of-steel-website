@@ -93,7 +93,7 @@ const CoachManagement = () => {
       handleCancel();
     } catch (error) {
       console.error('❌ Error saving coach:', error);
-      alert(`Error saving coach: ${error.message}`);
+      alert(`Error saving coach: ${(error as Error).message}`);
     }
   };
 

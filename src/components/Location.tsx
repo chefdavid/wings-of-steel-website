@@ -5,7 +5,6 @@ import { supabase } from '../lib/supabaseClient';
 
 const Location = () => {
   const [locationData, setLocationData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchLocationData();
@@ -29,7 +28,7 @@ const Location = () => {
     } catch (error) {
       console.error('Error:', error);
     } finally {
-      setLoading(false);
+      // Loading complete
     }
   };
 

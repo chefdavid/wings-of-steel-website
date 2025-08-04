@@ -7,7 +7,7 @@ interface ImageUploadProps {
   placeholder?: string;
 }
 
-const ImageUpload = ({ currentImage, onImageChange, placeholder }: ImageUploadProps) => {
+const ImageUpload = ({ currentImage, onImageChange }: ImageUploadProps) => {
   const [preview, setPreview] = useState<string>(currentImage || '');
   const [uploading, setUploading] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);

@@ -80,7 +80,7 @@ const Navigation = () => {
                       onMouseEnter={() => setShowScheduleDropdown(true)}
                       onMouseLeave={() => setShowScheduleDropdown(false)}
                     >
-                      {item.dropdownItems?.map((dropdownItem, dropdownIndex) => (
+                      {item.dropdownItems?.map((dropdownItem) => (
                         <a
                           key={dropdownItem.name}
                           href={dropdownItem.href}

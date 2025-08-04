@@ -6,7 +6,6 @@ import ContactForms from './ContactForms';
 
 const GetInvolved = () => {
   const [getInvolvedData, setGetInvolvedData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchGetInvolvedData();
@@ -30,7 +29,7 @@ const GetInvolved = () => {
     } catch (error) {
       console.error('Error:', error);
     } finally {
-      setLoading(false);
+      // Loading complete
     }
   };
 
@@ -73,7 +72,7 @@ const GetInvolved = () => {
             </div>
             
             <div className="space-y-4">
-              {donationOptions.map((option, index) => (
+              {donationOptions.map((option: any, index: number) => (
                 <motion.div
                   key={index}
                   whileHover={{ x: 10 }}

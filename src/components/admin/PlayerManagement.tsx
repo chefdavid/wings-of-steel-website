@@ -96,7 +96,7 @@ const PlayerManagement = () => {
       console.log('Player save completed successfully');
     } catch (error) {
       console.error('Error saving player:', error);
-      alert(`Error saving player: ${error.message}`);
+      alert(`Error saving player: ${(error as Error).message}`);
     }
   };
 
