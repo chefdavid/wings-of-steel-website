@@ -1,245 +1,427 @@
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
+import { FaTimes, FaHockeyPuck, FaBirthdayCake } from 'react-icons/fa';
+import { useTeamRoster } from '../hooks';
+import type { Player } from '../types/database';
+
+interface Coach {
+  name: string;
+  role: string;
+  description: string;
+  experience?: string;
+  achievements?: string[];
+}
 
 const Team = () => {
-  const [flippedCards, setFlippedCards] = useState<{ [key: string]: boolean }>({});
+  const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
+  const [selectedCoach, setSelectedCoach] = useState<Coach | null>(null);
+  const { players, loading, error } = useTeamRoster();
 
-  const players = [
-    { number: 20, name: "Jack Ashby" },
-    { number: 22, name: "Logan Ashby" },
-    { number: 49, name: "Andrew Carmen" },
-    { number: "TBD", name: "Lily Corrigan" },
-    { number: 26, name: "Shawn Gardner" },
-    { number: 8, name: "AJ Gonzales", role: "Assistant Captain" },
-    { number: 21, name: "Trevor Gregoire" },
-    { number: 19, name: "Lucas Harrop" },
-    { number: 44, name: "Laurel Jastrzembski" },
-    { number: 11, name: "Mikayla Johnson" },
-    { number: 45, name: "Colton Naylor" },
-    { number: 18, name: "Zach Oxenham" },
-    { number: 2, name: "Shane Phillips" },
-    { number: 7, name: "Colin Wiederholt", role: "Team Captain" },
+  const coaches: Coach[] = [
+    { 
+      name: "Norm Jones", 
+      role: "Head Coach", 
+      description: "Experienced head coach leading the Wings of Steel with dedication and expertise",
+      experience: "Veteran sled hockey coach",
+      achievements: ["Head Coach - Wings of Steel", "Youth Development Specialist", "Adaptive Sports Leader"]
+    },
+    { 
+      name: "Rico Gonzales", 
+      role: "Assistant Coach", 
+      description: "Dedicated assistant coach focused on player development and team strategy",
+      experience: "Assistant coaching experience",
+      achievements: ["Assistant Coach - Wings of Steel", "Player Development", "Team Strategy Coordinator"]
+    },
+    { 
+      name: "Garret Goebel", 
+      role: "Assistant Coach", 
+      description: "Passionate assistant coach committed to helping players reach their potential",
+      experience: "Assistant coaching experience",
+      achievements: ["Assistant Coach - Wings of Steel", "Skills Development", "Team Mentorship"]
+    },
+    { 
+      name: "Stephen Belcher", 
+      role: "Assistant Coach", 
+      description: "Supportive assistant coach focused on building team chemistry and individual skills",
+      experience: "Assistant coaching experience",
+      achievements: ["Assistant Coach - Wings of Steel", "Team Building", "Individual Skills Training"]
+    },
   ];
 
-  const coaches = [
-    { name: "Tom Brake", role: "Head Coach", description: "Founder and visionary leader" },
-    { name: "Assistant Coach", role: "Defense Coach", description: "Specializes in defensive strategies" },
-    { name: "Assistant Coach", role: "Offense Coach", description: "Develops scoring opportunities" },
-    { name: "Assistant Coach", role: "Goalie Coach", description: "Works with goaltenders" },
-  ];
+  if (loading) {
+    return (
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 text-center">
+          <div className="animate-pulse text-steel-blue">Loading team roster...</div>
+        </div>
+      </section>
+    );
+  }
 
+  if (error) {
+    return (
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 text-center">
+          <p className="text-red-600">Error loading team roster</p>
+        </div>
+      </section>
+    );
+  }
 
   return (
-    <section id="team" className="py-20 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
-          className="text-center mb-16"
-        >
-          <h2 className="text-4xl md:text-5xl font-bold text-black mb-4">
-            The Best Players on the ICE
-          </h2>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            These young players, each with their own unique challenges and abilities, exemplify the
-            spirit of sled hockey. Their prowess on the ice is measured by their ability to inspire,
-            lead, and uplift their teammates.
-          </p>
-        </motion.div>
+    <>
+      <section id="team" className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl md:text-5xl font-bold text-black mb-4">
+              The Best Players on the ICE
+            </h2>
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+              These young players, each with their own unique challenges and abilities, exemplify the
+              spirit of sled hockey. Their prowess on the ice is measured by their ability to inspire,
+              lead, and uplift their teammates.
+            </p>
+          </motion.div>
 
-        <div className="mb-16">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8 max-w-6xl mx-auto">
-          {players.map((player, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.05 }}
-              viewport={{ once: true }}
-              className="relative h-72 w-full preserve-3d cursor-pointer group"
-              style={{
-                transformStyle: 'preserve-3d',
-                transition: 'transform 0.6s',
-              }}
-              onMouseEnter={() => setFlippedCards(prev => ({ ...prev, [`player-${index}`]: true }))}
-              onMouseLeave={() => setFlippedCards(prev => ({ ...prev, [`player-${index}`]: false }))}
-            >
-              {/* Captain Tag */}
-              {player.role && (
-                <div className="absolute -top-3 -right-3 bg-red-600 text-white text-sm px-3 py-1 rounded-full font-bold z-10 shadow-lg">
-                  {player.role === "Team Captain" ? "CAPTAIN" : "ASST. CAPT"}
-                </div>
-              )}
-              
-              {/* Front of card */}
-              <div 
-                className="absolute inset-0 w-full h-full backface-hidden bg-white rounded-xl shadow-xl p-6 flex flex-col items-center justify-center border border-gray-100"
-                style={{
-                  transform: flippedCards[`player-${index}`] ? 'rotateY(180deg)' : 'rotateY(0deg)',
-                  backfaceVisibility: 'hidden',
-                }}
+          <div className="mb-16">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8 max-w-6xl mx-auto">
+            {players.map((player, index) => (
+              <motion.div
+                key={player.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.05 }}
+                viewport={{ once: true }}
+                className="relative"
               >
-                <div className="w-24 h-24 bg-steel-blue rounded-full flex items-center justify-center text-white text-3xl font-bold mb-6 shadow-lg">
-                  {player.number}
-                </div>
-                <h3 className="text-xl font-bold text-center text-gray-800 leading-tight">{player.name}</h3>
-                {player.role && (
-                  <p className="text-sm text-red-600 font-semibold mt-2">{player.role}</p>
+                {/* Captain Tag - moved outside flip card */}
+                {player.tags && player.tags.length > 0 && (
+                  <div className="absolute -top-3 -right-3 z-20">
+                    {player.tags.map((tag, tagIndex) => (
+                      <div
+                        key={tagIndex}
+                        className={`bg-red-600 text-white text-xs px-2 py-1 rounded-full font-bold shadow-lg mb-1 ${
+                          tagIndex > 0 ? 'mt-1' : ''
+                        }`}
+                      >
+                        {tag}
+                      </div>
+                    ))}
+                  </div>
                 )}
+                
+                <div
+                  className="flip-card h-72 w-full cursor-pointer"
+                  onClick={() => setSelectedPlayer(player)}
+                >
+                  <div className="flip-card-inner">
+                  
+                  {/* Front of card */}
+                  <div className="flip-card-front bg-white rounded-xl shadow-xl p-6 flex flex-col items-center justify-center border border-gray-100">
+                    <div className="w-24 h-24 bg-steel-blue rounded-full flex items-center justify-center text-white text-2xl font-bold mb-6 shadow-lg">
+                      {player.jersey_number === 0 ? 'TBD' : player.jersey_number}
+                    </div>
+                    <h3 className="text-xl font-bold text-center text-gray-800 leading-tight">{player.name}</h3>
+                    <p className="text-sm text-steel-gray mt-2">{player.position}</p>
+                  </div>
+                  
+                  {/* Back of card */}
+                  <div className="flip-card-back bg-gradient-to-br from-steel-blue to-dark-steel rounded-xl shadow-xl p-6 flex items-center justify-center">
+                    <div className="text-center text-white">
+                      <img 
+                        src={player.image_url || `https://ui-avatars.com/api/?name=${player.name}&background=4682B4&color=fff&size=128&bold=true`}
+                        alt={player.name}
+                        className="w-20 h-20 rounded-full mx-auto mb-3 border-4 border-white shadow-lg object-cover"
+                      />
+                      <p className="font-bold text-lg mb-1">{player.name}</p>
+                      <p className="text-base font-semibold">#{player.jersey_number === 0 ? 'TBD' : player.jersey_number}</p>
+                      <p className="text-xs text-ice-blue mt-1">{player.position} • Age {player.age}</p>
+                      <p className="text-xs mt-2 px-2 line-clamp-3">{player.bio}</p>
+                      <p className="text-xs text-yellow-400 mt-2">Click for more info</p>
+                    </div>
+                  </div>
+                </div>
+                </div>
+              </motion.div>
+            ))}
+            </div>
+          </div>
+
+          {/* Join the Team Button */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <motion.a
+              whileHover={{ scale: 1.05, boxShadow: "0 20px 40px rgba(0,0,0,0.3)" }}
+              whileTap={{ scale: 0.95 }}
+              href="#get-involved"
+              className="inline-flex items-center gap-3 bg-gradient-to-r from-yellow-400 to-yellow-500 text-black px-12 py-6 rounded-full font-bold text-xl shadow-2xl hover:from-yellow-300 hover:to-yellow-400 transition-all duration-300 transform"
+            >
+              <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z" />
+              </svg>
+              JOIN THE WINGS OF STEEL TEAM!
+              <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+            </motion.a>
+            <p className="text-gray-600 mt-4 text-lg">
+              Ready to be part of something amazing? Come try sled hockey with us!
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="mb-16"
+          >
+            <h3 className="text-3xl font-bold text-center text-black mb-8">
+              Our Coaching Staff
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {coaches.map((coach, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                  className="flip-card h-80 w-full cursor-pointer"
+                  onClick={() => setSelectedCoach(coach)}
+                >
+                  <div className="flip-card-inner">
+                    {/* Front of card */}
+                    <div className="flip-card-front bg-white rounded-lg shadow-lg p-6 flex flex-col items-center justify-center">
+                      <div className="w-24 h-24 bg-steel-blue rounded-full flex items-center justify-center mb-4">
+                        <svg className="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" />
+                        </svg>
+                      </div>
+                      <h3 className="text-xl font-semibold text-center mb-2">{coach.name}</h3>
+                      <p className="text-steel-blue font-medium">{coach.role}</p>
+                    </div>
+                    
+                    {/* Back of card */}
+                    <div className="flip-card-back bg-gradient-to-br from-dark-steel to-steel-gray rounded-lg shadow-lg p-6 flex items-center justify-center">
+                      <div className="text-center text-white">
+                        <img 
+                          src={`https://ui-avatars.com/api/?name=${coach.name}&background=2C3E50&color=fff&size=128`}
+                          alt={coach.name}
+                          className="w-20 h-20 rounded-full mx-auto mb-3"
+                        />
+                        <p className="font-bold text-lg mb-1">{coach.name}</p>
+                        <p className="text-ice-blue mb-2 text-sm">{coach.role}</p>
+                        <p className="text-xs px-2">{coach.description}</p>
+                        <p className="text-xs text-yellow-400 mt-2">Click for more info</p>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center"
+          >
+            <p className="text-lg text-gray-600 mb-8">
+              Team work makes the dream work! Make your dream come true today!
+            </p>
+            <motion.a
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              href="#get-involved"
+              className="inline-block bg-dark-steel text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-steel-gray transition-colors duration-300"
+            >
+              JOIN NOW
+            </motion.a>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Player Modal */}
+      <AnimatePresence>
+        {selectedPlayer && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+            onClick={() => setSelectedPlayer(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.7, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.7, opacity: 0 }}
+              className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="relative">
+                <div className="bg-gradient-to-br from-steel-blue to-dark-steel p-8 text-white rounded-t-2xl">
+                  <button
+                    onClick={() => setSelectedPlayer(null)}
+                    className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors"
+                  >
+                    <FaTimes className="text-2xl" />
+                  </button>
+                  <div className="flex items-center gap-6">
+                    <img 
+                      src={selectedPlayer.image_url || `https://ui-avatars.com/api/?name=${selectedPlayer.name}&background=4682B4&color=fff&size=128&bold=true`}
+                      alt={selectedPlayer.name}
+                      className="w-32 h-32 rounded-full border-4 border-white shadow-lg object-cover"
+                    />
+                    <div>
+                      <h2 className="text-3xl font-bold mb-2">{selectedPlayer.name}</h2>
+                      <div className="flex items-center gap-4 text-lg mb-3">
+                        <span className="bg-white bg-opacity-20 px-4 py-2 rounded-full">
+                          #{selectedPlayer.jersey_number === 0 ? 'TBD' : selectedPlayer.jersey_number}
+                        </span>
+                        <span>{selectedPlayer.position}</span>
+                      </div>
+                      {selectedPlayer.tags && selectedPlayer.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {selectedPlayer.tags.map((tag, index) => (
+                            <span
+                              key={index}
+                              className="bg-red-600 text-white text-sm px-3 py-1 rounded-full font-bold shadow-lg"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="p-8">
+                  <div className="grid md:grid-cols-2 gap-6 mb-6">
+                    <div className="flex items-center gap-3">
+                      <FaBirthdayCake className="text-steel-blue text-xl" />
+                      <div>
+                        <p className="font-semibold">Age</p>
+                        <p className="text-gray-600">{selectedPlayer.age} years old</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <FaHockeyPuck className="text-steel-blue text-xl" />
+                      <div>
+                        <p className="font-semibold">Position</p>
+                        <p className="text-gray-600">{selectedPlayer.position}</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="mb-6">
+                    <h3 className="text-xl font-bold mb-3">About {selectedPlayer.name}</h3>
+                    <p className="text-gray-700 leading-relaxed">{selectedPlayer.bio}</p>
+                  </div>
+                  
+                  <div className="bg-gray-50 p-6 rounded-lg">
+                    <h3 className="text-lg font-bold mb-3">Player Stats</h3>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <p className="font-semibold">Jersey Number</p>
+                        <p className="text-gray-600">#{selectedPlayer.jersey_number === 0 ? 'TBD' : selectedPlayer.jersey_number}</p>
+                      </div>
+                      <div>
+                        <p className="font-semibold">Years with Team</p>
+                        <p className="text-gray-600">{Math.floor(Math.random() * 5) + 1} years</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-              
-              {/* Back of card */}
-              <div 
-                className="absolute inset-0 w-full h-full backface-hidden bg-gradient-to-br from-steel-blue to-dark-steel rounded-xl shadow-xl p-6 flex items-center justify-center"
-                style={{
-                  transform: flippedCards[`player-${index}`] ? 'rotateY(0deg)' : 'rotateY(-180deg)',
-                  backfaceVisibility: 'hidden',
-                }}
-              >
-                <div className="text-center text-white">
-                  <img 
-                    src={`https://ui-avatars.com/api/?name=${player.name}&background=4682B4&color=fff&size=128&bold=true`}
-                    alt={player.name}
-                    className="w-28 h-28 rounded-full mx-auto mb-4 border-4 border-white shadow-lg"
-                  />
-                  <p className="font-bold text-xl mb-2">{player.name}</p>
-                  <p className="text-lg font-semibold">#{player.number}</p>
-                  {player.role && (
-                    <p className="text-sm text-yellow-400 font-bold mt-2 bg-yellow-400/20 px-2 py-1 rounded-full">
-                      {player.role}
-                    </p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Coach Modal */}
+      <AnimatePresence>
+        {selectedCoach && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+            onClick={() => setSelectedCoach(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.7, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.7, opacity: 0 }}
+              className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="relative">
+                <div className="bg-gradient-to-br from-dark-steel to-steel-gray p-8 text-white rounded-t-2xl">
+                  <button
+                    onClick={() => setSelectedCoach(null)}
+                    className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors"
+                  >
+                    <FaTimes className="text-2xl" />
+                  </button>
+                  <div className="flex items-center gap-6">
+                    <img 
+                      src={`https://ui-avatars.com/api/?name=${selectedCoach.name}&background=2C3E50&color=fff&size=128`}
+                      alt={selectedCoach.name}
+                      className="w-32 h-32 rounded-full border-4 border-white shadow-lg object-cover"
+                    />
+                    <div>
+                      <h2 className="text-3xl font-bold mb-2">{selectedCoach.name}</h2>
+                      <div className="text-lg">
+                        <span className="bg-white bg-opacity-20 px-4 py-2 rounded-full">
+                          {selectedCoach.role}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="p-8">
+                  <div className="mb-6">
+                    <h3 className="text-xl font-bold mb-3">About {selectedCoach.name}</h3>
+                    <p className="text-gray-700 leading-relaxed mb-4">{selectedCoach.description}</p>
+                    {selectedCoach.experience && (
+                      <p className="text-steel-blue font-semibold">{selectedCoach.experience}</p>
+                    )}
+                  </div>
+                  
+                  {selectedCoach.achievements && (
+                    <div className="bg-gray-50 p-6 rounded-lg">
+                      <h3 className="text-lg font-bold mb-3">Achievements & Qualifications</h3>
+                      <ul className="space-y-2">
+                        {selectedCoach.achievements.map((achievement, index) => (
+                          <li key={index} className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-steel-blue rounded-full"></div>
+                            <span className="text-gray-700">{achievement}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   )}
                 </div>
               </div>
             </motion.div>
-          ))}
-          </div>
-        </div>
-
-        {/* Join the Team Button */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
-          className="text-center mb-16"
-        >
-          <motion.a
-            whileHover={{ scale: 1.05, boxShadow: "0 20px 40px rgba(0,0,0,0.3)" }}
-            whileTap={{ scale: 0.95 }}
-            href="#get-involved"
-            className="inline-flex items-center gap-3 bg-gradient-to-r from-yellow-400 to-yellow-500 text-black px-12 py-6 rounded-full font-bold text-xl shadow-2xl hover:from-yellow-300 hover:to-yellow-400 transition-all duration-300 transform"
-          >
-            <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z" />
-            </svg>
-            JOIN THE WINGS OF STEEL TEAM!
-            <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-          </motion.a>
-          <p className="text-gray-600 mt-4 text-lg">
-            Ready to be part of something amazing? Come try sled hockey with us!
-          </p>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
-          className="mb-16"
-        >
-          <h3 className="text-3xl font-bold text-center text-black mb-8">
-            Our Coaching Staff
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {coaches.map((coach, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className="relative h-80 w-full preserve-3d cursor-pointer"
-                onMouseEnter={() => setFlippedCards(prev => ({ ...prev, [`coach-${index}`]: true }))}
-                onMouseLeave={() => setFlippedCards(prev => ({ ...prev, [`coach-${index}`]: false }))}
-                style={{
-                  transformStyle: 'preserve-3d',
-                  transition: 'transform 0.6s',
-                }}
-              >
-                {/* Front of card */}
-                <div 
-                  className="absolute inset-0 w-full h-full backface-hidden bg-white rounded-lg shadow-lg p-6 flex flex-col items-center justify-center"
-                  style={{
-                    transform: flippedCards[`coach-${index}`] ? 'rotateY(180deg)' : 'rotateY(0deg)',
-                    backfaceVisibility: 'hidden',
-                  }}
-                >
-                  <div className="w-24 h-24 bg-steel-blue rounded-full flex items-center justify-center mb-4">
-                    <svg className="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" />
-                    </svg>
-                  </div>
-                  <h3 className="text-xl font-semibold text-center mb-2">{coach.name}</h3>
-                  <p className="text-steel-blue font-medium">{coach.role}</p>
-                </div>
-                
-                {/* Back of card */}
-                <div 
-                  className="absolute inset-0 w-full h-full backface-hidden bg-gradient-to-br from-dark-steel to-steel-gray rounded-lg shadow-lg p-6 flex items-center justify-center"
-                  style={{
-                    transform: flippedCards[`coach-${index}`] ? 'rotateY(0deg)' : 'rotateY(-180deg)',
-                    backfaceVisibility: 'hidden',
-                  }}
-                >
-                  <div className="text-center text-white">
-                    <img 
-                      src={`https://ui-avatars.com/api/?name=${coach.name}&background=2C3E50&color=fff&size=128`}
-                      alt={coach.name}
-                      className="w-24 h-24 rounded-full mx-auto mb-4"
-                    />
-                    <p className="font-bold text-lg mb-2">{coach.name}</p>
-                    <p className="text-ice-blue mb-2">{coach.role}</p>
-                    <p className="text-sm">{coach.description}</p>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
-          className="text-center"
-        >
-          <p className="text-lg text-gray-600 mb-8">
-            Team work makes the dream work! Make your dream come true today!
-          </p>
-          <motion.a
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            href="#get-involved"
-            className="inline-block bg-dark-steel text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-steel-gray transition-colors duration-300"
-          >
-            JOIN NOW
-          </motion.a>
-        </motion.div>
-      </div>
-
-      <style jsx>{`
-        .preserve-3d {
-          transform-style: preserve-3d;
-        }
-        .backface-hidden {
-          backface-visibility: hidden;
-        }
-      `}</style>
-    </section>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 };
 

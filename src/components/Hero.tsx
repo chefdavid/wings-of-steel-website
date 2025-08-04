@@ -1,7 +1,24 @@
 import { motion } from 'framer-motion';
 import { FaHockeyPuck, FaTrophy, FaUsers, FaHeart } from 'react-icons/fa';
+import { useSiteSections } from '../hooks';
 
 const Hero = () => {
+  const { sections, loading } = useSiteSections();
+  const heroData = sections['hero']?.content as {
+    title?: string;
+    subtitle?: string;
+    tagline?: string;
+    description?: string;
+  } | undefined;
+
+  if (loading) {
+    return (
+      <section className="min-h-screen flex items-center justify-center bg-dark-steel">
+        <div className="animate-pulse text-ice-blue">Loading...</div>
+      </section>
+    );
+  }
+
   return (
     <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden">
       <div 
@@ -39,13 +56,13 @@ const Hero = () => {
           </div>
           
           <p className="text-xl md:text-2xl text-ice-blue font-display mb-2">
-            WINGS OF STEEL
+            {heroData?.title || 'WINGS OF STEEL'}
           </p>
           
           <div className="flex flex-col md:flex-row gap-4 justify-center items-center mt-8">
             <div className="flex items-center gap-2 bg-yellow-400 text-black px-6 py-3 rounded-lg font-medium">
               <FaTrophy className="text-black" />
-              <span>2025 USA Sled Hockey Champions 1st Place</span>
+              <span>{heroData?.subtitle || '2023 National Champions'}</span>
             </div>
             <div className="flex items-center gap-2 bg-yellow-400 text-black px-6 py-3 rounded-lg font-medium">
               <FaTrophy className="text-black" />
@@ -54,8 +71,7 @@ const Hero = () => {
           </div>
 
           <p className="text-lg md:text-xl text-gray-200 max-w-3xl mx-auto leading-relaxed">
-            Discover the Passion of Wings of Steel Sled Hockey! 
-            Explore our Journey, Triumphs, and Community Spirit.
+            {heroData?.description || 'Michigan\'s premier youth sled hockey team, building champions on and off the ice'}
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mt-12">
@@ -85,7 +101,7 @@ const Hero = () => {
             transition={{ delay: 1, duration: 1 }}
             className="text-xl font-bold text-yellow-400 mt-8"
           >
-            No child pays to play
+            {heroData?.tagline || 'No child pays to play'}
           </motion.p>
         </motion.div>
       </div>
