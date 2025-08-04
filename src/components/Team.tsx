@@ -50,7 +50,7 @@ const Team = () => {
 
   if (loading) {
     return (
-      <section className="py-20 bg-gray-50">
+      <section className="py-12 md:py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 text-center">
           <div className="animate-pulse text-steel-blue">Loading team roster...</div>
         </div>
@@ -60,7 +60,7 @@ const Team = () => {
 
   if (error) {
     return (
-      <section className="py-20 bg-gray-50">
+      <section className="py-12 md:py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 text-center">
           <p className="text-red-600">Error loading team roster</p>
         </div>
@@ -77,7 +77,7 @@ const Team = () => {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="text-center mb-8 md:mb-16"
           >
             <h2 className="text-4xl md:text-5xl font-bold text-black mb-4">
               The Best Players on the ICE
@@ -90,7 +90,7 @@ const Team = () => {
           </motion.div>
 
           <div className="mb-16">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8 max-w-6xl mx-auto">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6 lg:gap-8 max-w-6xl mx-auto">
             {players.map((player, index) => (
               <motion.div
                 key={player.id}
@@ -102,12 +102,12 @@ const Team = () => {
               >
                 {/* Captain Tag - moved outside flip card */}
                 {player.tags && player.tags.length > 0 && (
-                  <div className="absolute -top-3 -right-3 z-20">
+                  <div className="absolute -top-2 -right-2 sm:-top-3 sm:-right-3 z-20">
                     {player.tags.map((tag, tagIndex) => (
                       <div
                         key={tagIndex}
-                        className={`bg-red-600 text-white text-xs px-2 py-1 rounded-full font-bold shadow-lg mb-1 ${
-                          tagIndex > 0 ? 'mt-1' : ''
+                        className={`bg-red-600 text-white text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full font-bold shadow-lg mb-0.5 sm:mb-1 ${
+                          tagIndex > 0 ? 'mt-0.5 sm:mt-1' : ''
                         }`}
                       >
                         {tag}
@@ -117,33 +117,33 @@ const Team = () => {
                 )}
                 
                 <div
-                  className="flip-card h-72 w-full cursor-pointer"
+                  className="flip-card h-56 sm:h-64 md:h-72 w-full cursor-pointer"
                   onClick={() => setSelectedPlayer(player)}
                 >
                   <div className="flip-card-inner">
                   
                   {/* Front of card */}
-                  <div className="flip-card-front bg-white rounded-xl shadow-xl p-6 flex flex-col items-center justify-center border border-gray-100">
-                    <div className="w-24 h-24 bg-steel-blue rounded-full flex items-center justify-center text-white text-2xl font-bold mb-6 shadow-lg">
+                  <div className="flip-card-front bg-white rounded-xl shadow-xl p-4 sm:p-5 md:p-6 flex flex-col items-center justify-center border border-gray-100">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-steel-blue rounded-full flex items-center justify-center text-white text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4 md:mb-6 shadow-lg">
                       {player.jersey_number === 0 ? 'TBD' : player.jersey_number}
                     </div>
-                    <h3 className="text-xl font-bold text-center text-gray-800 leading-tight">{player.name}</h3>
-                    <p className="text-sm text-steel-gray mt-2">{player.position}</p>
+                    <h3 className="text-sm sm:text-base md:text-xl font-bold text-center text-gray-800 leading-tight">{player.name}</h3>
+                    <p className="text-xs sm:text-sm text-steel-gray mt-1 sm:mt-2">{player.position}</p>
                   </div>
                   
                   {/* Back of card */}
-                  <div className="flip-card-back bg-gradient-to-br from-steel-blue to-dark-steel rounded-xl shadow-xl p-6 flex items-center justify-center">
+                  <div className="flip-card-back bg-gradient-to-br from-steel-blue to-dark-steel rounded-xl shadow-xl p-3 sm:p-4 md:p-6 flex items-center justify-center">
                     <div className="text-center text-white">
                       <img 
                         src={player.image_url || `https://ui-avatars.com/api/?name=${player.name}&background=4682B4&color=fff&size=128&bold=true`}
                         alt={player.name}
-                        className="w-20 h-20 rounded-full mx-auto mb-3 border-4 border-white shadow-lg object-cover"
+                        className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-full mx-auto mb-2 sm:mb-3 border-2 sm:border-3 md:border-4 border-white shadow-lg object-cover"
                       />
-                      <p className="font-bold text-lg mb-1">{player.name}</p>
-                      <p className="text-base font-semibold">#{player.jersey_number === 0 ? 'TBD' : player.jersey_number}</p>
-                      <p className="text-xs text-ice-blue mt-1">{player.position} • Age {player.age}</p>
-                      <p className="text-xs mt-2 px-2 line-clamp-3">{player.bio}</p>
-                      <p className="text-xs text-yellow-400 mt-2">Click for more info</p>
+                      <p className="font-bold text-xs sm:text-sm md:text-lg mb-0.5 sm:mb-1">{player.name}</p>
+                      <p className="text-xs sm:text-sm md:text-base font-semibold">#{player.jersey_number === 0 ? 'TBD' : player.jersey_number}</p>
+                      <p className="text-[10px] sm:text-xs text-ice-blue mt-0.5 sm:mt-1">{player.position} • Age {player.age}</p>
+                      <p className="text-[10px] sm:text-xs mt-1 sm:mt-2 px-1 sm:px-2 line-clamp-2 sm:line-clamp-3">{player.bio}</p>
+                      <p className="text-[10px] sm:text-xs text-yellow-400 mt-1 sm:mt-2">Click for more info</p>
                     </div>
                   </div>
                 </div>
@@ -159,21 +159,21 @@ const Team = () => {
             whileInView={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="text-center mb-8 md:mb-16"
           >
             <motion.a
               whileHover={{ scale: 1.05, boxShadow: "0 20px 40px rgba(0,0,0,0.3)" }}
               whileTap={{ scale: 0.95 }}
               href="#get-involved"
-              className="inline-flex items-center gap-3 bg-gradient-to-r from-yellow-400 to-yellow-500 text-black px-12 py-6 rounded-full font-bold text-xl shadow-2xl hover:from-yellow-300 hover:to-yellow-400 transition-all duration-300 transform"
+              className="inline-flex items-center gap-2 md:gap-3 bg-gradient-to-r from-yellow-400 to-yellow-500 text-black px-6 py-3 md:px-12 md:py-6 rounded-full font-bold text-base md:text-xl shadow-2xl hover:from-yellow-300 hover:to-yellow-400 transition-all duration-300 transform"
             >
-              <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="w-6 h-6 md:w-8 md:h-8" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z" />
               </svg>
               JOIN THE WINGS OF STEEL TEAM!
               <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
             </motion.a>
-            <p className="text-gray-600 mt-4 text-lg">
+            <p className="text-gray-600 mt-3 md:mt-4 text-sm md:text-lg px-4">
               Ready to be part of something amazing? Come try sled hockey with us!
             </p>
           </motion.div>
@@ -183,12 +183,12 @@ const Team = () => {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
-            className="mb-16"
+            className="mb-8 md:mb-16"
           >
-            <h3 className="text-3xl font-bold text-center text-black mb-8">
+            <h3 className="text-2xl md:text-3xl font-bold text-center text-black mb-4 md:mb-8">
               Our Coaching Staff
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
               {coaches.map((coach, index) => (
                 <motion.div
                   key={index}
@@ -196,33 +196,33 @@ const Team = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   viewport={{ once: true }}
-                  className="flip-card h-80 w-full cursor-pointer"
+                  className="flip-card h-56 sm:h-64 md:h-72 lg:h-80 w-full cursor-pointer"
                   onClick={() => setSelectedCoach(coach)}
                 >
                   <div className="flip-card-inner">
                     {/* Front of card */}
-                    <div className="flip-card-front bg-white rounded-lg shadow-lg p-6 flex flex-col items-center justify-center">
-                      <div className="w-24 h-24 bg-steel-blue rounded-full flex items-center justify-center mb-4">
-                        <svg className="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <div className="flip-card-front bg-white rounded-lg shadow-lg p-3 sm:p-4 md:p-6 flex flex-col items-center justify-center">
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-steel-blue rounded-full flex items-center justify-center mb-2 sm:mb-3 md:mb-4">
+                        <svg className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-white" fill="currentColor" viewBox="0 0 20 20">
                           <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" />
                         </svg>
                       </div>
-                      <h3 className="text-xl font-semibold text-center mb-2">{coach.name}</h3>
-                      <p className="text-steel-blue font-medium">{coach.role}</p>
+                      <h3 className="text-sm sm:text-base md:text-xl font-semibold text-center mb-1 sm:mb-2">{coach.name}</h3>
+                      <p className="text-xs sm:text-sm md:text-base text-steel-blue font-medium">{coach.role}</p>
                     </div>
                     
                     {/* Back of card */}
-                    <div className="flip-card-back bg-gradient-to-br from-dark-steel to-steel-gray rounded-lg shadow-lg p-6 flex items-center justify-center">
+                    <div className="flip-card-back bg-gradient-to-br from-dark-steel to-steel-gray rounded-lg shadow-lg p-3 sm:p-4 md:p-6 flex items-center justify-center">
                       <div className="text-center text-white">
                         <img 
                           src={`https://ui-avatars.com/api/?name=${coach.name}&background=2C3E50&color=fff&size=128`}
                           alt={coach.name}
-                          className="w-20 h-20 rounded-full mx-auto mb-3"
+                          className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-full mx-auto mb-2 sm:mb-3"
                         />
-                        <p className="font-bold text-lg mb-1">{coach.name}</p>
-                        <p className="text-ice-blue mb-2 text-sm">{coach.role}</p>
-                        <p className="text-xs px-2">{coach.description}</p>
-                        <p className="text-xs text-yellow-400 mt-2">Click for more info</p>
+                        <p className="font-bold text-xs sm:text-sm md:text-lg mb-0.5 sm:mb-1">{coach.name}</p>
+                        <p className="text-ice-blue mb-1 sm:mb-2 text-[10px] sm:text-xs md:text-sm">{coach.role}</p>
+                        <p className="text-[10px] sm:text-xs px-1 sm:px-2 line-clamp-2 sm:line-clamp-3">{coach.description}</p>
+                        <p className="text-[10px] sm:text-xs text-yellow-400 mt-1 sm:mt-2">Click for more info</p>
                       </div>
                     </div>
                   </div>

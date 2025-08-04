@@ -1,15 +1,25 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { FaBars, FaTimes } from 'react-icons/fa';
+import { FaBars, FaTimes, FaChevronDown } from 'react-icons/fa';
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [showScheduleDropdown, setShowScheduleDropdown] = useState(false);
 
   const navItems = [
     { name: 'Home', href: '#home' },
     { name: 'About', href: '#about' },
     { name: 'Team', href: '#team' },
-    { name: 'Schedule', href: '#schedule' },
+    { 
+      name: 'Schedule', 
+      href: '#schedule',
+      hasDropdown: true,
+      dropdownItems: [
+        { name: 'Practice Schedule', href: '#location' },
+        { name: 'Game Schedule', href: '#schedule' }
+      ]
+    },
+    { name: 'Location', href: '#location' },
     { name: 'Get Involved', href: '#get-involved' },
     { name: 'Contact', href: '#contact' },
   ];
@@ -40,16 +50,60 @@ const Navigation = () => {
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-4">
               {navItems.map((item, index) => (
-                <motion.a
-                  key={item.name}
-                  href={item.href}
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="text-gray-300 hover:bg-steel-blue hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-all duration-300"
-                >
-                  {item.name}
-                </motion.a>
+                item.hasDropdown ? (
+                  <div
+                    key={item.name}
+                    className="relative group"
+                    onMouseLeave={() => setShowScheduleDropdown(false)}
+                  >
+                    <motion.button
+                      initial={{ opacity: 0, y: -20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: index * 0.1 }}
+                      className="text-gray-300 hover:bg-steel-blue hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 flex items-center gap-1"
+                      onMouseEnter={() => setShowScheduleDropdown(true)}
+                    >
+                      {item.name}
+                      <FaChevronDown className="text-xs" />
+                    </motion.button>
+                    
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ 
+                        opacity: showScheduleDropdown ? 1 : 0,
+                        y: showScheduleDropdown ? 0 : -10
+                      }}
+                      transition={{ duration: 0.2 }}
+                      className={`absolute top-full left-0 mt-1 w-48 bg-white rounded-md shadow-lg py-1 z-10 ${
+                        showScheduleDropdown ? 'pointer-events-auto' : 'pointer-events-none'
+                      }`}
+                      onMouseEnter={() => setShowScheduleDropdown(true)}
+                      onMouseLeave={() => setShowScheduleDropdown(false)}
+                    >
+                      {item.dropdownItems?.map((dropdownItem, dropdownIndex) => (
+                        <a
+                          key={dropdownItem.name}
+                          href={dropdownItem.href}
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-steel-blue hover:text-white transition-colors"
+                          onClick={() => setShowScheduleDropdown(false)}
+                        >
+                          {dropdownItem.name}
+                        </a>
+                      ))}
+                    </motion.div>
+                  </div>
+                ) : (
+                  <motion.a
+                    key={item.name}
+                    href={item.href}
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    className="text-gray-300 hover:bg-steel-blue hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-all duration-300"
+                  >
+                    {item.name}
+                  </motion.a>
+                )
               ))}
               <motion.a
                 href="#donate"

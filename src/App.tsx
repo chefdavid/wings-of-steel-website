@@ -4,6 +4,7 @@ import Hero from './components/Hero'
 import About from './components/About'
 import Team from './components/Team'
 import Schedule from './components/Schedule'
+import Location from './components/Location'
 import GetInvolved from './components/GetInvolved'
 import Contact from './components/Contact'
 import Footer from './components/Footer'
@@ -39,6 +40,7 @@ function App() {
       <About />
       <Team />
       <Schedule />
+      <Location />
       <GetInvolved />
       <Contact />
       <Footer />

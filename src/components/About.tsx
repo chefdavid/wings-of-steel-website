@@ -54,15 +54,15 @@ const About = () => {
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
               viewport={{ once: true }}
-              className="bg-white rounded-lg shadow-lg p-8 hover:shadow-xl transition-shadow duration-300"
+              className="bg-white rounded-lg shadow-lg p-6 md:p-8 hover:shadow-xl transition-shadow duration-300"
             >
               <div className="flex items-start space-x-4">
                 <div className="flex-shrink-0">{feature.icon}</div>
                 <div>
-                  <h3 className="text-xl font-bold text-dark-steel mb-2">
+                  <h3 className="text-lg md:text-xl font-bold text-dark-steel mb-2">
                     {feature.title}
                   </h3>
-                  <p className="text-gray-600">{feature.description}</p>
+                  <p className="text-sm md:text-base text-gray-600">{feature.description}</p>
                 </div>
               </div>
             </motion.div>

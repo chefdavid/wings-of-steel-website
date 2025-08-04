@@ -1,8 +1,40 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FaDonate, FaHandHoldingHeart, FaEnvelope, FaHockeyPuck, FaMapMarkerAlt } from 'react-icons/fa';
+import { supabase } from '../lib/supabaseClient';
+import ContactForms from './ContactForms';
 
 const GetInvolved = () => {
-  const donationOptions = [
+  const [getInvolvedData, setGetInvolvedData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchGetInvolvedData();
+  }, []);
+
+  const fetchGetInvolvedData = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('site_sections')
+        .select('*')
+        .eq('section_key', 'get_involved')
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error fetching get involved data:', error);
+      }
+
+      if (data) {
+        setGetInvolvedData(data.content);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const donationOptions = getInvolvedData?.donation_options || [
     { amount: "$5", frequency: "Weekly", impact: "Helps provide equipment maintenance" },
     { amount: "$10", frequency: "Weekly", impact: "Supports ice time and practice sessions" },
     { amount: "$25", frequency: "Monthly", impact: "Covers tournament entry fees" },
@@ -10,35 +42,34 @@ const GetInvolved = () => {
   ];
 
   return (
-    <section id="get-involved" className="py-20 bg-dark-steel text-white">
+    <section id="get-involved" className="py-12 md:py-20 bg-dark-steel text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
+          className="text-center mb-8 md:mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-sport mb-4">
-            Get Involved
+          <h2 className="text-3xl md:text-5xl font-sport mb-3 md:mb-4">
+            {getInvolvedData?.title || 'Get Involved'}
           </h2>
-          <div className="w-24 h-1 bg-steel-blue mx-auto mb-8"></div>
-          <p className="text-lg text-gray-300 max-w-3xl mx-auto">
-            Your support makes it possible for every child to play. 100% of donations 
-            go directly to supporting our players and programs.
+          <div className="w-16 md:w-24 h-1 bg-steel-blue mx-auto mb-4 md:mb-8"></div>
+          <p className="text-base md:text-lg text-gray-300 max-w-3xl mx-auto px-2">
+            {getInvolvedData?.description || 'Your support makes it possible for every child to play. 100% of donations go directly to supporting our players and programs.'}
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 mb-8 md:mb-16">
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            <div className="flex items-center gap-3 mb-6">
-              <FaDonate className="text-3xl text-steel-blue" />
-              <h3 className="text-2xl font-bold">Make a Donation</h3>
+            <div className="flex items-center gap-3 mb-4 md:mb-6">
+              <FaDonate className="text-2xl md:text-3xl text-steel-blue" />
+              <h3 className="text-xl md:text-2xl font-bold">Make a Donation</h3>
             </div>
             
             <div className="space-y-4">
@@ -46,11 +77,11 @@ const GetInvolved = () => {
                 <motion.div
                   key={index}
                   whileHover={{ x: 10 }}
-                  className="bg-steel-gray/30 backdrop-blur-sm rounded-lg p-4 border border-steel-blue/30 hover:border-steel-blue transition-colors duration-300"
+                  className="bg-steel-gray/30 backdrop-blur-sm rounded-lg p-3 md:p-4 border border-steel-blue/30 hover:border-steel-blue transition-colors duration-300"
                 >
                   <div className="flex justify-between items-start">
                     <div>
-                      <span className="text-2xl font-bold text-steel-blue">
+                      <span className="text-xl md:text-2xl font-bold text-steel-blue">
                         {option.amount}
                       </span>
                       <span className="text-gray-400 ml-2">/{option.frequency}</span>
@@ -197,28 +228,17 @@ const GetInvolved = () => {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
           viewport={{ once: true }}
-          className="bg-gradient-to-r from-gray-800 to-gray-900 rounded-2xl p-8 text-center"
+          className="bg-gradient-to-r from-gray-800 to-gray-900 rounded-2xl p-8"
         >
-          <h3 className="text-2xl font-bold mb-4">
-            Join Our Mailing List
-          </h3>
-          <p className="mb-6">
-            Stay updated on team news, upcoming games, and special events
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-            <input
-              type="email"
-              placeholder="Enter your email"
-              className="flex-1 px-4 py-3 rounded-full text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white"
-            />
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-steel-blue text-white px-8 py-3 rounded-full font-medium hover:bg-blue-600 transition-colors duration-300"
-            >
-              Subscribe
-            </motion.button>
+          <div className="text-center mb-8">
+            <h3 className="text-2xl font-bold mb-4 text-white">
+              Contact & Subscribe
+            </h3>
+            <p className="mb-6 text-gray-300">
+              Get in touch with us or join our mailing list for updates
+            </p>
           </div>
+          <ContactForms />
         </motion.div>
       </div>
     </section>

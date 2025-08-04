@@ -230,6 +230,186 @@ const SiteSectionsEditor = () => {
         </div>
       )}
 
+      {/* Location Section */}
+      {sections.location && (
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h4 className="text-lg font-semibold text-gray-800">Find Us on the Ice</h4>
+            <button
+              onClick={() => setEditingSection(editingSection === 'location' ? null : 'location')}
+              className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-md transition-colors flex items-center gap-2"
+            >
+              <FaEdit className="text-sm" />
+              {editingSection === 'location' ? 'Cancel' : 'Edit'}
+            </button>
+          </div>
+
+          {editingSection === 'location' ? (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Section Title</label>
+                <input
+                  type="text"
+                  value={String(sections.location.content.title || '')}
+                  onChange={(e) => updateSectionContent('location', 'title', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-steel-blue focus:border-transparent outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                <textarea
+                  value={String(sections.location.content.description || '')}
+                  onChange={(e) => updateSectionContent('location', 'description', e.target.value)}
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-steel-blue focus:border-transparent outline-none"
+                />
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Rink Name</label>
+                  <input
+                    type="text"
+                    value={String(sections.location.content.rink_name || '')}
+                    onChange={(e) => updateSectionContent('location', 'rink_name', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-steel-blue focus:border-transparent outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                  <input
+                    type="tel"
+                    value={String(sections.location.content.phone || '')}
+                    onChange={(e) => updateSectionContent('location', 'phone', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-steel-blue focus:border-transparent outline-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                <input
+                  type="text"
+                  value={String(sections.location.content.address || '')}
+                  onChange={(e) => updateSectionContent('location', 'address', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-steel-blue focus:border-transparent outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Website URL</label>
+                <input
+                  type="url"
+                  value={String(sections.location.content.website || '')}
+                  onChange={(e) => updateSectionContent('location', 'website', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-steel-blue focus:border-transparent outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Google Maps Embed URL</label>
+                <input
+                  type="url"
+                  value={String(sections.location.content.google_maps_url || '')}
+                  onChange={(e) => updateSectionContent('location', 'google_maps_url', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-steel-blue focus:border-transparent outline-none"
+                />
+              </div>
+
+              <button
+                onClick={() => handleSave('location', sections.location.content)}
+                disabled={saving === 'location'}
+                className="bg-steel-blue text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors flex items-center gap-2 disabled:opacity-50"
+              >
+                <FaSave />
+                {saving === 'location' ? 'Saving...' : 'Save Changes'}
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <div>
+                <span className="text-sm font-medium text-gray-500">Title:</span>
+                <p className="text-gray-800">{String(sections.location.content.title || '')}</p>
+              </div>
+              <div>
+                <span className="text-sm font-medium text-gray-500">Description:</span>
+                <p className="text-gray-800">{String(sections.location.content.description || '')}</p>
+              </div>
+              <div>
+                <span className="text-sm font-medium text-gray-500">Rink:</span>
+                <p className="text-gray-800">{String(sections.location.content.rink_name || '')}</p>
+              </div>
+              <div>
+                <span className="text-sm font-medium text-gray-500">Address:</span>
+                <p className="text-gray-800">{String(sections.location.content.address || '')}</p>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Get Involved Section */}
+      {sections.get_involved && (
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h4 className="text-lg font-semibold text-gray-800">Get Involved</h4>
+            <button
+              onClick={() => setEditingSection(editingSection === 'get_involved' ? null : 'get_involved')}
+              className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-md transition-colors flex items-center gap-2"
+            >
+              <FaEdit className="text-sm" />
+              {editingSection === 'get_involved' ? 'Cancel' : 'Edit'}
+            </button>
+          </div>
+
+          {editingSection === 'get_involved' ? (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Section Title</label>
+                <input
+                  type="text"
+                  value={String(sections.get_involved.content.title || '')}
+                  onChange={(e) => updateSectionContent('get_involved', 'title', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-steel-blue focus:border-transparent outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                <textarea
+                  value={String(sections.get_involved.content.description || '')}
+                  onChange={(e) => updateSectionContent('get_involved', 'description', e.target.value)}
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-steel-blue focus:border-transparent outline-none"
+                />
+              </div>
+
+              <button
+                onClick={() => handleSave('get_involved', sections.get_involved.content)}
+                disabled={saving === 'get_involved'}
+                className="bg-steel-blue text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors flex items-center gap-2 disabled:opacity-50"
+              >
+                <FaSave />
+                {saving === 'get_involved' ? 'Saving...' : 'Save Changes'}
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <div>
+                <span className="text-sm font-medium text-gray-500">Title:</span>
+                <p className="text-gray-800">{String(sections.get_involved.content.title || '')}</p>
+              </div>
+              <div>
+                <span className="text-sm font-medium text-gray-500">Description:</span>
+                <p className="text-gray-800">{String(sections.get_involved.content.description || '')}</p>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Contact Section */}
       {sections.contact && (
         <div className="bg-white rounded-lg shadow-md p-6">

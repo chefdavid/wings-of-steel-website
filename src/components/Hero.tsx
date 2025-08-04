@@ -41,56 +41,56 @@ const Hero = () => {
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="flex justify-center mb-8"
+            className="flex justify-center mb-4 md:mb-6"
           >
-            <FaHockeyPuck className="text-6xl text-ice-blue animate-pulse" />
+            <FaHockeyPuck className="text-5xl md:text-6xl text-ice-blue animate-pulse" />
           </motion.div>
 
-          <div className="mb-8">
-            <h1 className="text-4xl md:text-6xl font-sport text-white tracking-wide mb-2">
+          <div className="mb-4 md:mb-6">
+            <h1 className="text-3xl sm:text-4xl md:text-6xl font-sport text-white tracking-wide mb-1">
               BREAKING BARRIERS &
             </h1>
-            <h1 className="text-4xl md:text-6xl font-sport text-yellow-400 tracking-wide">
+            <h1 className="text-3xl sm:text-4xl md:text-6xl font-sport text-yellow-400 tracking-wide">
               BUILDING CHAMPIONS
             </h1>
           </div>
           
-          <p className="text-xl md:text-2xl text-ice-blue font-display mb-2">
+          <p className="text-lg md:text-2xl text-ice-blue font-display mb-3 md:mb-4">
             {heroData?.title || 'WINGS OF STEEL'}
           </p>
           
-          <div className="flex flex-col md:flex-row gap-4 justify-center items-center mt-8">
-            <div className="flex items-center gap-2 bg-yellow-400 text-black px-6 py-3 rounded-lg font-medium">
-              <FaTrophy className="text-black" />
-              <span>{heroData?.subtitle || '2023 National Champions'}</span>
+          <div className="flex flex-col md:flex-row gap-2 md:gap-3 justify-center items-center mb-4 md:mb-6">
+            <div className="flex items-center justify-center gap-2 bg-yellow-400 text-black px-3 py-1.5 md:px-4 md:py-2 rounded-lg font-medium text-xs md:text-sm w-full max-w-xs md:w-auto">
+              <FaTrophy className="text-black flex-shrink-0 text-sm" />
+              <span className="text-center">{heroData?.subtitle || '2023 National Champions'}</span>
             </div>
-            <div className="flex items-center gap-2 bg-yellow-400 text-black px-6 py-3 rounded-lg font-medium">
-              <FaTrophy className="text-black" />
-              <span>2024 USA Sled Hockey Champions 1st Place</span>
+            <div className="flex items-center justify-center gap-2 bg-yellow-400 text-black px-3 py-1.5 md:px-4 md:py-2 rounded-lg font-medium text-xs md:text-sm w-full max-w-xs md:w-auto">
+              <FaTrophy className="text-black flex-shrink-0 text-sm" />
+              <span className="text-center">2025 USA Sled Hockey Champions 1st Place</span>
             </div>
           </div>
 
-          <p className="text-lg md:text-xl text-gray-200 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-base md:text-lg text-gray-200 max-w-2xl mx-auto leading-relaxed mb-6 md:mb-8 px-2">
             {heroData?.description || 'Michigan\'s premier youth sled hockey team, building champions on and off the ice'}
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-12">
+          <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center mb-6 md:mb-8">
             <motion.a
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               href="#get-involved"
-              className="bg-yellow-400 text-black px-8 py-4 rounded-lg font-bold text-lg hover:bg-yellow-300 transition-colors duration-300 shadow-lg flex items-center gap-2"
+              className="bg-yellow-400 text-black px-6 py-3 md:px-8 md:py-4 rounded-lg font-bold text-base md:text-lg hover:bg-yellow-300 transition-colors duration-300 shadow-lg flex items-center justify-center gap-2"
             >
-              <FaUsers />
+              <FaUsers className="text-lg md:text-xl" />
               JOIN THE TEAM
             </motion.a>
             <motion.a
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               href="#get-involved"
-              className="bg-white text-black px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition-all duration-300 shadow-lg flex items-center gap-2"
+              className="bg-white text-black px-6 py-3 md:px-8 md:py-4 rounded-lg font-bold text-base md:text-lg hover:bg-gray-100 transition-all duration-300 shadow-lg flex items-center justify-center gap-2"
             >
-              <FaHeart className="text-yellow-500" />
+              <FaHeart className="text-yellow-500 text-lg md:text-xl" />
               DONATE NOW
             </motion.a>
           </div>
@@ -99,7 +99,7 @@ const Hero = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1, duration: 1 }}
-            className="text-xl font-bold text-yellow-400 mt-8"
+            className="text-lg md:text-xl font-bold text-yellow-400"
           >
             {heroData?.tagline || 'No child pays to play'}
           </motion.p>
