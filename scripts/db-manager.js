@@ -13,10 +13,15 @@ import dotenv from 'dotenv';
 // Load environment variables from .env file
 dotenv.config();
 
-// Load environment variables or use defaults for hosted Supabase
-const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://zfiqvovfhkqiucmuwykw.supabase.co';
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmaXF2b3ZmaGtxaXVjbXV3eWt3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MDA3ODcyMSwiZXhwIjoyMDY1NjU0NzIxfQ.SERVICE_ROLE_KEY';
+// Use environment variables for Supabase configuration
+const supabaseUrl = process.env.VITE_SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!supabaseUrl || !supabaseServiceKey) {
+  console.error('❌ Missing environment variables');
+  console.error('Please copy .env.example to .env and fill in your Supabase credentials');
+  process.exit(1);
+}
 
 // Create Supabase client with service role (bypasses RLS)
 const supabase = createClient(supabaseUrl, supabaseServiceKey, {

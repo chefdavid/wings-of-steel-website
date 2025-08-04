@@ -11,9 +11,15 @@ import dotenv from 'dotenv';
 // Load environment variables from .env file
 dotenv.config();
 
-// Use the actual hosted Supabase configuration
-const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://zfiqvovfhkqiucmuwykw.supabase.co';
-const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmaXF2b3ZmaGtxaXVjbXV3eWt3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MDA3ODcyMSwiZXhwIjoyMDY1NjU0NzIxfQ.SERVICE_ROLE_KEY';
+// Use environment variables for Supabase configuration
+const supabaseUrl = process.env.VITE_SUPABASE_URL;
+const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!supabaseUrl || !serviceKey) {
+  console.error('❌ Missing environment variables');
+  console.error('Please copy .env.example to .env and fill in your Supabase credentials');
+  process.exit(1);
+}
 
 const supabase = createClient(supabaseUrl, serviceKey, {
   auth: {

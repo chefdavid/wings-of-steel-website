@@ -11,10 +11,15 @@ import dotenv from 'dotenv';
 // Load environment variables from .env file
 dotenv.config();
 
-// Use the same client configuration as the React app
-const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://zfiqvovfhkqiucmuwykw.supabase.co';
-const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || 
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmaXF2b3ZmaGtxaXVjbXV3eWt3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwNzg3MjEsImV4cCI6MjA2NTY1NDcyMX0.z8llCv7zZX7-D2DtySDZTI9KTsGC1O2XziRRAbrHJ1Q';
+// Use environment variables for Supabase configuration
+const supabaseUrl = process.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error('❌ Missing environment variables');
+  console.error('Please copy .env.example to .env and fill in your Supabase credentials');
+  process.exit(1);
+}
 
 // Create the same client the React app uses
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
