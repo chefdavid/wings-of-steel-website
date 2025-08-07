@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FaMapMarkerAlt, FaClock, FaParking, FaDirections } from 'react-icons/fa';
 import { supabase } from '../lib/supabaseClient';
+import { formatPhoneDisplay } from '../utils/phoneUtils';
 
 const Location = () => {
   const [locationData, setLocationData] = useState<any>(null);
@@ -206,7 +207,7 @@ const Location = () => {
                   <strong>{rinkInfo.name}</strong>
                 </p>
                 <p className="text-sm md:text-base opacity-90">{rinkInfo.address}</p>
-                <p className="text-sm md:text-base opacity-90">Phone: {rinkInfo.phone}</p>
+                <p className="text-sm md:text-base opacity-90">Phone: {formatPhoneDisplay(rinkInfo.phone)}</p>
               </div>
             </div>
           </motion.div>

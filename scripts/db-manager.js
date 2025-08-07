@@ -33,17 +33,17 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey, {
 
 // Wings of Steel real roster data
 const REAL_ROSTER = [
-  // Forwards
-  { name: 'Jack Ashby', age: 16, position: 'Forward', bio: 'Dedicated forward with excellent puck handling skills and team leadership qualities.', jersey_number: 20, tags: ['Captain'], image_url: null },
-  { name: 'Logan Ashby', age: 14, position: 'Forward', bio: 'Quick and agile forward with a natural scoring ability and great ice vision.', jersey_number: 22, tags: [], image_url: null },
-  { name: 'Andrew Carmen', age: 17, position: 'Forward', bio: 'Powerful forward with strong shooting accuracy and exceptional teamwork skills.', jersey_number: 49, tags: [], image_url: null },
-  { name: 'Shawn Gardner', age: 15, position: 'Forward', bio: 'Energetic forward known for creating scoring opportunities and motivating teammates.', jersey_number: 26, tags: [], image_url: null },
-  { name: 'AJ Gonzales', age: 13, position: 'Forward', bio: 'Dynamic forward with incredible speed and determination on the ice.', jersey_number: 8, tags: ['Assistant Captain'], image_url: null },
-  { name: 'Trevor Gregoire', age: 16, position: 'Forward', bio: 'Skilled forward with excellent stick handling and strategic game awareness.', jersey_number: 21, tags: [], image_url: null },
-  { name: 'Lucas Harrop', age: 15, position: 'Forward', bio: 'Versatile forward who brings consistency and reliability to every game.', jersey_number: 19, tags: [], image_url: null },
-  { name: 'Mikayla Johnson', age: 14, position: 'Forward', bio: 'Talented forward with natural hockey instincts and strong competitive spirit.', jersey_number: 11, tags: [], image_url: null },
-  { name: 'Colton Naylor', age: 17, position: 'Forward', bio: 'Strong forward with excellent positioning and ability to control the game pace.', jersey_number: 45, tags: [], image_url: null },
-  { name: 'Zach Oxenham', age: 16, position: 'Forward', bio: 'Determined forward known for his work ethic and ability to perform under pressure.', jersey_number: 18, tags: [], image_url: null },
+  // Offense
+  { name: 'Jack Ashby', age: 16, position: 'Offense', bio: 'Dedicated offensive player with excellent puck handling skills and team leadership qualities.', jersey_number: 20, tags: ['Captain'], image_url: null },
+  { name: 'Logan Ashby', age: 14, position: 'Offense', bio: 'Quick and agile offensive player with a natural scoring ability and great ice vision.', jersey_number: 22, tags: [], image_url: null },
+  { name: 'Andrew Carmen', age: 17, position: 'Offense', bio: 'Powerful offensive player with strong shooting accuracy and exceptional teamwork skills.', jersey_number: 49, tags: [], image_url: null },
+  { name: 'Shawn Gardner', age: 15, position: 'Offense', bio: 'Energetic offensive player known for creating scoring opportunities and motivating teammates.', jersey_number: 26, tags: [], image_url: null },
+  { name: 'AJ Gonzales', age: 13, position: 'Offense', bio: 'Dynamic offensive player with incredible speed and determination on the ice.', jersey_number: 8, tags: ['Assistant Captain'], image_url: null },
+  { name: 'Trevor Gregoire', age: 16, position: 'Offense', bio: 'Skilled offensive player with excellent stick handling and strategic game awareness.', jersey_number: 21, tags: [], image_url: null },
+  { name: 'Lucas Harrop', age: 15, position: 'Offense', bio: 'Versatile offensive player who brings consistency and reliability to every game.', jersey_number: 19, tags: [], image_url: null },
+  { name: 'Mikayla Johnson', age: 14, position: 'Offense', bio: 'Talented offensive player with natural hockey instincts and strong competitive spirit.', jersey_number: 11, tags: [], image_url: null },
+  { name: 'Colton Naylor', age: 17, position: 'Offense', bio: 'Strong offensive player with excellent positioning and ability to control the game pace.', jersey_number: 45, tags: [], image_url: null },
+  { name: 'Zach Oxenham', age: 16, position: 'Offense', bio: 'Determined offensive player known for his work ethic and ability to perform under pressure.', jersey_number: 18, tags: [], image_url: null },
 
   // Defense
   { name: 'Shane Phillips', age: 15, position: 'Defense', bio: 'Solid defenseman with excellent positioning and strong defensive awareness.', jersey_number: 2, tags: [], image_url: null },

@@ -3,6 +3,7 @@ import { FaSave, FaEdit } from 'react-icons/fa';
 import { supabase } from '../../lib/supabaseClient';
 import { supabaseAdmin } from '../../lib/supabaseAdmin';
 import type { SiteSection } from '../../types/database';
+import { formatPhoneDisplay, handlePhoneChange } from '../../utils/phoneUtils';
 
 const SiteSectionsEditor = () => {
   const [sections, setSections] = useState<Record<string, SiteSection>>({});
@@ -72,6 +73,14 @@ const SiteSectionsEditor = () => {
         }
       }
     }));
+  };
+
+  const handleLocationPhoneChange = (value: string) => {
+    handlePhoneChange(value, (formatted) => updateSectionContent('location', 'phone', formatted));
+  };
+
+  const handleContactPhoneChange = (value: string) => {
+    handlePhoneChange(value, (formatted) => updateSectionContent('contact', 'phone', formatted));
   };
 
   if (loading) {
@@ -282,8 +291,9 @@ const SiteSectionsEditor = () => {
                   <input
                     type="tel"
                     value={String(sections.location.content.phone || '')}
-                    onChange={(e) => updateSectionContent('location', 'phone', e.target.value)}
+                    onChange={(e) => handleLocationPhoneChange(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-steel-blue focus:border-transparent outline-none"
+                    placeholder="(555) 123-4567"
                   />
                 </div>
               </div>
@@ -442,8 +452,9 @@ const SiteSectionsEditor = () => {
                   <input
                     type="tel"
                     value={String(sections.contact.content.phone || '')}
-                    onChange={(e) => updateSectionContent('contact', 'phone', e.target.value)}
+                    onChange={(e) => handleContactPhoneChange(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-steel-blue focus:border-transparent outline-none"
+                    placeholder="(555) 123-4567"
                   />
                 </div>
               </div>
@@ -465,7 +476,7 @@ const SiteSectionsEditor = () => {
               </div>
               <div>
                 <span className="text-sm font-medium text-gray-500">Phone:</span>
-                <p className="text-gray-800">{String(sections.contact.content.phone || '')}</p>
+                <p className="text-gray-800">{formatPhoneDisplay(String(sections.contact.content.phone || ''))}</p>
               </div>
             </div>
           )}

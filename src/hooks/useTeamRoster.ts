@@ -11,9 +11,19 @@ export function useTeamRoster() {
     const fetchPlayers = async () => {
       try {
         setLoading(true);
+        
+        // Current active roster names
+        const activePlayerNames = [
+          'Jack Ashby', 'Logan Ashby', 'Leina Beseler', 'Andrew Carmen',
+          'Lily Corrigan', 'Autumn Donzuso', 'AJ Gonzales', 'Trevor Gregoire',
+          'Colten Haas', 'Laurel Jastrzembski', 'Mikayla Johnson', 'Colton Naylor',
+          'Shane Philipps', 'Colin Wiederholt'
+        ];
+        
         const { data, error } = await supabase
           .from('players')
           .select('*')
+          .in('name', activePlayerNames)
           .order('jersey_number', { ascending: true });
 
         if (error) throw error;

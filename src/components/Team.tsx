@@ -1,54 +1,49 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FaTimes, FaHockeyPuck, FaBirthdayCake } from 'react-icons/fa';
 import { useTeamRoster } from '../hooks';
-import type { Player } from '../types/database';
-
-interface Coach {
-  name: string;
-  role: string;
-  description: string;
-  experience?: string;
-  achievements?: string[];
-}
+import { calculateAge, getYearsWithTeamDisplay } from '../utils/dateUtils';
+import { supabase } from '../lib/supabaseClient';
+import type { Player, Coach } from '../types/database';
 
 const Team = () => {
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
   const [selectedCoach, setSelectedCoach] = useState<Coach | null>(null);
+  const [coaches, setCoaches] = useState<Coach[]>([]);
+  const [coachesLoading, setCoachesLoading] = useState(true);
   const { players, loading, error } = useTeamRoster();
 
-  const coaches: Coach[] = [
-    { 
-      name: "Norm Jones", 
-      role: "Head Coach", 
-      description: "Experienced head coach leading the Wings of Steel with dedication and expertise",
-      experience: "Veteran sled hockey coach",
-      achievements: ["Head Coach - Wings of Steel", "Youth Development Specialist", "Adaptive Sports Leader"]
-    },
-    { 
-      name: "Rico Gonzales", 
-      role: "Assistant Coach", 
-      description: "Dedicated assistant coach focused on player development and team strategy",
-      experience: "Assistant coaching experience",
-      achievements: ["Assistant Coach - Wings of Steel", "Player Development", "Team Strategy Coordinator"]
-    },
-    { 
-      name: "Garret Goebel", 
-      role: "Assistant Coach", 
-      description: "Passionate assistant coach committed to helping players reach their potential",
-      experience: "Assistant coaching experience",
-      achievements: ["Assistant Coach - Wings of Steel", "Skills Development", "Team Mentorship"]
-    },
-    { 
-      name: "Stephen Belcher", 
-      role: "Assistant Coach", 
-      description: "Supportive assistant coach focused on building team chemistry and individual skills",
-      experience: "Assistant coaching experience",
-      achievements: ["Assistant Coach - Wings of Steel", "Team Building", "Individual Skills Training"]
-    },
-  ];
+  useEffect(() => {
+    fetchCoaches();
+  }, []);
 
-  if (loading) {
+  const fetchCoaches = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('coaches')
+        .select('*')
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+      
+      // Handle first_name/last_name compatibility and add defaults
+      const coachesWithDefaults = (data || []).map(coach => ({
+        ...coach,
+        first_name: coach.first_name || coach.name?.split(' ')[0] || '',
+        last_name: coach.last_name || coach.name?.split(' ').slice(1).join(' ') || '',
+        start_date: coach.start_date || '',
+        achievements: coach.achievements || []
+      }));
+      
+      setCoaches(coachesWithDefaults);
+    } catch (error) {
+      console.error('Error fetching coaches:', error);
+    } finally {
+      setCoachesLoading(false);
+    }
+  };
+
+  if (loading || coachesLoading) {
     return (
       <section className="py-12 md:py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 text-center">
@@ -124,24 +119,27 @@ const Team = () => {
                   
                   {/* Front of card */}
                   <div className="flip-card-front bg-white rounded-xl shadow-xl p-4 sm:p-5 md:p-6 flex flex-col items-center justify-center border border-gray-100">
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-steel-blue rounded-full flex items-center justify-center text-white text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4 md:mb-6 shadow-lg">
-                      {player.jersey_number === 0 ? 'TBD' : player.jersey_number}
-                    </div>
-                    <h3 className="text-sm sm:text-base md:text-xl font-bold text-center text-gray-800 leading-tight">{player.name}</h3>
-                    <p className="text-xs sm:text-sm text-steel-gray mt-1 sm:mt-2">{player.position}</p>
-                  </div>
+    <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-steel-blue rounded-full flex items-center justify-center text-white text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4 md:mb-6 shadow-lg">
+      {player.jersey_number === 0 ? 'TBD' : player.jersey_number}
+    </div>
+    <h3 className="text-sm sm:text-base md:text-xl font-bold text-center text-gray-800 leading-tight">{player.first_name} {player.last_name}</h3>
+    <p className="text-xs sm:text-sm text-steel-gray mt-1 sm:mt-2">{player.position}</p>
+  </div>
                   
                   {/* Back of card */}
                   <div className="flip-card-back bg-gradient-to-br from-steel-blue to-dark-steel rounded-xl shadow-xl p-3 sm:p-4 md:p-6 flex items-center justify-center">
                     <div className="text-center text-white">
                       <img 
-                        src={player.image_url || `https://ui-avatars.com/api/?name=${player.name}&background=4682B4&color=fff&size=128&bold=true`}
-                        alt={player.name}
+                        src={player.image_url || `https://ui-avatars.com/api/?name=${player.first_name} ${player.last_name}&background=4682B4&color=fff&size=128&bold=true`}
+                        alt={`${player.first_name} ${player.last_name}`}
                         className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-full mx-auto mb-2 sm:mb-3 border-2 sm:border-3 md:border-4 border-white shadow-lg object-cover"
                       />
-                      <p className="font-bold text-xs sm:text-sm md:text-lg mb-0.5 sm:mb-1">{player.name}</p>
+                      <p className="font-bold text-xs sm:text-sm md:text-lg mb-0.5 sm:mb-1">{player.first_name} {player.last_name}</p>
                       <p className="text-xs sm:text-sm md:text-base font-semibold">#{player.jersey_number === 0 ? 'TBD' : player.jersey_number}</p>
-                      <p className="text-[10px] sm:text-xs text-ice-blue mt-0.5 sm:mt-1">{player.position} • Age {player.age}</p>
+                      <p className="text-[10px] sm:text-xs text-ice-blue mt-0.5 sm:mt-1">{player.position} • Age {player.birthdate ? calculateAge(player.birthdate) : player.age || 'Unknown'}</p>
+                      {player.start_date && (
+                        <p className="text-[10px] sm:text-xs text-yellow-300 mt-0.5">{getYearsWithTeamDisplay(player.start_date)}</p>
+                      )}
                       <p className="text-[10px] sm:text-xs mt-1 sm:mt-2 px-1 sm:px-2 line-clamp-2 sm:line-clamp-3">{player.bio}</p>
                       <p className="text-[10px] sm:text-xs text-yellow-400 mt-1 sm:mt-2">Click for more info</p>
                     </div>
@@ -207,7 +205,7 @@ const Team = () => {
                           <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" />
                         </svg>
                       </div>
-                      <h3 className="text-sm sm:text-base md:text-xl font-semibold text-center mb-1 sm:mb-2">{coach.name}</h3>
+                      <h3 className="text-sm sm:text-base md:text-xl font-semibold text-center mb-1 sm:mb-2">{coach.first_name} {coach.last_name}</h3>
                       <p className="text-xs sm:text-sm md:text-base text-steel-blue font-medium">{coach.role}</p>
                     </div>
                     
@@ -215,12 +213,15 @@ const Team = () => {
                     <div className="flip-card-back bg-gradient-to-br from-dark-steel to-steel-gray rounded-lg shadow-lg p-3 sm:p-4 md:p-6 flex items-center justify-center">
                       <div className="text-center text-white">
                         <img 
-                          src={`https://ui-avatars.com/api/?name=${coach.name}&background=2C3E50&color=fff&size=128`}
-                          alt={coach.name}
+                          src={coach.image_url || `https://ui-avatars.com/api/?name=${coach.first_name} ${coach.last_name}&background=2C3E50&color=fff&size=128`}
+                          alt={`${coach.first_name} ${coach.last_name}`}
                           className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-full mx-auto mb-2 sm:mb-3"
                         />
-                        <p className="font-bold text-xs sm:text-sm md:text-lg mb-0.5 sm:mb-1">{coach.name}</p>
+                        <p className="font-bold text-xs sm:text-sm md:text-lg mb-0.5 sm:mb-1">{coach.first_name} {coach.last_name}</p>
                         <p className="text-ice-blue mb-1 sm:mb-2 text-[10px] sm:text-xs md:text-sm">{coach.role}</p>
+                        {coach.start_date && (
+                          <p className="text-[10px] sm:text-xs text-yellow-300 mb-1">{getYearsWithTeamDisplay(coach.start_date)}</p>
+                        )}
                         <p className="text-[10px] sm:text-xs px-1 sm:px-2 line-clamp-2 sm:line-clamp-3">{coach.description}</p>
                         <p className="text-[10px] sm:text-xs text-yellow-400 mt-1 sm:mt-2">Click for more info</p>
                       </div>
@@ -280,12 +281,12 @@ const Team = () => {
                   </button>
                   <div className="flex items-center gap-6">
                     <img 
-                      src={selectedPlayer.image_url || `https://ui-avatars.com/api/?name=${selectedPlayer.name}&background=4682B4&color=fff&size=128&bold=true`}
-                      alt={selectedPlayer.name}
+                      src={selectedPlayer.image_url || `https://ui-avatars.com/api/?name=${selectedPlayer.first_name} ${selectedPlayer.last_name}&background=4682B4&color=fff&size=128&bold=true`}
+                      alt={`${selectedPlayer.first_name} ${selectedPlayer.last_name}`}
                       className="w-32 h-32 rounded-full border-4 border-white shadow-lg object-cover"
                     />
                     <div>
-                      <h2 className="text-3xl font-bold mb-2">{selectedPlayer.name}</h2>
+                      <h2 className="text-3xl font-bold mb-2">{selectedPlayer.first_name} {selectedPlayer.last_name}</h2>
                       <div className="flex items-center gap-4 text-lg mb-3">
                         <span className="bg-white bg-opacity-20 px-4 py-2 rounded-full">
                           #{selectedPlayer.jersey_number === 0 ? 'TBD' : selectedPlayer.jersey_number}
@@ -314,7 +315,7 @@ const Team = () => {
                       <FaBirthdayCake className="text-steel-blue text-xl" />
                       <div>
                         <p className="font-semibold">Age</p>
-                        <p className="text-gray-600">{selectedPlayer.age} years old</p>
+                        <p className="text-gray-600">{selectedPlayer.birthdate ? calculateAge(selectedPlayer.birthdate) : selectedPlayer.age || 'Unknown'} years old</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
@@ -327,7 +328,7 @@ const Team = () => {
                   </div>
                   
                   <div className="mb-6">
-                    <h3 className="text-xl font-bold mb-3">About {selectedPlayer.name}</h3>
+                    <h3 className="text-xl font-bold mb-3">About {selectedPlayer.first_name} {selectedPlayer.last_name}</h3>
                     <p className="text-gray-700 leading-relaxed">{selectedPlayer.bio}</p>
                   </div>
                   
@@ -340,7 +341,7 @@ const Team = () => {
                       </div>
                       <div>
                         <p className="font-semibold">Years with Team</p>
-                        <p className="text-gray-600">{Math.floor(Math.random() * 5) + 1} years</p>
+                        <p className="text-gray-600">{selectedPlayer.start_date ? getYearsWithTeamDisplay(selectedPlayer.start_date) : 'Not specified'}</p>
                       </div>
                     </div>
                   </div>
@@ -378,12 +379,12 @@ const Team = () => {
                   </button>
                   <div className="flex items-center gap-6">
                     <img 
-                      src={`https://ui-avatars.com/api/?name=${selectedCoach.name}&background=2C3E50&color=fff&size=128`}
-                      alt={selectedCoach.name}
+                      src={selectedCoach.image_url || `https://ui-avatars.com/api/?name=${selectedCoach.first_name} ${selectedCoach.last_name}&background=2C3E50&color=fff&size=128`}
+                      alt={`${selectedCoach.first_name} ${selectedCoach.last_name}`}
                       className="w-32 h-32 rounded-full border-4 border-white shadow-lg object-cover"
                     />
                     <div>
-                      <h2 className="text-3xl font-bold mb-2">{selectedCoach.name}</h2>
+                      <h2 className="text-3xl font-bold mb-2">{selectedCoach.first_name} {selectedCoach.last_name}</h2>
                       <div className="text-lg">
                         <span className="bg-white bg-opacity-20 px-4 py-2 rounded-full">
                           {selectedCoach.role}
@@ -395,10 +396,15 @@ const Team = () => {
                 
                 <div className="p-8">
                   <div className="mb-6">
-                    <h3 className="text-xl font-bold mb-3">About {selectedCoach.name}</h3>
+                    <h3 className="text-xl font-bold mb-3">About {selectedCoach.first_name} {selectedCoach.last_name}</h3>
                     <p className="text-gray-700 leading-relaxed mb-4">{selectedCoach.description}</p>
                     {selectedCoach.experience && (
                       <p className="text-steel-blue font-semibold">{selectedCoach.experience}</p>
+                    )}
+                    {selectedCoach.start_date && (
+                      <p className="text-gray-600 mt-2">
+                        <span className="font-semibold">Years with team:</span> {getYearsWithTeamDisplay(selectedCoach.start_date)}
+                      </p>
                     )}
                   </div>
                   
