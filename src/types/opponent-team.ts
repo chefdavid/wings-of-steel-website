@@ -1,0 +1,30 @@
+export interface OpponentTeam {
+  id: string;
+  team_name: string;
+  short_name?: string;
+  rink_name?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zip?: string;
+  website?: string;
+  email?: string;
+  phone?: string;
+  facebook?: string;
+  head_coach?: string;
+  assistant_coaches?: string[];
+  manager?: string;
+  president?: string;
+  founder?: string;
+  founded_year?: number;
+  age_range?: string;
+  program_type?: 'youth' | 'adult' | 'full' | 'special';
+  notes?: string;
+  is_free_program?: boolean;
+  sponsor?: string;
+  logo_url?: string;
+  primary_color?: string;
+  secondary_color?: string;
+  created_at?: string;
+  updated_at?: string;
+}

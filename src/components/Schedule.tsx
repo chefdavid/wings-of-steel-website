@@ -1,9 +1,11 @@
-import { motion } from 'framer-motion';
-import { FaCalendarAlt, FaClock, FaMapMarkerAlt, FaTrophy, FaBan, FaHockeyPuck, FaTicketAlt, FaHome } from 'react-icons/fa';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FaCalendarAlt, FaClock, FaMapMarkerAlt, FaTrophy, FaBan, FaHockeyPuck, FaHome, FaTimes, FaPhone, FaGlobe, FaDirections, FaParking } from 'react-icons/fa';
 import { useGameSchedule } from '../hooks';
 
 const Schedule = () => {
   const { upcomingGames, pastGames, loading, error } = useGameSchedule();
+  const [showRinkModal, setShowRinkModal] = useState(false);
 
   if (loading) {
     return (
@@ -26,7 +28,7 @@ const Schedule = () => {
   }
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
+    const date = new Date(dateString + 'T00:00:00'); // Ensure proper date parsing
     return {
       month: date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase(),
       day: date.getDate(),
@@ -35,13 +37,13 @@ const Schedule = () => {
     };
   };
 
-  const formatTime = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString('en-US', { 
-      hour: 'numeric', 
-      minute: '2-digit',
-      hour12: true 
-    });
+  const formatTime = (timeString: string) => {
+    if (!timeString) return '';
+    const [hours, minutes] = timeString.split(':');
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+    return `${displayHour}:${minutes} ${ampm}`;
   };
 
   return (
@@ -100,7 +102,7 @@ const Schedule = () => {
             <div className="text-sm text-gray-600 mt-1">Games Played</div>
           </div>
           <div className="bg-white rounded-xl shadow-lg p-6 text-center transform hover:scale-105 transition-transform">
-            <div className="text-3xl font-bold text-yellow-500">{pastGames.filter(g => g.status === 'Complete').length}</div>
+            <div className="text-3xl font-bold text-yellow-500">{pastGames.filter(g => g.result?.startsWith('W')).length}</div>
             <div className="text-sm text-gray-600 mt-1">Victories</div>
           </div>
           <div className="bg-white rounded-xl shadow-lg p-6 text-center transform hover:scale-105 transition-transform">
@@ -108,7 +110,7 @@ const Schedule = () => {
             <div className="text-sm text-gray-600 mt-1">Upcoming</div>
           </div>
           <div className="bg-white rounded-xl shadow-lg p-6 text-center transform hover:scale-105 transition-transform">
-            <div className="text-3xl font-bold text-red-600">{upcomingGames.filter(g => g.home_game).length}</div>
+            <div className="text-3xl font-bold text-red-600">{upcomingGames.filter(g => g.home_away === 'home').length}</div>
             <div className="text-sm text-gray-600 mt-1">Home Games</div>
           </div>
         </motion.div>
@@ -124,96 +126,97 @@ const Schedule = () => {
               className="text-3xl font-bold text-dark-steel mb-8 flex items-center gap-3"
             >
               <FaCalendarAlt className="text-yellow-500" />
-              Upcoming Battles
+              Potential Upcoming Games
             </motion.h3>
             
             <div className="grid gap-6 max-w-5xl mx-auto">
               {upcomingGames.map((game, index) => {
-                const dateInfo = formatDate(game.date);
+                const dateInfo = formatDate(game.game_date || game.date || '');
+                const isHome = game.home_away === 'home' || game.home_game;
                 return (
                   <motion.div
                     key={game.id}
-                    initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.6, delay: index * 0.1 }}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.08 }}
                     viewport={{ once: true }}
-                    className="group relative"
+                    className="group"
                   >
-                    <div className="bg-white rounded-2xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
-                      <div className="flex flex-col lg:flex-row">
-                        {/* Date Block */}
-                        <div className="bg-gradient-to-br from-steel-blue to-dark-steel p-8 text-white text-center lg:w-48 relative overflow-hidden">
-                          <div className="absolute top-0 right-0 opacity-10">
-                            <FaHockeyPuck className="text-8xl transform rotate-45" />
-                          </div>
+                    <div className="relative bg-gradient-to-r from-white to-gray-50 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden transform hover:-translate-y-1">
+                      {/* Background Hockey Puck */}
+                      <div className="absolute right-0 top-1/2 -translate-y-1/2 opacity-5 pointer-events-none">
+                        <FaHockeyPuck className="text-[120px] text-steel-blue transform rotate-12" />
+                      </div>
+                      
+                      <div className="relative flex items-stretch">
+                        {/* Date Block with Gradient */}
+                        <div className="bg-gradient-to-br from-steel-blue via-steel-blue to-dark-steel p-5 md:p-7 text-white text-center w-28 md:w-36 rounded-l-2xl relative overflow-hidden">
+                          <div className="absolute inset-0 bg-black opacity-10"></div>
                           <div className="relative z-10">
-                            <div className="text-5xl font-bold mb-1">{dateInfo.day}</div>
-                            <div className="text-xl font-medium mb-2">{dateInfo.month}</div>
-                            <div className="text-sm opacity-90">{dateInfo.weekday}</div>
-                            <div className="text-xs opacity-75 mt-1">{dateInfo.year}</div>
+                            <div className="text-3xl md:text-4xl font-bold mb-1">{dateInfo.day}</div>
+                            <div className="text-base md:text-lg font-semibold uppercase tracking-wide">{dateInfo.month}</div>
+                            <div className="text-xs md:text-sm opacity-90 mt-1">{dateInfo.weekday}</div>
                           </div>
-                          {game.home_game && (
-                            <div className="absolute top-2 right-2 bg-yellow-400 text-black p-2 rounded-full">
-                              <FaHome className="text-sm" />
+                          {isHome && (
+                            <div className="absolute top-2 right-2 bg-yellow-400 text-black p-1.5 rounded-full shadow-md">
+                              <FaHome className="text-xs" />
                             </div>
                           )}
                         </div>
                         
-                        {/* Game Details */}
-                        <div className="flex-1 p-8">
-                          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-3 mb-3">
-                                <div className={`text-xs font-bold px-3 py-1 rounded-full ${
-                                  game.home_game 
-                                    ? 'bg-green-100 text-green-800' 
-                                    : 'bg-blue-100 text-blue-800'
+                        {/* Game Details with Better Spacing */}
+                        <div className="flex-1 p-5 md:p-7 relative">
+                          <div className="flex flex-col h-full justify-between">
+                            <div>
+                              {/* Badges Row */}
+                              <div className="flex items-center gap-2 mb-3">
+                                <div className={`text-xs font-bold px-3 py-1 rounded-full shadow-sm ${
+                                  isHome 
+                                    ? 'bg-gradient-to-r from-green-500 to-green-600 text-white' 
+                                    : 'bg-gradient-to-r from-blue-500 to-blue-600 text-white'
                                 }`}>
-                                  {game.home_game ? 'HOME GAME' : 'AWAY GAME'}
+                                  {isHome ? 'HOME GAME' : 'AWAY GAME'}
                                 </div>
                                 {game.status === 'Cancelled' && (
-                                  <div className="bg-red-100 text-red-800 text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
+                                  <div className="bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1 shadow-sm">
                                     <FaBan className="text-xs" />
                                     CANCELLED
                                   </div>
                                 )}
                               </div>
                               
-                              <h3 className="text-2xl md:text-3xl font-bold text-dark-steel mb-2 group-hover:text-steel-blue transition-colors">
-                                Wings of Steel
-                                <span className="text-gray-400 mx-3">VS</span>
-                                {game.opponent}
+                              {/* Team Names */}
+                              <h3 className="text-xl md:text-2xl font-bold text-dark-steel mb-3 group-hover:text-steel-blue transition-colors">
+                                <span className="bg-gradient-to-r from-steel-blue to-dark-steel bg-clip-text text-transparent">Wings of Steel</span>
+                                <span className="text-gray-400 mx-2 text-lg">vs</span>
+                                <span className="text-gray-700">{game.opponent}</span>
                               </h3>
                               
-                              <div className="flex flex-wrap items-center gap-4 text-gray-600">
-                                <div className="flex items-center gap-2">
+                              {/* Info Row */}
+                              <div className="flex flex-wrap items-center gap-4 text-sm">
+                                <div className="flex items-center gap-2 bg-gray-100 px-3 py-1.5 rounded-full">
                                   <FaClock className="text-steel-blue" />
-                                  <span className="font-semibold">{formatTime(game.date)}</span>
+                                  <span className="font-medium text-gray-700">{formatTime(game.game_time || '')}</span>
                                 </div>
-                                <div className="flex items-center gap-2">
+                                <button
+                                  onClick={() => setShowRinkModal(true)}
+                                  className="flex items-center gap-2 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-full transition-colors group"
+                                >
                                   <FaMapMarkerAlt className="text-steel-blue" />
-                                  <span>{game.location}</span>
-                                </div>
+                                  <span className="text-blue-700 font-medium group-hover:underline">{game.location}</span>
+                                </button>
                               </div>
-                              
-                              {game.notes && (
-                                <div className="mt-3 bg-yellow-50 text-yellow-900 px-4 py-2 rounded-lg text-sm font-medium inline-block">
-                                  <FaTicketAlt className="inline mr-2" />
-                                  {game.notes}
-                                </div>
-                              )}
                             </div>
                             
-                            <div className="flex items-center">
-                              <motion.button
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-black px-6 py-3 rounded-full font-bold shadow-lg hover:shadow-xl transition-all flex items-center gap-2"
-                              >
-                                <FaTicketAlt />
-                                Get Tickets
-                              </motion.button>
-                            </div>
+                            {/* Notes */}
+                            {game.notes && (
+                              <div className="mt-3 pt-3 border-t border-gray-200">
+                                <p className="text-sm text-gray-600 italic flex items-start gap-2">
+                                  <span className="text-yellow-500 mt-0.5">ℹ️</span>
+                                  {game.notes}
+                                </p>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -241,7 +244,8 @@ const Schedule = () => {
             <div className="bg-white rounded-2xl shadow-xl p-6">
               <div className="space-y-3">
                 {pastGames.slice(-5).reverse().map((game, index) => {
-                  const dateInfo = formatDate(game.date);
+                  const dateInfo = formatDate(game.game_date || game.date || '');
+                  const isHome = game.home_away === 'home' || game.home_game;
                   return (
                     <motion.div
                       key={game.id}
@@ -264,7 +268,7 @@ const Schedule = () => {
                             )}
                           </div>
                           <div className="text-sm text-gray-600 flex items-center gap-3">
-                            <span>{game.home_game ? 'Home' : 'Away'}</span>
+                            <span>{isHome ? 'Home' : 'Away'}</span>
                             <span>•</span>
                             <span>{game.location}</span>
                           </div>
@@ -314,6 +318,106 @@ const Schedule = () => {
           </div>
         </motion.div>
       </div>
+
+      {/* Rink Details Modal */}
+      <AnimatePresence>
+        {showRinkModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+            onClick={() => setShowRinkModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-xl shadow-2xl max-w-2xl w-full"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="relative p-6 border-b">
+                <button
+                  onClick={() => setShowRinkModal(false)}
+                  className="absolute top-4 right-4 p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+                >
+                  <FaTimes className="w-5 h-5" />
+                </button>
+                
+                <h2 className="text-2xl font-bold text-gray-900 pr-10">Flyers Skate Zone</h2>
+                <p className="text-gray-600 mt-1">Home of Wings of Steel Sled Hockey</p>
+              </div>
+
+              <div className="p-6">
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                      <FaMapMarkerAlt className="text-steel-blue" />
+                      Location
+                    </h3>
+                    <p className="text-gray-700">601 Laurel Oak Rd</p>
+                    <p className="text-gray-700">Voorhees Township, NJ 08043</p>
+                    <a
+                      href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent('601 Laurel Oak Rd, Voorhees Township, NJ 08043')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 mt-2 text-blue-600 hover:text-blue-700 text-sm"
+                    >
+                      <FaDirections />
+                      Get Directions
+                    </a>
+                  </div>
+
+                  <div>
+                    <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                      <FaPhone className="text-steel-blue" />
+                      Contact
+                    </h3>
+                    <p className="text-gray-700">Phone: (856) 751-9161</p>
+                    <a 
+                      href="https://flyersskatezone.com/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 mt-2 text-blue-600 hover:text-blue-700 text-sm"
+                    >
+                      <FaGlobe />
+                      Visit Website
+                    </a>
+                  </div>
+
+                  <div>
+                    <h3 className="font-semibold text-gray-900 mb-2">Rink Information</h3>
+                    <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Main Rink:</span>
+                        <span className="font-medium">NHL Regulation Size</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Rink #3:</span>
+                        <span className="font-medium">Practice Rink (Main Season)</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Parking:</span>
+                        <span className="font-medium">Free, Ample Spaces</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Accessibility:</span>
+                        <span className="font-medium">Fully Accessible</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <p className="text-sm text-blue-900">
+                      <strong>Note:</strong> Specific rink assignments may vary. Please check with team management for the most current practice location within the facility.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 };

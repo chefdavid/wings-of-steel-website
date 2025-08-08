@@ -2,32 +2,32 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { FaTimes, FaHockeyPuck, FaBirthdayCake } from 'react-icons/fa';
 import { useTeamRoster } from '../hooks';
+import { useTeam } from '../hooks/useTeam';
 import { calculateAge, getYearsWithTeamDisplay } from '../utils/dateUtils';
-import { supabase } from '../lib/supabaseClient';
-import type { Player, Coach } from '../types/database';
+import { getTeamCoaches } from '../utils/teamQueries';
+import type { PlayerWithTeams, CoachWithTeams } from '../types/database';
 
 const Team = () => {
-  const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
-  const [selectedCoach, setSelectedCoach] = useState<Coach | null>(null);
-  const [coaches, setCoaches] = useState<Coach[]>([]);
+  const [selectedPlayer, setSelectedPlayer] = useState<PlayerWithTeams | null>(null);
+  const [selectedCoach, setSelectedCoach] = useState<CoachWithTeams | null>(null);
+  const [coaches, setCoaches] = useState<CoachWithTeams[]>([]);
   const [coachesLoading, setCoachesLoading] = useState(true);
   const { players, loading, error } = useTeamRoster();
+  const { currentTeam, teamConfig } = useTeam();
 
   useEffect(() => {
     fetchCoaches();
-  }, []);
+  }, [currentTeam]);
 
   const fetchCoaches = async () => {
     try {
-      const { data, error } = await supabase
-        .from('coaches')
-        .select('*')
-        .order('created_at', { ascending: true });
-
-      if (error) throw error;
+      setCoachesLoading(true);
+      
+      // Fetch coaches for the current team
+      const teamCoaches = await getTeamCoaches(currentTeam);
       
       // Handle first_name/last_name compatibility and add defaults
-      const coachesWithDefaults = (data || []).map(coach => ({
+      const coachesWithDefaults = teamCoaches.map(coach => ({
         ...coach,
         first_name: coach.first_name || coach.name?.split(' ')[0] || '',
         last_name: coach.last_name || coach.name?.split(' ').slice(1).join(' ') || '',
@@ -38,6 +38,7 @@ const Team = () => {
       setCoaches(coachesWithDefaults);
     } catch (error) {
       console.error('Error fetching coaches:', error);
+      setCoaches([]);
     } finally {
       setCoachesLoading(false);
     }
@@ -84,7 +85,8 @@ const Team = () => {
             </p>
           </motion.div>
 
-          <div className="mb-16">
+          <div id="team-players" className="mb-16">
+            <h3 className="text-2xl md:text-3xl font-bold text-black mb-8 text-center">Players</h3>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6 lg:gap-8 max-w-6xl mx-auto">
             {players.map((player, index) => (
               <motion.div
@@ -119,7 +121,7 @@ const Team = () => {
                   
                   {/* Front of card */}
                   <div className="flip-card-front bg-white rounded-xl shadow-xl p-4 sm:p-5 md:p-6 flex flex-col items-center justify-center border border-gray-100">
-    <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-steel-blue rounded-full flex items-center justify-center text-white text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4 md:mb-6 shadow-lg">
+    <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-team-primary rounded-full flex items-center justify-center text-white text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4 md:mb-6 shadow-lg">
       {player.jersey_number === 0 ? 'TBD' : player.jersey_number}
     </div>
     <h3 className="text-sm sm:text-base md:text-xl font-bold text-center text-gray-800 leading-tight">{player.first_name} {player.last_name}</h3>
@@ -127,7 +129,7 @@ const Team = () => {
   </div>
                   
                   {/* Back of card */}
-                  <div className="flip-card-back bg-gradient-to-br from-steel-blue to-dark-steel rounded-xl shadow-xl p-3 sm:p-4 md:p-6 flex items-center justify-center">
+                  <div className="flip-card-back bg-gradient-to-br from-team-primary to-team-secondary rounded-xl shadow-xl p-3 sm:p-4 md:p-6 flex items-center justify-center">
                     <div className="text-center text-white">
                       <img 
                         src={player.image_url || `https://ui-avatars.com/api/?name=${player.first_name} ${player.last_name}&background=4682B4&color=fff&size=128&bold=true`}
@@ -168,7 +170,7 @@ const Team = () => {
               <svg className="w-6 h-6 md:w-8 md:h-8" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z" />
               </svg>
-              JOIN THE WINGS OF STEEL TEAM!
+              JOIN THE {teamConfig.name.toUpperCase()}!
               <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
             </motion.a>
             <p className="text-gray-600 mt-3 md:mt-4 text-sm md:text-lg px-4">
@@ -177,6 +179,7 @@ const Team = () => {
           </motion.div>
 
           <motion.div
+            id="team-coaches"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -200,7 +203,7 @@ const Team = () => {
                   <div className="flip-card-inner">
                     {/* Front of card */}
                     <div className="flip-card-front bg-white rounded-lg shadow-lg p-3 sm:p-4 md:p-6 flex flex-col items-center justify-center">
-                      <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-steel-blue rounded-full flex items-center justify-center mb-2 sm:mb-3 md:mb-4">
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-team-primary rounded-full flex items-center justify-center mb-2 sm:mb-3 md:mb-4">
                         <svg className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-white" fill="currentColor" viewBox="0 0 20 20">
                           <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" />
                         </svg>
@@ -210,7 +213,7 @@ const Team = () => {
                     </div>
                     
                     {/* Back of card */}
-                    <div className="flip-card-back bg-gradient-to-br from-dark-steel to-steel-gray rounded-lg shadow-lg p-3 sm:p-4 md:p-6 flex items-center justify-center">
+                    <div className="flip-card-back bg-gradient-to-br from-team-secondary to-team-background rounded-lg shadow-lg p-3 sm:p-4 md:p-6 flex items-center justify-center">
                       <div className="text-center text-white">
                         <img 
                           src={coach.image_url || `https://ui-avatars.com/api/?name=${coach.first_name} ${coach.last_name}&background=2C3E50&color=fff&size=128`}
@@ -272,7 +275,7 @@ const Team = () => {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="relative">
-                <div className="bg-gradient-to-br from-steel-blue to-dark-steel p-8 text-white rounded-t-2xl">
+                <div className="bg-gradient-to-br from-team-primary to-team-secondary p-8 text-white rounded-t-2xl">
                   <button
                     onClick={() => setSelectedPlayer(null)}
                     className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors"
@@ -370,7 +373,7 @@ const Team = () => {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="relative">
-                <div className="bg-gradient-to-br from-dark-steel to-steel-gray p-8 text-white rounded-t-2xl">
+                <div className="bg-gradient-to-br from-team-secondary to-team-background p-8 text-white rounded-t-2xl">
                   <button
                     onClick={() => setSelectedCoach(null)}
                     className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors"

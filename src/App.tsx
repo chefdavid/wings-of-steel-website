@@ -1,50 +1,44 @@
-import { useState, useEffect } from 'react'
-import Navigation from './components/Navigation'
-import Hero from './components/Hero'
-import About from './components/About'
-import Team from './components/Team'
-import Schedule from './components/Schedule'
-import Location from './components/Location'
-import GetInvolved from './components/GetInvolved'
-import Contact from './components/Contact'
-import Footer from './components/Footer'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import TeamSite from './components/TeamSite'
 import Admin from './components/Admin'
+import OpponentTeams from './components/OpponentTeams'
+import StorePage from './components/StorePage'
+import { URLTeamProvider } from './contexts/URLTeamContext'
+import { CartProvider } from './contexts/CartContext'
 
 function App() {
-  const [showAdmin, setShowAdmin] = useState(false);
-
-  useEffect(() => {
-    // Check if we're on the admin route
-    const isAdminRoute = window.location.pathname === '/admin' || window.location.hash === '#admin';
-    if (isAdminRoute) {
-      setShowAdmin(true);
-    }
-
-    // Listen for hash changes
-    const handleHashChange = () => {
-      setShowAdmin(window.location.hash === '#admin');
-    };
-
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
-  }, []);
-
-  if (showAdmin) {
-    return <Admin />;
-  }
-
+  console.log('App component rendering');
   return (
-    <div className="min-h-screen">
-      <Navigation />
-      <Hero />
-      <About />
-      <Team />
-      <Schedule />
-      <Location />
-      <GetInvolved />
-      <Contact />
-      <Footer />
-    </div>
+    <Router>
+      <CartProvider>
+        <Routes>
+          {/* Root route - Redirect to youth team */}
+          <Route path="/" element={<Navigate to="/team/youth" replace />} />
+          
+          {/* Team-specific routes (only youth for now) */}
+          <Route path="/team/:team/*" element={
+            <URLTeamProvider>
+              <Routes>
+                <Route path="/" element={<TeamSite />} />
+                <Route path="/admin" element={<Admin />} />
+                <Route path="/opponents" element={<OpponentTeams />} />
+                <Route path="/store" element={<StorePage />} />
+              </Routes>
+            </URLTeamProvider>
+          } />
+          
+          {/* Redirect old adult team URLs to youth */}
+          <Route path="/team/adult/*" element={<Navigate to="/team/youth" replace />} />
+        
+          {/* Legacy redirects */}
+          <Route path="/admin" element={<Navigate to="/team/youth/admin" replace />} />
+          <Route path="#admin" element={<Navigate to="/team/youth/admin" replace />} />
+          
+          {/* Catch all - redirect to youth team */}
+          <Route path="*" element={<Navigate to="/team/youth" replace />} />
+        </Routes>
+      </CartProvider>
+    </Router>
   )
 }
 

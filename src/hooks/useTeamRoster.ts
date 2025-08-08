@@ -1,45 +1,33 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '../lib/supabaseClient';
-import type { Player } from '../types/database';
+import { getTeamPlayers } from '../utils/teamQueries';
+import { useTeam } from './useTeam';
+import type { PlayerWithTeams } from '../types/database';
 
 export function useTeamRoster() {
-  const [players, setPlayers] = useState<Player[]>([]);
+  const [players, setPlayers] = useState<PlayerWithTeams[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { currentTeam } = useTeam();
 
   useEffect(() => {
     const fetchPlayers = async () => {
       try {
         setLoading(true);
+        setError(null);
         
-        // Current active roster names
-        const activePlayerNames = [
-          'Jack Ashby', 'Logan Ashby', 'Leina Beseler', 'Andrew Carmen',
-          'Lily Corrigan', 'Autumn Donzuso', 'AJ Gonzales', 'Trevor Gregoire',
-          'Colten Haas', 'Laurel Jastrzembski', 'Mikayla Johnson', 'Colton Naylor',
-          'Shane Philipps', 'Colin Wiederholt'
-        ];
-        
-        const { data, error } = await supabase
-          .from('players')
-          .select('*')
-          .in('name', activePlayerNames)
-          .order('jersey_number', { ascending: true });
-
-        if (error) throw error;
-
-        if (data) {
-          setPlayers(data);
-        }
+        // Fetch players for the current team
+        const teamPlayers = await getTeamPlayers(currentTeam);
+        setPlayers(teamPlayers);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
+        setPlayers([]);
       } finally {
         setLoading(false);
       }
     };
 
     fetchPlayers();
-  }, []);
+  }, [currentTeam]);
 
   return { players, loading, error };
 }

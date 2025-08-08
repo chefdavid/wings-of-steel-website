@@ -1,9 +1,12 @@
 import { motion } from 'framer-motion';
 import { FaHockeyPuck, FaTrophy, FaUsers, FaHeart } from 'react-icons/fa';
 import { useSiteSections } from '../hooks';
+import { useTeam } from '../hooks/useTeam';
+import TeamIndicator from './TeamIndicator';
 
 const Hero = () => {
   const { sections, loading } = useSiteSections();
+  const { teamConfig } = useTeam();
   const heroData = sections['hero']?.content as {
     title?: string;
     subtitle?: string;
@@ -41,9 +44,10 @@ const Hero = () => {
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="flex justify-center mb-4 md:mb-6"
+            className="flex justify-center items-center gap-4 mb-4 md:mb-6"
           >
             <FaHockeyPuck className="text-5xl md:text-6xl text-ice-blue animate-pulse" />
+            <TeamIndicator size="lg" showDescription />
           </motion.div>
 
           <div className="mb-4 md:mb-6">
@@ -56,7 +60,7 @@ const Hero = () => {
           </div>
           
           <p className="text-lg md:text-2xl text-ice-blue font-display mb-3 md:mb-4">
-            {heroData?.title || 'WINGS OF STEEL'}
+            {heroData?.title || teamConfig.name}
           </p>
           
           <div className="flex flex-col md:flex-row gap-2 md:gap-3 justify-center items-center mb-4 md:mb-6">
@@ -71,7 +75,7 @@ const Hero = () => {
           </div>
 
           <p className="text-base md:text-lg text-gray-200 max-w-2xl mx-auto leading-relaxed mb-6 md:mb-8 px-2">
-            {heroData?.description || 'Michigan\'s premier youth sled hockey team, building champions on and off the ice'}
+            {heroData?.description || teamConfig.description}
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center mb-6 md:mb-8">
@@ -101,7 +105,7 @@ const Hero = () => {
             transition={{ delay: 1, duration: 1 }}
             className="text-lg md:text-xl font-bold text-yellow-400"
           >
-            {heroData?.tagline || 'No child pays to play'}
+            {heroData?.tagline || teamConfig.mission}
           </motion.p>
         </motion.div>
       </div>

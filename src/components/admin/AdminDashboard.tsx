@@ -1,12 +1,15 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { FaUsers, FaHockeyPuck, FaCalendarAlt, FaCog, FaSignOutAlt, FaBars, FaTimes } from 'react-icons/fa';
+import { FaUsers, FaHockeyPuck, FaCalendarAlt, FaCog, FaSignOutAlt, FaBars, FaTimes, FaClock } from 'react-icons/fa';
+import { Users } from 'lucide-react';
 import PlayerManagement from './PlayerManagement';
 import CoachManagement from './CoachManagement';
 import SiteSectionsEditor from './SiteSectionsEditor';
 import GameScheduleManagement from './GameScheduleManagement';
+import OpponentTeamsManagement from './OpponentTeamsManagement';
+import PracticeScheduleManagement from './PracticeScheduleManagement';
 
-type AdminSection = 'players' | 'coaches' | 'site-sections' | 'schedule' | 'settings';
+type AdminSection = 'players' | 'coaches' | 'site-sections' | 'schedule' | 'practice' | 'opponents' | 'settings';
 
 interface AdminDashboardProps {
   onLogout: () => void;
@@ -19,8 +22,10 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
   const menuItems = [
     { id: 'players' as AdminSection, label: 'Team Roster', icon: FaUsers },
     { id: 'coaches' as AdminSection, label: 'Coaching Staff', icon: FaHockeyPuck },
-    { id: 'site-sections' as AdminSection, label: 'Site Content', icon: FaCog },
+    { id: 'opponents' as AdminSection, label: 'Opponent Teams', icon: Users },
+    { id: 'practice' as AdminSection, label: 'Practice Schedule', icon: FaClock },
     { id: 'schedule' as AdminSection, label: 'Game Schedule', icon: FaCalendarAlt },
+    { id: 'site-sections' as AdminSection, label: 'Site Content', icon: FaCog },
   ];
 
   const renderContent = () => {
@@ -29,6 +34,10 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
         return <PlayerManagement />;
       case 'coaches':
         return <CoachManagement />;
+      case 'opponents':
+        return <OpponentTeamsManagement />;
+      case 'practice':
+        return <PracticeScheduleManagement />;
       case 'site-sections':
         return <SiteSectionsEditor />;
       case 'schedule':

@@ -12,9 +12,10 @@ export function useGameSchedule() {
       try {
         setLoading(true);
         const { data, error } = await supabase
-          .from('game_schedule')
+          .from('game_schedules')
           .select('*')
-          .order('date', { ascending: true });
+          .order('game_date', { ascending: true })
+          .order('game_time', { ascending: true });
 
         if (error) throw error;
 
@@ -37,7 +38,9 @@ export function useGameSchedule() {
     const upcoming: Game[] = [];
 
     games.forEach(game => {
-      if (new Date(game.date) < now) {
+      // Use game_date if available, fallback to date for legacy
+      const gameDate = game.game_date || game.date;
+      if (gameDate && new Date(gameDate) < now) {
         past.push(game);
       } else {
         upcoming.push(game);
