@@ -82,7 +82,7 @@ const Location = () => {
   };
 
   // Group schedules by day
-  const groupedSchedules = practiceSchedules.reduce((acc, schedule) => {
+  const _groupedSchedules = practiceSchedules.reduce((acc, schedule) => {
     if (!acc[schedule.day_of_week]) {
       acc[schedule.day_of_week] = [];
     }

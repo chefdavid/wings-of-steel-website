@@ -82,12 +82,12 @@ const GameScheduleManagement = () => {
   const handleEdit = (game: Game) => {
     setEditingGame(game);
     setFormData({
-      date: new Date(game.date).toISOString().slice(0, 16),
-      opponent: game.opponent,
-      location: game.location,
-      home_game: game.home_game,
+      date: game.date ? new Date(game.date).toISOString().slice(0, 16) : '',
+      opponent: game.opponent || '',
+      location: game.location || '',
+      home_game: game.home_game || false,
       notes: game.notes || '',
-      status: game.status
+      status: game.status || 'Scheduled'
     });
     setShowForm(true);
   };
@@ -161,8 +161,8 @@ const GameScheduleManagement = () => {
       {/* Games List */}
       <div className="space-y-4">
         {games.map((game) => {
-          const { date, time } = formatDate(game.date);
-          const isUpcoming = new Date(game.date) > new Date();
+          const { date, time } = formatDate(game.date || '');
+          const isUpcoming = game.date ? new Date(game.date) > new Date() : false;
           
           return (
             <motion.div

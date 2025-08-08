@@ -321,7 +321,6 @@ export function Store() {
             {filteredAndSortedProducts.map((product) => {
               const lowestPrice = Math.min(...product.variants.map(v => v.price));
               const highestPrice = Math.max(...product.variants.map(v => v.price));
-              const hasMultiplePrices = lowestPrice !== highestPrice;
               
               return (
                 <ProductCard

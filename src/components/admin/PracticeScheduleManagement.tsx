@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Edit2, Trash2, Clock, MapPin, Calendar, Users, X, Copy, Check } from 'lucide-react';
+import { Plus, Edit2, Trash2, Clock, MapPin, Calendar, X, Copy, Check } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
 import type { PracticeSchedule } from '../../types/practice-schedule';
 import { DAYS_OF_WEEK, TEAM_TYPES } from '../../types/practice-schedule';

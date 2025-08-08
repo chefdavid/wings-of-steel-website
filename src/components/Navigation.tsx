@@ -8,7 +8,6 @@ const Navigation = () => {
   const [showScheduleDropdown, setShowScheduleDropdown] = useState(false);
   const [showRosterDropdown, setShowRosterDropdown] = useState(false);
   const location = useLocation();
-  const isOpponentsPage = location.pathname.includes('/opponents');
 
   const handleHashLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();

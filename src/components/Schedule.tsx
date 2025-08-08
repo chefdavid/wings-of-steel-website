@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaCalendarAlt, FaClock, FaMapMarkerAlt, FaTrophy, FaBan, FaHockeyPuck, FaHome, FaTimes, FaPhone, FaGlobe, FaDirections, FaParking } from 'react-icons/fa';
+import { FaCalendarAlt, FaClock, FaMapMarkerAlt, FaTrophy, FaBan, FaHockeyPuck, FaHome, FaTimes, FaPhone, FaGlobe, FaDirections } from 'react-icons/fa';
 import { useGameSchedule } from '../hooks';
 
 const Schedule = () => {

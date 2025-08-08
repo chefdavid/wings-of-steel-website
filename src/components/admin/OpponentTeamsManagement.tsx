@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Edit2, Trash2, Search, X, Globe, Mail, Phone, MapPin } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, X, Globe, Mail, Phone } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
 import type { OpponentTeam } from '../../types/opponent-team';
 
