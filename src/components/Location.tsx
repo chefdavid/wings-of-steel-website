@@ -81,14 +81,14 @@ const Location = () => {
     return `${displayHour}:${minutes} ${ampm}`;
   };
 
-  // Group schedules by day
-  const _groupedSchedules = practiceSchedules.reduce((acc, schedule) => {
-    if (!acc[schedule.day_of_week]) {
-      acc[schedule.day_of_week] = [];
-    }
-    acc[schedule.day_of_week].push(schedule);
-    return acc;
-  }, {} as Record<string, PracticeSchedule[]>);
+  // Group schedules by day - commented out as not currently used
+  // const groupedSchedules = practiceSchedules.reduce((acc, schedule) => {
+  //   if (!acc[schedule.day_of_week]) {
+  //     acc[schedule.day_of_week] = [];
+  //   }
+  //   acc[schedule.day_of_week].push(schedule);
+  //   return acc;
+  // }, {} as Record<string, PracticeSchedule[]>);
 
   // Get team type label
   const getTeamTypeLabel = (type?: string) => {

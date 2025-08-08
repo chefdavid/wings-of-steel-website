@@ -318,23 +318,18 @@ export function Store() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredAndSortedProducts.map((product) => {
-              const lowestPrice = Math.min(...product.variants.map(v => v.price));
-              const highestPrice = Math.max(...product.variants.map(v => v.price));
-              
-              return (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  onSelect={() => setSelectedProduct(product)}
-                  onAddToCart={(variant) => {
-                    addToCart(product, variant);
-                    setIsCartOpen(true);
-                  }}
-                  getProductType={getProductType}
-                />
-              );
-            })}
+            {filteredAndSortedProducts.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                onSelect={() => setSelectedProduct(product)}
+                onAddToCart={(variant) => {
+                  addToCart(product, variant);
+                  setIsCartOpen(true);
+                }}
+                getProductType={getProductType}
+              />
+            ))}
           </div>
         )}
 
