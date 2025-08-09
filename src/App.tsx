@@ -17,26 +17,10 @@ function App() {
         <Suspense fallback={<LoadingSpinner />}>
           <Routes>
             {/* Root routes - Direct access without redirect */}
-            <Route path="/" element={
-              <URLTeamProvider>
-                <TeamSite />
-              </URLTeamProvider>
-            } />
-            <Route path="/admin" element={
-              <URLTeamProvider>
-                <Admin />
-              </URLTeamProvider>
-            } />
-            <Route path="/opponents" element={
-              <URLTeamProvider>
-                <OpponentTeams />
-              </URLTeamProvider>
-            } />
-            <Route path="/store" element={
-              <URLTeamProvider>
-                <StorePage />
-              </URLTeamProvider>
-            } />
+            <Route path="/" element={<TeamSite />} />
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/opponents" element={<OpponentTeams />} />
+            <Route path="/store" element={<StorePage />} />
             
             {/* Team-specific routes (keep for backwards compatibility) */}
             <Route path="/team/:team/*" element={

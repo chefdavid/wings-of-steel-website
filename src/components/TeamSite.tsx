@@ -1,5 +1,6 @@
 import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { useParams } from 'react-router-dom';
+import { URLTeamProvider } from '../contexts/URLTeamContext';
 import Navigation from './Navigation';
 import HeroLight from './HeroLight';
 import Footer from './Footer';
@@ -52,21 +53,23 @@ const TeamSite: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen">
-      <Navigation />
-      <main id="main-content" className="pt-20">
-        <HeroLight />
-        <Suspense fallback={<div className="h-32" />}>
-          <About />
-          <Team />
-          <Schedule />
-          <Location />
-          <GetInvolved />
-          <Contact />
-        </Suspense>
-        <Footer />
-      </main>
-    </div>
+    <URLTeamProvider>
+      <div className="min-h-screen">
+        <Navigation />
+        <main id="main-content" className="pt-20">
+          <HeroLight />
+          <Suspense fallback={<div className="h-32" />}>
+            <About />
+            <Team />
+            <Schedule />
+            <Location />
+            <GetInvolved />
+            <Contact />
+          </Suspense>
+          <Footer />
+        </main>
+      </div>
+    </URLTeamProvider>
   );
 };
 
