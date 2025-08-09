@@ -20,7 +20,7 @@ const Hero = () => {
     const link = document.createElement('link');
     link.rel = 'preload';
     link.as = 'image';
-    link.href = 'https://cdn.midjourney.com/eeee2fd6-e61e-4939-a6d9-d0af69074a40/0_2.png';
+    link.href = '/assets/hockey-sticks.webp';
     document.head.appendChild(link);
   }, []);
 
@@ -37,7 +37,7 @@ const Hero = () => {
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat bg-dark-steel"
         style={{
-          backgroundImage: `url('https://cdn.midjourney.com/eeee2fd6-e61e-4939-a6d9-d0af69074a40/0_2.png')`,
+          backgroundImage: `url('/assets/hockey-sticks.webp')`,
         }}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60"></div>
