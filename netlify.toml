@@ -62,23 +62,14 @@
 
 # HTTP/2 Server Push removed - wildcards not supported
 
-# Redirects
+# SPA fallback for client-side routing
+# This will NOT redirect if a file exists at the path
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+  force = false
 
-# Enable asset optimization
+# Disable Netlify's asset optimization to avoid conflicts with Vite
 [build.processing]
-  skip_processing = false
-
-[build.processing.css]
-  bundle = true
-  minify = true
-
-[build.processing.js]
-  bundle = true
-  minify = true
-
-[build.processing.images]
-  compress = true
+  skip_processing = true
