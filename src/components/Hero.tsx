@@ -27,7 +27,7 @@ const Hero = () => {
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: `url('https://cdn.midjourney.com/eeee2fd6-e61e-4939-a6d9-d0af69074a40/0_2.png')`,
+          backgroundImage: `url('/images/hockey-sticks2.webp')`,
         }}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60"></div>

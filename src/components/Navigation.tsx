@@ -69,7 +69,7 @@ const Navigation = () => {
               className="flex items-center min-w-0"
             >
               <img 
-                src="/assets/wings-logo.png" 
+                src="/assets/wings-logo.webp" 
                 alt="Wings of Steel Logo" 
                 className="h-12 w-auto mr-4"
               />
