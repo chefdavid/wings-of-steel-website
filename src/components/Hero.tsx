@@ -35,11 +35,14 @@ const Hero = () => {
   return (
     <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden">
       <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat bg-dark-steel"
-        style={{
-          backgroundImage: `url('/assets/hockey-sticks.webp')`,
-        }}
+        className="absolute inset-0 bg-dark-steel"
       >
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: `url('/assets/hockey-sticks.webp')`,
+          }}
+        />
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60"></div>
       </div>
 

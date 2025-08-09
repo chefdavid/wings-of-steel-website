@@ -23,6 +23,19 @@
   }
 }
 
+/* Prevent layout shift on hero section */
+#home {
+  min-height: 100vh;
+  position: relative;
+  contain: layout style paint;
+}
+
+#home > div:first-child {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+
 :root {
   font-synthesis: none;
   text-rendering: optimizeLegibility;
