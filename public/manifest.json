@@ -8,12 +8,12 @@
   "background_color": "#1a202c",
   "icons": [
     {
-      "src": "/assets/wings-logo.png",
+      "src": "/assets/wings-logo-optimized.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/assets/wings-logo.png",
+      "src": "/assets/wings-logo-optimized.png",
       "sizes": "512x512",
       "type": "image/png"
     }
