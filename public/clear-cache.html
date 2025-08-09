@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Clear Cache - Wings of Steel</title>
+</head>
+<body>
+    <h1>Clearing cache and service worker...</h1>
+    <div id="status"></div>
+    
+    <script>
+        const statusDiv = document.getElementById('status');
+        
+        async function clearEverything() {
+            try {
+                // Unregister all service workers
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                for(let registration of registrations) {
+                    await registration.unregister();
+                    statusDiv.innerHTML += '<p>✓ Service worker unregistered</p>';
+                }
+                
+                // Clear all caches
+                const cacheNames = await caches.keys();
+                for(let cacheName of cacheNames) {
+                    await caches.delete(cacheName);
+                    statusDiv.innerHTML += `<p>✓ Cache "${cacheName}" deleted</p>`;
+                }
+                
+                // Clear local storage
+                localStorage.clear();
+                sessionStorage.clear();
+                statusDiv.innerHTML += '<p>✓ Storage cleared</p>';
+                
+                statusDiv.innerHTML += '<h2 style="color: green;">All cleared! Redirecting to home page...</h2>';
+                
+                // Redirect after 2 seconds
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 2000);
+                
+            } catch (error) {
+                statusDiv.innerHTML += `<p style="color: red;">Error: ${error.message}</p>`;
+            }
+        }
+        
+        clearEverything();
+    </script>
+</body>
+</html>

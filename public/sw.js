@@ -1,5 +1,5 @@
 // Service Worker for Wings of Steel
-const CACHE_NAME = 'wings-of-steel-v1';
+const CACHE_NAME = 'wings-of-steel-v3'; // Updated to force cache refresh
 const urlsToCache = [
   '/',
   '/index.html',
