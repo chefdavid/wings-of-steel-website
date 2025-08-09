@@ -68,17 +68,14 @@ const Navigation = () => {
               transition={{ duration: 0.5 }}
               className="flex items-center min-w-0"
             >
-              <picture>
-                <source srcSet="/assets/wings-logo-optimized.webp" type="image/webp" />
-                <img 
-                  src="/assets/wings-logo-optimized.png" 
-                  alt="Wings of Steel Logo" 
-                  className="h-12 w-auto mr-4"
-                  width="48"
-                  height="48"
-                  loading="eager"
-                />
-              </picture>
+              <img 
+                src="/assets/wings-logo-real.webp" 
+                alt="Wings of Steel Logo" 
+                className="h-12 w-auto mr-4"
+                width="48"
+                height="48"
+                loading="eager"
+              />
               <div className="flex flex-col min-w-0">
                 <span className="text-xl md:text-2xl font-sport text-white leading-tight whitespace-nowrap">WINGS OF STEEL</span>
                 <span className="text-xs text-ice-blue font-medium truncate">Youth Sled Hockey</span>
