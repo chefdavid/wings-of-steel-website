@@ -18,7 +18,10 @@ const TeamSite: React.FC = () => {
   const [showAdmin, setShowAdmin] = useState(false);
   const { team } = useParams<{ team: TeamType }>();
   
-  console.log('TeamSite rendering, team:', team);
+  // Default to 'youth' team if no team is specified (for root route)
+  const currentTeam = team || 'youth';
+  
+  console.log('TeamSite rendering, team:', currentTeam);
 
   useEffect(() => {
     // Check if we're on the admin route
@@ -37,8 +40,8 @@ const TeamSite: React.FC = () => {
   }, []);
 
   // Only youth team is currently active
-  if (!team || team !== 'youth') {
-    console.log('Invalid team, returning null');
+  if (currentTeam !== 'youth' && currentTeam !== 'adult') {
+    console.log('Invalid team, redirecting');
     return null; // Let React Router handle the redirect
   }
   
