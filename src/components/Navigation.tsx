@@ -12,8 +12,11 @@ const Navigation = () => {
   const handleHashLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
     
-    if (location.pathname !== '/team/youth') {
-      window.location.href = '/team/youth' + href;
+    // Check if we're on the home page (either / or /team/youth)
+    const isHomePage = location.pathname === '/' || location.pathname === '/team/youth';
+    
+    if (!isHomePage) {
+      window.location.href = '/' + href;
     } else {
       // Small delay to ensure dropdown closes before scrolling
       setTimeout(() => {
@@ -51,8 +54,8 @@ const Navigation = () => {
       ]
     },
     { name: 'Location', href: '#location', isHashLink: true },
-    { name: 'Store', href: '/team/youth/store', isHashLink: false },
-    { name: 'Opponents', href: '/team/youth/opponents', isHashLink: false },
+    { name: 'Store', href: '/store', isHashLink: false },
+    { name: 'Opponents', href: '/opponents', isHashLink: false },
     { name: 'Get Involved', href: '#get-involved', isHashLink: true },
     { name: 'Contact', href: '#contact', isHashLink: true },
   ];

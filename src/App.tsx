@@ -14,34 +14,52 @@ function App() {
   return (
     <Router>
       <CartProvider>
-        <Routes>
-          {/* Root route - Redirect to youth team */}
-          <Route path="/" element={<Navigate to="/team/youth" replace />} />
-          
-          {/* Team-specific routes (only youth for now) */}
-          <Route path="/team/:team/*" element={
-            <URLTeamProvider>
-              <Suspense fallback={<LoadingSpinner />}>
+        <Suspense fallback={<LoadingSpinner />}>
+          <Routes>
+            {/* Root routes - Direct access without redirect */}
+            <Route path="/" element={
+              <URLTeamProvider>
+                <TeamSite />
+              </URLTeamProvider>
+            } />
+            <Route path="/admin" element={
+              <URLTeamProvider>
+                <Admin />
+              </URLTeamProvider>
+            } />
+            <Route path="/opponents" element={
+              <URLTeamProvider>
+                <OpponentTeams />
+              </URLTeamProvider>
+            } />
+            <Route path="/store" element={
+              <URLTeamProvider>
+                <StorePage />
+              </URLTeamProvider>
+            } />
+            
+            {/* Team-specific routes (keep for backwards compatibility) */}
+            <Route path="/team/:team/*" element={
+              <URLTeamProvider>
                 <Routes>
                   <Route path="/" element={<TeamSite />} />
                   <Route path="/admin" element={<Admin />} />
                   <Route path="/opponents" element={<OpponentTeams />} />
                   <Route path="/store" element={<StorePage />} />
                 </Routes>
-              </Suspense>
-            </URLTeamProvider>
-          } />
-          
-          {/* Redirect old adult team URLs to youth */}
-          <Route path="/team/adult/*" element={<Navigate to="/team/youth" replace />} />
-        
-          {/* Legacy redirects */}
-          <Route path="/admin" element={<Navigate to="/team/youth/admin" replace />} />
-          <Route path="#admin" element={<Navigate to="/team/youth/admin" replace />} />
-          
-          {/* Catch all - redirect to youth team */}
-          <Route path="*" element={<Navigate to="/team/youth" replace />} />
-        </Routes>
+              </URLTeamProvider>
+            } />
+            
+            {/* Redirect old adult team URLs to root */}
+            <Route path="/team/adult/*" element={<Navigate to="/" replace />} />
+            
+            {/* Legacy redirects */}
+            <Route path="#admin" element={<Navigate to="/admin" replace />} />
+            
+            {/* Catch all - redirect to root */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Suspense>
       </CartProvider>
     </Router>
   )
