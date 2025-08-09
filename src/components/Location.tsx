@@ -221,7 +221,9 @@ const Location = () => {
                 <>
                   <div className="space-y-4">
                     {practiceSchedules.slice(0, showAllPractices ? practiceSchedules.length : 5).map((session, index) => {
-                      const practiceDate = new Date(session.effective_from!);
+                      // Parse the date string properly to avoid timezone issues
+                      const [year, month, day] = session.effective_from!.split('-').map(Number);
+                      const practiceDate = new Date(year, month - 1, day); // month is 0-based in JS
                       const dateInfo = {
                         day: practiceDate.getDate(),
                         month: practiceDate.toLocaleDateString('en-US', { month: 'short' }).toUpperCase(),
@@ -253,7 +255,7 @@ const Location = () => {
                               <div className="bg-gradient-to-br from-ice-blue to-steel-blue p-4 md:p-5 text-white text-center w-20 md:w-24 rounded-l-xl">
                                 <div className="text-2xl md:text-3xl font-bold">{dateInfo.day}</div>
                                 <div className="text-xs md:text-sm font-semibold uppercase tracking-wide">{dateInfo.month}</div>
-                                <div className="text-xs opacity-90 mt-1">THU</div>
+                                <div className="text-xs opacity-90 mt-1">{dateInfo.weekday.substring(0, 3).toUpperCase()}</div>
                               </div>
                               
                               {/* Practice Details */}

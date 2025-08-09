@@ -1,9 +1,11 @@
 -- Wings of Steel 2025-26 Season Schedule Update
 -- Based on official booking report
 
--- First, clear existing practice and game schedules
-DELETE FROM practice_schedules WHERE season = 'Fall 2025' OR season = 'Spring 2026';
-DELETE FROM game_schedule WHERE date >= '2025-09-01' AND date <= '2026-03-31';
+-- First, clear existing practice and game schedules for the 2025-26 season
+DELETE FROM practice_schedules WHERE 
+  season IN ('Fall 2025', 'Spring 2026', 'Holiday Break') 
+  OR (effective_from >= '2025-09-01' AND effective_from <= '2026-05-01');
+DELETE FROM game_schedule WHERE date >= '2025-09-01' AND date <= '2026-05-01';
 
 -- ==========================================
 -- PRACTICE SCHEDULES
