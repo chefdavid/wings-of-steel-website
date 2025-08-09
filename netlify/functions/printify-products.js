@@ -1,11 +1,21 @@
 import axios from 'axios';
 
 export const handler = async (event, context) => {
-  // Enable CORS
+  // Enable CORS with specific origins for better security
+  const allowedOrigins = [
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'http://127.0.0.1:5173',
+    'https://wingsofsteel.org',
+    'https://wingsofsteel.netlify.app'
+  ];
+  
+  const origin = event.headers.origin || event.headers.Origin || '';
   const headers = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Origin': allowedOrigins.includes(origin) ? origin : allowedOrigins[0],
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Credentials': 'true',
   };
 
   // Handle preflight requests

@@ -169,11 +169,13 @@ export function Store() {
           className="text-center mb-12"
         >
           <h2 className="text-5xl md:text-7xl font-bebas text-gray-900 mb-4">
-            Team Store
+            Wings Store
           </h2>
-          <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
-            Premium merchandise to support Wings of Steel.
-            Every purchase helps make sled hockey accessible to all.
+          <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto font-semibold mb-2">
+            Merch That Matters — Every Purchase Fuels the Game
+          </p>
+          <p className="text-base md:text-lg text-gray-500 max-w-xl mx-auto">
+            All proceeds go straight to supporting our sled hockey team.
           </p>
         </motion.div>
 

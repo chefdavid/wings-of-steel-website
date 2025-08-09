@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { mockProducts } from '../data/mockProducts';
 
 export interface PrintifyProduct {
   id: string;
@@ -162,6 +163,14 @@ class PrintifyService {
         console.error('Response data:', error.response.data);
         console.error('Full error details:', JSON.stringify(error.response.data, null, 2));
       }
+      
+      // Use mock data in development if API fails
+      const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      if (isDevelopment) {
+        console.log('Using mock products for local development');
+        return mockProducts;
+      }
+      
       return [];
     }
   }

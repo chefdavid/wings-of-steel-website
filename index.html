@@ -53,6 +53,87 @@
     <!-- PWA manifest -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#4682B4">
+    
+    <!-- Structured Data for SEO -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SportsTeam",
+      "name": "Wings of Steel Youth Sled Hockey",
+      "sport": "Sled Hockey",
+      "memberOf": {
+        "@type": "SportsOrganization",
+        "name": "USA Hockey"
+      },
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "601 Laurel Oak Rd",
+        "addressLocality": "Voorhees Township",
+        "addressRegion": "NJ",
+        "postalCode": "08043",
+        "addressCountry": "US"
+      },
+      "url": "https://wingsofsteel.org",
+      "logo": "https://wingsofsteel.org/assets/wings-logo.webp",
+      "description": "Championship youth sled hockey team making the sport accessible to all children regardless of financial ability. No child pays to play.",
+      "foundingDate": "2020",
+      "slogan": "No child pays to play",
+      "award": ["2025 USA Sled Hockey Champions", "2026 USA Sled Hockey Champions"],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "General Inquiries",
+        "url": "https://wingsofsteel.org/#contact"
+      },
+      "sameAs": [
+        "https://www.facebook.com/wingsofsteel",
+        "https://www.instagram.com/wingsofsteel"
+      ],
+      "sponsor": {
+        "@type": "Organization",
+        "name": "Flyers Skate Zone",
+        "url": "https://flyersskatezone.com"
+      },
+      "location": {
+        "@type": "Place",
+        "name": "Flyers Skate Zone",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "601 Laurel Oak Rd",
+          "addressLocality": "Voorhees Township",
+          "addressRegion": "NJ",
+          "postalCode": "08043"
+        }
+      }
+    }
+    </script>
+    
+    <!-- Local Business Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      "name": "Wings of Steel Youth Sled Hockey",
+      "image": "https://wingsofsteel.org/assets/hockey-sticks.webp",
+      "@id": "https://wingsofsteel.org",
+      "url": "https://wingsofsteel.org",
+      "telephone": "",
+      "priceRange": "Free",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "601 Laurel Oak Rd",
+        "addressLocality": "Voorhees Township",
+        "addressRegion": "NJ",
+        "postalCode": "08043",
+        "addressCountry": "US"
+      },
+      "openingHoursSpecification": {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": "Thursday",
+        "opens": "18:10",
+        "closes": "19:10"
+      }
+    }
+    </script>
   </head>
   <body>
     <div id="root"></div>
