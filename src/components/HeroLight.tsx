@@ -28,13 +28,24 @@ const HeroLight = () => {
         className="absolute inset-0 bg-dark-steel"
         role="presentation"
       >
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: `url('/assets/hockey-sticks.webp')`,
-          }}
-          aria-hidden="true"
-        />
+        <picture className="absolute inset-0">
+          <source 
+            media="(max-width: 768px)"
+            srcSet="/assets/hockey-sticks.webp?w=768 768w"
+          />
+          <source 
+            media="(min-width: 769px)"
+            srcSet="/assets/hockey-sticks.webp?w=1920 1920w"
+          />
+          <img
+            src="/assets/hockey-sticks.webp"
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover"
+            loading="eager"
+            fetchPriority="high"
+            aria-hidden="true"
+          />
+        </picture>
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60"></div>
       </div>
 

@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { mockProducts } from '../data/mockProducts';
 
 export interface PrintifyProduct {
   id: string;
@@ -117,8 +116,8 @@ class PrintifyService {
 
   constructor() {
     this.shopId = import.meta.env.VITE_PRINTIFY_SHOP_ID || '';
-    // Always use Netlify functions to avoid CORS issues
-    this.useNetlifyFunctions = true;
+    // Use Netlify functions in production only
+    this.useNetlifyFunctions = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
 
     if (!this.shopId) {
       console.warn('Printify Shop ID not configured. Store features will be limited.');
@@ -131,26 +130,17 @@ class PrintifyService {
       
       if (this.useNetlifyFunctions) {
         // Use Netlify function to avoid CORS
-        // For local dev, use the deployed site's functions
-        const baseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-          ? 'https://wingsofsteel.netlify.app'
-          : '';
-        const response = await axios.get(`${baseUrl}/.netlify/functions/printify-products`, {
+        const response = await axios.get('/.netlify/functions/printify-products', {
           params: { shopId: this.shopId, limit, page },
         });
         console.log('Products response:', response.data);
         return response.data.data || response.data || [];
       } else {
-        // Direct API call (won't work from browser due to CORS)
-        const apiToken = import.meta.env.VITE_PRINTIFY_API_TOKEN;
+        // Use proxy in development to avoid CORS
         const response = await axios.get(
-          `https://api.printify.com/v1/shops/${this.shopId}/products.json`,
+          `/api/printify/v1/shops/${this.shopId}/products.json`,
           {
-            params: { limit, page },
-            headers: {
-              'Authorization': `Bearer ${apiToken}`,
-              'Content-Type': 'application/json',
-            },
+            params: { limit, page }
           }
         );
         console.log('Products response:', response.data);
@@ -163,14 +153,6 @@ class PrintifyService {
         console.error('Response data:', error.response.data);
         console.error('Full error details:', JSON.stringify(error.response.data, null, 2));
       }
-      
-      // Use mock data in development if API fails
-      const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      if (isDevelopment) {
-        console.log('Using mock products for local development');
-        return mockProducts;
-      }
-      
       return [];
     }
   }
