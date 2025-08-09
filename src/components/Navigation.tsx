@@ -61,8 +61,17 @@ const Navigation = () => {
   ];
 
   return (
-    <nav className="fixed top-0 w-full bg-dark-steel/95 backdrop-blur-sm z-50 shadow-lg">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <>
+      {/* Skip to main content for accessibility */}
+      <a 
+        href="#main-content" 
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-steel-blue text-white px-4 py-2 rounded-md z-50"
+      >
+        Skip to main content
+      </a>
+      
+      <nav className="fixed top-0 w-full bg-dark-steel/95 backdrop-blur-sm z-50 shadow-lg" role="navigation" aria-label="Main navigation">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20 max-w-full">
           <div className="flex items-center min-w-0 flex-shrink-0">
             <motion.div
@@ -190,6 +199,8 @@ const Navigation = () => {
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-steel-blue focus:outline-none"
+              aria-label={isOpen ? "Close navigation menu" : "Open navigation menu"}
+              aria-expanded={isOpen}
             >
               {isOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
             </button>
@@ -286,7 +297,8 @@ const Navigation = () => {
           </div>
         </motion.div>
       )}
-    </nav>
+      </nav>
+    </>
   );
 };
 

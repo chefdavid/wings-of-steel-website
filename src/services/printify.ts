@@ -116,7 +116,7 @@ class PrintifyService {
 
   constructor() {
     this.shopId = import.meta.env.VITE_PRINTIFY_SHOP_ID || '';
-    // Use Netlify functions in production or when running locally
+    // Always use Netlify functions to avoid CORS issues
     this.useNetlifyFunctions = true;
 
     if (!this.shopId) {
@@ -130,7 +130,11 @@ class PrintifyService {
       
       if (this.useNetlifyFunctions) {
         // Use Netlify function to avoid CORS
-        const response = await axios.get('/.netlify/functions/printify-products', {
+        // For local dev, use the deployed site's functions
+        const baseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+          ? 'https://wingsofsteel.netlify.app'
+          : '';
+        const response = await axios.get(`${baseUrl}/.netlify/functions/printify-products`, {
           params: { shopId: this.shopId, limit, page },
         });
         console.log('Products response:', response.data);
@@ -191,7 +195,10 @@ class PrintifyService {
   async createOrder(order: Order): Promise<{ id: string; status: string }> {
     try {
       if (this.useNetlifyFunctions) {
-        const response = await axios.post('/.netlify/functions/printify-order', {
+        const baseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+          ? 'https://wingsofsteel.netlify.app'
+          : '';
+        const response = await axios.post(`${baseUrl}/.netlify/functions/printify-order`, {
           shopId: this.shopId,
           order,
         });

@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://wingsofsteel.org/sitemap.xml
+
+# Disallow admin areas
+Disallow: /admin
+Disallow: /team/*/admin
+
+# Allow search engines to crawl everything else
+Allow: /store
+Allow: /opponents
+Allow: /team/youth
+
+# Crawl delay (optional, in seconds)
+Crawl-delay: 1

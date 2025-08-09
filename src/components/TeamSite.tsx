@@ -51,7 +51,7 @@ const TeamSite: React.FC = () => {
   return (
     <div className="min-h-screen">
       <Navigation />
-      <div className="pt-20">
+      <main id="main-content" className="pt-20">
         <HeroLight />
         <Suspense fallback={<div className="h-32" />}>
           <About />
@@ -62,7 +62,7 @@ const TeamSite: React.FC = () => {
           <Contact />
         </Suspense>
         <Footer />
-      </div>
+      </main>
     </div>
   );
 };

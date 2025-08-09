@@ -23,14 +23,17 @@ const HeroLight = () => {
 
   return (
     <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      {/* Optimized background with preload */}
       <div 
         className="absolute inset-0 bg-dark-steel"
+        role="presentation"
       >
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
             backgroundImage: `url('/assets/hockey-sticks.webp')`,
           }}
+          aria-hidden="true"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60"></div>
       </div>
