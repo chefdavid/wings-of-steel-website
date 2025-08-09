@@ -8,11 +8,33 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
-          'vendor-ui': ['framer-motion', 'lucide-react', 'react-icons'],
-          'vendor-payments': ['@stripe/react-stripe-js', '@stripe/stripe-js'],
-          'vendor-data': ['@supabase/supabase-js', 'axios'],
+        manualChunks(id) {
+          // More aggressive code splitting
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom')) {
+              return 'react-vendor';
+            }
+            if (id.includes('react-router')) {
+              return 'router';
+            }
+            if (id.includes('framer-motion')) {
+              return 'animation';
+            }
+            if (id.includes('react-icons') || id.includes('lucide-react')) {
+              return 'icons';
+            }
+            if (id.includes('@supabase')) {
+              return 'supabase';
+            }
+            if (id.includes('axios')) {
+              return 'http';
+            }
+            if (id.includes('@stripe')) {
+              return 'payments';
+            }
+            // Put other vendor code in a general vendor chunk
+            return 'vendor';
+          }
         }
       }
     },

@@ -1,9 +1,8 @@
-const CACHE_NAME = 'wings-of-steel-v1';
+const CACHE_NAME = 'wings-of-steel-v2';
+// Only cache essential files initially
 const urlsToCache = [
   '/',
-  '/index.html',
-  '/manifest.json',
-  '/assets/wings-logo.png'
+  '/index.html'
 ];
 
 // Install service worker
