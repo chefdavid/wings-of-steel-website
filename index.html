@@ -16,9 +16,23 @@
     <link rel="dns-prefetch" href="https://api.stripe.com">
     <link rel="dns-prefetch" href="https://js.stripe.com">
     
-    <!-- Preload critical fonts -->
+    <!-- Preload critical fonts with font-display swap -->
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@600;700&display=swap" as="style">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@600;700&display=swap" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@600;700&display=swap">
+    
+    <!-- Add font fallbacks to prevent layout shift -->
+    <style>
+      @font-face {
+        font-family: 'Bebas Neue Fallback';
+        src: local('Arial Narrow'), local('Arial');
+        ascent-override: 95%;
+        descent-override: 10%;
+        line-gap-override: 0%;
+      }
+      .font-sport {
+        font-family: 'Bebas Neue', 'Bebas Neue Fallback', sans-serif;
+      }
+    </style>
     
     <!-- Async load non-critical fonts -->
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" as="style">

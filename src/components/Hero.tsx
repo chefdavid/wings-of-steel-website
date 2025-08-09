@@ -35,7 +35,7 @@ const Hero = () => {
   return (
     <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden">
       <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat bg-dark-steel"
         style={{
           backgroundImage: `url('https://cdn.midjourney.com/eeee2fd6-e61e-4939-a6d9-d0af69074a40/0_2.png')`,
         }}
