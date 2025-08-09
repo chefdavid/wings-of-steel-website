@@ -60,14 +60,7 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
-# HTTP/2 Server Push
-[[headers]]
-  for = "/"
-  [headers.values]
-    Link = '''
-    </assets/index-*.css>; rel=preload; as=style,
-    </assets/index-*.js>; rel=preload; as=script,
-    </assets/vendor-react-*.js>; rel=preload; as=script'''
+# HTTP/2 Server Push removed - wildcards not supported
 
 # Redirects
 [[redirects]]

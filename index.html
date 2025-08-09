@@ -139,8 +139,6 @@
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     
-    <!-- Preload critical chunks but defer execution -->
-    <link rel="modulepreload" href="/src/App.tsx" />
-    <link rel="modulepreload" href="/src/components/TeamSite.tsx" />
+    <!-- Module preloading removed - handled by Vite in production -->
   </body>
 </html>
