@@ -74,11 +74,11 @@ const Hero = () => {
           </p>
           
           <div className="flex flex-col md:flex-row gap-2 md:gap-3 justify-center items-center mb-4 md:mb-6">
-            <div className="flex items-center justify-center gap-2 bg-yellow-400 text-black px-3 py-1.5 md:px-4 md:py-2 rounded-lg font-medium text-xs md:text-sm w-full max-w-xs md:w-auto">
+            <div className="flex items-center justify-center gap-2 bg-yellow-400 text-black px-3 py-1.5 md:px-4 md:py-2 rounded-lg font-medium text-xs md:text-sm w-full max-w-xs md:w-72">
               <FaTrophy className="text-black flex-shrink-0 text-sm" />
               <span className="text-center">{heroData?.subtitle || '2023 National Champions'}</span>
             </div>
-            <div className="flex items-center justify-center gap-2 bg-yellow-400 text-black px-3 py-1.5 md:px-4 md:py-2 rounded-lg font-medium text-xs md:text-sm w-full max-w-xs md:w-auto">
+            <div className="flex items-center justify-center gap-2 bg-yellow-400 text-black px-3 py-1.5 md:px-4 md:py-2 rounded-lg font-medium text-xs md:text-sm w-full max-w-xs md:w-72">
               <FaTrophy className="text-black flex-shrink-0 text-sm" />
               <span className="text-center">2025 USA Sled Hockey Champions 1st Place</span>
             </div>
