@@ -7,6 +7,7 @@ import ImageUpload from './ImageUpload';
 import LayoutToggle, { type LayoutType } from './LayoutToggle';
 import { getTenureDisplay } from '../../utils/dateUtils';
 import { handlePhoneChange } from '../../utils/phoneUtils';
+import { getAvatarUrl } from '../../utils/avatar';
 
 const CoachManagement = () => {
   const [coaches, setCoaches] = useState<Coach[]>([]);
@@ -352,7 +353,7 @@ const CoachManagement = () => {
             >
               <div className="flex items-center gap-4 mb-4">
                 <img
-                  src={coach.image_url || `https://ui-avatars.com/api/?name=${coach.first_name} ${coach.last_name}&background=4682B4&color=fff&size=64&bold=true`}
+                  src={getAvatarUrl(coach.image_url, coach.first_name, coach.last_name, '#4682B4', 64)}
                   alt={`${coach.first_name} ${coach.last_name}`}
                   className="w-16 h-16 rounded-full object-cover"
                 />
@@ -448,7 +449,7 @@ const CoachManagement = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <img
-                          src={coach.image_url || `https://ui-avatars.com/api/?name=${coach.first_name} ${coach.last_name}&background=4682B4&color=fff&size=40&bold=true`}
+                          src={getAvatarUrl(coach.image_url, coach.first_name, coach.last_name, '#4682B4', 40)}
                           alt={`${coach.first_name} ${coach.last_name}`}
                           className="w-10 h-10 rounded-full object-cover"
                         />

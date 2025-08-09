@@ -5,6 +5,7 @@ import { useTeamRoster } from '../hooks';
 import { useTeam } from '../hooks/useTeam';
 import { calculateAge, getYearsWithTeamDisplay } from '../utils/dateUtils';
 import { getTeamCoaches } from '../utils/teamQueries';
+import { getAvatarUrl } from '../utils/avatar';
 import type { PlayerWithTeams, CoachWithTeams } from '../types/database';
 
 const Team = () => {
@@ -132,7 +133,7 @@ const Team = () => {
                   <div className="flip-card-back bg-gradient-to-br from-team-primary to-team-secondary rounded-xl shadow-xl p-3 sm:p-4 md:p-6 flex items-center justify-center">
                     <div className="text-center text-white">
                       <img 
-                        src={player.image_url || `https://ui-avatars.com/api/?name=${player.first_name} ${player.last_name}&background=4682B4&color=fff&size=128&bold=true`}
+                        src={getAvatarUrl(player.image_url, player.first_name, player.last_name, '#4682B4', 128)}
                         alt={`${player.first_name} ${player.last_name}`}
                         className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-full mx-auto mb-2 sm:mb-3 border-2 sm:border-3 md:border-4 border-white shadow-lg object-cover"
                       />
@@ -216,7 +217,7 @@ const Team = () => {
                     <div className="flip-card-back bg-gradient-to-br from-team-secondary to-team-background rounded-lg shadow-lg p-3 sm:p-4 md:p-6 flex items-center justify-center">
                       <div className="text-center text-white">
                         <img 
-                          src={coach.image_url || `https://ui-avatars.com/api/?name=${coach.first_name} ${coach.last_name}&background=2C3E50&color=fff&size=128`}
+                          src={getAvatarUrl(coach.image_url, coach.first_name, coach.last_name, '#2C3E50', 128)}
                           alt={`${coach.first_name} ${coach.last_name}`}
                           className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-full mx-auto mb-2 sm:mb-3"
                         />
@@ -284,7 +285,7 @@ const Team = () => {
                   </button>
                   <div className="flex items-center gap-6">
                     <img 
-                      src={selectedPlayer.image_url || `https://ui-avatars.com/api/?name=${selectedPlayer.first_name} ${selectedPlayer.last_name}&background=4682B4&color=fff&size=128&bold=true`}
+                      src={getAvatarUrl(selectedPlayer.image_url, selectedPlayer.first_name, selectedPlayer.last_name, '#4682B4', 128)}
                       alt={`${selectedPlayer.first_name} ${selectedPlayer.last_name}`}
                       className="w-32 h-32 rounded-full border-4 border-white shadow-lg object-cover"
                     />
@@ -382,7 +383,7 @@ const Team = () => {
                   </button>
                   <div className="flex items-center gap-6">
                     <img 
-                      src={selectedCoach.image_url || `https://ui-avatars.com/api/?name=${selectedCoach.first_name} ${selectedCoach.last_name}&background=2C3E50&color=fff&size=128`}
+                      src={getAvatarUrl(selectedCoach.image_url, selectedCoach.first_name, selectedCoach.last_name, '#2C3E50', 128)}
                       alt={`${selectedCoach.first_name} ${selectedCoach.last_name}`}
                       className="w-32 h-32 rounded-full border-4 border-white shadow-lg object-cover"
                     />

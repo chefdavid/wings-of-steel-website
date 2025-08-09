@@ -16,7 +16,7 @@ const TeamLanding: React.FC = () => {
           {/* Logo and Title */}
           <div className="mb-8">
             <img 
-              src="/assets/wings-logo.png" 
+              src="/assets/wings-logo-real.webp" 
               alt="Wings of Steel Logo" 
               className="h-24 w-auto mx-auto mb-6"
             />

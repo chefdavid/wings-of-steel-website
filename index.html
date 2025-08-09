@@ -9,15 +9,12 @@
     <title>Wings of Steel Sled Hockey - Disabled Youth Team | Voorhees, NJ</title>
     
     <!-- Preconnect to external domains -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="dns-prefetch" href="https://ui-avatars.com">
     <link rel="dns-prefetch" href="https://api.stripe.com">
     <link rel="dns-prefetch" href="https://js.stripe.com">
     
-    <!-- Preload critical fonts with font-display swap -->
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@600;700&display=swap" as="style">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@600;700&display=swap">
+    <!-- Preload local fonts -->
+    <link rel="preload" href="/fonts/bebas-neue.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/oswald-600.woff2" as="font" type="font/woff2" crossorigin>
     
     <!-- Add font fallbacks to prevent layout shift -->
     <style>
@@ -32,10 +29,6 @@
         font-family: 'Bebas Neue', 'Bebas Neue Fallback', sans-serif;
       }
     </style>
-    
-    <!-- Async load non-critical fonts -->
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" as="style">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" media="print" onload="this.media='all'">
     
     <!-- PWA manifest -->
     <link rel="manifest" href="/manifest.json">
