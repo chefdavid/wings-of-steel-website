@@ -72,6 +72,9 @@ const Navigation = () => {
                 src="/assets/wings-logo.png" 
                 alt="Wings of Steel Logo" 
                 className="h-12 w-auto mr-4"
+                width="48"
+                height="48"
+                loading="eager"
               />
               <div className="flex flex-col min-w-0">
                 <span className="text-xl md:text-2xl font-sport text-white leading-tight whitespace-nowrap">WINGS OF STEEL</span>

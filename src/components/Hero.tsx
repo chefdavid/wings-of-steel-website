@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FaHockeyPuck, FaTrophy, FaUsers, FaHeart } from 'react-icons/fa';
 import { useSiteSections } from '../hooks';
@@ -13,6 +14,15 @@ const Hero = () => {
     tagline?: string;
     description?: string;
   } | undefined;
+
+  // Preload hero background image
+  useEffect(() => {
+    const link = document.createElement('link');
+    link.rel = 'preload';
+    link.as = 'image';
+    link.href = 'https://cdn.midjourney.com/eeee2fd6-e61e-4939-a6d9-d0af69074a40/0_2.png';
+    document.head.appendChild(link);
+  }, []);
 
   if (loading) {
     return (

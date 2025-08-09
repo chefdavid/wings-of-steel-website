@@ -411,6 +411,14 @@ export function Checkout() {
   const { items, getTotalPrice } = useCart();
   const [clientSecret, setClientSecret] = useState('');
   const [loading, setLoading] = useState(false);
+  const [stripePromise, setStripePromise] = useState<any>(null);
+
+  useEffect(() => {
+    // Load Stripe
+    stripeService.getStripe().then(stripe => {
+      setStripePromise(stripe);
+    });
+  }, []);
 
   useEffect(() => {
     // Only create payment intent if there are items in the cart
@@ -484,10 +492,9 @@ export function Checkout() {
             <div className="flex justify-center items-center h-64">
               <div className="animate-spin rounded-full h-12 w-12 border-4 border-steel-blue border-t-transparent"></div>
             </div>
-          ) : clientSecret ? (
-            stripeService.getStripe() ? (
+          ) : clientSecret && stripePromise ? (
               <Elements
-                stripe={stripeService.getStripe()}
+                stripe={stripePromise}
                 options={{
                   clientSecret,
                   appearance: {
@@ -505,11 +512,6 @@ export function Checkout() {
               >
                 <CheckoutForm />
               </Elements>
-            ) : (
-              <div className="text-center">
-                <p className="text-red-400 text-lg">Stripe is not configured. Please check your environment variables.</p>
-              </div>
-            )
           ) : items.length === 0 ? (
             <div className="text-center">
               <p className="text-steel-gray text-lg">Your cart is empty</p>
