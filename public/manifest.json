@@ -1,0 +1,21 @@
+{
+  "name": "Wings of Steel Sled Hockey",
+  "short_name": "Wings of Steel",
+  "description": "Free disabled youth sled hockey team - No child pays to play",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#4682B4",
+  "background_color": "#1a202c",
+  "icons": [
+    {
+      "src": "/assets/wings-logo-real.webp",
+      "sizes": "192x192",
+      "type": "image/webp"
+    },
+    {
+      "src": "/assets/wings-logo-real.webp",
+      "sizes": "512x512",
+      "type": "image/webp"
+    }
+  ]
+}

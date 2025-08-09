@@ -1,13 +1,16 @@
+import { lazy, Suspense } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import TeamSite from './components/TeamSite'
-import Admin from './components/Admin'
-import OpponentTeams from './components/OpponentTeams'
-import StorePage from './components/StorePage'
 import { URLTeamProvider } from './contexts/URLTeamContext'
 import { CartProvider } from './contexts/CartContext'
+import LoadingSpinner from './components/LoadingSpinner'
+
+// Lazy load heavy components
+const TeamSite = lazy(() => import('./components/TeamSite'))
+const Admin = lazy(() => import('./components/Admin'))
+const OpponentTeams = lazy(() => import('./components/OpponentTeams'))
+const StorePage = lazy(() => import('./components/StorePage'))
 
 function App() {
-  console.log('App component rendering');
   return (
     <Router>
       <CartProvider>
@@ -18,12 +21,14 @@ function App() {
           {/* Team-specific routes (only youth for now) */}
           <Route path="/team/:team/*" element={
             <URLTeamProvider>
-              <Routes>
-                <Route path="/" element={<TeamSite />} />
-                <Route path="/admin" element={<Admin />} />
-                <Route path="/opponents" element={<OpponentTeams />} />
-                <Route path="/store" element={<StorePage />} />
-              </Routes>
+              <Suspense fallback={<LoadingSpinner />}>
+                <Routes>
+                  <Route path="/" element={<TeamSite />} />
+                  <Route path="/admin" element={<Admin />} />
+                  <Route path="/opponents" element={<OpponentTeams />} />
+                  <Route path="/store" element={<StorePage />} />
+                </Routes>
+              </Suspense>
             </URLTeamProvider>
           } />
           

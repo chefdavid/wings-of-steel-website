@@ -8,6 +8,7 @@ import ImageUpload from './ImageUpload';
 import LayoutToggle, { type LayoutType } from './LayoutToggle';
 import { calculateAge, toInputDate, getTenureDisplay } from '../../utils/dateUtils';
 import { handlePhoneChange } from '../../utils/phoneUtils';
+import { getAvatarUrl } from '../../utils/avatar';
 
 const PlayerManagement = () => {
   const [players, setPlayers] = useState<Player[]>([]);
@@ -550,7 +551,7 @@ const PlayerManagement = () => {
               <div className="flex items-center gap-4 mb-4">
                 <div className="relative">
                   <img
-                    src={player.image_url || `https://ui-avatars.com/api/?name=${player.name}&background=4682B4&color=fff&size=64&bold=true`}
+                    src={getAvatarUrl(player.image_url, player.name, '', '#4682B4', 64)}
                     alt={player.name}
                     className="w-16 h-16 rounded-full object-cover"
                   />
@@ -736,7 +737,7 @@ const PlayerManagement = () => {
                       <div className="flex items-center">
                         <div className="relative">
                           <img
-                            src={player.image_url || `https://ui-avatars.com/api/?name=${player.name}&background=4682B4&color=fff&size=40&bold=true`}
+                            src={getAvatarUrl(player.image_url, player.name, '', '#4682B4', 40)}
                             alt={player.name}
                             className="w-10 h-10 rounded-full object-cover"
                           />

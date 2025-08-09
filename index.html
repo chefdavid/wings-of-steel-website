@@ -9,9 +9,40 @@
     <meta name="description" content="Wings of Steel Sled Hockey - Free disabled youth sled hockey team in Voorhees, NJ. 2025 & 2026 USA Champions. No child pays to play.">
     <meta name="keywords" content="sled hockey, disabled youth sports, Wings of Steel, New Jersey, adaptive sports, Paralympic sports">
     <title>Wings of Steel Sled Hockey - Disabled Youth Team | Voorhees, NJ</title>
+    
+    <!-- Preconnect to external domains -->
+    <link rel="dns-prefetch" href="https://api.stripe.com">
+    <link rel="dns-prefetch" href="https://js.stripe.com">
+    
+    <!-- Preload critical assets -->
+    <link rel="preload" href="/assets/hockey-sticks.webp" as="image">
+    <link rel="preload" href="/fonts/bebas-neue.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/oswald-600.woff2" as="font" type="font/woff2" crossorigin>
+    
+    <!-- Add font fallbacks to prevent layout shift -->
+    <style>
+      @font-face {
+        font-family: 'Bebas Neue Fallback';
+        src: local('Arial Narrow'), local('Arial');
+        ascent-override: 95%;
+        descent-override: 10%;
+        line-gap-override: 0%;
+      }
+      .font-sport {
+        font-family: 'Bebas Neue', 'Bebas Neue Fallback', sans-serif;
+      }
+    </style>
+    
+    <!-- PWA manifest -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#4682B4">
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- Preload critical chunks but defer execution -->
+    <link rel="modulepreload" href="/src/App.tsx" />
+    <link rel="modulepreload" href="/src/components/TeamSite.tsx" />
   </body>
 </html>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FaPlus, FaMinus, FaStar, FaUserTie } from 'react-icons/fa';
 import { supabase } from '../../lib/supabaseClient';
+import { getAvatarUrl } from '../../utils/avatar';
 import { 
   addPlayerToTeam, 
   removePlayerFromTeam, 
@@ -134,7 +135,7 @@ const TeamAssignmentManager: React.FC<TeamAssignmentManagerProps> = ({ type }) =
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <img 
-                  src={person.image_url || `https://ui-avatars.com/api/?name=${person.first_name || person.name} ${person.last_name || ''}&background=4682B4&color=fff&size=64`}
+                  src={getAvatarUrl(person.image_url, person.first_name || person.name || '', person.last_name || '', '#4682B4', 64)}
                   alt={`${person.first_name || person.name} ${person.last_name || ''}`}
                   className="w-12 h-12 rounded-full object-cover"
                 />

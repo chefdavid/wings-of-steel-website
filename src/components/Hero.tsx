@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FaHockeyPuck, FaTrophy, FaUsers, FaHeart } from 'react-icons/fa';
 import { useSiteSections } from '../hooks';
@@ -14,6 +15,15 @@ const Hero = () => {
     description?: string;
   } | undefined;
 
+  // Preload hero background image
+  useEffect(() => {
+    const link = document.createElement('link');
+    link.rel = 'preload';
+    link.as = 'image';
+    link.href = '/assets/hockey-sticks.webp';
+    document.head.appendChild(link);
+  }, []);
+
   if (loading) {
     return (
       <section className="min-h-screen flex items-center justify-center bg-dark-steel">
@@ -25,11 +35,14 @@ const Hero = () => {
   return (
     <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden">
       <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: `url('/images/hockey-sticks2.webp')`,
-        }}
+        className="absolute inset-0 bg-dark-steel"
       >
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: `url('/images/hockey-sticks2.webp')`,
+          }}
+        />
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60"></div>
       </div>
 
@@ -64,11 +77,11 @@ const Hero = () => {
           </p>
           
           <div className="flex flex-col md:flex-row gap-2 md:gap-3 justify-center items-center mb-4 md:mb-6">
-            <div className="flex items-center justify-center gap-2 bg-yellow-400 text-black px-3 py-1.5 md:px-4 md:py-2 rounded-lg font-medium text-xs md:text-sm w-full max-w-xs md:w-auto">
+            <div className="flex items-center justify-center gap-2 bg-yellow-400 text-black px-3 py-1.5 md:px-4 md:py-2 rounded-lg font-medium text-xs md:text-sm w-full max-w-xs md:w-72">
               <FaTrophy className="text-black flex-shrink-0 text-sm" />
               <span className="text-center">{heroData?.subtitle || '2023 National Champions'}</span>
             </div>
-            <div className="flex items-center justify-center gap-2 bg-yellow-400 text-black px-3 py-1.5 md:px-4 md:py-2 rounded-lg font-medium text-xs md:text-sm w-full max-w-xs md:w-auto">
+            <div className="flex items-center justify-center gap-2 bg-yellow-400 text-black px-3 py-1.5 md:px-4 md:py-2 rounded-lg font-medium text-xs md:text-sm w-full max-w-xs md:w-72">
               <FaTrophy className="text-black flex-shrink-0 text-sm" />
               <span className="text-center">2025 USA Sled Hockey Champions 1st Place</span>
             </div>

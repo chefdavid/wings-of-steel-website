@@ -1,14 +1,26 @@
-import { loadStripe } from '@stripe/stripe-js';
+import type { Stripe } from '@stripe/stripe-js';
 import axios from 'axios';
 
-// Initialize Stripe
-const publishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
-console.log('Stripe publishable key:', publishableKey ? `${publishableKey.substring(0, 20)}...` : 'MISSING');
+// Lazy load Stripe
+let stripePromise: Promise<Stripe | null> | null = null;
 
-const stripePromise = publishableKey ? loadStripe(publishableKey) : null;
+const getStripePromise = async () => {
+  if (!stripePromise) {
+    const publishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
+    console.log('Stripe publishable key:', publishableKey ? `${publishableKey.substring(0, 20)}...` : 'MISSING');
+    
+    if (publishableKey) {
+      const { loadStripe } = await import('@stripe/stripe-js');
+      stripePromise = loadStripe(publishableKey);
+    } else {
+      stripePromise = Promise.resolve(null);
+    }
+  }
+  return stripePromise;
+};
 
 export const stripeService = {
-  getStripe: () => stripePromise,
+  getStripe: () => getStripePromise(),
 
   async createPaymentIntent(amount: number, metadata?: Record<string, any>) {
     try {

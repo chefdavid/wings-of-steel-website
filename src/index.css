@@ -1,8 +1,40 @@
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Font loading optimization */
+.font-sport {
+  font-display: swap;
+}
+
+/* Hero animation without framer-motion */
+.hero-content {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Prevent layout shift on hero section */
+#home {
+  min-height: 100vh;
+  position: relative;
+  contain: layout style paint;
+}
+
+#home > div:first-child {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
 
 :root {
   font-synthesis: none;
