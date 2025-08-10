@@ -140,6 +140,17 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      // Force unregister old service workers for Chrome
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+          for(let registration of registrations) {
+            registration.unregister();
+            console.log('Unregistered old service worker');
+          }
+        });
+      }
+    </script>
     <script type="module" src="/src/main.tsx"></script>
     
     <!-- Module preloading removed - handled by Vite in production -->
