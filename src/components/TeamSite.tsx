@@ -16,6 +16,8 @@ const GetInvolved = lazy(() => import('./GetInvolved'));
 const Contact = lazy(() => import('./Contact'));
 
 const TeamSite: React.FC = () => {
+  console.log('TeamSite component starting');
+  
   const [showAdmin, setShowAdmin] = useState(false);
   const { team } = useParams<{ team: TeamType }>();
   

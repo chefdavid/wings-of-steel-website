@@ -1,8 +1,9 @@
-import { StrictMode } from 'react'
+// import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './fonts.css'
 import './index.css'
-import AppWrapper from './AppWrapper.tsx'
+// import AppWrapper from './AppWrapper.tsx'
+import App from './App.tsx'
 
 // Web Vitals for performance monitoring
 if (import.meta.env.PROD) {
@@ -26,11 +27,18 @@ if ('serviceWorker' in navigator && import.meta.env.PROD) {
 const rootElement = document.getElementById('root');
 
 if (rootElement) {
-  createRoot(rootElement).render(
-    <StrictMode>
-      <AppWrapper />
-    </StrictMode>,
-  )
+  console.log('Root element found, rendering app');
+  try {
+    createRoot(rootElement).render(
+      // Temporarily remove StrictMode to test
+      // <StrictMode>
+        <App />
+      // </StrictMode>,
+    )
+    console.log('App rendered successfully');
+  } catch (error) {
+    console.error('Error rendering app:', error);
+  }
 } else {
   console.error('Root element not found!');
 }
