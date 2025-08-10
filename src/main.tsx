@@ -1,4 +1,4 @@
-// import { StrictMode } from 'react'
+import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './fonts.css'
 import './index.css'
@@ -15,9 +15,7 @@ if (import.meta.env.PROD) {
   });
 }
 
-// Service worker temporarily disabled due to Chrome caching issues
-// Uncomment when ready to re-enable
-/*
+// Register service worker for production
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js')
@@ -25,23 +23,17 @@ if ('serviceWorker' in navigator && import.meta.env.PROD) {
       .catch(error => console.log('SW registration failed:', error));
   });
 }
-*/
 
 const rootElement = document.getElementById('root');
 
 if (rootElement) {
-  console.log('Root element found, rendering app');
   try {
     createRoot(rootElement).render(
-      // Temporarily remove StrictMode to test
-      // <StrictMode>
+      <StrictMode>
         <App />
-      // </StrictMode>,
+      </StrictMode>,
     )
-    console.log('App rendered successfully');
   } catch (error) {
     console.error('Error rendering app:', error);
   }
-} else {
-  console.error('Root element not found!');
 }

@@ -16,15 +16,11 @@ const GetInvolved = lazy(() => import('./GetInvolved'));
 const Contact = lazy(() => import('./Contact'));
 
 const TeamSite: React.FC = () => {
-  console.log('TeamSite component starting');
-  
   const [showAdmin, setShowAdmin] = useState(false);
   const { team } = useParams<{ team: TeamType }>();
   
   // Default to 'youth' team if no team is specified (for root route)
   const currentTeam = team || 'youth';
-  
-  console.log('TeamSite rendering, team:', currentTeam);
 
   useEffect(() => {
     // Check if we're on the admin route
@@ -44,11 +40,8 @@ const TeamSite: React.FC = () => {
 
   // Only youth team is currently active
   if (currentTeam !== 'youth' && currentTeam !== 'adult') {
-    console.log('Invalid team, redirecting');
     return null; // Let React Router handle the redirect
   }
-  
-  console.log('Team is valid, rendering site');
 
   if (showAdmin) {
     return <Admin />;

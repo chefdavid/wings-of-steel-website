@@ -26,14 +26,17 @@ export class ErrorBoundary extends React.Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <div style={{ padding: '20px', background: 'red', color: 'white' }}>
-          <h1>Something went wrong!</h1>
-          <details style={{ whiteSpace: 'pre-wrap' }}>
-            <summary>Click for details</summary>
-            {this.state.error?.toString()}
-            <br />
-            {this.state.error?.stack}
-          </details>
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+          <div className="text-center">
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">Something went wrong</h1>
+            <p className="text-gray-600 mb-6">We're sorry, but something unexpected happened.</p>
+            <button 
+              onClick={() => window.location.reload()}
+              className="px-6 py-2 bg-steel-blue text-white rounded hover:bg-steel-blue/90"
+            >
+              Reload Page
+            </button>
+          </div>
         </div>
       );
     }

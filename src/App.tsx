@@ -11,8 +11,6 @@ const OpponentTeams = lazy(() => import('./components/OpponentTeams'))
 const StorePage = lazy(() => import('./components/StorePage'))
 
 function App() {
-  console.log('App component rendering');
-  
   return (
     <ErrorBoundary>
       <Router>
