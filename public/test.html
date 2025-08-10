@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Page</title>
+</head>
+<body>
+    <h1 style="color: red; font-size: 48px;">THIS IS A STATIC TEST PAGE</h1>
+    <p>If you can see this, the server is working.</p>
+    <div id="root"></div>
+    
+    <script>
+        console.log('Static test page loaded');
+        document.getElementById('root').innerHTML = '<h2 style="color: blue;">JavaScript is working!</h2>';
+    </script>
+</body>
+</html>

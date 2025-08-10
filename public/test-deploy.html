@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Deployment Test</title>
+</head>
+<body>
+    <h1 style="color: red; font-size: 48px;">DEPLOYMENT TEST PAGE</h1>
+    <p>If you can see this, static files are being served correctly.</p>
+    <div id="test"></div>
+    
+    <script>
+        console.log('Test page loaded successfully');
+        document.getElementById('test').innerHTML = '<h2 style="color: green;">JavaScript is working!</h2>';
+        
+        // Try to load the main app
+        const script = document.createElement('script');
+        script.type = 'module';
+        script.src = '/assets/index-MtXVgs8r.js';
+        script.onload = () => console.log('Main script loaded');
+        script.onerror = (e) => console.error('Main script failed to load:', e);
+        document.body.appendChild(script);
+    </script>
+</body>
+</html>
