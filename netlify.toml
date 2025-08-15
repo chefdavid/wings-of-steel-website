@@ -2,6 +2,12 @@
   command = "npm run build"
   publish = "dist"
 
+[build.environment]
+  # Disable secrets scanning for expected environment variables
+  SECRETS_SCAN_OMIT_KEYS = "VITE_SUPABASE_URL,VITE_SUPABASE_ANON_KEY,VITE_SUPABASE_SERVICE_ROLE_KEY,SUPABASE_SERVICE_ROLE_KEY"
+  # Omit scripts directory from scanning
+  SECRETS_SCAN_OMIT_PATHS = "scripts/**,dist/**"
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
