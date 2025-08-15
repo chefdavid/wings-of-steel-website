@@ -70,9 +70,7 @@ export default defineConfig(({ mode }) => {
     assetsInlineLimit: 4096, // Inline assets smaller than 4kb
   },
     optimizeDeps: {
-      include: ['react', 'react-dom', 'react-router-dom'],
-      // Exclude large dependencies from pre-bundling
-      exclude: ['@supabase/supabase-js']
+      include: ['react', 'react-dom', 'react-router-dom', '@supabase/supabase-js'],
     }
   }
 })

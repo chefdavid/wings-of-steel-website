@@ -83,6 +83,11 @@ const PlayerManagement = () => {
     e.preventDefault();
     console.log('🚀 Form submitted', { editingPlayer, formData });
     
+    // Use admin client if available, otherwise fall back to regular client
+    const dbClient = supabaseAdmin || supabase;
+    console.log('🔐 Using client:', supabaseAdmin ? 'Admin (service role)' : 'Regular (anon key)');
+    console.log('🔐 Admin client available:', !!supabaseAdmin);
+    
     try {
       const filteredTags = formData.tags.filter(tag => tag.trim() !== '');
       const playerData = {
@@ -107,40 +112,87 @@ const PlayerManagement = () => {
 
       if (editingPlayer) {
         console.log('📝 Updating player with ID:', editingPlayer.id);
-        const { data, error } = await supabaseAdmin
+        console.log('📦 Update payload:', playerData);
+        
+        // First, let's verify the player exists
+        const { data: existingPlayer, error: fetchError } = await dbClient
+          .from('players')
+          .select('*')
+          .eq('id', editingPlayer.id)
+          .single();
+        
+        console.log('🔍 Existing player before update:', existingPlayer);
+        
+        if (fetchError) {
+          console.error('❌ Error fetching existing player:', fetchError);
+          throw fetchError;
+        }
+        
+        const { error } = await dbClient
           .from('players')
           .update(playerData)
-          .eq('id', editingPlayer.id)
-          .select();
+          .eq('id', editingPlayer.id);
         
-        console.log('✅ Update result:', { data, error });
+        console.log('✅ Update result:', { error });
         if (error) {
           // Check if error is due to missing 'active' column
           if (error.message?.includes("active") || error.code === 'PGRST204') {
             console.log('⚠️ Active column not found in database. Updating without active field...');
             const { active, ...playerDataWithoutActive } = playerData;
-            const { data: retryData, error: retryError } = await supabaseAdmin
+            const { error: retryError } = await dbClient
               .from('players')
               .update(playerDataWithoutActive)
-              .eq('id', editingPlayer.id)
-              .select();
+              .eq('id', editingPlayer.id);
             
             if (retryError) {
               console.error('❌ Retry update error:', retryError);
               throw retryError;
             }
-            console.log('🎉 Player updated successfully (without active field):', retryData);
-            alert('⚠️ Player updated, but Active/Inactive status could not be saved.\\n\\nThe database needs an "active" column. Please contact your administrator to add this column to enable active/inactive functionality.');
+            console.log('🎉 Player updated successfully (without active field)');
+            // Don't show alert every time, it's annoying
+            // alert('⚠️ Player updated, but Active/Inactive status could not be saved.\\n\\nThe database needs an "active" column. Please contact your administrator to add this column to enable active/inactive functionality.');
           } else {
             console.error('❌ Update error details:', error);
             throw error;
           }
         } else {
-          console.log('🎉 Player updated successfully:', data);
+          console.log('🎉 Player updated successfully');
+          
+          // Verify the update actually worked
+          const { data: verifyData, error: verifyError } = await dbClient
+            .from('players')
+            .select('*')
+            .eq('id', editingPlayer.id)
+            .single();
+          
+          console.log('✔️ Verification - player after update:', verifyData);
+          
+          // Compare the changes
+          if (verifyData && existingPlayer) {
+            const changes = {};
+            Object.keys(playerData).forEach(key => {
+              if (existingPlayer[key] !== verifyData[key]) {
+                changes[key] = {
+                  old: existingPlayer[key],
+                  new: verifyData[key]
+                };
+              }
+            });
+            
+            if (Object.keys(changes).length > 0) {
+              console.log('📝 Changes detected:', changes);
+            } else {
+              console.warn('⚠️ No changes detected after update!');
+            }
+          }
+          
+          if (verifyError) {
+            console.error('❌ Error verifying update:', verifyError);
+          }
         }
       } else {
         console.log('📝 Inserting new player');
-        const { data, error } = await supabaseAdmin
+        const { data, error } = await dbClient
           .from('players')
           .insert([playerData])
           .select();
@@ -151,7 +203,7 @@ const PlayerManagement = () => {
           if (error.message?.includes("active") || error.code === 'PGRST204') {
             console.log('⚠️ Active column not found in database. Inserting without active field...');
             const { active, ...playerDataWithoutActive } = playerData;
-            const { data: retryData, error: retryError } = await supabaseAdmin
+            const { data: retryData, error: retryError } = await dbClient
               .from('players')
               .insert([playerDataWithoutActive])
               .select();
@@ -211,7 +263,8 @@ const PlayerManagement = () => {
   const handleDelete = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this player?')) {
       try {
-        const { error } = await supabaseAdmin
+        const dbClient = supabaseAdmin || supabase;
+        const { error } = await dbClient
           .from('players')
           .delete()
           .eq('id', id);

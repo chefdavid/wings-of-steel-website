@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { FaSave, FaEdit } from 'react-icons/fa';
 import { supabase } from '../../lib/supabaseClient';
-import { supabaseAdmin } from '../../lib/supabaseAdmin';
 import type { SiteSection } from '../../types/database';
 import { formatPhoneDisplay, handlePhoneChange } from '../../utils/phoneUtils';
 

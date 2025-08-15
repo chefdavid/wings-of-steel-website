@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaPlus, FaEdit, FaTrash, FaTimes, FaSave, FaHome, FaPlane } from 'react-icons/fa';
 import { supabase } from '../../lib/supabaseClient';
-import { supabaseAdmin } from '../../lib/supabaseAdmin';
 import type { Game } from '../../types/database';
 
 const GameScheduleManagement = () => {

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { FaUsers, FaHockeyPuck, FaCalendarAlt, FaCog, FaSignOutAlt, FaBars, FaTimes, FaClock } from 'react-icons/fa';
+import { FaUsers, FaHockeyPuck, FaCalendarAlt, FaCog, FaSignOutAlt, FaBars, FaTimes, FaClock, FaImage } from 'react-icons/fa';
 import { Users } from 'lucide-react';
 import PlayerManagement from './PlayerManagement';
 import CoachManagement from './CoachManagement';
@@ -8,8 +8,9 @@ import SiteSectionsEditor from './SiteSectionsEditor';
 import GameScheduleManagement from './GameScheduleManagement';
 import OpponentTeamsManagement from './OpponentTeamsManagement';
 import PracticeScheduleManagement from './PracticeScheduleManagement';
+import ImageBatchUpdate from './ImageBatchUpdate';
 
-type AdminSection = 'players' | 'coaches' | 'site-sections' | 'schedule' | 'practice' | 'opponents' | 'settings';
+type AdminSection = 'players' | 'coaches' | 'site-sections' | 'schedule' | 'practice' | 'opponents' | 'settings' | 'batch-images';
 
 interface AdminDashboardProps {
   onLogout: () => void;
@@ -26,6 +27,7 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
     { id: 'practice' as AdminSection, label: 'Practice Schedule', icon: FaClock },
     { id: 'schedule' as AdminSection, label: 'Game Schedule', icon: FaCalendarAlt },
     { id: 'site-sections' as AdminSection, label: 'Site Content', icon: FaCog },
+    { id: 'batch-images' as AdminSection, label: 'Batch Update Images', icon: FaImage },
   ];
 
   const renderContent = () => {
@@ -42,6 +44,8 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
         return <SiteSectionsEditor />;
       case 'schedule':
         return <GameScheduleManagement />;
+      case 'batch-images':
+        return <ImageBatchUpdate />;
       default:
         return <PlayerManagement />;
     }
@@ -58,12 +62,12 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
       )}
 
       {/* Sidebar */}
-      <div className="hidden lg:block w-64 bg-dark-steel shadow-lg">
+      <div className="hidden lg:flex lg:flex-col w-64 bg-dark-steel shadow-lg h-screen">
         <div className="flex items-center justify-between p-6 border-b border-steel-gray">
           <h1 className="text-xl font-bold text-white">Wings Admin</h1>
         </div>
 
-        <nav className="mt-6">
+        <nav className="flex-1 mt-6 overflow-y-auto">
           {menuItems.map((item) => (
             <button
               key={item.id}
@@ -80,7 +84,7 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
           ))}
         </nav>
 
-        <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-steel-gray">
+        <div className="mt-auto p-6 border-t border-steel-gray">
           <button
             onClick={onLogout}
             className="w-full flex items-center gap-3 px-4 py-2 text-gray-300 hover:bg-red-600 hover:text-white rounded-lg transition-colors"
@@ -95,7 +99,7 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
       <motion.div
         initial={false}
         animate={{ x: sidebarOpen ? 0 : '-100%' }}
-        className="fixed lg:hidden inset-y-0 left-0 z-50 w-64 bg-dark-steel shadow-lg"
+        className="fixed lg:hidden inset-y-0 left-0 z-50 w-64 bg-dark-steel shadow-lg flex flex-col h-screen"
       >
         <div className="flex items-center justify-between p-6 border-b border-steel-gray">
           <h1 className="text-xl font-bold text-white">Wings Admin</h1>
@@ -107,7 +111,7 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
           </button>
         </div>
 
-        <nav className="mt-6">
+        <nav className="flex-1 mt-6 overflow-y-auto">
           {menuItems.map((item) => (
             <button
               key={item.id}
@@ -127,7 +131,7 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
           ))}
         </nav>
 
-        <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-steel-gray">
+        <div className="p-6 border-t border-steel-gray">
           <button
             onClick={onLogout}
             className="w-full flex items-center gap-3 px-4 py-2 text-gray-300 hover:bg-red-600 hover:text-white rounded-lg transition-colors"
