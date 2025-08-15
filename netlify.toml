@@ -67,3 +67,7 @@
 # Enable Netlify's asset optimization
 [build.processing]
   skip_processing = false
+
+# Local plugin to clear cache
+[[plugins]]
+  package = "./netlify/plugins/clear-cache"
