@@ -40,7 +40,7 @@ const SiteSectionsEditor = () => {
     setSaving(sectionKey);
     try {
       console.log('🚀 Saving site section:', sectionKey, content);
-      const { data, error } = await supabaseAdmin
+      const { data, error } = await supabase
         .from('site_sections')
         .update({ 
           content,

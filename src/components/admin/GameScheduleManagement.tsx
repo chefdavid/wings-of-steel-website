@@ -52,7 +52,7 @@ const GameScheduleManagement = () => {
 
       if (editingGame) {
         console.log('🚀 Updating game:', editingGame.id, gameData);
-        const { data, error } = await supabaseAdmin
+        const { data, error } = await supabase
           .from('game_schedule')
           .update(gameData)
           .eq('id', editingGame.id)
@@ -62,7 +62,7 @@ const GameScheduleManagement = () => {
         if (error) throw error;
       } else {
         console.log('🚀 Inserting new game:', gameData);
-        const { data, error } = await supabaseAdmin
+        const { data, error } = await supabase
           .from('game_schedule')
           .insert([gameData])
           .select();
@@ -94,7 +94,7 @@ const GameScheduleManagement = () => {
   const handleDelete = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this game?')) {
       try {
-        const { error } = await supabaseAdmin
+        const { error } = await supabase
           .from('game_schedule')
           .delete()
           .eq('id', id);

@@ -169,12 +169,12 @@ const PlayerManagement = () => {
           
           // Compare the changes
           if (verifyData && existingPlayer) {
-            const changes = {};
+            const changes: Record<string, { old: any; new: any }> = {};
             Object.keys(playerData).forEach(key => {
-              if (existingPlayer[key] !== verifyData[key]) {
+              if ((existingPlayer as any)[key] !== (verifyData as any)[key]) {
                 changes[key] = {
-                  old: existingPlayer[key],
-                  new: verifyData[key]
+                  old: (existingPlayer as any)[key],
+                  new: (verifyData as any)[key]
                 };
               }
             });
