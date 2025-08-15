@@ -2,6 +2,8 @@
   command = "npm run build"
   publish = "dist"
   functions = "netlify/functions"
+  # Ensure clean builds
+  ignore = "false"
 
 [dev]
   command = "npm run dev"
@@ -62,7 +64,13 @@
 
 # HTTP/2 Server Push removed - wildcards not supported
 
-# Redirects are handled in public/_redirects file for better control
+# SPA configuration - only redirect non-file requests to index.html
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  conditions = {Role = ["*"]}
+  force = false
 
 # Enable Netlify's asset optimization
 [build.processing]
