@@ -1,0 +1,16 @@
+# Serve static assets directly
+/assets/*  /assets/:splat  200
+/fonts/*   /fonts/:splat   200
+/images/*  /images/:splat  200
+/*.js      /:splat.js      200
+/*.css     /:splat.css     200
+/*.json    /:splat.json    200
+/*.webp    /:splat.webp    200
+/*.png     /:splat.png     200
+/*.jpg     /:splat.jpg     200
+/*.jpeg    /:splat.jpeg    200
+/*.svg     /:splat.svg     200
+/*.woff2   /:splat.woff2   200
+
+# SPA fallback - all other routes go to index.html
+/*  /index.html  200

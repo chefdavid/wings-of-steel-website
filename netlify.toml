@@ -62,13 +62,7 @@
 
 # HTTP/2 Server Push removed - wildcards not supported
 
-# SPA fallback for client-side routing
-# This will NOT redirect if a file exists at the path
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-  force = false
+# Redirects are handled in public/_redirects file for better control
 
 # Enable Netlify's asset optimization
 [build.processing]
