@@ -64,14 +64,6 @@
 
 # HTTP/2 Server Push removed - wildcards not supported
 
-# SPA configuration - only redirect non-file requests to index.html
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-  conditions = {Role = ["*"]}
-  force = false
-
 # Enable Netlify's asset optimization
 [build.processing]
   skip_processing = false
