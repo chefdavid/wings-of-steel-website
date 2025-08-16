@@ -9,6 +9,8 @@ const TeamSite = lazy(() => import('./components/TeamSite'))
 const Admin = lazy(() => import('./components/Admin'))
 const OpponentTeams = lazy(() => import('./components/OpponentTeams'))
 const StorePage = lazy(() => import('./components/StorePage'))
+// Temporarily disable FeedbackAdmin until properly configured
+// const FeedbackAdmin = lazy(() => import('./components/FeedbackAdmin'))
 
 function App() {
   return (
