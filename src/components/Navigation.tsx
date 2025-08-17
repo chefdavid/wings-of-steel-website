@@ -1,24 +1,20 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { FaBars, FaTimes, FaChevronDown } from 'react-icons/fa';
 import { Link, useLocation } from 'react-router-dom';
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [showScheduleDropdown, setShowScheduleDropdown] = useState(false);
-  const [showRosterDropdown, setShowRosterDropdown] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const location = useLocation();
 
   const handleHashLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
-    
-    // Check if we're on the home page (either / or /team/youth)
     const isHomePage = location.pathname === '/' || location.pathname === '/team/youth';
     
     if (!isHomePage) {
       window.location.href = '/' + href;
     } else {
-      // Small delay to ensure dropdown closes before scrolling
       setTimeout(() => {
         const element = document.querySelector(href);
         if (element) {
@@ -26,43 +22,81 @@ const Navigation = () => {
         }
       }, 100);
     }
+    setActiveDropdown(null);
+    setIsOpen(false);
   };
 
-  const navItems = [
-    { name: 'Home', href: '#home', isHashLink: true },
-    { name: 'About', href: '#about', isHashLink: true },
-    { 
-      name: 'Roster', 
-      href: '#team',
-      isHashLink: true,
-      hasDropdown: true,
-      dropdownKey: 'roster',
-      dropdownItems: [
-        { name: 'Players', href: '#team-players', isHashLink: true },
-        { name: 'Coaches', href: '#team-coaches', isHashLink: true }
+  const megaMenuItems = [
+    { name: 'Home', href: '/', isHashLink: false, standalone: true },
+    {
+      name: 'Team',
+      key: 'team',
+      sections: [
+        {
+          title: 'About Us',
+          items: [
+            { name: 'Our Mission', href: '#about', isHashLink: true, description: 'Learn about Wings of Steel' },
+            { name: 'Location', href: '#location', isHashLink: true, description: 'Find our practice facility' }
+          ]
+        },
+        {
+          title: 'Roster',
+          items: [
+            { name: 'Players', href: '#team-players', isHashLink: true, description: 'Meet our athletes' },
+            { name: 'Coaches', href: '#team-coaches', isHashLink: true, description: 'Our coaching staff' }
+          ]
+        },
+        {
+          title: 'Schedule',
+          items: [
+            { name: 'Practice Schedule', href: '#location', isHashLink: true, description: 'Weekly practice times' },
+            { name: 'Game Schedule', href: '#schedule', isHashLink: true, description: 'Upcoming games & events' }
+          ]
+        }
       ]
     },
-    { 
-      name: 'Schedule', 
-      href: '#schedule',
-      isHashLink: true,
-      hasDropdown: true,
-      dropdownKey: 'schedule',
-      dropdownItems: [
-        { name: 'Practice Schedule', href: '#location', isHashLink: true },
-        { name: 'Game Schedule', href: '#schedule', isHashLink: true }
+    {
+      name: 'Experience',
+      key: 'experience',
+      sections: [
+        {
+          title: 'Media',
+          items: [
+            { name: 'Photo Gallery', href: '/gallery', isHashLink: false, description: 'Tournament photos & memories' },
+            { name: 'Team Store', href: '/store', isHashLink: false, description: 'Official merchandise' }
+          ]
+        },
+        {
+          title: 'Competition',
+          items: [
+            { name: 'Opponents', href: '/opponents', isHashLink: false, description: 'Teams we compete against' }
+          ]
+        }
       ]
     },
-    { name: 'Location', href: '#location', isHashLink: true },
-    { name: 'Store', href: '/store', isHashLink: false },
-    { name: 'Opponents', href: '/opponents', isHashLink: false },
-    { name: 'Get Involved', href: '#get-involved', isHashLink: true },
-    { name: 'Contact', href: '#contact', isHashLink: true },
+    {
+      name: 'Connect',
+      key: 'connect',
+      sections: [
+        {
+          title: 'Get Involved',
+          items: [
+            { name: 'Join the Team', href: '#get-involved', isHashLink: true, description: 'Become a player or volunteer' },
+            { name: 'Support Us', href: '#get-involved', isHashLink: true, description: 'Ways to help our mission' }
+          ]
+        },
+        {
+          title: 'Contact',
+          items: [
+            { name: 'Contact Us', href: '#contact', isHashLink: true, description: 'Get in touch with our team' }
+          ]
+        }
+      ]
+    }
   ];
 
   return (
     <>
-      {/* Skip to main content for accessibility */}
       <a 
         href="#main-content" 
         className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-steel-blue text-white px-4 py-2 rounded-md z-50"
@@ -72,231 +106,233 @@ const Navigation = () => {
       
       <nav className="fixed top-0 w-full bg-dark-steel/95 backdrop-blur-sm z-50 shadow-lg" role="navigation" aria-label="Main navigation">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20 max-w-full">
-          <div className="flex items-center min-w-0 flex-shrink-0">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5 }}
-              className="flex items-center min-w-0"
-            >
-              <img 
-                src="/assets/wings-logo.webp" 
-                alt="Wings of Steel Logo" 
-                className="h-12 w-auto mr-4"
-                width="48"
-                height="48"
-                loading="eager"
-              />
-              <div className="flex flex-col min-w-0">
-                <span className="text-xl md:text-2xl font-sport text-white leading-tight whitespace-nowrap">WINGS OF STEEL</span>
-                <span className="text-xs text-ice-blue font-medium truncate">Youth Sled Hockey</span>
-              </div>
-            </motion.div>
-          </div>
+          <div className="flex items-center justify-between h-20">
+            {/* Logo */}
+            <div className="flex items-center min-w-0 flex-shrink-0">
+              <Link to="/" className="flex items-center min-w-0 group">
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="flex items-center min-w-0"
+                >
+                  <img 
+                    src="/assets/wings-logo.webp" 
+                    alt="Wings of Steel Logo" 
+                    className="h-12 w-auto mr-4 group-hover:scale-105 transition-transform duration-200"
+                    width="48"
+                    height="48"
+                    loading="eager"
+                  />
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-xl md:text-2xl font-sport text-white leading-tight whitespace-nowrap group-hover:text-ice-blue transition-colors duration-200">WINGS OF STEEL</span>
+                    <span className="text-xs text-ice-blue font-medium truncate">Youth Sled Hockey</span>
+                  </div>
+                </motion.div>
+              </Link>
+            </div>
 
-          <div className="hidden md:flex items-center">
-            <div className="flex items-baseline space-x-4">
-              {navItems.map((item, index) => (
-                item.hasDropdown ? (
-                  (() => {
-                    const showDropdown = item.dropdownKey === 'roster' ? showRosterDropdown : showScheduleDropdown;
-                    const setShowDropdown = item.dropdownKey === 'roster' ? setShowRosterDropdown : setShowScheduleDropdown;
-                    
-                    return (
-                      <div
-                        key={item.name}
-                        className="relative"
-                        onMouseEnter={() => setShowDropdown(true)}
-                        onMouseLeave={() => setShowDropdown(false)}
-                      >
-                        <motion.button
-                          initial={{ opacity: 0, y: -20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.5, delay: index * 0.1 }}
-                          className="text-gray-300 hover:bg-steel-blue hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 flex items-center gap-1"
-                        >
-                          {item.name}
-                          <FaChevronDown className="text-xs" />
-                        </motion.button>
-                        
-                        {/* Invisible bridge to prevent gap */}
-                        {showDropdown && (
-                          <div className="absolute top-full left-0 w-full h-2" />
-                        )}
-                        
-                        <motion.div
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ 
-                            opacity: showDropdown ? 1 : 0,
-                            y: showDropdown ? 0 : -10,
-                            display: showDropdown ? 'block' : 'none'
-                          }}
-                          transition={{ duration: 0.2 }}
-                          className="absolute top-full left-0 pt-2 w-48 z-10"
-                        >
-                          <div className="bg-white rounded-md shadow-lg py-1">
-                            {item.dropdownItems?.map((dropdownItem) => (
-                              <a
-                                key={dropdownItem.name}
-                                href={dropdownItem.href}
-                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-steel-blue hover:text-white transition-colors"
-                                onClick={(e) => {
-                                  handleHashLinkClick(e, dropdownItem.href);
-                                  setShowDropdown(false);
-                                }}
-                              >
-                                {dropdownItem.name}
-                              </a>
-                            ))}
-                          </div>
-                        </motion.div>
-                      </div>
-                    );
-                  })()
-                ) : item.isHashLink ? (
-                  <motion.a
+            {/* Desktop Navigation */}
+            <div className="hidden lg:flex items-center space-x-1">
+              {megaMenuItems.map((item) => (
+                item.standalone ? (
+                  <Link
                     key={item.name}
-                    href={item.href}
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
-                    className="text-gray-300 hover:bg-steel-blue hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-all duration-300"
-                    onClick={(e) => handleHashLinkClick(e, item.href)}
+                    to={item.href}
+                    className="px-4 py-2 text-gray-300 hover:text-white hover:bg-steel-blue/20 rounded-md transition-all duration-200 font-sport tracking-wider"
                   >
                     {item.name}
-                  </motion.a>
+                  </Link>
                 ) : (
-                  <motion.div
-                    key={item.name}
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                  <div
+                    key={item.key}
+                    className="relative"
+                    onMouseEnter={() => setActiveDropdown(item.key)}
+                    onMouseLeave={() => setActiveDropdown(null)}
                   >
+                    <button
+                      className="flex items-center px-4 py-2 text-gray-300 hover:text-white hover:bg-steel-blue/20 rounded-md transition-all duration-200 font-sport tracking-wider"
+                    >
+                      {item.name}
+                      <FaChevronDown className="ml-2 text-xs" />
+                    </button>
+
+                    {/* Mega Menu Dropdown */}
+                    <AnimatePresence>
+                      {activeDropdown === item.key && item.sections && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          transition={{ duration: 0.2 }}
+                          className="absolute left-1/2 transform -translate-x-1/2 mt-2 w-screen max-w-3xl"
+                        >
+                          <div className="bg-dark-steel backdrop-blur-md rounded-lg shadow-2xl shadow-black/50 border border-steel-blue/30 p-6 ring-1 ring-black/20">
+                            <div className="grid grid-cols-3 gap-6">
+                              {item.sections.map((section, idx) => (
+                                <div key={idx}>
+                                  <h3 className="text-ice-blue font-sport text-sm uppercase tracking-wider mb-3">
+                                    {section.title}
+                                  </h3>
+                                  <ul className="space-y-2">
+                                    {section.items.map((subItem) => (
+                                      <li key={subItem.name}>
+                                        {subItem.isHashLink ? (
+                                          <a
+                                            href={subItem.href}
+                                            onClick={(e) => handleHashLinkClick(e, subItem.href)}
+                                            className="block group hover:bg-steel-blue/20 rounded-md p-2 transition-all duration-200"
+                                          >
+                                            <div className="text-gray-100 group-hover:text-ice-blue font-medium">
+                                              {subItem.name}
+                                            </div>
+                                            {subItem.description && (
+                                              <div className="text-gray-300 text-xs mt-1 group-hover:text-gray-200">
+                                                {subItem.description}
+                                              </div>
+                                            )}
+                                          </a>
+                                        ) : (
+                                          <Link
+                                            to={subItem.href}
+                                            className="block group hover:bg-steel-blue/20 rounded-md p-2 transition-all duration-200"
+                                            onClick={() => setActiveDropdown(null)}
+                                          >
+                                            <div className="text-gray-100 group-hover:text-ice-blue font-medium">
+                                              {subItem.name}
+                                            </div>
+                                            {subItem.description && (
+                                              <div className="text-gray-300 text-xs mt-1 group-hover:text-gray-200">
+                                                {subItem.description}
+                                              </div>
+                                            )}
+                                          </Link>
+                                        )}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                )
+              ))}
+
+              {/* CTA Button */}
+              <Link
+                to="/store"
+                className="ml-4 px-6 py-2 bg-steel-blue text-white rounded-full hover:bg-steel-blue/80 transition-all duration-200 font-sport tracking-wider shadow-lg"
+              >
+                Shop
+              </Link>
+            </div>
+
+            {/* Mobile menu button */}
+            <div className="lg:hidden">
+              <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="text-gray-400 hover:text-white focus:outline-none focus:text-white p-2"
+                aria-label="Toggle menu"
+              >
+                {isOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Navigation */}
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3 }}
+              className="lg:hidden bg-dark-steel/98 backdrop-blur-md border-t border-steel-blue/20"
+            >
+              <div className="px-4 pt-2 pb-6 space-y-2">
+                {megaMenuItems.map((item) => (
+                  item.standalone ? (
                     <Link
+                      key={item.name}
                       to={item.href}
-                      className="text-gray-300 hover:bg-steel-blue hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 inline-block"
+                      onClick={() => setIsOpen(false)}
+                      className="block px-3 py-2 text-gray-300 hover:text-white hover:bg-steel-blue/20 rounded-md font-sport tracking-wider"
                     >
                       {item.name}
                     </Link>
-                  </motion.div>
-                )
-              ))}
-              <motion.a
-                href="#donate"
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: navItems.length * 0.1 }}
-                className="bg-steel-blue text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-600 transition-all duration-300"
-                onClick={(e) => handleHashLinkClick(e, '#donate')}
-              >
-                Donate
-              </motion.a>
-            </div>
-          </div>
-
-          <div className="md:hidden">
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-steel-blue focus:outline-none"
-              aria-label={isOpen ? "Close navigation menu" : "Open navigation menu"}
-              aria-expanded={isOpen}
-            >
-              {isOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {isOpen && (
-        <motion.div
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: 'auto' }}
-          exit={{ opacity: 0, height: 0 }}
-          className="md:hidden bg-dark-steel"
-        >
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            {navItems.map((item) => (
-              item.hasDropdown ? (
-                <div key={item.name}>
-                  <a
-                    href={item.href}
-                    className="text-gray-300 hover:bg-steel-blue hover:text-white block px-3 py-2 rounded-md text-base font-medium"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      if (item.dropdownKey === 'roster') {
-                        setShowRosterDropdown(!showRosterDropdown);
-                      } else if (item.dropdownKey === 'schedule') {
-                        setShowScheduleDropdown(!showScheduleDropdown);
-                      }
-                    }}
-                  >
-                    <div className="flex items-center justify-between">
-                      {item.name}
-                      <FaChevronDown className={`text-xs transition-transform ${
-                        (item.dropdownKey === 'roster' && showRosterDropdown) || 
-                        (item.dropdownKey === 'schedule' && showScheduleDropdown) 
-                          ? 'rotate-180' : ''
-                      }`} />
+                  ) : (
+                    <div key={item.key}>
+                      <button
+                        onClick={() => setActiveDropdown(activeDropdown === item.key ? null : item.key)}
+                        className="flex items-center justify-between w-full px-3 py-2 text-gray-300 hover:text-white hover:bg-steel-blue/20 rounded-md font-sport tracking-wider"
+                      >
+                        {item.name}
+                        <FaChevronDown 
+                          className={`transform transition-transform ${activeDropdown === item.key ? 'rotate-180' : ''}`} 
+                        />
+                      </button>
+                      
+                      {/* Mobile Dropdown */}
+                      <AnimatePresence>
+                        {activeDropdown === item.key && item.sections && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="ml-4 mt-2 space-y-2"
+                          >
+                            {item.sections.map((section) => (
+                              <div key={section.title}>
+                                <div className="text-ice-blue text-xs uppercase tracking-wider mb-1 pl-3">
+                                  {section.title}
+                                </div>
+                                {section.items.map((subItem) => (
+                                  subItem.isHashLink ? (
+                                    <a
+                                      key={subItem.name}
+                                      href={subItem.href}
+                                      onClick={(e) => handleHashLinkClick(e, subItem.href)}
+                                      className="block pl-6 pr-3 py-2 text-sm text-gray-400 hover:text-white hover:bg-steel-blue/10 rounded-md"
+                                    >
+                                      {subItem.name}
+                                    </a>
+                                  ) : (
+                                    <Link
+                                      key={subItem.name}
+                                      to={subItem.href}
+                                      onClick={() => setIsOpen(false)}
+                                      className="block pl-6 pr-3 py-2 text-sm text-gray-400 hover:text-white hover:bg-steel-blue/10 rounded-md"
+                                    >
+                                      {subItem.name}
+                                    </Link>
+                                  )
+                                ))}
+                              </div>
+                            ))}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </div>
-                  </a>
-                  {((item.dropdownKey === 'roster' && showRosterDropdown) || 
-                    (item.dropdownKey === 'schedule' && showScheduleDropdown)) && (
-                    <div className="pl-6 space-y-1">
-                      {item.dropdownItems?.map((dropdownItem) => (
-                        <a
-                          key={dropdownItem.name}
-                          href={dropdownItem.href}
-                          className="text-gray-400 hover:bg-steel-blue hover:text-white block px-3 py-2 rounded-md text-sm font-medium"
-                          onClick={(e) => {
-                            setIsOpen(false);
-                            setShowRosterDropdown(false);
-                            setShowScheduleDropdown(false);
-                            handleHashLinkClick(e, dropdownItem.href);
-                          }}
-                        >
-                          {dropdownItem.name}
-                        </a>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ) : item.isHashLink ? (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  className="text-gray-300 hover:bg-steel-blue hover:text-white block px-3 py-2 rounded-md text-base font-medium"
-                  onClick={(e) => {
-                    setIsOpen(false);
-                    handleHashLinkClick(e, item.href);
-                  }}
-                >
-                  {item.name}
-                </a>
-              ) : (
+                  )
+                ))}
+                
+                {/* Mobile CTA */}
                 <Link
-                  key={item.name}
-                  to={item.href}
-                  className="text-gray-300 hover:bg-steel-blue hover:text-white block px-3 py-2 rounded-md text-base font-medium"
+                  to="/store"
                   onClick={() => setIsOpen(false)}
+                  className="block mt-4 px-6 py-3 bg-steel-blue text-white text-center rounded-full hover:bg-steel-blue/80 transition-all duration-200 font-sport tracking-wider"
                 >
-                  {item.name}
+                  Visit Team Store
                 </Link>
-              )
-            ))}
-            <a
-              href="#donate"
-              className="bg-steel-blue text-white block px-3 py-2 rounded-md text-base font-medium hover:bg-blue-600"
-              onClick={(e) => {
-                setIsOpen(false);
-                handleHashLinkClick(e, '#donate');
-              }}
-            >
-              Donate
-            </a>
-          </div>
-        </motion.div>
-      )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </nav>
     </>
   );

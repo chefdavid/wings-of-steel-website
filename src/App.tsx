@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import { CartProvider } from './contexts/CartContext'
 import LoadingSpinner from './components/LoadingSpinner'
 import { ErrorBoundary } from './components/ErrorBoundary'
@@ -9,14 +9,14 @@ const TeamSite = lazy(() => import('./components/TeamSite'))
 const Admin = lazy(() => import('./components/Admin'))
 const OpponentTeams = lazy(() => import('./components/OpponentTeams'))
 const StorePage = lazy(() => import('./components/StorePage'))
+const LocalGallery = lazy(() => import('./pages/LocalGallery'))
 // Temporarily disable FeedbackAdmin until properly configured
 // const FeedbackAdmin = lazy(() => import('./components/FeedbackAdmin'))
 
 function App() {
   return (
     <ErrorBoundary>
-      <Router>
-        <CartProvider>
+      <CartProvider>
           <Suspense fallback={<LoadingSpinner />}>
             <Routes>
               {/* Root routes - Direct access */}
@@ -24,6 +24,7 @@ function App() {
               <Route path="/admin" element={<Admin />} />
               <Route path="/opponents" element={<OpponentTeams />} />
               <Route path="/store" element={<StorePage />} />
+              <Route path="/gallery" element={<LocalGallery />} />
               
               {/* Team-specific routes (for backwards compatibility) */}
               <Route path="/team/:team" element={<TeamSite />} />
@@ -38,8 +39,7 @@ function App() {
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </Suspense>
-        </CartProvider>
-      </Router>
+      </CartProvider>
     </ErrorBoundary>
   )
 }
