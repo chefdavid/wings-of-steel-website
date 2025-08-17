@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "dev:netlify": "netlify dev",
-    "build": "npx vite build",
+    "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "db": "node scripts/db-manager.js",
@@ -34,6 +34,8 @@
     "react-photoswipe-gallery": "^3.1.1",
     "react-router-dom": "^7.8.1",
     "stripe": "^18.4.0",
+    "typescript": "~5.8.3",
+    "vite": "^7.0.4",
     "web-vitals": "^5.1.0"
   },
   "devDependencies": {
@@ -51,8 +53,6 @@
     "sharp-cli": "^5.2.0",
     "tailwindcss": "^3.4.17",
     "terser": "^5.43.1",
-    "typescript": "~5.8.3",
-    "typescript-eslint": "^8.35.1",
-    "vite": "^7.0.4"
+    "typescript-eslint": "^8.35.1"
   }
 }
