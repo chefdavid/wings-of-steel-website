@@ -1,15 +1,14 @@
 // Service Worker for Wings of Steel
-const CACHE_NAME = 'wings-of-steel-v5'; // Force cache refresh for deployment fix
+const CACHE_NAME = 'wings-of-steel-v6'; // Increment version to force update
 const urlsToCache = [
-  '/',
-  '/index.html',
+  // Only cache essential static assets
+  '/manifest.json',
   '/assets/hockey-sticks.webp',
   '/assets/wings-logo.webp',
-  '/assets/wings-logo-real.webp',
-  '/manifest.json'
+  '/assets/wings-logo-real.webp'
 ];
 
-// Install event - cache assets
+// Install event - cache only essential assets
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -21,17 +20,17 @@ self.addEventListener('install', (event) => {
         console.log('Cache install error:', error);
       })
   );
-  // Force the service worker to become active
+  // Force the service worker to become active immediately
   self.skipWaiting();
 });
 
-// Activate event - clean up old caches
+// Activate event - clean up ALL old caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME && cacheName.startsWith('wings-of-steel')) {
+          if (cacheName !== CACHE_NAME) {
             console.log('Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
@@ -43,57 +42,61 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch event - serve from cache when possible
+// Fetch event - Network first, fallback to cache
 self.addEventListener('fetch', (event) => {
   // Skip non-GET requests
   if (event.request.method !== 'GET') return;
 
-  // Skip Supabase API calls and Stripe
+  // Skip API calls
   const url = new URL(event.request.url);
   if (url.hostname.includes('supabase.co') || 
       url.hostname.includes('stripe.com') ||
-      url.hostname.includes('printify.com')) {
+      url.hostname.includes('printify.com') ||
+      url.pathname.includes('/api/')) {
     return;
   }
 
+  // For HTML documents, always fetch from network first
+  if (event.request.mode === 'navigate' || 
+      event.request.headers.get('accept')?.includes('text/html')) {
+    event.respondWith(
+      fetch(event.request)
+        .then(response => {
+          // Update cache with fresh response
+          if (response.ok) {
+            const responseClone = response.clone();
+            caches.open(CACHE_NAME).then(cache => {
+              cache.put(event.request, responseClone);
+            });
+          }
+          return response;
+        })
+        .catch(() => {
+          // Only use cache as fallback for offline
+          return caches.match(event.request)
+            .then(response => response || caches.match('/index.html'));
+        })
+    );
+    return;
+  }
+
+  // For static assets, use cache first but update in background
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
-        // Cache hit - return response
-        if (response) {
-          return response;
-        }
-
-        // Clone the request
-        const fetchRequest = event.request.clone();
-
-        return fetch(fetchRequest).then((response) => {
-          // Check if valid response
-          if (!response || response.status !== 200 || response.type === 'opaque') {
-            return response;
+        const fetchPromise = fetch(event.request).then((networkResponse) => {
+          // Update cache with fresh version
+          if (networkResponse.ok) {
+            const responseClone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, responseClone);
+            });
           }
-
-          // Clone the response
-          const responseToCache = response.clone();
-
-          // Cache successful responses for images and static assets
-          if (event.request.url.includes('/assets/') || 
-              event.request.url.endsWith('.webp') ||
-              event.request.url.endsWith('.woff2')) {
-            caches.open(CACHE_NAME)
-              .then((cache) => {
-                cache.put(event.request, responseToCache);
-              });
-          }
-
-          return response;
+          return networkResponse;
         });
-      })
-      .catch(() => {
-        // Offline fallback for navigation requests
-        if (event.request.mode === 'navigate') {
-          return caches.match('/index.html');
-        }
+
+        // Return cached version immediately, but update in background
+        return response || fetchPromise;
       })
   );
 });
@@ -102,5 +105,14 @@ self.addEventListener('fetch', (event) => {
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
+  }
+  
+  // Handle cache clear message
+  if (event.data && event.data.type === 'CLEAR_CACHE') {
+    caches.keys().then(names => {
+      names.forEach(name => {
+        caches.delete(name);
+      });
+    });
   }
 });
