@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Gallery as PhotoSwipeGallery } from 'react-photoswipe-gallery'
 import { motion, AnimatePresence } from 'framer-motion'
-import GalleryHero from '../components/GalleryHero'
+import Navigation from '../components/Navigation'
 import ImageWithDimensions from '../components/ImageWithDimensions'
 import { galleryFolders, getLocalImages } from '../data/localGalleryImages'
 import 'photoswipe/dist/photoswipe.css'
@@ -39,9 +39,21 @@ const LocalGallery = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-dark-steel to-black">
-      {/* Header */}
-      <header className="bg-black/90 backdrop-blur-sm sticky top-0 z-40 border-b border-steel-blue/20">
-        <div className="container mx-auto px-4 py-4">
+      {/* Navigation */}
+      <Navigation />
+      
+      {/* Gallery Title */}
+      <div className="bg-gradient-to-r from-steel-blue to-ice-blue py-8">
+        <div className="container mx-auto px-4">
+          <h1 className="text-4xl md:text-5xl font-bold text-white font-sport tracking-wider text-center">
+            PHOTO GALLERY
+          </h1>
+        </div>
+      </div>
+
+      {/* Header Controls */}
+      <header className="bg-black/50 backdrop-blur-sm sticky top-16 z-30 border-b border-steel-blue/20">
+        <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <Link 
               to="/" 
@@ -52,9 +64,9 @@ const LocalGallery = () => {
               </svg>
               <span className="hidden sm:inline">Back to Home</span>
             </Link>
-            <h1 className="text-2xl sm:text-3xl font-bebas text-white tracking-wider">
-              Wings of Steel Gallery
-            </h1>
+            <h2 className="text-xl sm:text-2xl font-bebas text-white tracking-wider">
+              {viewMode === 'folders' ? 'Browse Albums' : currentFolder.name}
+            </h2>
             <div className="text-steel-gray text-sm">
               1,191 total photos
             </div>
@@ -62,8 +74,6 @@ const LocalGallery = () => {
         </div>
       </header>
 
-      {/* Hero Section - Only show on main folders view */}
-      {viewMode === 'folders' && <GalleryHero />}
 
       <div className="container mx-auto px-4 py-8">
         {/* Breadcrumb Navigation */}
