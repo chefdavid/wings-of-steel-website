@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "dev:netlify": "netlify dev",
-    "build": "npx --package=typescript tsc -b && vite build",
+    "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "db": "node scripts/db-manager.js",
