@@ -171,7 +171,6 @@ const LocalGallery = () => {
                 zoom: true,
                 showHideAnimationType: 'fade',
                 bgOpacity: 0.95,
-                tapToClose: true,
                 pinchToClose: true,
                 closeOnVerticalDrag: true,
                 padding: { top: 20, bottom: 20, left: 20, right: 20 },

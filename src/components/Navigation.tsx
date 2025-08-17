@@ -147,7 +147,7 @@ const Navigation = () => {
                   <div
                     key={item.key}
                     className="relative"
-                    onMouseEnter={() => setActiveDropdown(item.key)}
+                    onMouseEnter={() => setActiveDropdown(item.key || null)}
                     onMouseLeave={() => setActiveDropdown(null)}
                   >
                     <button
@@ -268,7 +268,7 @@ const Navigation = () => {
                   ) : (
                     <div key={item.key}>
                       <button
-                        onClick={() => setActiveDropdown(activeDropdown === item.key ? null : item.key)}
+                        onClick={() => setActiveDropdown(activeDropdown === item.key ? null : (item.key || null))}
                         className="flex items-center justify-between w-full px-3 py-2 text-gray-300 hover:text-white hover:bg-steel-blue/20 rounded-md font-sport tracking-wider"
                       >
                         {item.name}
