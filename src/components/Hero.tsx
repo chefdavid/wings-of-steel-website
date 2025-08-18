@@ -63,10 +63,10 @@ const Hero = () => {
 
           <div className="mb-4 md:mb-6">
             <h1 className="text-3xl sm:text-4xl md:text-6xl font-sport text-white tracking-wide mb-1">
-              BREAKING BARRIERS &
+              {heroData?.heading1 || 'BREAKING BARRIERS &'}
             </h1>
             <h1 className="text-3xl sm:text-4xl md:text-6xl font-sport text-yellow-400 tracking-wide">
-              BUILDING CHAMPIONS
+              {heroData?.heading2 || 'BUILDING CHAMPIONS'}
             </h1>
           </div>
           
@@ -74,14 +74,14 @@ const Hero = () => {
             {heroData?.title || teamConfig.name}
           </p>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3 max-w-2xl mx-auto mb-4 md:mb-6 auto-rows-fr">
-            <div className="flex items-center justify-center gap-2 bg-yellow-400 text-black px-3 py-4 md:px-4 md:py-5 rounded-lg font-medium text-xs md:text-sm min-h-[60px] md:min-h-[70px]">
+          <div className="flex flex-col md:flex-row gap-2 md:gap-3 justify-center items-stretch max-w-2xl mx-auto mb-4 md:mb-6">
+            <div className="flex-1 flex items-center justify-center gap-2 bg-yellow-400 text-black px-3 py-4 md:px-4 md:py-5 rounded-lg font-medium text-xs md:text-sm">
               <FaTrophy className="text-black flex-shrink-0 text-sm md:text-base" />
-              <span className="text-center leading-relaxed flex-1">{heroData?.subtitle || '2023 National Champions'}</span>
+              <span className="text-center leading-relaxed">{heroData?.subtitle || '2023 National Champions'}</span>
             </div>
-            <div className="flex items-center justify-center gap-2 bg-yellow-400 text-black px-3 py-4 md:px-4 md:py-5 rounded-lg font-medium text-xs md:text-sm min-h-[60px] md:min-h-[70px]">
+            <div className="flex-1 flex items-center justify-center gap-2 bg-yellow-400 text-black px-3 py-4 md:px-4 md:py-5 rounded-lg font-medium text-xs md:text-sm">
               <FaTrophy className="text-black flex-shrink-0 text-sm md:text-base" />
-              <span className="text-center leading-relaxed flex-1">{heroData?.tagline || '2025 USA Sled Hockey Champions 1st Place'}</span>
+              <span className="text-center leading-relaxed">{heroData?.tagline || '2025 USA Sled Hockey Champions 1st Place'}</span>
             </div>
           </div>
 
@@ -116,7 +116,7 @@ const Hero = () => {
             transition={{ delay: 1, duration: 1 }}
             className="text-lg md:text-xl font-bold text-yellow-400"
           >
-            {teamConfig.mission}
+            {heroData?.mission || teamConfig.mission}
           </motion.p>
         </motion.div>
       </div>

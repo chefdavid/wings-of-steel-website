@@ -4,7 +4,7 @@ import { FaUsers, FaHockeyPuck, FaCalendarAlt, FaCog, FaSignOutAlt, FaBars, FaTi
 import { Users } from 'lucide-react';
 import PlayerManagement from './PlayerManagement';
 import CoachManagement from './CoachManagement';
-import SiteSectionsEditorV2 from './SiteSectionsEditorV2';
+import SiteSectionsEditorWithPreview from './SiteSectionsEditorWithPreview';
 import GameScheduleManagement from './GameScheduleManagement';
 import OpponentTeamsManagement from './OpponentTeamsManagement';
 import PracticeScheduleManagement from './PracticeScheduleManagement';
@@ -41,7 +41,7 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
       case 'practice':
         return <PracticeScheduleManagement />;
       case 'site-sections':
-        return <SiteSectionsEditorV2 />;
+        return <SiteSectionsEditorWithPreview />;
       case 'schedule':
         return <GameScheduleManagement />;
       case 'batch-images':
