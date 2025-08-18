@@ -117,21 +117,23 @@ const SiteSectionsEditor = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Subtitle</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Award Button 1 (Left Trophy Button)</label>
                 <input
                   type="text"
                   value={String(sections.hero.content.subtitle || '')}
                   onChange={(e) => updateSectionContent('hero', 'subtitle', e.target.value)}
+                  placeholder="e.g., 2023 National Champions"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-steel-blue focus:border-transparent outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Tagline</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Award Button 2 (Right Trophy Button)</label>
                 <input
                   type="text"
                   value={String(sections.hero.content.tagline || '')}
                   onChange={(e) => updateSectionContent('hero', 'tagline', e.target.value)}
+                  placeholder="e.g., 2025 USA Sled Hockey Champions 1st Place"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-steel-blue focus:border-transparent outline-none"
                 />
               </div>
@@ -162,11 +164,11 @@ const SiteSectionsEditor = () => {
                 <p className="text-gray-800">{String(sections.hero.content.title || '')}</p>
               </div>
               <div>
-                <span className="text-sm font-medium text-gray-500">Subtitle:</span>
+                <span className="text-sm font-medium text-gray-500">Award Button 1:</span>
                 <p className="text-gray-800">{String(sections.hero.content.subtitle || '')}</p>
               </div>
               <div>
-                <span className="text-sm font-medium text-gray-500">Tagline:</span>
+                <span className="text-sm font-medium text-gray-500">Award Button 2:</span>
                 <p className="text-gray-800">{String(sections.hero.content.tagline || '')}</p>
               </div>
               <div>

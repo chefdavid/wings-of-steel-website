@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import { FaHockeyPuck, FaTrophy, FaUsers, FaHeart } from 'react-icons/fa';
 import { useSiteSections } from '../hooks';
 import { useTeam } from '../hooks/useTeam';
-import TeamIndicator from './TeamIndicator';
 
 const Hero = () => {
   const { sections, loading } = useSiteSections();
@@ -57,10 +56,9 @@ const Hero = () => {
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="flex justify-center items-center gap-4 mb-4 md:mb-6"
+            className="flex justify-center items-center mb-4 md:mb-6"
           >
             <FaHockeyPuck className="text-5xl md:text-6xl text-ice-blue animate-pulse" />
-            <TeamIndicator size="lg" showDescription />
           </motion.div>
 
           <div className="mb-4 md:mb-6">
@@ -76,14 +74,14 @@ const Hero = () => {
             {heroData?.title || teamConfig.name}
           </p>
           
-          <div className="flex flex-col md:flex-row gap-2 md:gap-3 justify-center items-center mb-4 md:mb-6">
-            <div className="flex items-center justify-center gap-2 bg-yellow-400 text-black px-3 py-1.5 md:px-4 md:py-2 rounded-lg font-medium text-xs md:text-sm w-full max-w-xs md:w-72">
+          <div className="flex flex-col md:flex-row gap-2 md:gap-3 justify-center items-stretch mb-4 md:mb-6">
+            <div className="flex items-center justify-center gap-2 bg-yellow-400 text-black px-3 py-2 md:px-4 md:py-3 rounded-lg font-medium text-xs md:text-sm w-full max-w-xs md:w-72 min-h-[40px] md:min-h-[48px]">
               <FaTrophy className="text-black flex-shrink-0 text-sm" />
               <span className="text-center">{heroData?.subtitle || '2023 National Champions'}</span>
             </div>
-            <div className="flex items-center justify-center gap-2 bg-yellow-400 text-black px-3 py-1.5 md:px-4 md:py-2 rounded-lg font-medium text-xs md:text-sm w-full max-w-xs md:w-72">
+            <div className="flex items-center justify-center gap-2 bg-yellow-400 text-black px-3 py-2 md:px-4 md:py-3 rounded-lg font-medium text-xs md:text-sm w-full max-w-xs md:w-72 min-h-[40px] md:min-h-[48px]">
               <FaTrophy className="text-black flex-shrink-0 text-sm" />
-              <span className="text-center">2025 USA Sled Hockey Champions 1st Place</span>
+              <span className="text-center">{heroData?.tagline || '2025 USA Sled Hockey Champions 1st Place'}</span>
             </div>
           </div>
 
@@ -118,7 +116,7 @@ const Hero = () => {
             transition={{ delay: 1, duration: 1 }}
             className="text-lg md:text-xl font-bold text-yellow-400"
           >
-            {heroData?.tagline || teamConfig.mission}
+            {teamConfig.mission}
           </motion.p>
         </motion.div>
       </div>
