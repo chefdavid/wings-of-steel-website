@@ -13,7 +13,8 @@ export function useSiteSections() {
         setLoading(true);
         const { data, error } = await supabase
           .from('site_sections')
-          .select('*');
+          .select('*')
+          .order('updated_at', { ascending: false });
 
         if (error) throw error;
 
@@ -32,6 +33,36 @@ export function useSiteSections() {
     };
 
     fetchSections();
+
+    // Set up real-time subscription for updates
+    const channel = supabase
+      .channel('site_sections_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'site_sections'
+        },
+        (payload) => {
+          console.log('📡 Site section updated:', payload);
+          // Refetch all sections when any change occurs
+          fetchSections();
+        }
+      )
+      .subscribe();
+
+    // Also refetch on window focus to catch any missed updates
+    const handleFocus = () => {
+      console.log('🔄 Window focused, refreshing site sections');
+      fetchSections();
+    };
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      channel.unsubscribe();
+      window.removeEventListener('focus', handleFocus);
+    };
   }, []);
 
   return { sections, loading, error };
