@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { FaHockeyPuck } from 'react-icons/fa';
 import { useTeam } from '../hooks/useTeam';
 
 interface TeamIndicatorProps {
@@ -21,16 +22,22 @@ const TeamIndicator: React.FC<TeamIndicatorProps> = ({
     lg: 'text-lg px-6 py-3'
   };
 
+  const iconSizes = {
+    sm: 'text-sm',
+    md: 'text-base',
+    lg: 'text-xl'
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`inline-flex items-center gap-2 rounded-full font-bold text-white shadow-lg ${sizeClasses[size]} ${className}`}
+      className={`inline-flex items-center gap-2 rounded-full font-bold text-white shadow-lg mb-2 ${sizeClasses[size]} ${className}`}
       style={{ backgroundColor: teamConfig.colors.primary }}
     >
-      <div 
-        className="w-3 h-3 rounded-full"
-        style={{ backgroundColor: teamConfig.colors.accent }}
+      <FaHockeyPuck 
+        className={`${iconSizes[size]} flex-shrink-0`}
+        style={{ color: teamConfig.colors.accent }}
       />
       <div className="flex flex-col">
         <span>{teamConfig.name}</span>
