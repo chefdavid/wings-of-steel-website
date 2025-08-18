@@ -74,14 +74,14 @@ const Hero = () => {
             {heroData?.title || teamConfig.name}
           </p>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3 max-w-2xl mx-auto mb-4 md:mb-6">
-            <div className="flex items-center justify-center gap-2 bg-yellow-400 text-black px-3 py-3 md:px-4 md:py-4 rounded-lg font-medium text-xs md:text-sm h-full">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3 max-w-2xl mx-auto mb-4 md:mb-6 auto-rows-fr">
+            <div className="flex items-center justify-center gap-2 bg-yellow-400 text-black px-3 py-4 md:px-4 md:py-5 rounded-lg font-medium text-xs md:text-sm min-h-[60px] md:min-h-[70px]">
               <FaTrophy className="text-black flex-shrink-0 text-sm md:text-base" />
-              <span className="text-center leading-snug">{heroData?.subtitle || '2023 National Champions'}</span>
+              <span className="text-center leading-relaxed flex-1">{heroData?.subtitle || '2023 National Champions'}</span>
             </div>
-            <div className="flex items-center justify-center gap-2 bg-yellow-400 text-black px-3 py-3 md:px-4 md:py-4 rounded-lg font-medium text-xs md:text-sm h-full">
+            <div className="flex items-center justify-center gap-2 bg-yellow-400 text-black px-3 py-4 md:px-4 md:py-5 rounded-lg font-medium text-xs md:text-sm min-h-[60px] md:min-h-[70px]">
               <FaTrophy className="text-black flex-shrink-0 text-sm md:text-base" />
-              <span className="text-center leading-snug">{heroData?.tagline || '2025 USA Sled Hockey Champions 1st Place'}</span>
+              <span className="text-center leading-relaxed flex-1">{heroData?.tagline || '2025 USA Sled Hockey Champions 1st Place'}</span>
             </div>
           </div>
 
