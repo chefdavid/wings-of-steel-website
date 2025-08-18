@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { CartProvider } from './contexts/CartContext'
 import LoadingSpinner from './components/LoadingSpinner'
 import { ErrorBoundary } from './components/ErrorBoundary'
+import DevBranchIndicator from './components/DevBranchIndicator'
 
 // Lazy load heavy components
 const TeamSite = lazy(() => import('./components/TeamSite'))
@@ -40,6 +41,7 @@ function App() {
             </Routes>
           </Suspense>
       </CartProvider>
+      <DevBranchIndicator />
     </ErrorBoundary>
   )
 }
