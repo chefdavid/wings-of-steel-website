@@ -156,56 +156,56 @@ const GetInvolved = () => {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
           viewport={{ once: true }}
-          className="bg-gradient-to-r from-steel-blue to-blue-600 rounded-2xl p-8 mb-12"
+          className="bg-gray-900 border border-steel-blue/40 rounded-2xl p-8 mb-12"
         >
           <div className="max-w-4xl mx-auto">
-            <h3 className="text-3xl font-bold text-center mb-8">
-              Join the Wings of Steel Team!
+            <h3 className="text-4xl font-sport text-center mb-8 text-white py-4">
+              REGISTER YOUR TEAM
             </h3>
             
             <div className="grid md:grid-cols-2 gap-8 mb-8">
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
-                <h4 className="text-xl font-bold mb-4 flex items-center gap-2">
-                  <FaHockeyPuck className="text-ice-blue" />
+              <div className="bg-black/50 border border-steel-blue/50 rounded-lg p-6">
+                <h4 className="text-xl font-bold mb-4 flex items-center gap-2 text-white">
+                  <FaHockeyPuck className="text-steel-blue" />
                   Try Sled Hockey Today
                 </h4>
-                <p className="mb-4">
+                <p className="mb-4 text-gray-200">
                   Interested in joining our championship team? Come to a practice and try it out! 
                   We provide all equipment and on-ice support. No experience necessary.
                 </p>
-                <ul className="space-y-2 text-sm">
+                <ul className="space-y-2 text-sm text-gray-200">
                   <li className="flex items-start">
-                    <span className="text-ice-blue mr-2">•</span>
+                    <span className="text-steel-blue mr-2 font-bold">•</span>
                     Open to all youth with disabilities
                   </li>
                   <li className="flex items-start">
-                    <span className="text-ice-blue mr-2">•</span>
+                    <span className="text-steel-blue mr-2 font-bold">•</span>
                     Equipment provided at no cost
                   </li>
                   <li className="flex items-start">
-                    <span className="text-ice-blue mr-2">•</span>
+                    <span className="text-steel-blue mr-2 font-bold">•</span>
                     Experienced coaches and volunteers
                   </li>
                   <li className="flex items-start">
-                    <span className="text-ice-blue mr-2">•</span>
+                    <span className="text-steel-blue mr-2 font-bold">•</span>
                     No child pays to play - ever!
                   </li>
                 </ul>
               </div>
               
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
-                <h4 className="text-xl font-bold mb-4">Practice Information</h4>
-                <p className="mb-4">
+              <div className="bg-black/50 border border-steel-blue/50 rounded-lg p-6">
+                <h4 className="text-xl font-bold mb-4 text-white">Practice Information</h4>
+                <p className="mb-4 text-gray-200">
                   Join us at our home rink in Voorhees, NJ. Contact us to schedule your 
                   first visit and meet our amazing team!
                 </p>
-                <div className="space-y-3">
+                <div className="space-y-3 text-gray-200">
                   <div className="flex items-center gap-2">
-                    <FaMapMarkerAlt className="text-ice-blue" />
+                    <FaMapMarkerAlt className="text-steel-blue" />
                     <span>601 Laurel Oak Road, Voorhees, NJ</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <FaEnvelope className="text-ice-blue" />
+                    <FaEnvelope className="text-steel-blue" />
                     <span>info@WingsofSteel.org</span>
                   </div>
                 </div>
@@ -213,7 +213,7 @@ const GetInvolved = () => {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   href="#contact"
-                  className="inline-block w-full bg-white text-steel-blue px-6 py-3 rounded-full font-medium text-center mt-4 hover:bg-gray-100 transition-colors duration-300"
+                  className="inline-block w-full bg-steel-blue text-white px-6 py-3 rounded-full font-medium text-center mt-4 hover:bg-blue-600 transition-colors duration-300"
                 >
                   Contact Us to Visit
                 </motion.a>
