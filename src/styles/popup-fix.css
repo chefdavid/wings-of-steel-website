@@ -1,0 +1,26 @@
+/* Emergency fix for any blocking popups/modals */
+.popup-close-fix {
+  z-index: 99999 !important;
+}
+
+/* Ensure any modal/popup has a way to be closed */
+[class*="modal"]:not(.golf-modal),
+[class*="popup"]:not(.golf-popup),
+[class*="overlay"]:not(.golf-overlay) {
+  pointer-events: auto;
+}
+
+/* Add escape key handler for any modal */
+body.modal-open {
+  overflow: hidden;
+}
+
+/* Ensure close buttons are always clickable */
+[class*="close"],
+[aria-label*="close"],
+[aria-label*="Close"],
+button:has(svg[class*="close"]) {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  z-index: 100000 !important;
+}

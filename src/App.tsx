@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { CartProvider } from './contexts/CartContext'
 import LoadingSpinner from './components/LoadingSpinner'
 import { ErrorBoundary } from './components/ErrorBoundary'
+import ModalEscapeHandler from './components/ModalEscapeHandler'
 
 // Lazy load heavy components
 const TeamSite = lazy(() => import('./components/TeamSite'))
@@ -10,6 +11,7 @@ const Admin = lazy(() => import('./components/Admin'))
 const OpponentTeams = lazy(() => import('./components/OpponentTeams'))
 const StorePage = lazy(() => import('./components/StorePage'))
 const LocalGallery = lazy(() => import('./pages/LocalGallery'))
+const GolfOuting = lazy(() => import('./pages/GolfOuting'))
 // Temporarily disable FeedbackAdmin until properly configured
 // const FeedbackAdmin = lazy(() => import('./components/FeedbackAdmin'))
 
@@ -17,6 +19,7 @@ function App() {
   return (
     <ErrorBoundary>
       <CartProvider>
+          <ModalEscapeHandler />
           <Suspense fallback={<LoadingSpinner />}>
             <Routes>
               {/* Root routes - Direct access */}
@@ -25,6 +28,7 @@ function App() {
               <Route path="/opponents" element={<OpponentTeams />} />
               <Route path="/store" element={<StorePage />} />
               <Route path="/gallery" element={<LocalGallery />} />
+              <Route path="/golf-outing" element={<GolfOuting />} />
               
               {/* Team-specific routes (for backwards compatibility) */}
               <Route path="/team/:team" element={<TeamSite />} />

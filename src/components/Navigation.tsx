@@ -27,7 +27,7 @@ const Navigation = () => {
   };
 
   const megaMenuItems = [
-    { name: 'Home', href: '/', isHashLink: false, standalone: true },
+    { name: 'Home', href: '/', isHashLink: false, standalone: true, forceReload: true },
     {
       name: 'Team',
       key: 'team',
@@ -92,7 +92,8 @@ const Navigation = () => {
           ]
         }
       ]
-    }
+    },
+    { name: 'Golf Outing', href: '/golf-outing', isHashLink: false, standalone: true, highlight: true }
   ];
 
   return (
@@ -139,7 +140,11 @@ const Navigation = () => {
                   <Link
                     key={item.name}
                     to={item.href}
-                    className="px-4 py-2 text-gray-300 hover:text-white hover:bg-steel-blue/20 rounded-md transition-all duration-200 font-sport tracking-wider"
+                    className={`px-4 py-2 ${
+                      item.highlight 
+                        ? 'text-championship-gold hover:text-yellow-300 hover:bg-championship-gold/20' 
+                        : 'text-gray-300 hover:text-white hover:bg-steel-blue/20'
+                    } rounded-md transition-all duration-200 font-sport tracking-wider`}
                   >
                     {item.name}
                   </Link>
