@@ -87,7 +87,7 @@ const About = () => {
             <motion.a
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              href="#get-involved"
+              href="/join-team"
               className="inline-block bg-white text-steel-blue px-8 py-4 rounded-full font-medium hover:bg-gray-100 transition-colors duration-300"
             >
               Join Our Community

@@ -12,6 +12,7 @@ const OpponentTeams = lazy(() => import('./components/OpponentTeams'))
 const StorePage = lazy(() => import('./components/StorePage'))
 const LocalGallery = lazy(() => import('./pages/LocalGallery'))
 const GolfOuting = lazy(() => import('./pages/GolfOuting'))
+const JoinTeam = lazy(() => import('./pages/JoinTeam'))
 // Temporarily disable FeedbackAdmin until properly configured
 // const FeedbackAdmin = lazy(() => import('./components/FeedbackAdmin'))
 
@@ -29,6 +30,7 @@ function App() {
               <Route path="/store" element={<StorePage />} />
               <Route path="/gallery" element={<LocalGallery />} />
               <Route path="/golf-outing" element={<GolfOuting />} />
+              <Route path="/join-team" element={<JoinTeam />} />
               
               {/* Team-specific routes (for backwards compatibility) */}
               <Route path="/team/:team" element={<TeamSite />} />

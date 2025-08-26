@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Edit2, Trash2, Clock, MapPin, Calendar, X, Copy, Check } from 'lucide-react';
+import { Plus, Edit2, Trash2, Clock, MapPin, Calendar, X, Copy, Check, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
 import type { PracticeSchedule } from '../../types/practice-schedule';
 import { DAYS_OF_WEEK, TEAM_TYPES } from '../../types/practice-schedule';
@@ -12,7 +12,10 @@ const PracticeScheduleManagement = () => {
   const [editingSchedule, setEditingSchedule] = useState<PracticeSchedule | null>(null);
   const [selectedDay, setSelectedDay] = useState<string>('all');
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<'date' | 'time' | 'team' | 'location'>('date');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [formData, setFormData] = useState<Partial<PracticeSchedule>>({
+    practice_date: new Date().toISOString().split('T')[0],
     day_of_week: 'Monday',
     day_order: 1,
     start_time: '18:00',
@@ -34,14 +37,33 @@ const PracticeScheduleManagement = () => {
     try {
       const { data, error } = await supabase
         .from('practice_schedules')
-        .select('*')
-        .order('day_order')
-        .order('start_time');
+        .select('*');
 
-      if (error) throw error;
-      setSchedules(data || []);
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
+      
+      // Sort data in JavaScript
+      const sortedData = (data || []).sort((a, b) => {
+        // First sort by date (practice_date or effective_from)
+        const dateA = a.practice_date || a.effective_from || '';
+        const dateB = b.practice_date || b.effective_from || '';
+        if (dateA && dateB) {
+          const dateCompare = dateA.localeCompare(dateB);
+          if (dateCompare !== 0) return dateCompare;
+        }
+        // Then by day_order
+        const dayCompare = (a.day_order || 0) - (b.day_order || 0);
+        if (dayCompare !== 0) return dayCompare;
+        // Finally by start_time
+        return (a.start_time || '').localeCompare(b.start_time || '');
+      });
+      
+      setSchedules(sortedData);
     } catch (error) {
       console.error('Error fetching schedules:', error);
+      alert('Failed to load practice schedules. Please check console for details.');
     } finally {
       setLoading(false);
     }
@@ -62,6 +84,7 @@ const PracticeScheduleManagement = () => {
     setEditingSchedule(null);
     setFormData({
       ...scheduleData,
+      practice_date: new Date().toISOString().split('T')[0], // Set today's date for duplicate
       start_time: schedule.start_time.substring(0, 5),
       end_time: schedule.end_time.substring(0, 5),
       description: `${schedule.description} (Copy)`
@@ -132,6 +155,7 @@ const PracticeScheduleManagement = () => {
 
   const resetForm = () => {
     setFormData({
+      practice_date: new Date().toISOString().split('T')[0],
       day_of_week: 'Monday',
       day_order: 1,
       start_time: '18:00',
@@ -146,9 +170,36 @@ const PracticeScheduleManagement = () => {
     });
   };
 
+  const handleSort = (field: 'date' | 'time' | 'team' | 'location') => {
+    if (sortBy === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortDirection('asc');
+    }
+  };
+
+  const sortedSchedules = [...schedules].sort((a, b) => {
+    let comparison = 0;
+    
+    if (sortBy === 'date') {
+      const dateA = a.practice_date || a.effective_from || '';
+      const dateB = b.practice_date || b.effective_from || '';
+      comparison = dateA.localeCompare(dateB) || a.start_time.localeCompare(b.start_time);
+    } else if (sortBy === 'time') {
+      comparison = a.start_time.localeCompare(b.start_time);
+    } else if (sortBy === 'team') {
+      comparison = (a.team_type || '').localeCompare(b.team_type || '');
+    } else if (sortBy === 'location') {
+      comparison = (a.location || '').localeCompare(b.location || '') || (a.rink || '').localeCompare(b.rink || '');
+    }
+    
+    return sortDirection === 'asc' ? comparison : -comparison;
+  });
+
   const filteredSchedules = selectedDay === 'all' 
-    ? schedules 
-    : schedules.filter(s => s.day_of_week === selectedDay);
+    ? sortedSchedules 
+    : sortedSchedules.filter(s => s.day_of_week === selectedDay);
 
   const groupedSchedules = filteredSchedules.reduce((acc, schedule) => {
     if (!acc[schedule.day_of_week]) {
@@ -166,6 +217,12 @@ const PracticeScheduleManagement = () => {
     return `${displayHour}:${minutes} ${ampm}`;
   };
 
+  const formatDate = (dateString: string | undefined) => {
+    if (!dateString) return 'Not set';
+    const date = new Date(dateString + 'T00:00:00');
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  };
+
   return (
     <div className="p-6">
       <div className="mb-6">
@@ -174,30 +231,32 @@ const PracticeScheduleManagement = () => {
       </div>
 
       <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="flex-1">
-            <select
-              value={selectedDay}
-              onChange={(e) => setSelectedDay(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-steel-blue"
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1">
+              <select
+                value={selectedDay}
+                onChange={(e) => setSelectedDay(e.target.value)}
+                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-steel-blue"
+              >
+                <option value="all">All Days</option>
+                {DAYS_OF_WEEK.map(day => (
+                  <option key={day.name} value={day.name}>{day.name}</option>
+                ))}
+              </select>
+            </div>
+            <button
+              onClick={() => {
+                setEditingSchedule(null);
+                resetForm();
+                setShowModal(true);
+              }}
+              className="flex items-center gap-2 bg-steel-blue text-white px-4 py-2 rounded-lg hover:bg-dark-steel transition-colors"
             >
-              <option value="all">All Days</option>
-              {DAYS_OF_WEEK.map(day => (
-                <option key={day.name} value={day.name}>{day.name}</option>
-              ))}
-            </select>
+              <Plus className="w-5 h-5" />
+              Add Practice Session
+            </button>
           </div>
-          <button
-            onClick={() => {
-              setEditingSchedule(null);
-              resetForm();
-              setShowModal(true);
-            }}
-            className="flex items-center gap-2 bg-steel-blue text-white px-4 py-2 rounded-lg hover:bg-dark-steel transition-colors"
-          >
-            <Plus className="w-5 h-5" />
-            Add Practice Session
-          </button>
         </div>
       </div>
 
@@ -206,69 +265,138 @@ const PracticeScheduleManagement = () => {
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-steel-blue"></div>
         </div>
       ) : (
-        <div className="space-y-6">
-          {Object.entries(groupedSchedules).map(([day, daySchedules]) => (
-            <div key={day} className="bg-white rounded-lg shadow-md overflow-hidden">
-              <div className="bg-gradient-to-r from-steel-blue to-dark-steel text-white p-4">
-                <h3 className="text-lg font-bold flex items-center gap-2">
-                  <Calendar className="w-5 h-5" />
-                  {day}
-                  <span className="ml-auto text-sm font-normal">
-                    {daySchedules.length} session{daySchedules.length !== 1 ? 's' : ''}
-                  </span>
-                </h3>
-              </div>
-              
-              <div className="divide-y divide-gray-200">
-                {daySchedules.map((schedule) => (
-                  <div 
-                    key={schedule.id} 
-                    className={`p-4 hover:bg-gray-50 transition-colors ${!schedule.is_active ? 'opacity-50' : ''}`}
+        <div className="bg-white rounded-lg shadow-md overflow-hidden">
+          {/* Table Header */}
+          <div className="bg-gradient-to-r from-steel-blue to-dark-steel text-white p-4">
+            <h3 className="text-lg font-bold">Practice Sessions ({filteredSchedules.length})</h3>
+          </div>
+          
+          {/* Table-like structure */}
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50 border-b">
+                <tr>
+                  <th 
+                    className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                    onClick={() => handleSort('date')}
                   >
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                      <div className="flex-1">
-                        <div className="flex items-start gap-3">
-                          <Clock className="w-5 h-5 text-steel-blue mt-0.5" />
-                          <div className="flex-1">
-                            <div className="font-semibold text-gray-900">
-                              {formatTime(schedule.start_time)} - {formatTime(schedule.end_time)}
-                              {schedule.team_type && (
-                                <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">
-                                  {TEAM_TYPES.find(t => t.value === schedule.team_type)?.label || schedule.team_type}
-                                </span>
-                              )}
-                              {!schedule.is_active && (
-                                <span className="ml-2 px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
-                                  Inactive
-                                </span>
-                              )}
-                            </div>
-                            
-                            {schedule.description && (
-                              <p className="text-gray-700 mt-1">{schedule.description}</p>
-                            )}
-                            
-                            <div className="flex flex-wrap gap-4 mt-2 text-sm text-gray-600">
-                              <span className="flex items-center gap-1">
-                                <MapPin className="w-4 h-4" />
-                                {schedule.location} - {schedule.rink}
-                              </span>
-                              {schedule.season && (
-                                <span className="flex items-center gap-1">
-                                  <Calendar className="w-4 h-4" />
-                                  {schedule.season}
-                                </span>
-                              )}
-                            </div>
-                            
-                            {schedule.notes && (
-                              <p className="text-sm text-gray-500 mt-2 italic">{schedule.notes}</p>
-                            )}
-                          </div>
+                    <div className="flex items-center gap-1">
+                      Date
+                      {sortBy === 'date' && (
+                        sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
+                      )}
+                      {sortBy !== 'date' && <ArrowUpDown className="w-3 h-3 text-gray-400" />}
+                    </div>
+                  </th>
+                  <th 
+                    className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                    onClick={() => handleSort('time')}
+                  >
+                    <div className="flex items-center gap-1">
+                      Time
+                      {sortBy === 'time' && (
+                        sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
+                      )}
+                      {sortBy !== 'time' && <ArrowUpDown className="w-3 h-3 text-gray-400" />}
+                    </div>
+                  </th>
+                  <th 
+                    className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                    onClick={() => handleSort('team')}
+                  >
+                    <div className="flex items-center gap-1">
+                      Team/Division
+                      {sortBy === 'team' && (
+                        sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
+                      )}
+                      {sortBy !== 'team' && <ArrowUpDown className="w-3 h-3 text-gray-400" />}
+                    </div>
+                  </th>
+                  <th 
+                    className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                    onClick={() => handleSort('location')}
+                  >
+                    <div className="flex items-center gap-1">
+                      Location
+                      {sortBy === 'location' && (
+                        sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
+                      )}
+                      {sortBy !== 'location' && <ArrowUpDown className="w-3 h-3 text-gray-400" />}
+                    </div>
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Details</th>
+                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {filteredSchedules.map((schedule) => (
+                  <tr 
+                    key={schedule.id} 
+                    className={`hover:bg-gray-50 transition-colors ${!schedule.is_active ? 'opacity-50' : ''}`}
+                  >
+                    {/* Date Column */}
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">
+                          {schedule.practice_date ? formatDate(schedule.practice_date) : 
+                           schedule.effective_from ? formatDate(schedule.effective_from) :
+                           (
+                            <span className="text-yellow-600 italic">Click edit to set date</span>
+                          )}
                         </div>
+                        <div className="text-xs text-gray-500">{schedule.day_of_week}</div>
                       </div>
-                      
-                      <div className="flex gap-2">
+                    </td>
+                    
+                    {/* Time Column */}
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">
+                        {formatTime(schedule.start_time)} - {formatTime(schedule.end_time)}
+                      </div>
+                    </td>
+                    
+                    {/* Team/Division Column */}
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        {schedule.team_type && (
+                          <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">
+                            {TEAM_TYPES.find(t => t.value === schedule.team_type)?.label || schedule.team_type}
+                          </span>
+                        )}
+                        {!schedule.is_active && (
+                          <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
+                            Inactive
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    
+                    {/* Location Column */}
+                    <td className="px-4 py-3">
+                      <div>
+                        <div className="text-sm text-gray-900">{schedule.location}</div>
+                        <div className="text-xs text-gray-500">{schedule.rink}</div>
+                      </div>
+                    </td>
+                    
+                    {/* Details Column */}
+                    <td className="px-4 py-3">
+                      <div className="text-sm">
+                        {schedule.description && (
+                          <p className="text-gray-700">{schedule.description}</p>
+                        )}
+                        {schedule.season && (
+                          <p className="text-xs text-gray-500 mt-1">Season: {schedule.season}</p>
+                        )}
+                        {schedule.notes && (
+                          <p className="text-xs text-gray-500 italic mt-1">{schedule.notes}</p>
+                        )}
+                      </div>
+                    </td>
+                    
+                    {/* Actions Column */}
+                    <td className="px-4 py-3 text-center">
+                      <div className="flex justify-center gap-2">
                         <button
                           onClick={() => handleDuplicate(schedule)}
                           className={`text-green-600 hover:text-green-800 transition-colors ${
@@ -297,15 +425,15 @@ const PracticeScheduleManagement = () => {
                           <Trash2 className="w-5 h-5" />
                         </button>
                       </div>
-                    </div>
-                  </div>
+                    </td>
+                  </tr>
                 ))}
-              </div>
-            </div>
-          ))}
+              </tbody>
+            </table>
+          </div>
           
-          {Object.keys(groupedSchedules).length === 0 && (
-            <div className="bg-white rounded-lg shadow-md p-8 text-center">
+          {filteredSchedules.length === 0 && (
+            <div className="p-8 text-center">
               <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600">No practice sessions scheduled</p>
               <button
@@ -349,22 +477,25 @@ const PracticeScheduleManagement = () => {
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Day of Week *
+                    Practice Date *
                   </label>
-                  <select
+                  <input
+                    type="date"
                     required
-                    value={formData.day_of_week}
+                    value={formData.practice_date || ''}
                     onChange={(e) => {
-                      const day = e.target.value;
-                      const order = DAYS_OF_WEEK.find(d => d.name === day)?.order || 1;
-                      setFormData({ ...formData, day_of_week: day, day_order: order });
+                      const selectedDate = new Date(e.target.value + 'T00:00:00');
+                      const dayOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][selectedDate.getDay()];
+                      const dayOrder = dayOfWeek === 'Sunday' ? 7 : selectedDate.getDay();
+                      setFormData({ 
+                        ...formData, 
+                        practice_date: e.target.value,
+                        day_of_week: dayOfWeek,
+                        day_order: dayOrder
+                      });
                     }}
                     className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-steel-blue"
-                  >
-                    {DAYS_OF_WEEK.map(day => (
-                      <option key={day.name} value={day.name}>{day.name}</option>
-                    ))}
-                  </select>
+                  />
                 </div>
 
                 <div>
@@ -484,30 +615,6 @@ const PracticeScheduleManagement = () => {
                     rows={3}
                     className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-steel-blue"
                     placeholder="Any additional information..."
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Effective From
-                  </label>
-                  <input
-                    type="date"
-                    value={formData.effective_from || ''}
-                    onChange={(e) => setFormData({ ...formData, effective_from: e.target.value })}
-                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-steel-blue"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Effective To
-                  </label>
-                  <input
-                    type="date"
-                    value={formData.effective_to || ''}
-                    onChange={(e) => setFormData({ ...formData, effective_to: e.target.value })}
-                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-steel-blue"
                   />
                 </div>
               </div>

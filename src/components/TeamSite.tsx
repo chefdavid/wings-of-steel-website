@@ -2,7 +2,7 @@ import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { useParams } from 'react-router-dom';
 import { URLTeamProvider } from '../contexts/URLTeamContext';
 import Navigation from './Navigation';
-import HeroLight from './HeroLight';
+import Hero from './Hero';
 import Footer from './Footer';
 import Admin from './Admin';
 import type { TeamType } from '../types/team';
@@ -52,7 +52,7 @@ const TeamSite: React.FC = () => {
       <div className="min-h-screen">
         <Navigation />
         <main id="main-content" className="pt-20">
-          <HeroLight />
+          <Hero />
           <Suspense fallback={<div className="h-32" />}>
             <About />
             <Team />

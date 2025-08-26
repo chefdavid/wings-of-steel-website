@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaPlus, FaEdit, FaTrash, FaTimes, FaSave, FaHome, FaPlane } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaTimes, FaSave, FaHome, FaPlane, FaSort, FaSortUp, FaSortDown, FaCalendar } from 'react-icons/fa';
 import { supabase } from '../../lib/supabaseClient';
 import type { Game } from '../../types/database';
 
@@ -9,6 +9,8 @@ const GameScheduleManagement = () => {
   const [loading, setLoading] = useState(true);
   const [editingGame, setEditingGame] = useState<Game | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [sortBy, setSortBy] = useState<'date' | 'opponent' | 'location'>('date');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [formData, setFormData] = useState({
     date: '',
     opponent: '',
@@ -137,6 +139,31 @@ const GameScheduleManagement = () => {
     };
   };
 
+  const handleSort = (field: 'date' | 'opponent' | 'location') => {
+    if (sortBy === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortDirection('asc');
+    }
+  };
+
+  const sortedGames = [...games].sort((a, b) => {
+    let comparison = 0;
+    
+    if (sortBy === 'date') {
+      const dateA = a.date || a.game_date || '';
+      const dateB = b.date || b.game_date || '';
+      comparison = dateA.localeCompare(dateB);
+    } else if (sortBy === 'opponent') {
+      comparison = (a.opponent || '').localeCompare(b.opponent || '');
+    } else if (sortBy === 'location') {
+      comparison = (a.location || '').localeCompare(b.location || '');
+    }
+    
+    return sortDirection === 'asc' ? comparison : -comparison;
+  });
+
   if (loading) {
     return <div className="animate-pulse">Loading schedule...</div>;
   }
@@ -157,79 +184,167 @@ const GameScheduleManagement = () => {
         </motion.button>
       </div>
 
-      {/* Games List */}
-      <div className="space-y-4">
-        {games.map((game) => {
-          const { date, time } = formatDate(game.date || '');
-          const isUpcoming = game.date ? new Date(game.date) > new Date() : false;
-          
-          return (
-            <motion.div
-              key={game.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
-            >
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                  <div className={`p-3 rounded-full ${isUpcoming ? 'bg-green-100' : 'bg-gray-100'}`}>
-                    {game.home_game ? (
-                      <FaHome className={`text-xl ${isUpcoming ? 'text-green-600' : 'text-gray-600'}`} />
-                    ) : (
-                      <FaPlane className={`text-xl ${isUpcoming ? 'text-blue-600' : 'text-gray-600'}`} />
-                    )}
-                  </div>
-                  
-                  <div>
-                    <h4 className="font-bold text-lg text-gray-900">
-                      Wings of Steel vs {game.opponent}
-                    </h4>
-                    <div className="flex items-center gap-4 text-sm text-gray-600">
-                      <span>{date} at {time}</span>
-                      <span>•</span>
-                      <span>{game.location}</span>
-                      <span>•</span>
-                      <span className={`font-medium ${
-                        game.home_game ? 'text-green-600' : 'text-blue-600'
-                      }`}>
-                        {game.home_game ? 'HOME' : 'AWAY'}
-                      </span>
-                    </div>
-                    {game.notes && (
-                      <p className="text-sm text-yellow-700 bg-yellow-50 px-2 py-1 rounded mt-2 inline-block">
-                        {game.notes}
-                      </p>
-                    )}
-                  </div>
-                </div>
+      {/* Sorting Controls */}
+      <div className="bg-white rounded-lg shadow-md p-4">
+        <div className="flex gap-2 flex-wrap items-center">
+          <span className="text-sm text-gray-600 mr-2">Sort by:</span>
+          <button
+            onClick={() => handleSort('date')}
+            className={`flex items-center gap-1 px-3 py-1 border rounded-lg hover:bg-gray-50 transition-colors text-sm ${
+              sortBy === 'date' ? 'border-steel-blue text-steel-blue bg-blue-50' : 'border-gray-300'
+            }`}
+          >
+            <FaCalendar className="text-xs" />
+            Date
+            {sortBy === 'date' && (
+              sortDirection === 'asc' ? <FaSortUp className="text-xs" /> : <FaSortDown className="text-xs" />
+            )}
+            {sortBy !== 'date' && <FaSort className="text-xs text-gray-400" />}
+          </button>
+          <button
+            onClick={() => handleSort('opponent')}
+            className={`flex items-center gap-1 px-3 py-1 border rounded-lg hover:bg-gray-50 transition-colors text-sm ${
+              sortBy === 'opponent' ? 'border-steel-blue text-steel-blue bg-blue-50' : 'border-gray-300'
+            }`}
+          >
+            Opponent
+            {sortBy === 'opponent' && (
+              sortDirection === 'asc' ? <FaSortUp className="text-xs" /> : <FaSortDown className="text-xs" />
+            )}
+            {sortBy !== 'opponent' && <FaSort className="text-xs text-gray-400" />}
+          </button>
+          <button
+            onClick={() => handleSort('location')}
+            className={`flex items-center gap-1 px-3 py-1 border rounded-lg hover:bg-gray-50 transition-colors text-sm ${
+              sortBy === 'location' ? 'border-steel-blue text-steel-blue bg-blue-50' : 'border-gray-300'
+            }`}
+          >
+            Location
+            {sortBy === 'location' && (
+              sortDirection === 'asc' ? <FaSortUp className="text-xs" /> : <FaSortDown className="text-xs" />
+            )}
+            {sortBy !== 'location' && <FaSort className="text-xs text-gray-400" />}
+          </button>
+        </div>
+      </div>
+
+      {/* Games Table */}
+      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50 border-b">
+              <tr>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Opponent</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {sortedGames.map((game) => {
+                const { date, time } = formatDate(game.date || game.game_date || '');
+                const isUpcoming = game.date ? new Date(game.date) > new Date() : false;
                 
-                <div className="flex items-center gap-2">
-                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                    game.status === 'Complete' ? 'bg-green-100 text-green-800' :
-                    game.status === 'Cancelled' ? 'bg-red-100 text-red-800' :
-                    'bg-blue-100 text-blue-800'
-                  }`}>
-                    {game.status}
-                  </span>
-                  
-                  <button
-                    onClick={() => handleEdit(game)}
-                    className="p-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
-                  >
-                    <FaEdit />
-                  </button>
-                  
-                  <button
-                    onClick={() => handleDelete(game.id)}
-                    className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"
-                  >
-                    <FaTrash />
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          );
-        })}
+                return (
+                  <tr key={game.id} className="hover:bg-gray-50 transition-colors">
+                    {/* Date Column */}
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">
+                        {date}
+                      </div>
+                    </td>
+                    
+                    {/* Time Column */}
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">
+                        {time}
+                      </div>
+                    </td>
+                    
+                    {/* Opponent Column */}
+                    <td className="px-4 py-3">
+                      <div className="text-sm font-medium text-gray-900">
+                        {game.opponent}
+                      </div>
+                      {game.notes && (
+                        <div className="text-xs text-yellow-700 mt-1">
+                          {game.notes}
+                        </div>
+                      )}
+                    </td>
+                    
+                    {/* Location Column */}
+                    <td className="px-4 py-3">
+                      <div className="text-sm text-gray-900">
+                        {game.location}
+                      </div>
+                    </td>
+                    
+                    {/* Type Column */}
+                    <td className="px-4 py-3 text-center">
+                      <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+                        game.home_game ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
+                      }`}>
+                        {game.home_game ? (
+                          <>
+                            <FaHome className="text-xs" />
+                            HOME
+                          </>
+                        ) : (
+                          <>
+                            <FaPlane className="text-xs" />
+                            AWAY
+                          </>
+                        )}
+                      </span>
+                    </td>
+                    
+                    {/* Status Column */}
+                    <td className="px-4 py-3 text-center">
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        game.status === 'Complete' ? 'bg-green-100 text-green-800' :
+                        game.status === 'Cancelled' ? 'bg-red-100 text-red-800' :
+                        'bg-blue-100 text-blue-800'
+                      }`}>
+                        {game.status || 'Scheduled'}
+                      </span>
+                    </td>
+                    
+                    {/* Actions Column */}
+                    <td className="px-4 py-3 text-center">
+                      <div className="flex justify-center gap-2">
+                        <button
+                          onClick={() => handleEdit(game)}
+                          className="text-blue-600 hover:text-blue-800 transition-colors"
+                          title="Edit"
+                        >
+                          <FaEdit className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(game.id)}
+                          className="text-red-600 hover:text-red-800 transition-colors"
+                          title="Delete"
+                        >
+                          <FaTrash className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+        
+        {sortedGames.length === 0 && (
+          <div className="p-8 text-center">
+            <FaCalendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-600">No games scheduled</p>
+          </div>
+        )}
       </div>
 
       {/* Form Modal */}

@@ -31,6 +31,14 @@ npm run preview    # Preview production build locally (MUST WORK BEFORE DEPLOY!)
 npm run lint       # Run ESLint for code quality
 ```
 
+## ⚠️ CRITICAL: THERE IS ONLY ONE HERO COMPONENT
+
+**NEVER CREATE DUPLICATE HERO COMPONENTS**
+- **ONLY USE**: `src/components/Hero.tsx` 
+- **DO NOT CREATE**: HeroLight, HeroSimple, HeroV2, or any other variants
+- **IF YOU SEE**: Multiple Hero components, DELETE all except `Hero.tsx`
+- **LOCATION**: Used in `src/components/TeamSite.tsx`
+
 ## Architecture
 
 **Tech Stack:**

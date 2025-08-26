@@ -23,6 +23,8 @@ export function useSiteSections() {
             acc[section.section_key] = section;
             return acc;
           }, {} as Record<string, SiteSection>);
+          console.log('Frontend fetched sections:', sectionsMap);
+          console.log('Frontend hero data:', sectionsMap.hero?.content);
           setSections(sectionsMap);
         }
       } catch (err) {

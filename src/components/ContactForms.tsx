@@ -37,6 +37,16 @@ const ContactForms = () => {
 
         if (error) throw error;
         
+        // Send email notifications
+        try {
+          await supabase.functions.invoke('send-contact-email', {
+            body: { ...formData, type: 'mailing_list' }
+          });
+        } catch (emailError) {
+          console.error('Email notification failed:', emailError);
+          // Continue - data was saved
+        }
+        
         console.log('Mailing list signup:', { name: formData.name, email: formData.email });
         setStatusMessage('Successfully subscribed to our mailing list!');
       } else {
@@ -51,6 +61,16 @@ const ContactForms = () => {
           }]);
 
         if (error) throw error;
+        
+        // Send email notifications
+        try {
+          await supabase.functions.invoke('send-contact-email', {
+            body: { ...formData, type: 'contact' }
+          });
+        } catch (emailError) {
+          console.error('Email notification failed:', emailError);
+          // Continue - data was saved
+        }
         
         console.log('Contact form:', formData);
         setStatusMessage('Message sent successfully! We\'ll get back to you soon.');

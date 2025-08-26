@@ -77,12 +77,15 @@ const Team = () => {
             className="text-center mb-8 md:mb-16"
           >
             <h2 className="text-4xl md:text-5xl font-bold text-black mb-4">
-              The Best Players on the ICE
+              The Championship Pedigree in this area, The Best Players on the ICE
             </h2>
             <p className="text-lg text-gray-600 max-w-3xl mx-auto">
               These young players, each with their own unique challenges and abilities, exemplify the
               spirit of sled hockey. Their prowess on the ice is measured by their ability to inspire,
               lead, and uplift their teammates.
+            </p>
+            <p className="text-base text-steel-blue mt-4 font-semibold">
+              Click on a player or coach to learn more
             </p>
           </motion.div>
 
@@ -165,7 +168,7 @@ const Team = () => {
             <motion.a
               whileHover={{ scale: 1.05, boxShadow: "0 20px 40px rgba(0,0,0,0.3)" }}
               whileTap={{ scale: 0.95 }}
-              href="#get-involved"
+              href="/join-team"
               className="inline-flex items-center gap-2 md:gap-3 bg-gradient-to-r from-yellow-400 to-yellow-500 text-black px-6 py-3 md:px-12 md:py-6 rounded-full font-bold text-base md:text-xl shadow-2xl hover:from-yellow-300 hover:to-yellow-400 transition-all duration-300 transform"
             >
               <svg className="w-6 h-6 md:w-8 md:h-8" fill="currentColor" viewBox="0 0 20 20">
@@ -249,7 +252,7 @@ const Team = () => {
             <motion.a
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              href="#get-involved"
+              href="/join-team"
               className="inline-block bg-dark-steel text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-steel-gray transition-colors duration-300"
             >
               JOIN NOW

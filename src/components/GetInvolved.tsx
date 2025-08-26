@@ -160,7 +160,7 @@ const GetInvolved = () => {
         >
           <div className="max-w-4xl mx-auto">
             <h3 className="text-4xl font-sport text-center mb-8 text-white py-4">
-              REGISTER YOUR TEAM
+              JOIN OUR TEAM
             </h3>
             
             <div className="grid md:grid-cols-2 gap-8 mb-8">
@@ -212,10 +212,10 @@ const GetInvolved = () => {
                 <motion.a
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  href="#contact"
+                  href="/join-team"
                   className="inline-block w-full bg-steel-blue text-white px-6 py-3 rounded-full font-medium text-center mt-4 hover:bg-blue-600 transition-colors duration-300"
                 >
-                  Contact Us to Visit
+                  Join the Team
                 </motion.a>
               </div>
             </div>

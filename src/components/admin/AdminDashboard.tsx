@@ -1,16 +1,17 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { FaUsers, FaHockeyPuck, FaCalendarAlt, FaCog, FaSignOutAlt, FaBars, FaTimes, FaClock, FaImage } from 'react-icons/fa';
+import { FaUsers, FaHockeyPuck, FaCalendarAlt, FaCog, FaSignOutAlt, FaBars, FaTimes, FaClock, FaImage, FaGolfBall } from 'react-icons/fa';
 import { Users } from 'lucide-react';
 import PlayerManagement from './PlayerManagement';
 import CoachManagement from './CoachManagement';
-import SiteSectionsEditorWithPreview from './SiteSectionsEditorWithPreview';
+import HeroSectionEditor from './HeroSectionEditor';
 import GameScheduleManagement from './GameScheduleManagement';
 import OpponentTeamsManagement from './OpponentTeamsManagement';
 import PracticeScheduleManagement from './PracticeScheduleManagement';
 import ImageBatchUpdate from './ImageBatchUpdate';
+import GolfOutingAdmin from './GolfOutingAdmin';
 
-type AdminSection = 'players' | 'coaches' | 'site-sections' | 'schedule' | 'practice' | 'opponents' | 'settings' | 'batch-images';
+type AdminSection = 'players' | 'coaches' | 'site-sections' | 'schedule' | 'practice' | 'opponents' | 'settings' | 'batch-images' | 'golf-outing';
 
 interface AdminDashboardProps {
   onLogout: () => void;
@@ -21,6 +22,7 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const menuItems = [
+    { id: 'golf-outing' as AdminSection, label: 'Golf Outing', icon: FaGolfBall },
     { id: 'players' as AdminSection, label: 'Team Roster', icon: FaUsers },
     { id: 'coaches' as AdminSection, label: 'Coaching Staff', icon: FaHockeyPuck },
     { id: 'opponents' as AdminSection, label: 'Opponent Teams', icon: Users },
@@ -32,6 +34,8 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
 
   const renderContent = () => {
     switch (activeSection) {
+      case 'golf-outing':
+        return <GolfOutingAdmin />;
       case 'players':
         return <PlayerManagement />;
       case 'coaches':
@@ -41,7 +45,7 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
       case 'practice':
         return <PracticeScheduleManagement />;
       case 'site-sections':
-        return <SiteSectionsEditorWithPreview />;
+        return <HeroSectionEditor />;
       case 'schedule':
         return <GameScheduleManagement />;
       case 'batch-images':

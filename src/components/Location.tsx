@@ -41,14 +41,16 @@ const Location = () => {
 
   const fetchPracticeSchedule = async () => {
     try {
+      const today = new Date().toISOString().split('T')[0];
+      
       const { data, error } = await supabase
         .from('practice_schedules')
         .select('*')
         .eq('is_active', true)
-        .gte('effective_from', new Date().toISOString().split('T')[0]) // Only show current/future dates
-        .order('effective_from')
+        .gte('practice_date', today)
+        .order('practice_date')
         .order('start_time')
-        .limit(10); // Show next 10 practices
+        .limit(10);
 
       if (error) {
         console.error('Error fetching practice schedule:', error);
@@ -68,7 +70,7 @@ const Location = () => {
     address: locationData?.address || "601 Laurel Oak Rd, Voorhees Township, NJ 08043",
     phone: locationData?.phone || "(856) 751-9161",
     website: locationData?.website || "https://flyersskatezone.com/",
-    googleMapsUrl: locationData?.google_maps_url || "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3046.4442671551143!2d-75.04284768459386!3d39.84582267943893!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c6dd4c3b1c1c3b%3A0x8e8e8e8e8e8e8e8e!2s601%20Laurel%20Oak%20Rd%2C%20Voorhees%20Township%2C%20NJ%2008043!5e0!3m2!1sen!2sus!4v1643000000000!5m2!1sen!2sus"
+    googleMapsUrl: locationData?.google_maps_url || "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d12185.776868620458!2d-75.04284768459386!3d39.84582267943893!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c6dd4c3b1c1c3b%3A0x8e8e8e8e8e8e8e8e!2s601%20Laurel%20Oak%20Rd%2C%20Voorhees%20Township%2C%20NJ%2008043!5e0!3m2!1sen!2sus!4v1643000000000!5m2!1sen!2sus"
   };
 
   // Format time for display
@@ -221,11 +223,11 @@ const Location = () => {
                 <>
                   <div className="space-y-4">
                     {practiceSchedules.slice(0, showAllPractices ? practiceSchedules.length : 5).map((session, index) => {
-                      const practiceDate = new Date(session.effective_from!);
+                      const practiceDate = new Date(session.practice_date + 'T00:00:00');
                       const dateInfo = {
                         day: practiceDate.getDate(),
                         month: practiceDate.toLocaleDateString('en-US', { month: 'short' }).toUpperCase(),
-                        weekday: practiceDate.toLocaleDateString('en-US', { weekday: 'long' }),
+                        weekday: practiceDate.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase(),
                         fullDate: practiceDate.toLocaleDateString('en-US', { 
                           weekday: 'short', 
                           month: 'short', 
@@ -253,7 +255,7 @@ const Location = () => {
                               <div className="bg-gradient-to-br from-ice-blue to-steel-blue p-4 md:p-5 text-white text-center w-20 md:w-24 rounded-l-xl">
                                 <div className="text-2xl md:text-3xl font-bold">{dateInfo.day}</div>
                                 <div className="text-xs md:text-sm font-semibold uppercase tracking-wide">{dateInfo.month}</div>
-                                <div className="text-xs opacity-90 mt-1">THU</div>
+                                <div className="text-xs opacity-90 mt-1">{dateInfo.weekday}</div>
                               </div>
                               
                               {/* Practice Details */}
@@ -342,10 +344,10 @@ const Location = () => {
                       🏒 New players welcome!
                     </p>
                     <p className="text-xs text-yellow-800">
-                      Contact us to schedule a trial session. All practices on Thursdays.
+                      Contact us to schedule a trial session. Check schedule for practice times.
                     </p>
                     <p className="text-xs text-yellow-700 mt-2 italic">
-                      ❄️ Holiday Break: No practice from Dec 19, 2025 - Jan 7, 2026
+                      * Schedule subject to change. Please check back regularly for updates.
                     </p>
                   </motion.div>
                 </>

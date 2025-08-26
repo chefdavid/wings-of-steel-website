@@ -1,5 +1,6 @@
 export interface PracticeSchedule {
   id: string;
+  practice_date?: string;  // Single date field for the practice
   day_of_week: string;
   day_order: number;
   start_time: string;
@@ -10,8 +11,6 @@ export interface PracticeSchedule {
   description?: string;
   is_active?: boolean;
   season?: string;
-  effective_from?: string;
-  effective_to?: string;
   notes?: string;
   created_at?: string;
   updated_at?: string;

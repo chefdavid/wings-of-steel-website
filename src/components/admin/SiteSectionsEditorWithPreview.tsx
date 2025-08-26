@@ -37,6 +37,8 @@ const SiteSectionsEditorWithPreview = () => {
           acc[section.section_key] = section;
           return acc;
         }, {} as Record<string, SiteSection>);
+        console.log('Fetched sections from DB:', sectionsMap);
+        console.log('Hero section specifically:', sectionsMap.hero?.content);
         setSections(sectionsMap);
       }
     } catch (error) {
@@ -50,6 +52,9 @@ const SiteSectionsEditorWithPreview = () => {
     setSaving(sectionKey);
     try {
       const content = sections[sectionKey]?.content || {};
+      console.log('🚀 Saving content for', sectionKey, ':', content);
+      console.log('Specifically - tagline:', content.tagline);
+      console.log('Specifically - mission:', content.mission);
       const client = supabaseAdmin || supabase;
       
       const { error: updateError } = await client
@@ -99,6 +104,7 @@ const SiteSectionsEditorWithPreview = () => {
 
   const renderHeroPreview = () => {
     const heroData = sections.hero?.content || {};
+    console.log('Hero data in preview:', heroData);
     
     return (
       <div className="bg-gradient-to-b from-dark-steel to-black rounded-lg overflow-hidden">
@@ -126,11 +132,11 @@ const SiteSectionsEditorWithPreview = () => {
 
             {/* Award Buttons */}
             <div className="flex flex-col sm:flex-row gap-2 justify-center items-stretch">
-              <div className="flex-1 flex items-center justify-center gap-2 bg-yellow-400 text-black px-3 py-3 rounded-lg font-medium text-sm">
+              <div className="flex-1 flex items-center justify-center gap-2 bg-yellow-400 text-black px-3 py-3 rounded-lg font-medium text-sm min-h-[50px]">
                 <FaTrophy className="text-black flex-shrink-0" />
                 <span className="text-center">{heroData.subtitle || '2023 National Champions'}</span>
               </div>
-              <div className="flex-1 flex items-center justify-center gap-2 bg-yellow-400 text-black px-3 py-3 rounded-lg font-medium text-sm">
+              <div className="flex-1 flex items-center justify-center gap-2 bg-yellow-400 text-black px-3 py-3 rounded-lg font-medium text-sm min-h-[50px]">
                 <FaTrophy className="text-black flex-shrink-0" />
                 <span className="text-center">{heroData.tagline || '2025 USA Sled Hockey Champions 1st Place'}</span>
               </div>

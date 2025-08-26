@@ -9,10 +9,16 @@ const Hero = () => {
   const { teamConfig } = useTeam();
   const heroData = sections['hero']?.content as {
     title?: string;
-    subtitle?: string;
-    tagline?: string;
+    subtitle?: string;  // Legacy: award1
+    tagline?: string;   // Legacy: award2
+    award1?: string;    // New field name for left trophy
+    award2?: string;    // New field name for right trophy
     description?: string;
+    mission?: string;
+    heading1?: string;
+    heading2?: string;
   } | undefined;
+  console.log('Hero component data:', heroData);
 
   // Preload hero background image
   useEffect(() => {
@@ -45,6 +51,22 @@ const Hero = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60"></div>
       </div>
 
+      {/* TB Logo in Top Right */}
+      <div className="absolute top-24 right-4 md:right-8 z-30 group">
+        <div className="relative">
+          <img 
+            src="/images/tb-logo.png" 
+            alt="Tom Brake Memorial" 
+            className="w-24 md:w-32 lg:w-40 h-auto opacity-90 group-hover:opacity-100 transition-opacity"
+          />
+          <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
+            <p className="text-white text-sm md:text-base font-semibold bg-black/50 backdrop-blur-sm px-3 py-1 rounded">
+              In Memory of Tom Brake
+            </p>
+          </div>
+        </div>
+      </div>
+
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -75,13 +97,13 @@ const Hero = () => {
           </p>
           
           <div className="flex flex-col md:flex-row gap-2 md:gap-3 justify-center items-stretch max-w-2xl mx-auto mb-4 md:mb-6">
-            <div className="flex-1 flex items-center justify-center gap-2 bg-yellow-400 text-black px-3 py-4 md:px-4 md:py-5 rounded-lg font-medium text-xs md:text-sm">
+            <div className="flex-1 flex items-center justify-center gap-2 bg-yellow-400 text-black px-3 py-4 md:px-4 md:py-5 rounded-lg font-medium text-xs md:text-sm min-h-[60px] md:min-h-[70px]">
               <FaTrophy className="text-black flex-shrink-0 text-sm md:text-base" />
-              <span className="text-center leading-relaxed">{heroData?.subtitle || '2023 National Champions'}</span>
+              <span className="text-center leading-relaxed">{heroData?.award1 || heroData?.subtitle || '2023 National Champions'}</span>
             </div>
-            <div className="flex-1 flex items-center justify-center gap-2 bg-yellow-400 text-black px-3 py-4 md:px-4 md:py-5 rounded-lg font-medium text-xs md:text-sm">
+            <div className="flex-1 flex items-center justify-center gap-2 bg-yellow-400 text-black px-3 py-4 md:px-4 md:py-5 rounded-lg font-medium text-xs md:text-sm min-h-[60px] md:min-h-[70px]">
               <FaTrophy className="text-black flex-shrink-0 text-sm md:text-base" />
-              <span className="text-center leading-relaxed">{heroData?.tagline || '2025 USA Sled Hockey Champions 1st Place'}</span>
+              <span className="text-center leading-relaxed">{heroData?.award2 || heroData?.tagline || '2025 USA Sled Hockey Champions 1st Place'}</span>
             </div>
           </div>
 
@@ -96,28 +118,19 @@ const Hero = () => {
               href="#get-involved"
               className="bg-yellow-400 text-black px-6 py-3 md:px-8 md:py-4 rounded-lg font-bold text-base md:text-lg hover:bg-yellow-300 transition-colors duration-300 shadow-lg flex items-center justify-center gap-2"
             >
-              <FaUsers className="text-lg md:text-xl" />
-              JOIN THE TEAM
+              <FaHeart className="text-red-500 text-lg md:text-xl" />
+              NO CHILD PAYS TO PLAY
             </motion.a>
             <motion.a
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              href="#get-involved"
+              href="/join-team"
               className="bg-white text-black px-6 py-3 md:px-8 md:py-4 rounded-lg font-bold text-base md:text-lg hover:bg-gray-100 transition-all duration-300 shadow-lg flex items-center justify-center gap-2"
             >
-              <FaHeart className="text-yellow-500 text-lg md:text-xl" />
-              DONATE NOW
+              <FaUsers className="text-lg md:text-xl" />
+              JOIN THE TEAM
             </motion.a>
           </div>
-
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1, duration: 1 }}
-            className="text-lg md:text-xl font-bold text-yellow-400"
-          >
-            {heroData?.mission || teamConfig.mission}
-          </motion.p>
         </motion.div>
       </div>
 

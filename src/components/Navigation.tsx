@@ -81,7 +81,7 @@ const Navigation = () => {
         {
           title: 'Get Involved',
           items: [
-            { name: 'Join the Team', href: '#get-involved', isHashLink: true, description: 'Become a player or volunteer' },
+            { name: 'Join the Team', href: '/join-team', isHashLink: false, description: 'Become a player or volunteer' },
             { name: 'Support Us', href: '#get-involved', isHashLink: true, description: 'Ways to help our mission' }
           ]
         },
