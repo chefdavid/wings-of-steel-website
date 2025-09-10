@@ -39,23 +39,30 @@ export const getTeamPlayers = async (teamType: TeamType): Promise<PlayerWithTeam
 
 export const getTeamCoaches = async (teamType: TeamType): Promise<CoachWithTeams[]> => {
   try {
+    // TEMPORARY WORKAROUND: Fetch directly from coaches table
+    // The coach_team_details view is not including Parker O'Connor
+    // TODO: Fix the database view to include all coaches
+    
     const { data, error } = await supabase
-      .from('coach_team_details')
+      .from('coaches')
       .select('*')
-      .eq('team_type', teamType)
       .order('created_at', { ascending: true });
 
     if (error) throw error;
     
     // Transform the data to match CoachWithTeams interface
+    // Since we're fetching from coaches table, we need to add team info
     const coachesWithTeams: CoachWithTeams[] = (data || []).map(coach => ({
       ...coach,
-      role: coach.team_role || coach.role,
+      team_type: 'youth', // Default to youth team
+      team_role: coach.role,
+      is_head_coach: coach.role === 'Head Coach',
+      role: coach.role,
       team_assignments: [],
       current_team: {
-        team_type: coach.team_type,
-        role: coach.team_role,
-        is_head_coach: coach.is_head_coach
+        team_type: 'youth',
+        role: coach.role,
+        is_head_coach: coach.role === 'Head Coach'
       }
     }));
 

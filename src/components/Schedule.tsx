@@ -126,7 +126,7 @@ const Schedule = () => {
               className="text-3xl font-bold text-dark-steel mb-8 flex items-center gap-3"
             >
               <FaCalendarAlt className="text-yellow-500" />
-              Potential Upcoming Games
+              Game Schedule
             </motion.h3>
             
             <div className="grid gap-6 max-w-5xl mx-auto">
