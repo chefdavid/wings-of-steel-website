@@ -12,9 +12,26 @@ const Navigation = () => {
     e.preventDefault();
     const isHomePage = location.pathname === '/' || location.pathname === '/team/youth';
     
-    if (!isHomePage) {
+    // If href starts with '/#', we always need to go to home page first
+    if (href.startsWith('/#')) {
+      const hash = href.substring(2); // Remove the '/#' prefix
+      if (!isHomePage) {
+        // Navigate to home page with hash
+        window.location.href = href;
+      } else {
+        // Already on home page, just scroll
+        setTimeout(() => {
+          const element = document.querySelector('#' + hash);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+          }
+        }, 100);
+      }
+    } else if (!isHomePage) {
+      // Old behavior for regular hash links
       window.location.href = '/' + href;
     } else {
+      // Old behavior for scrolling on same page
       setTimeout(() => {
         const element = document.querySelector(href);
         if (element) {
@@ -35,15 +52,15 @@ const Navigation = () => {
         {
           title: 'About Us',
           items: [
-            { name: 'Our Mission', href: '#about', isHashLink: true, description: 'Learn about Wings of Steel' },
-            { name: 'Location', href: '#location', isHashLink: true, description: 'Find our practice facility' }
+            { name: 'Our Mission', href: '/#about', isHashLink: true, description: 'Learn about Wings of Steel' },
+            { name: 'Location', href: '/#location', isHashLink: true, description: 'Find our practice facility' }
           ]
         },
         {
           title: 'Roster',
           items: [
-            { name: 'Players', href: '#team-players', isHashLink: true, description: 'Meet our athletes' },
-            { name: 'Coaches', href: '#team-coaches', isHashLink: true, description: 'Our coaching staff' }
+            { name: 'Players', href: '/#team-players', isHashLink: true, description: 'Meet our athletes' },
+            { name: 'Coaches', href: '/#team-coaches', isHashLink: true, description: 'Our coaching staff' }
           ]
         }
       ]
@@ -55,7 +72,7 @@ const Navigation = () => {
         {
           title: 'Events',
           items: [
-            { name: 'Game Schedule', href: '#schedule', isHashLink: true, description: '2025-2026 season games' },
+            { name: 'Game Schedule', href: '/#schedule', isHashLink: true, description: '2025-2026 season games' },
             { name: 'Practice Schedule', href: '/practice-schedule', isHashLink: false, description: 'All practice times' }
           ]
         }
@@ -88,13 +105,13 @@ const Navigation = () => {
           title: 'Get Involved',
           items: [
             { name: 'Join the Team', href: '/join-team', isHashLink: false, description: 'Become a player or volunteer' },
-            { name: 'Support Us', href: '#get-involved', isHashLink: true, description: 'Ways to help our mission' }
+            { name: 'Support Us', href: '/#get-involved', isHashLink: true, description: 'Ways to help our mission' }
           ]
         },
         {
           title: 'Contact',
           items: [
-            { name: 'Contact Us', href: '#contact', isHashLink: true, description: 'Get in touch with our team' }
+            { name: 'Contact Us', href: '/#contact', isHashLink: true, description: 'Get in touch with our team' }
           ]
         }
       ]
