@@ -45,12 +45,18 @@ const Navigation = () => {
             { name: 'Players', href: '#team-players', isHashLink: true, description: 'Meet our athletes' },
             { name: 'Coaches', href: '#team-coaches', isHashLink: true, description: 'Our coaching staff' }
           ]
-        },
+        }
+      ]
+    },
+    {
+      name: 'Schedule',
+      key: 'schedule',
+      sections: [
         {
-          title: 'Schedule',
+          title: 'Events',
           items: [
-            { name: 'Practice Schedule', href: '#location', isHashLink: true, description: 'Weekly practice times' },
-            { name: 'Game Schedule', href: '#schedule', isHashLink: true, description: 'Upcoming games & events' }
+            { name: 'Game Schedule', href: '#schedule', isHashLink: true, description: '2025-2026 season games' },
+            { name: 'Practice Schedule', href: '/practice-schedule', isHashLink: false, description: 'All practice times' }
           ]
         }
       ]

@@ -289,10 +289,204 @@ const Schedule = () => {
           </motion.div>
         )}
 
+        {/* Tournaments Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
+          transition={{ duration: 0.6, delay: 0.35 }}
+          viewport={{ once: true }}
+          className="mt-16"
+        >
+          <div className="bg-gradient-to-br from-yellow-50 via-white to-yellow-50 rounded-2xl shadow-xl p-8 border-2 border-yellow-200">
+            <h3 className="text-3xl font-bold text-dark-steel mb-8 flex items-center gap-3 justify-center">
+              <FaTrophy className="text-yellow-500" />
+              Tournaments
+            </h3>
+            
+            <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+              {/* Amelia Park Tournament */}
+              <motion.div 
+                whileHover={{ scale: 1.02 }}
+                className="bg-white rounded-xl p-6 shadow-lg border-l-4 border-yellow-400"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="bg-yellow-100 p-3 rounded-lg">
+                    <FaTrophy className="text-2xl text-yellow-600" />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-bold text-xl text-dark-steel mb-2">Amelia Park Tournament</h4>
+                    <div className="space-y-2 text-gray-700">
+                      <p className="flex items-center gap-2">
+                        <FaCalendarAlt className="text-steel-blue" />
+                        <span className="font-medium">March 27-29, 2026</span>
+                      </p>
+                      <p className="text-sm text-gray-600">Thursday - Sunday</p>
+                      <p className="flex items-center gap-2 mt-3">
+                        <FaMapMarkerAlt className="text-steel-blue" />
+                        <span>Westfield, MA</span>
+                      </p>
+                      <div className="mt-4 pt-4 border-t">
+                        <a
+                          href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent('Amelia Park Ice Arena, Westfield, MA')}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 bg-steel-blue text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                        >
+                          <FaDirections />
+                          Get Directions
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* USA Hockey Tournament */}
+              <motion.div 
+                whileHover={{ scale: 1.02 }}
+                className="bg-white rounded-xl p-6 shadow-lg border-l-4 border-red-500"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="bg-red-100 p-3 rounded-lg">
+                    <FaTrophy className="text-2xl text-red-600" />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-bold text-xl text-dark-steel mb-2">USA Hockey Tournament</h4>
+                    <div className="space-y-2 text-gray-700">
+                      <p className="flex items-center gap-2">
+                        <FaCalendarAlt className="text-steel-blue" />
+                        <span className="font-medium">April 30 - May 3, 2026</span>
+                      </p>
+                      <p className="text-sm text-gray-600">Thursday - Sunday</p>
+                      <p className="flex items-center gap-2 mt-3">
+                        <FaMapMarkerAlt className="text-steel-blue" />
+                        <span>Dallas, TX</span>
+                      </p>
+                      <div className="mt-4 pt-4 border-t">
+                        <a
+                          href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent('Dallas, TX')}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 bg-steel-blue text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                        >
+                          <FaDirections />
+                          Get Directions
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Away Rink Locations */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          viewport={{ once: true }}
+          className="mt-16"
+        >
+          <div className="bg-white rounded-2xl shadow-xl p-8">
+            <h3 className="text-3xl font-bold text-dark-steel mb-8 flex items-center gap-3 justify-center">
+              <FaMapMarkerAlt className="text-steel-blue" />
+              Away Game Locations
+            </h3>
+            
+            <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+              {/* Hammerheads */}
+              <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl p-6 border border-gray-200 hover:shadow-lg transition-shadow">
+                <h4 className="font-bold text-lg text-dark-steel mb-2">Hammerheads</h4>
+                <p className="text-gray-600 mb-3">Skate Zone NE</p>
+                <p className="text-sm text-gray-600 mb-4">10990 Decatur Rd, Philadelphia, PA 19154</p>
+                <a
+                  href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent('10990 Decatur Rd, Philadelphia, PA 19154')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-steel-blue text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  <FaDirections className="text-lg" />
+                  Get Directions
+                </a>
+              </div>
+
+              {/* Sled Stars */}
+              <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl p-6 border border-gray-200 hover:shadow-lg transition-shadow">
+                <h4 className="font-bold text-lg text-dark-steel mb-2">Sled Stars</h4>
+                <p className="text-gray-600 mb-3">Hollydell Ice Arena</p>
+                <p className="text-sm text-gray-600 mb-4">601 Holly Dell Dr, Sewell, NJ 08080</p>
+                <a
+                  href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent('601 Holly Dell Dr, Sewell, NJ 08080')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-steel-blue text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  <FaDirections className="text-lg" />
+                  Get Directions
+                </a>
+              </div>
+
+              {/* Bennett Blazers */}
+              <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl p-6 border border-gray-200 hover:shadow-lg transition-shadow">
+                <h4 className="font-bold text-lg text-dark-steel mb-2">Bennett Blazers</h4>
+                <p className="text-gray-600 mb-3">Ice World</p>
+                <p className="text-sm text-gray-600 mb-4">1300 Governor Court, Abingdon, MD 21009</p>
+                <a
+                  href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent('1300 Governor Court, Abingdon, MD 21009')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-steel-blue text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  <FaDirections className="text-lg" />
+                  Get Directions
+                </a>
+              </div>
+
+              {/* DC Sharks */}
+              <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl p-6 border border-gray-200 hover:shadow-lg transition-shadow">
+                <h4 className="font-bold text-lg text-dark-steel mb-2">DC Sled Sharks</h4>
+                <p className="text-gray-600 mb-3">Kettler Capitals Ice Plex</p>
+                <p className="text-sm text-gray-600 mb-4">627 N. Glebe Rd, Suite 800, Arlington, VA 22203</p>
+                <a
+                  href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent('627 N. Glebe Rd, Suite 800, Arlington, VA 22203')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-steel-blue text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  <FaDirections className="text-lg" />
+                  Get Directions
+                </a>
+              </div>
+            </div>
+
+            {/* Home Rink Info */}
+            <div className="mt-8 pt-8 border-t border-gray-200">
+              <div className="bg-gradient-to-r from-ice-blue/20 to-steel-blue/10 rounded-xl p-6 text-center">
+                <h4 className="font-bold text-lg text-dark-steel mb-2">
+                  <FaHome className="inline mr-2 text-steel-blue" />
+                  Home Games - Flyers Skate Zone
+                </h4>
+                <p className="text-gray-600 mb-3">601 Laurel Oak Rd, Voorhees Township, NJ 08043</p>
+                <a
+                  href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent('601 Laurel Oak Rd, Voorhees Township, NJ 08043')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-yellow-400 text-black px-6 py-3 rounded-lg hover:bg-yellow-300 transition-colors font-bold shadow-md"
+                >
+                  <FaDirections className="text-lg" />
+                  Directions to Home Rink
+                </a>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.5 }}
           viewport={{ once: true }}
           className="text-center mt-16"
         >
@@ -306,14 +500,14 @@ const Schedule = () => {
                 Come experience the excitement of sled hockey and support our incredible athletes. 
                 Bring your friends and family for an unforgettable experience!
               </p>
-              <motion.a
+              <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                href="#contact"
-                className="inline-block bg-yellow-400 text-black px-8 py-4 rounded-full font-bold text-lg hover:bg-yellow-300 transition-colors duration-300 shadow-lg"
+                onClick={() => setShowRinkModal(true)}
+                className="inline-block bg-yellow-400 text-black px-8 py-4 rounded-full font-bold text-lg hover:bg-yellow-300 transition-colors duration-300 shadow-lg cursor-pointer"
               >
-                Get Directions to Our Rink
-              </motion.a>
+                View Rink Details
+              </motion.button>
             </div>
           </div>
         </motion.div>

@@ -1,21 +1,24 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaPlus, FaEdit, FaTrash, FaTimes, FaSave, FaHome, FaPlane, FaSort, FaSortUp, FaSortDown, FaCalendar } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaTimes, FaSave, FaHome, FaPlane, FaSort, FaSortUp, FaSortDown, FaCalendar, FaUpload } from 'react-icons/fa';
 import { supabase } from '../../lib/supabaseClient';
 import type { Game } from '../../types/database';
+import ScheduleBulkImport from './ScheduleBulkImport';
 
 const GameScheduleManagement = () => {
   const [games, setGames] = useState<Game[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingGame, setEditingGame] = useState<Game | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [showBulkImport, setShowBulkImport] = useState(false);
   const [sortBy, setSortBy] = useState<'date' | 'opponent' | 'location'>('date');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [formData, setFormData] = useState({
-    date: '',
+    game_date: '',
+    game_time: '',
     opponent: '',
     location: '',
-    home_game: true,
+    home_away: 'home' as 'home' | 'away',
     notes: '',
     status: 'Scheduled' as Game['status']
   });
@@ -27,9 +30,10 @@ const GameScheduleManagement = () => {
   const fetchGames = async () => {
     try {
       const { data, error } = await supabase
-        .from('game_schedule')
+        .from('game_schedules')
         .select('*')
-        .order('date', { ascending: true });
+        .order('game_date', { ascending: true })
+        .order('game_time', { ascending: true });
 
       if (error) throw error;
       setGames(data || []);
@@ -43,11 +47,15 @@ const GameScheduleManagement = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      // Extract date and time from the datetime-local input
+      const [dateStr, timeStr] = formData.game_date.split('T');
+      
       const gameData = {
-        date: formData.date,
+        game_date: dateStr,
+        game_time: timeStr || formData.game_time,
         opponent: formData.opponent,
         location: formData.location,
-        home_game: formData.home_game,
+        home_away: formData.home_away,
         notes: formData.notes || null,
         status: formData.status
       };
@@ -55,7 +63,7 @@ const GameScheduleManagement = () => {
       if (editingGame) {
         console.log('🚀 Updating game:', editingGame.id, gameData);
         const { data, error } = await supabase
-          .from('game_schedule')
+          .from('game_schedules')
           .update(gameData)
           .eq('id', editingGame.id)
           .select();
@@ -65,7 +73,7 @@ const GameScheduleManagement = () => {
       } else {
         console.log('🚀 Inserting new game:', gameData);
         const { data, error } = await supabase
-          .from('game_schedule')
+          .from('game_schedules')
           .insert([gameData])
           .select();
         
@@ -82,11 +90,19 @@ const GameScheduleManagement = () => {
 
   const handleEdit = (game: Game) => {
     setEditingGame(game);
+    // Combine date and time for the datetime-local input
+    const dateTimeStr = game.game_date && game.game_time 
+      ? `${game.game_date}T${game.game_time}`
+      : game.date 
+        ? new Date(game.date).toISOString().slice(0, 16)
+        : '';
+    
     setFormData({
-      date: game.date ? new Date(game.date).toISOString().slice(0, 16) : '',
+      game_date: dateTimeStr,
+      game_time: game.game_time || '',
       opponent: game.opponent || '',
       location: game.location || '',
-      home_game: game.home_game || false,
+      home_away: game.home_away || 'away',
       notes: game.notes || '',
       status: game.status || 'Scheduled'
     });
@@ -97,7 +113,7 @@ const GameScheduleManagement = () => {
     if (window.confirm('Are you sure you want to delete this game?')) {
       try {
         const { error } = await supabase
-          .from('game_schedule')
+          .from('game_schedules')
           .delete()
           .eq('id', id);
         
@@ -113,30 +129,52 @@ const GameScheduleManagement = () => {
     setShowForm(false);
     setEditingGame(null);
     setFormData({
-      date: '',
+      game_date: '',
+      game_time: '',
       opponent: '',
       location: '',
-      home_game: true,
+      home_away: 'home' as 'home' | 'away',
       notes: '',
       status: 'Scheduled' as Game['status']
     });
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return {
-      date: date.toLocaleDateString('en-US', { 
-        weekday: 'short', 
-        month: 'short', 
-        day: 'numeric',
-        year: 'numeric'
-      }),
-      time: date.toLocaleTimeString('en-US', { 
-        hour: 'numeric', 
-        minute: '2-digit',
-        hour12: true 
-      })
-    };
+  const formatDate = (game: Game) => {
+    // Handle new format with separate date and time
+    if (game.game_date && game.game_time) {
+      const date = new Date(game.game_date + 'T' + game.game_time);
+      return {
+        date: date.toLocaleDateString('en-US', { 
+          weekday: 'short', 
+          month: 'short', 
+          day: 'numeric',
+          year: 'numeric'
+        }),
+        time: date.toLocaleTimeString('en-US', { 
+          hour: 'numeric', 
+          minute: '2-digit',
+          hour12: true 
+        })
+      };
+    }
+    // Fallback for legacy format
+    else if (game.date) {
+      const date = new Date(game.date);
+      return {
+        date: date.toLocaleDateString('en-US', { 
+          weekday: 'short', 
+          month: 'short', 
+          day: 'numeric',
+          year: 'numeric'
+        }),
+        time: date.toLocaleTimeString('en-US', { 
+          hour: 'numeric', 
+          minute: '2-digit',
+          hour12: true 
+        })
+      };
+    }
+    return { date: '', time: '' };
   };
 
   const handleSort = (field: 'date' | 'opponent' | 'location') => {
@@ -173,16 +211,39 @@ const GameScheduleManagement = () => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <h3 className="text-xl font-semibold text-gray-900">Game Schedule Management</h3>
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => setShowForm(true)}
-          className="bg-steel-blue text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-600 transition-colors flex items-center gap-2"
-        >
-          <FaPlus />
-          Add Game
-        </motion.button>
+        <div className="flex gap-2">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setShowBulkImport(!showBulkImport)}
+            className="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition-colors flex items-center gap-2"
+          >
+            <FaUpload />
+            Bulk Import
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setShowForm(true)}
+            className="bg-steel-blue text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-600 transition-colors flex items-center gap-2"
+          >
+            <FaPlus />
+            Add Game
+          </motion.button>
+        </div>
       </div>
+
+      {/* Bulk Import Section */}
+      {showBulkImport && (
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: 'auto' }}
+          exit={{ opacity: 0, height: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <ScheduleBulkImport />
+        </motion.div>
+      )}
 
       {/* Sorting Controls */}
       <div className="bg-white rounded-lg shadow-md p-4">
@@ -245,8 +306,7 @@ const GameScheduleManagement = () => {
             </thead>
             <tbody className="divide-y divide-gray-200">
               {sortedGames.map((game) => {
-                const { date, time } = formatDate(game.date || game.game_date || '');
-                const isUpcoming = game.date ? new Date(game.date) > new Date() : false;
+                const { date, time } = formatDate(game);
                 
                 return (
                   <tr key={game.id} className="hover:bg-gray-50 transition-colors">
@@ -286,9 +346,9 @@ const GameScheduleManagement = () => {
                     {/* Type Column */}
                     <td className="px-4 py-3 text-center">
                       <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
-                        game.home_game ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
+                        game.home_away === 'home' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
                       }`}>
-                        {game.home_game ? (
+                        {game.home_away === 'home' ? (
                           <>
                             <FaHome className="text-xs" />
                             HOME
@@ -384,8 +444,8 @@ const GameScheduleManagement = () => {
                     </label>
                     <input
                       type="datetime-local"
-                      value={formData.date}
-                      onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                      value={formData.game_date}
+                      onChange={(e) => setFormData({ ...formData, game_date: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-steel-blue focus:border-transparent outline-none"
                       required
                     />
@@ -424,8 +484,11 @@ const GameScheduleManagement = () => {
                       Game Type
                     </label>
                     <select
-                      value={formData.home_game ? 'home' : 'away'}
-                      onChange={(e) => setFormData({ ...formData, home_game: e.target.value === 'home' })}
+                      value={formData.home_away}
+                      onChange={(e) => setFormData({ 
+                        ...formData, 
+                        home_away: e.target.value as 'home' | 'away'
+                      })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-steel-blue focus:border-transparent outline-none"
                     >
                       <option value="home">Home Game</option>

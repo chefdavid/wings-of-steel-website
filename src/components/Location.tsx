@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaMapMarkerAlt, FaClock, FaParking, FaDirections, FaTimes, FaPhone, FaGlobe, FaHockeyPuck, FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import { formatPhoneDisplay } from '../utils/phoneUtils';
 import type { PracticeSchedule } from '../types/practice-schedule';
@@ -10,7 +11,6 @@ const Location = () => {
   const [practiceSchedules, setPracticeSchedules] = useState<PracticeSchedule[]>([]);
   const [loadingSchedule, setLoadingSchedule] = useState(true);
   const [showRinkModal, setShowRinkModal] = useState(false);
-  const [showAllPractices, setShowAllPractices] = useState(false);
 
   useEffect(() => {
     fetchLocationData();
@@ -43,14 +43,15 @@ const Location = () => {
     try {
       const today = new Date().toISOString().split('T')[0];
       
+      // Get upcoming practices (effective_from >= today) - only get 6 for preview
       const { data, error } = await supabase
         .from('practice_schedules')
         .select('*')
         .eq('is_active', true)
-        .gte('practice_date', today)
-        .order('practice_date')
+        .gte('effective_from', today)
+        .order('effective_from')
         .order('start_time')
-        .limit(10);
+        .limit(6);
 
       if (error) {
         console.error('Error fetching practice schedule:', error);
@@ -207,7 +208,7 @@ const Location = () => {
             className="space-y-6 md:space-y-8"
           >
             {/* Practice Schedule */}
-            <div>
+            <div id="practice-schedule">
               <h3 className="text-xl md:text-2xl font-bold text-dark-steel mb-2 flex items-center gap-2">
                 <FaClock className="text-steel-blue" />
                 Upcoming Practices
@@ -222,18 +223,13 @@ const Location = () => {
               ) : practiceSchedules.length > 0 ? (
                 <>
                   <div className="space-y-4">
-                    {practiceSchedules.slice(0, showAllPractices ? practiceSchedules.length : 5).map((session, index) => {
-                      const practiceDate = new Date(session.practice_date + 'T00:00:00');
+                    {practiceSchedules.map((session, index) => {
+                      // Use effective_from as the practice date
+                      const practiceDate = new Date(session.effective_from + 'T00:00:00');
                       const dateInfo = {
                         day: practiceDate.getDate(),
                         month: practiceDate.toLocaleDateString('en-US', { month: 'short' }).toUpperCase(),
-                        weekday: practiceDate.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase(),
-                        fullDate: practiceDate.toLocaleDateString('en-US', { 
-                          weekday: 'short', 
-                          month: 'short', 
-                          day: 'numeric',
-                          year: 'numeric'
-                        })
+                        weekday: session.day_of_week || practiceDate.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase()
                       };
                       
                       return (
@@ -306,32 +302,21 @@ const Location = () => {
                     })}
                   </div>
                   
-                  {/* Show More/Less Button */}
-                  {practiceSchedules.length > 5 && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 0.3 }}
-                      className="mt-6 text-center"
+                  {/* See More Link */}
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.3 }}
+                    className="mt-6 text-center"
+                  >
+                    <Link
+                      to="/practice-schedule"
+                      className="inline-flex items-center gap-2 bg-gradient-to-r from-steel-blue to-dark-steel text-white px-6 py-3 rounded-full font-semibold hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300"
                     >
-                      <button
-                        onClick={() => setShowAllPractices(!showAllPractices)}
-                        className="inline-flex items-center gap-2 bg-gradient-to-r from-steel-blue to-dark-steel text-white px-6 py-3 rounded-full font-semibold hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300"
-                      >
-                        {showAllPractices ? (
-                          <>
-                            <FaChevronUp />
-                            Show Less
-                          </>
-                        ) : (
-                          <>
-                            <FaChevronDown />
-                            Show All {practiceSchedules.length} Practices
-                          </>
-                        )}
-                      </button>
-                    </motion.div>
-                  )}
+                      <FaChevronDown />
+                      See All Practice Dates
+                    </Link>
+                  </motion.div>
                   
                   {/* Info Box */}
                   <motion.div
