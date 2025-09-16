@@ -469,158 +469,6 @@ export default function PizzaPinsAndPop() {
         </div>
       </section>
 
-      {/* Meet the Team Section */}
-      <section className="py-16 px-6 bg-gradient-to-b from-black/70 to-black/50">
-        <div className="max-w-6xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <div className="flex items-center justify-center gap-4 mb-4">
-              <Star className="w-8 h-8 text-yellow-500" />
-              <h2 className="text-5xl font-bebas text-white">Meet the Team You're Supporting</h2>
-              <Star className="w-8 h-8 text-yellow-500" />
-            </div>
-            <p className="text-xl text-steel-gray max-w-3xl mx-auto">
-              The Wings of Steel adult team competes at the highest level of sled hockey,
-              representing our community with pride and determination.
-            </p>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="relative rounded-lg overflow-hidden shadow-2xl mb-12"
-          >
-            <img
-              src="/assets/101_1140 (1).jpg"
-              alt="Wings of Steel Adult Team"
-              className="w-full h-auto"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent pointer-events-none"></div>
-            <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-              <h3 className="text-3xl font-bebas mb-2">Wings of Steel Adult Sled Hockey Team</h3>
-              <p className="text-lg text-ice-blue">Champions on and off the ice</p>
-            </div>
-          </motion.div>
-
-          <div className="grid md:grid-cols-4 gap-4 mb-12">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              viewport={{ once: true }}
-              className="bg-steel-gray/20 backdrop-blur-sm rounded-lg p-6 text-center"
-            >
-              <Trophy className="w-10 h-10 text-yellow-500 mx-auto mb-3" />
-              <p className="text-white font-bold">Multiple Championships</p>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              viewport={{ once: true }}
-              className="bg-steel-gray/20 backdrop-blur-sm rounded-lg p-6 text-center"
-            >
-              <Users className="w-10 h-10 text-ice-blue mx-auto mb-3" />
-              <p className="text-white font-bold">15+ Dedicated Athletes</p>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              viewport={{ once: true }}
-              className="bg-steel-gray/20 backdrop-blur-sm rounded-lg p-6 text-center"
-            >
-              <Zap className="w-10 h-10 text-yellow-500 mx-auto mb-3" />
-              <p className="text-white font-bold">Elite Competition</p>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              viewport={{ once: true }}
-              className="bg-steel-gray/20 backdrop-blur-sm rounded-lg p-6 text-center"
-            >
-              <Heart className="w-10 h-10 text-red-500 mx-auto mb-3" />
-              <p className="text-white font-bold">100% Heart & Hustle</p>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Why Support Section */}
-      <section className="py-16 px-6 bg-black/50">
-        <div className="max-w-6xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <span className="text-4xl">🎳</span>
-              <h2 className="text-5xl font-bebas text-white">Why Your Support Matters</h2>
-              <span className="text-4xl">🎳</span>
-            </div>
-            <p className="text-xl text-steel-gray max-w-3xl mx-auto">
-              Every dollar raised goes directly to supporting our adult sled hockey team's
-              equipment, ice time, travel expenses, and tournament fees.
-            </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              viewport={{ once: true }}
-              className="bg-steel-gray/20 backdrop-blur-sm rounded-lg p-6 text-center"
-            >
-              <Trophy className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
-              <h3 className="text-2xl font-bebas text-white mb-2">Championship Team</h3>
-              <p className="text-steel-gray">
-                Support a team that represents our community with pride and determination
-              </p>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              viewport={{ once: true }}
-              className="bg-steel-gray/20 backdrop-blur-sm rounded-lg p-6 text-center"
-            >
-              <Heart className="w-12 h-12 text-red-500 mx-auto mb-4" />
-              <h3 className="text-2xl font-bebas text-white mb-2">Community Impact</h3>
-              <p className="text-steel-gray">
-                Your contribution helps athletes with disabilities compete at the highest level
-              </p>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              viewport={{ once: true }}
-              className="bg-steel-gray/20 backdrop-blur-sm rounded-lg p-6 text-center"
-            >
-              <Target className="w-12 h-12 text-green-500 mx-auto mb-4" />
-              <h3 className="text-2xl font-bebas text-white mb-2">100% Goes to Team</h3>
-              <p className="text-steel-gray">
-                Every penny directly supports our athletes and their hockey dreams
-              </p>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
       {/* Registration Section */}
       <section className="py-16 px-6">
         <div className="max-w-6xl mx-auto">
@@ -855,6 +703,158 @@ export default function PizzaPinsAndPop() {
         </div>
       </section>
 
+      {/* Meet the Team Section */}
+      <section className="py-16 px-6 bg-gradient-to-b from-black/70 to-black/50">
+        <div className="max-w-6xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <div className="flex items-center justify-center gap-4 mb-4">
+              <Star className="w-8 h-8 text-yellow-500" />
+              <h2 className="text-5xl font-bebas text-white">Meet the Team You're Supporting</h2>
+              <Star className="w-8 h-8 text-yellow-500" />
+            </div>
+            <p className="text-xl text-steel-gray max-w-3xl mx-auto">
+              The Wings of Steel adult team competes at the highest level of sled hockey,
+              representing our community with pride and determination.
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="relative rounded-lg overflow-hidden shadow-2xl mb-12"
+          >
+            <img
+              src="/assets/101_1140 (1).jpg"
+              alt="Wings of Steel Adult Team"
+              className="w-full h-auto"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent pointer-events-none"></div>
+            <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+              <h3 className="text-3xl font-bebas mb-2">Wings of Steel Adult Sled Hockey Team</h3>
+              <p className="text-lg text-ice-blue">Champions on and off the ice</p>
+            </div>
+          </motion.div>
+
+          <div className="grid md:grid-cols-4 gap-4 mb-12">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              viewport={{ once: true }}
+              className="bg-steel-gray/20 backdrop-blur-sm rounded-lg p-6 text-center"
+            >
+              <Trophy className="w-10 h-10 text-yellow-500 mx-auto mb-3" />
+              <p className="text-white font-bold">Multiple Championships</p>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              viewport={{ once: true }}
+              className="bg-steel-gray/20 backdrop-blur-sm rounded-lg p-6 text-center"
+            >
+              <Users className="w-10 h-10 text-ice-blue mx-auto mb-3" />
+              <p className="text-white font-bold">15+ Dedicated Athletes</p>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              viewport={{ once: true }}
+              className="bg-steel-gray/20 backdrop-blur-sm rounded-lg p-6 text-center"
+            >
+              <Zap className="w-10 h-10 text-yellow-500 mx-auto mb-3" />
+              <p className="text-white font-bold">Elite Competition</p>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              viewport={{ once: true }}
+              className="bg-steel-gray/20 backdrop-blur-sm rounded-lg p-6 text-center"
+            >
+              <Heart className="w-10 h-10 text-red-500 mx-auto mb-3" />
+              <p className="text-white font-bold">100% Heart & Hustle</p>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Why Support Section */}
+      <section className="py-16 px-6 bg-black/50">
+        <div className="max-w-6xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <span className="text-4xl">🎳</span>
+              <h2 className="text-5xl font-bebas text-white">Why Your Support Matters</h2>
+              <span className="text-4xl">🎳</span>
+            </div>
+            <p className="text-xl text-steel-gray max-w-3xl mx-auto">
+              Every dollar raised goes directly to supporting our adult sled hockey team's
+              equipment, ice time, travel expenses, and tournament fees.
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              viewport={{ once: true }}
+              className="bg-steel-gray/20 backdrop-blur-sm rounded-lg p-6 text-center"
+            >
+              <Trophy className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
+              <h3 className="text-2xl font-bebas text-white mb-2">Championship Team</h3>
+              <p className="text-steel-gray">
+                Support a team that represents our community with pride and determination
+              </p>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              viewport={{ once: true }}
+              className="bg-steel-gray/20 backdrop-blur-sm rounded-lg p-6 text-center"
+            >
+              <Heart className="w-12 h-12 text-red-500 mx-auto mb-4" />
+              <h3 className="text-2xl font-bebas text-white mb-2">Community Impact</h3>
+              <p className="text-steel-gray">
+                Your contribution helps athletes with disabilities compete at the highest level
+              </p>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              viewport={{ once: true }}
+              className="bg-steel-gray/20 backdrop-blur-sm rounded-lg p-6 text-center"
+            >
+              <Target className="w-12 h-12 text-green-500 mx-auto mb-4" />
+              <h3 className="text-2xl font-bebas text-white mb-2">100% Goes to Team</h3>
+              <p className="text-steel-gray">
+                Every penny directly supports our athletes and their hockey dreams
+              </p>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
       {/* Contact Section */}
       <section className="py-16 px-6 bg-black/50">
         <div className="max-w-4xl mx-auto text-center">
@@ -881,7 +881,6 @@ export default function PizzaPinsAndPop() {
               </div>
             </a>
           </div>
-
           <div className="mt-8 p-6 bg-steel-gray/20 rounded-lg">
             <h3 className="text-2xl font-bebas text-ice-blue mb-4">Can't Make It? You Can Still Help!</h3>
             <p className="text-steel-gray mb-4">
@@ -891,7 +890,7 @@ export default function PizzaPinsAndPop() {
             <button
               onClick={() => {
                 setDonationAmount('100');
-                window.scrollTo({ top: document.getElementById('registration')?.offsetTop || 0, behavior: 'smooth' });
+                window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
               className="bg-steel-blue text-white px-6 py-3 rounded hover:bg-ice-blue transition-colors"
             >

@@ -19,7 +19,8 @@ import {
   Clock,
   Mail,
   Phone,
-  Building
+  Building,
+  Trash2
 } from 'lucide-react';
 
 interface Registration {
@@ -122,6 +123,30 @@ export default function PizzaPinsDashboard() {
       setError(err.message || 'Failed to load registrations');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const deleteRegistration = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this registration? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const { error: deleteError } = await supabase
+        .from('event_registrations')
+        .delete()
+        .eq('id', id);
+
+      if (deleteError) {
+        throw deleteError;
+      }
+
+      // Refresh the list
+      fetchRegistrations();
+      setSelectedRegistration(null);
+    } catch (err: any) {
+      console.error('Error deleting registration:', err);
+      alert('Failed to delete registration: ' + err.message);
     }
   };
 
@@ -497,12 +522,21 @@ export default function PizzaPinsDashboard() {
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <button
-                            onClick={() => setSelectedRegistration(registration)}
-                            className="text-ice-blue hover:text-white transition-colors"
-                          >
-                            View Details
-                          </button>
+                          <div className="flex items-center gap-3">
+                            <button
+                              onClick={() => setSelectedRegistration(registration)}
+                              className="text-steel-blue hover:text-blue-700 transition-colors"
+                            >
+                              View Details
+                            </button>
+                            <button
+                              onClick={() => deleteRegistration(registration.id)}
+                              className="text-red-500 hover:text-red-700 transition-colors"
+                              title="Delete registration"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -531,15 +565,26 @@ export default function PizzaPinsDashboard() {
             <div className="p-6 border-b border-steel-gray/30">
               <div className="flex justify-between items-start">
                 <div>
-                  <h2 className="text-2xl font-bebas text-white">Registration Details</h2>
-                  <p className="text-steel-gray">ID: {selectedRegistration.id.substring(0, 8)}...</p>
+                  <h2 className="text-2xl font-bold text-gray-900">Registration Details</h2>
+                  <p className="text-gray-600">ID: {selectedRegistration.id.substring(0, 8)}...</p>
                 </div>
-                <button
-                  onClick={() => setSelectedRegistration(null)}
-                  className="text-steel-gray hover:text-white"
-                >
-                  <X className="w-6 h-6" />
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => {
+                      deleteRegistration(selectedRegistration.id);
+                    }}
+                    className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition-colors flex items-center gap-2"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Delete
+                  </button>
+                  <button
+                    onClick={() => setSelectedRegistration(null)}
+                    className="text-gray-600 hover:text-gray-900"
+                  >
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
               </div>
             </div>
 
