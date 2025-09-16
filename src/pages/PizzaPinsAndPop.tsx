@@ -913,7 +913,7 @@ export default function PizzaPinsAndPop() {
             >
               <Phone className="w-8 h-8 text-ice-blue" />
               <div className="text-left">
-                <p className="text-white font-bold">Kathy Cursi</p>
+                <p className="text-white font-bold">Kathy Tursi</p>
                 <p className="text-steel-gray">(856) 220-7266</p>
               </div>
             </a>
@@ -924,7 +924,7 @@ export default function PizzaPinsAndPop() {
               <Mail className="w-8 h-8 text-ice-blue" />
               <div className="text-left">
                 <p className="text-white font-bold">Email Us</p>
-                <p className="text-steel-gray">pk3lps@comcast.net</p>
+                <p className="text-steel-gray">pkjlp@comcast.net</p>
               </div>
             </a>
           </div>
