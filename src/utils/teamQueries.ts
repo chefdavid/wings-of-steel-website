@@ -8,28 +8,45 @@ import type { Player, Coach, PlayerWithTeams, CoachWithTeams } from '../types/da
 
 export const getTeamPlayers = async (teamType: TeamType): Promise<PlayerWithTeams[]> => {
   try {
+    // Add timestamp to force cache bypass
+    const timestamp = Date.now();
+
     const { data, error } = await supabase
       .from('player_team_details')
       .select('*')
       .eq('team_type', teamType)
-      .order('team_jersey_number', { ascending: true });
+      .order('team_jersey_number', { ascending: true })
+      .limit(100) // Add limit to force fresh query
+      .range(0, 99); // Add range to bypass cache
 
     if (error) throw error;
-    
+
+    // Log raw data for Laurel
+    const laurelRaw = data?.find(p => p.first_name?.toLowerCase() === 'laurel');
+    if (laurelRaw) {
+      console.log(`🔍 [${timestamp}] Laurel raw data from player_team_details view:`, {
+        first_name: laurelRaw.first_name,
+        position: laurelRaw.position,
+        team_position: laurelRaw.team_position,
+        team_type: laurelRaw.team_type
+      });
+    }
+
     // Transform the data to match PlayerWithTeams interface
     const playersWithTeams: PlayerWithTeams[] = (data || []).map(player => ({
       ...player,
       jersey_number: player.team_jersey_number || player.jersey_number,
-      position: player.team_position || player.position,
+      position: player.position || player.team_position, // Use position from players table first
       team_assignments: [],
       current_team: {
         team_type: player.team_type,
         jersey_number: player.team_jersey_number,
-        position: player.team_position,
+        position: player.position || player.team_position, // Use position from players table first
         is_captain: player.is_captain
       }
     }));
 
+    console.log(`Fetched ${playersWithTeams.length} players at ${timestamp}`);
     return playersWithTeams;
   } catch (error) {
     console.error('Error fetching team players:', error);

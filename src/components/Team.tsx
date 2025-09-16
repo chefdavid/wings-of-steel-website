@@ -13,7 +13,7 @@ const Team = () => {
   const [selectedCoach, setSelectedCoach] = useState<CoachWithTeams | null>(null);
   const [coaches, setCoaches] = useState<CoachWithTeams[]>([]);
   const [coachesLoading, setCoachesLoading] = useState(true);
-  const { players, loading, error } = useTeamRoster();
+  const { players, loading, error, refetch } = useTeamRoster();
   const { currentTeam, teamConfig } = useTeam();
 
   useEffect(() => {
@@ -90,7 +90,16 @@ const Team = () => {
           </motion.div>
 
           <div id="team-players" className="mb-16">
-            <h3 className="text-2xl md:text-3xl font-bold text-black mb-8 text-center">Players</h3>
+            <div className="flex justify-center items-center gap-4 mb-8">
+              <h3 className="text-2xl md:text-3xl font-bold text-black text-center">Players</h3>
+              <button
+                onClick={refetch}
+                className="px-3 py-1 bg-steel-blue text-white rounded hover:bg-ice-blue transition-colors text-sm"
+                title="Refresh player data"
+              >
+                Refresh
+              </button>
+            </div>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6 lg:gap-8 max-w-6xl mx-auto">
             {players.map((player, index) => (
               <motion.div
