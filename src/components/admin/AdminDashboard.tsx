@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { FaUsers, FaHockeyPuck, FaCalendarAlt, FaCog, FaSignOutAlt, FaBars, FaTimes, FaClock, FaImage, FaGolfBall } from 'react-icons/fa';
+import { FaUsers, FaHockeyPuck, FaCalendarAlt, FaCog, FaSignOutAlt, FaBars, FaTimes, FaClock, FaImage, FaGolfBall, FaPizzaSlice } from 'react-icons/fa';
 import { Users } from 'lucide-react';
 import PlayerManagement from './PlayerManagement';
 import CoachManagement from './CoachManagement';
@@ -10,8 +10,9 @@ import OpponentTeamsManagement from './OpponentTeamsManagement';
 import PracticeScheduleManagement from './PracticeScheduleManagement';
 import ImageBatchUpdate from './ImageBatchUpdate';
 import GolfOutingAdmin from './GolfOutingAdmin';
+import PizzaPinsDashboard from '../../pages/PizzaPinsDashboard';
 
-type AdminSection = 'players' | 'coaches' | 'site-sections' | 'schedule' | 'practice' | 'opponents' | 'settings' | 'batch-images' | 'golf-outing';
+type AdminSection = 'players' | 'coaches' | 'site-sections' | 'schedule' | 'practice' | 'opponents' | 'settings' | 'batch-images' | 'golf-outing' | 'pizza-pins';
 
 interface AdminDashboardProps {
   onLogout: () => void;
@@ -22,6 +23,7 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const menuItems = [
+    { id: 'pizza-pins' as AdminSection, label: 'Pizza Pins Sales', icon: FaPizzaSlice },
     { id: 'golf-outing' as AdminSection, label: 'Golf Outing', icon: FaGolfBall },
     { id: 'players' as AdminSection, label: 'Team Roster', icon: FaUsers },
     { id: 'coaches' as AdminSection, label: 'Coaching Staff', icon: FaHockeyPuck },
@@ -34,6 +36,8 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
 
   const renderContent = () => {
     switch (activeSection) {
+      case 'pizza-pins':
+        return <div className="-m-6"><PizzaPinsDashboard /></div>;
       case 'golf-outing':
         return <GolfOutingAdmin />;
       case 'players':

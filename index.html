@@ -137,8 +137,21 @@
   </head>
   <body>
     <div id="root"></div>
+
+    <!-- Netlify Forms for Email Notifications -->
+    <!-- This hidden form enables Netlify to process email notifications -->
+    <form name="pizza-pins-email-notification" netlify netlify-honeypot="bot-field" hidden>
+      <input type="text" name="customer_name" />
+      <input type="email" name="customer_email" />
+      <input type="text" name="total_amount" />
+      <input type="text" name="payment_id" />
+      <input type="text" name="admin_emails" />
+      <textarea name="customer_email_html"></textarea>
+      <textarea name="admin_email_html"></textarea>
+    </form>
+
     <script type="module" src="/src/main.tsx"></script>
-    
+
     <!-- Module preloading removed - handled by Vite in production -->
   </body>
 </html>

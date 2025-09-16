@@ -73,7 +73,8 @@ const Navigation = () => {
           title: 'Events',
           items: [
             { name: 'Game Schedule', href: '/#schedule', isHashLink: true, description: '2025-2026 season games' },
-            { name: 'Practice Schedule', href: '/practice-schedule', isHashLink: false, description: 'All practice times' }
+            { name: 'Practice Schedule', href: '/practice-schedule', isHashLink: false, description: 'All practice times' },
+            { name: 'Pizza, Pins & Pop', href: '/pizza-pins-pop', isHashLink: false, description: 'Fundraiser event Oct 26', highlight: true }
           ]
         }
       ]
@@ -116,7 +117,8 @@ const Navigation = () => {
         }
       ]
     },
-    { name: 'Golf Outing', href: '/golf-outing', isHashLink: false, standalone: true, highlight: true }
+    { name: 'Golf Outing', href: '/golf-outing', isHashLink: false, standalone: true, highlight: true },
+    { name: '🎳 Pizza & Pins', href: '/pizza-pins-pop', isHashLink: false, standalone: true, highlight: true, cta: true }
   ];
 
   return (
@@ -164,8 +166,10 @@ const Navigation = () => {
                     key={item.name}
                     to={item.href}
                     className={`px-4 py-2 ${
-                      item.highlight 
-                        ? 'text-championship-gold hover:text-yellow-300 hover:bg-championship-gold/20' 
+                      item.cta
+                        ? 'bg-yellow-500 text-black rounded-full hover:bg-yellow-400 shadow-lg px-6 font-bold animate-pulse'
+                        : item.highlight
+                        ? 'text-championship-gold hover:text-yellow-300 hover:bg-championship-gold/20'
                         : 'text-gray-300 hover:text-white hover:bg-steel-blue/20'
                     } rounded-md transition-all duration-200 font-sport tracking-wider`}
                   >
@@ -289,7 +293,13 @@ const Navigation = () => {
                       key={item.name}
                       to={item.href}
                       onClick={() => setIsOpen(false)}
-                      className="block px-3 py-2 text-gray-300 hover:text-white hover:bg-steel-blue/20 rounded-md font-sport tracking-wider"
+                      className={`block px-3 py-2 ${
+                        item.cta
+                          ? 'bg-yellow-500 text-black rounded-full hover:bg-yellow-400 shadow-lg font-bold text-center animate-pulse'
+                          : item.highlight
+                          ? 'text-championship-gold hover:text-yellow-300'
+                          : 'text-gray-300 hover:text-white hover:bg-steel-blue/20'
+                      } rounded-md font-sport tracking-wider`}
                     >
                       {item.name}
                     </Link>

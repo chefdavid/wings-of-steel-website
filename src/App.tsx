@@ -14,6 +14,8 @@ const LocalGallery = lazy(() => import('./pages/LocalGallery'))
 const GolfOuting = lazy(() => import('./pages/GolfOuting'))
 const JoinTeam = lazy(() => import('./pages/JoinTeam'))
 const PracticeSchedule = lazy(() => import('./pages/PracticeSchedule'))
+const PizzaPinsAndPop = lazy(() => import('./pages/PizzaPinsAndPop'))
+const PizzaPinsDashboard = lazy(() => import('./pages/PizzaPinsDashboard'))
 // Temporarily disable FeedbackAdmin until properly configured
 // const FeedbackAdmin = lazy(() => import('./components/FeedbackAdmin'))
 
@@ -33,6 +35,8 @@ function App() {
               <Route path="/golf-outing" element={<GolfOuting />} />
               <Route path="/join-team" element={<JoinTeam />} />
               <Route path="/practice-schedule" element={<PracticeSchedule />} />
+              <Route path="/pizza-pins-pop" element={<PizzaPinsAndPop />} />
+              <Route path="/pizza-pins-dashboard" element={<PizzaPinsDashboard />} />
               
               {/* Team-specific routes (for backwards compatibility) */}
               <Route path="/team/:team" element={<TeamSite />} />

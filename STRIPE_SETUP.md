@@ -1,98 +1,135 @@
-# Stripe Payment Integration Setup
+# Stripe Setup for Pizza, Pins & Pop Event
 
-## Prerequisites
-- Stripe account (sign up at [stripe.com](https://stripe.com))
-- Printify store configured (see PRINTIFY_SETUP.md)
+## ✅ What's Been Set Up
 
-## Setup Instructions
+### 1. **Payment Processing Backend**
+- Created `netlify/functions/pizza-pins-payment.js` - Dedicated endpoint for Pizza, Pins & Pop payments
+- Created `netlify/functions/stripe-webhook.js` - Webhook handler for payment confirmations
+- Both functions store registration data in Supabase database
 
-### 1. Get Your Stripe API Keys
+### 2. **Frontend Integration**
+- Updated Pizza, Pins & Pop page to use the new payment endpoint
+- Integrated Stripe Elements for secure card processing
+- Added customer information collection form
+- Implemented success/failure handling
 
-1. Log into your [Stripe Dashboard](https://dashboard.stripe.com)
-2. Navigate to **Developers > API Keys**
-3. Copy your keys:
-   - **Publishable key** (starts with `pk_test_` or `pk_live_`)
-   - **Secret key** (starts with `sk_test_` or `sk_live_`)
+### 3. **Database Storage**
+- Registrations are saved to Supabase `event_registrations` table
+- Stores: customer info, package selection, add-ons, payment status
+- Automatically updates payment status via webhook
 
-⚠️ **Important**: Use test keys for development and live keys for production.
+## ⚠️ IMPORTANT: Current Configuration
 
-### 2. Configure Environment Variables
+**YOU ARE USING LIVE STRIPE KEYS!**
+- Current keys in `.env` are LIVE production keys
+- This will charge REAL credit cards
+- For testing, you should switch to TEST keys
 
-Add these to your `.env` file:
+## 🔧 To Complete Setup
 
-```bash
-# Stripe Configuration
-VITE_STRIPE_PUBLISHABLE_KEY=pk_test_your_key_here
-STRIPE_SECRET_KEY=sk_test_your_key_here
+### 1. **For Testing (Recommended First)**
+
+1. Go to [Stripe Dashboard TEST Mode](https://dashboard.stripe.com/test/apikeys)
+2. Get your TEST API keys (they start with `pk_test_` and `sk_test_`)
+3. Update `.env` file:
+   ```env
+   VITE_STRIPE_PUBLISHABLE_KEY=pk_test_YOUR_TEST_KEY
+   STRIPE_SECRET_KEY=sk_test_YOUR_TEST_SECRET_KEY
+   ```
+
+### 2. **Set Up Stripe Webhook**
+
+1. Go to [Stripe Webhooks](https://dashboard.stripe.com/webhooks)
+2. Click "Add endpoint"
+3. Enter endpoint URL: `https://your-site.netlify.app/.netlify/functions/stripe-webhook`
+4. Select events to listen for:
+   - `payment_intent.succeeded`
+   - `payment_intent.payment_failed`
+5. Copy the webhook signing secret (starts with `whsec_`)
+6. Add to `.env`:
+   ```env
+   STRIPE_WEBHOOK_SECRET=whsec_YOUR_WEBHOOK_SECRET
+   ```
+
+### 3. **Deploy to Netlify**
+
+1. Commit all changes
+2. Push to GitHub
+3. Netlify will auto-deploy
+4. Add environment variables in Netlify dashboard:
+   - Go to Site Settings > Environment Variables
+   - Add all Stripe keys and Supabase credentials
+
+### 4. **Test the Flow**
+
+**With TEST keys:**
+1. Visit `/pizza-pins-pop`
+2. Fill out the registration form
+3. Use test card: `4242 4242 4242 4242`
+4. Any future date, any CVC
+
+**With LIVE keys (be careful!):**
+- Only use when ready for production
+- Test with a small amount first
+- Consider using Stripe's "Capture later" mode initially
+
+## 📊 View Registrations
+
+Registrations are stored in Supabase. To view them:
+
+1. Go to [Supabase Dashboard](https://supabase.com/dashboard)
+2. Select your project
+3. Go to Table Editor
+4. View `event_registrations` table
+
+Or create an admin page using the following query:
+```sql
+SELECT * FROM event_registrations
+WHERE event_name = 'Pizza, Pins & Pop 2024'
+ORDER BY created_at DESC;
 ```
 
-For Netlify deployment, add these in:
-**Site Settings > Environment Variables**
+## 🎯 Event Page Features
 
-### 3. Test the Integration
+- Single $150 package (as per flyer)
+- Raffle tickets and strike challenge add-ons
+- Optional donation field
+- Team photo display
+- Animated bowling theme
+- Real-time fundraising progress
+- Mobile-responsive design
+- Prominent CTA in navigation
 
-#### Test Mode
-1. Use Stripe's test card numbers:
-   - Success: `4242 4242 4242 4242`
-   - Decline: `4000 0000 0000 0002`
-   - Any future expiry date and any 3-digit CVC
+## 💰 Revenue Tracking
 
-2. Complete a test purchase:
-   - Add products to cart
-   - Go to checkout
-   - Fill shipping information
-   - Enter test card details
-   - Complete payment
+Each successful payment stores:
+- Total amount
+- Package selected
+- Add-ons purchased
+- Additional donations
+- Customer contact info
+- Special requests
 
-### 4. Payment Flow
+## 📧 Next Steps (Optional)
 
-The integration works as follows:
+1. **Email Confirmations**: Integrate SendGrid or similar for automatic confirmation emails
+2. **Admin Dashboard**: Create a page to view all registrations
+3. **QR Codes**: Generate unique QR codes for each registration
+4. **Capacity Tracking**: Show remaining lanes available
+5. **Early Bird Pricing**: Add time-based discounts
 
-1. **Cart → Checkout**: Customer proceeds with items
-2. **Shipping Info**: Collects delivery address
-3. **Payment**: Stripe Elements secure payment form
-4. **Processing**:
-   - Payment charged via Stripe
-   - Order created in Printify
-   - Customer receives confirmation
+## 🚨 Security Notes
 
-### 5. Order Management
-
-- **Stripe Dashboard**: View all payments and customer details
-- **Printify Dashboard**: View orders for fulfillment
-- **Order Linking**: Each Printify order includes the Stripe Payment ID
-
-### 6. Going Live
-
-When ready for production:
-
-1. **In Stripe**:
-   - Complete account activation
-   - Switch to live API keys
-   - Set up tax settings if needed
-
-2. **In Your App**:
-   - Update `.env` with live keys
-   - Test with a real card (small amount)
-   - Monitor first few orders
-
-### 7. Additional Features
-
-Consider adding:
-- Email receipts (Stripe handles this)
-- Webhook handling for order status
-- Refund management
-- Subscription products
-
-## Security Notes
-
-- Never commit API keys to git
-- Use environment variables only
+- Never commit live Stripe keys to GitHub
+- Use environment variables for all sensitive data
+- Test thoroughly with TEST keys first
 - Enable Stripe Radar for fraud protection
-- Review Stripe's security best practices
+- Set up payment alerts in Stripe Dashboard
 
-## Support
+## 📞 Support
 
-- Stripe Support: [stripe.com/support](https://stripe.com/support)
-- Stripe Docs: [stripe.com/docs](https://stripe.com/docs)
-- Test Cards: [stripe.com/docs/testing](https://stripe.com/docs/testing)
+- Stripe Support: https://support.stripe.com
+- Stripe Docs: https://stripe.com/docs
+- Test Cards: https://stripe.com/docs/testing#cards
+
+The Pizza, Pins & Pop fundraiser page is ready at `/pizza-pins-pop`!

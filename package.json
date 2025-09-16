@@ -19,6 +19,8 @@
     "debug:frontend": "node scripts/debug-frontend.js"
   },
   "dependencies": {
+    "@netlify/functions": "^4.2.5",
+    "@sendgrid/mail": "^8.1.5",
     "@stripe/react-stripe-js": "^3.9.0",
     "@stripe/stripe-js": "^7.8.0",
     "@supabase/supabase-js": "^2.54.0",
@@ -29,6 +31,7 @@
     "framer-motion": "^12.23.6",
     "lucide-react": "^0.541.0",
     "node-fetch": "^3.3.2",
+    "nodemailer": "^7.0.6",
     "photoswipe": "^5.4.4",
     "postcss": "^8.5.6",
     "react": "^19.1.0",
