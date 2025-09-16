@@ -53,7 +53,7 @@ const createCustomerEmailHTML = (data) => {
 
       <div class="details">
         <h3>Event Details:</h3>
-        <p>📅 <strong>Date:</strong> Saturday, October 26, 2024</p>
+        <p>📅 <strong>Date:</strong> Saturday, November 16, 2024</p>
         <p>⏰ <strong>Time:</strong> 12:00 PM - 2:00 PM</p>
         <p>📍 <strong>Location:</strong> Laurel Lanes<br>
         2825 RT. 73 South, Maple Shade, NJ</p>
@@ -72,7 +72,7 @@ const createCustomerEmailHTML = (data) => {
       <p><strong>What's Next?</strong></p>
       <ul>
         <li>Save this email as your confirmation</li>
-        <li>Arrive at Laurel Lanes on October 26th</li>
+        <li>Arrive at Laurel Lanes on November 16th</li>
         <li>Check in at the registration desk</li>
         <li>Enjoy bowling, pizza, and fun while supporting a great cause!</li>
       </ul>

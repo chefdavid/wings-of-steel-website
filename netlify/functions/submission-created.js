@@ -55,7 +55,7 @@ exports.handler = async (event, context) => {
 Thank you for registering for Pizza, Pins & Pop 2024!
 
 EVENT DETAILS:
-- Date: Saturday, October 26, 2024
+- Date: Saturday, November 16, 2024
 - Time: 12:00 PM - 2:00 PM
 - Location: Laurel Lanes
   2825 RT. 73 South, Maple Shade, NJ
@@ -69,7 +69,7 @@ ${customerInfo.specialRequests ? `- Special Requests: ${customerInfo.specialRequ
 
 What's Next:
 1. Save this email as your confirmation
-2. Arrive at Laurel Lanes on October 26th
+2. Arrive at Laurel Lanes on November 16th
 3. Check in at the registration desk
 4. Enjoy bowling, pizza, and fun!
 

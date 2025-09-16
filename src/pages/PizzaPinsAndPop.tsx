@@ -317,7 +317,7 @@ export default function PizzaPinsAndPop() {
               </p>
               <p className="text-steel-gray">
                 You will receive a confirmation email shortly with your lane details.
-                See you at Laurel Lanes on October 26th!
+                See you at Laurel Lanes on November 16th!
               </p>
               <button
                 onClick={() => window.location.href = '/'}
@@ -417,8 +417,8 @@ export default function PizzaPinsAndPop() {
               >
                 <div className="absolute -top-2 -right-2 text-3xl opacity-10">📅</div>
                 <Calendar className="w-8 h-8 text-ice-blue mx-auto mb-2" />
-                <p className="text-white font-bold">Oct 26, 2024</p>
-                <p className="text-steel-gray text-sm">Sunday Funday!</p>
+                <p className="text-white font-bold">Nov 16, 2024</p>
+                <p className="text-steel-gray text-sm">Saturday Funday!</p>
               </motion.div>
               <motion.div
                 whileHover={{ scale: 1.05 }}

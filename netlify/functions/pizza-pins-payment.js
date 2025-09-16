@@ -114,7 +114,7 @@ export const handler = async (event, context) => {
         .from('event_registrations')
         .insert({
           event_name: 'Pizza, Pins & Pop 2024',
-          event_date: '2024-10-26',
+          event_date: '2024-11-16',
           customer_name: customerInfo.name,
           customer_email: customerInfo.email,
           customer_phone: customerInfo.phone || null,

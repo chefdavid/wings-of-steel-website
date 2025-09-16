@@ -101,7 +101,7 @@ INSERT INTO event_registrations (
   payment_status
 ) VALUES (
   'TEST - Delete Me',
-  '2024-10-26',
+  '2024-11-16',
   'Test User',
   'test@example.com',
   'Test Package',
