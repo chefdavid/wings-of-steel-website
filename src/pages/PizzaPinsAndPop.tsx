@@ -346,11 +346,11 @@ export default function PizzaPinsAndPop() {
             muted
             loop
             playsInline
-            className="w-full h-full object-cover opacity-30"
+            className="w-full h-full object-cover opacity-50"
           >
             <source src="/assets/bowling.mp4" type="video/mp4" />
           </video>
-          <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/70"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-black/60"></div>
         </div>
 
         {/* Animated Bowling Icons */}

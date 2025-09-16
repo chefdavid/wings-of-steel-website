@@ -146,7 +146,6 @@ const Team = () => {
                       {player.start_date && (
                         <p className="text-[10px] sm:text-xs text-yellow-300 mt-0.5">{getYearsWithTeamDisplay(player.start_date)}</p>
                       )}
-                      <p className="text-[10px] sm:text-xs mt-1 sm:mt-2 px-1 sm:px-2 line-clamp-2 sm:line-clamp-3">{player.bio}</p>
                       <p className="text-[10px] sm:text-xs text-yellow-400 mt-1 sm:mt-2">Click for more info</p>
                     </div>
                   </div>
@@ -334,10 +333,6 @@ const Team = () => {
                     </div>
                   </div>
                   
-                  <div className="mb-6">
-                    <h3 className="text-xl font-bold mb-3">About {selectedPlayer.first_name} {selectedPlayer.last_name}</h3>
-                    <p className="text-gray-700 leading-relaxed">{selectedPlayer.bio}</p>
-                  </div>
                   
                   <div className="bg-gray-50 p-6 rounded-lg">
                     <h3 className="text-lg font-bold mb-3">Player Stats</h3>
