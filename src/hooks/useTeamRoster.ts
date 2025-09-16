@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getTeamPlayers } from '../utils/teamQueries';
 import { useTeam } from './useTeam';
-import { supabase } from '../lib/supabase';
+import { supabase } from '../lib/supabaseClient';
 import type { PlayerWithTeams } from '../types/database';
 
 export function useTeamRoster() {
