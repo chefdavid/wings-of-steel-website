@@ -192,8 +192,8 @@ export default function PizzaPinsAndPop() {
   const [stripePromise, setStripePromise] = useState<any>(null);
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [donationAmount, setDonationAmount] = useState('');
-  const [fundraisingGoal] = useState(10000);
-  const [currentRaised, setCurrentRaised] = useState(4250);
+  const [fundraisingGoal] = useState(5000);
+  const [currentRaised, setCurrentRaised] = useState(150);
 
   useEffect(() => {
     stripeService.getStripe().then(stripe => {
@@ -339,7 +339,19 @@ export default function PizzaPinsAndPop() {
 
       {/* Hero Section */}
       <section className="relative py-20 px-6 overflow-hidden">
-        <div className="absolute inset-0 bg-[url('/assets/Pizza, Pins &Pop.png.png')] bg-cover bg-center opacity-20"></div>
+        {/* Video Background */}
+        <div className="absolute inset-0">
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="w-full h-full object-cover opacity-30"
+          >
+            <source src="/assets/bowling.mp4" type="video/mp4" />
+          </video>
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/70"></div>
+        </div>
 
         {/* Animated Bowling Icons */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -395,8 +407,8 @@ export default function PizzaPinsAndPop() {
               >
                 🎳
               </motion.span>
-              <h1 className="text-7xl md:text-8xl font-bebas text-white">
-                Pizza, Pins & Pop
+              <h1 className="text-7xl md:text-9xl font-oswald font-black text-white uppercase tracking-tight">
+                PIZZA, PINS & POP
               </h1>
               <motion.span
                 animate={{ rotate: [0, -10, 10, 0] }}
@@ -417,8 +429,8 @@ export default function PizzaPinsAndPop() {
               >
                 <div className="absolute -top-2 -right-2 text-3xl opacity-10">📅</div>
                 <Calendar className="w-8 h-8 text-ice-blue mx-auto mb-2" />
-                <p className="text-white font-bold">Nov 16, 2024</p>
-                <p className="text-steel-gray text-sm">Saturday Funday!</p>
+                <p className="text-white font-bold">Nov 16, 2025</p>
+                <p className="text-steel-gray text-sm">Sunday Funday!</p>
               </motion.div>
               <motion.div
                 whileHover={{ scale: 1.05 }}
@@ -429,15 +441,19 @@ export default function PizzaPinsAndPop() {
                 <p className="text-white font-bold">12PM - 2PM</p>
                 <p className="text-steel-gray text-sm">2 Hours of Fun</p>
               </motion.div>
-              <motion.div
+              <motion.a
+                href="https://www.google.com/maps/place/Laurel+Lanes/@39.9526,-74.9927,17z/"
+                target="_blank"
+                rel="noopener noreferrer"
                 whileHover={{ scale: 1.05 }}
-                className="bg-steel-gray/20 backdrop-blur-sm rounded-lg p-4 relative overflow-hidden"
+                className="bg-steel-gray/20 backdrop-blur-sm rounded-lg p-4 relative overflow-hidden block cursor-pointer hover:bg-steel-gray/30 transition-colors"
               >
                 <div className="absolute -top-2 -right-2 text-3xl opacity-10">📍</div>
                 <MapPin className="w-8 h-8 text-ice-blue mx-auto mb-2" />
                 <p className="text-white font-bold">Laurel Lanes</p>
                 <p className="text-steel-gray text-sm">Maple Shade, NJ</p>
-              </motion.div>
+                <p className="text-ice-blue text-xs mt-1">Click for directions</p>
+              </motion.a>
               <motion.div
                 whileHover={{ scale: 1.05 }}
                 className="bg-steel-gray/20 backdrop-blur-sm rounded-lg p-4 relative overflow-hidden"
@@ -463,6 +479,37 @@ export default function PizzaPinsAndPop() {
               <div className="flex justify-between text-sm">
                 <span className="text-ice-blue font-bold">${currentRaised.toLocaleString()}</span>
                 <span className="text-steel-gray">raised of ${fundraisingGoal.toLocaleString()} goal</span>
+              </div>
+            </div>
+
+            {/* What's Included */}
+            <div className="bg-steel-gray/20 backdrop-blur-sm rounded-lg p-6 max-w-3xl mx-auto mt-6">
+              <h3 className="text-2xl font-bebas text-yellow-500 mb-4">Each Lane Reservation Includes:</h3>
+              <div className="grid md:grid-cols-2 gap-3 text-left">
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">🎳</span>
+                  <span className="text-white">1 Lane for up to 6 people</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">👟</span>
+                  <span className="text-white">Shoe rental included</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">🍕</span>
+                  <span className="text-white">1 Large pizza</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">🥤</span>
+                  <span className="text-white">2 Pitchers of soda</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">⏰</span>
+                  <span className="text-white">2 Hours of bowling</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">💰</span>
+                  <span className="text-white font-bold text-ice-blue">Only $150 per lane!</span>
+                </div>
               </div>
             </div>
           </motion.div>
@@ -897,6 +944,71 @@ export default function PizzaPinsAndPop() {
               Make a Donation
             </button>
           </div>
+        </div>
+      </section>
+
+      {/* Location Map Section */}
+      <section className="py-16 px-6 bg-dark-steel/50">
+        <div className="max-w-6xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-5xl font-bebas text-white text-center mb-8">
+              Find Us at Laurel Lanes
+            </h2>
+            <div className="grid lg:grid-cols-2 gap-8">
+              <div className="bg-steel-gray/20 backdrop-blur-sm rounded-lg p-6">
+                <h3 className="text-2xl font-bebas text-ice-blue mb-4">Event Location</h3>
+                <div className="space-y-4">
+                  <div className="flex items-start gap-3">
+                    <MapPin className="w-6 h-6 text-ice-blue flex-shrink-0 mt-1" />
+                    <div>
+                      <p className="text-white font-bold">Laurel Lanes</p>
+                      <p className="text-steel-gray">2825 Route 73 North</p>
+                      <p className="text-steel-gray">Maple Shade, NJ 08052</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <Clock className="w-6 h-6 text-ice-blue flex-shrink-0 mt-1" />
+                    <div>
+                      <p className="text-white font-bold">Sunday, November 16, 2025</p>
+                      <p className="text-steel-gray">12:00 PM - 2:00 PM</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <Phone className="w-6 h-6 text-ice-blue flex-shrink-0 mt-1" />
+                    <div>
+                      <p className="text-white font-bold">Contact</p>
+                      <p className="text-steel-gray">(856) 234-5551</p>
+                    </div>
+                  </div>
+                </div>
+                <a
+                  href="https://www.google.com/maps/place/Laurel+Lanes/@39.9526,-74.9927,17z/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-6 inline-block bg-steel-blue text-white px-6 py-3 rounded font-oswald hover:bg-ice-blue transition-colors"
+                >
+                  Get Directions on Google Maps
+                </a>
+              </div>
+              <div className="rounded-lg overflow-hidden h-[400px]">
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3050.3!2d-74.9927!3d39.9526!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sLaurel+Lanes!5e0!3m2!1sen!2sus!4v1"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  className="w-full h-full"
+                ></iframe>
+              </div>
+            </div>
+          </motion.div>
         </div>
       </section>
 
