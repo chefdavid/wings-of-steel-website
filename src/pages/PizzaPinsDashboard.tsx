@@ -141,9 +141,22 @@ export default function PizzaPinsDashboard() {
         throw deleteError;
       }
 
-      // Refresh the list
-      fetchRegistrations();
+      // Immediately update the local state
+      setRegistrations(prev => {
+        const updated = prev.filter(r => r.id !== id);
+        // Recalculate stats with the updated data
+        const newStats = calculateStats(updated);
+        setStats(newStats);
+        return updated;
+      });
+
+      // Close the modal if it was open
       setSelectedRegistration(null);
+
+      // Also fetch fresh data from the server
+      setTimeout(() => {
+        fetchRegistrations();
+      }, 500);
     } catch (err: any) {
       console.error('Error deleting registration:', err);
       alert('Failed to delete registration: ' + err.message);
