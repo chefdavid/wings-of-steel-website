@@ -6,6 +6,49 @@ import { useGameSchedule } from '../hooks';
 const Schedule = () => {
   const { upcomingGames, pastGames, loading, error } = useGameSchedule();
   const [showRinkModal, setShowRinkModal] = useState(false);
+  const [selectedRink, setSelectedRink] = useState<{
+    name: string;
+    address: string;
+    opponent?: string;
+    isHome: boolean;
+    phone?: string;
+    website?: string;
+  } | null>(null);
+
+  // Mapping of opponents to their rink information
+  const awayRinks: { [key: string]: { name: string; address: string; phone?: string; website?: string } } = {
+    'Hammerheads': {
+      name: 'Skate Zone NE',
+      address: '10990 Decatur Rd, Philadelphia, PA 19154',
+      phone: '(215) 969-1200',
+      website: 'https://www.oiceskatezonenortheast.com/'
+    },
+    'Sled Stars': {
+      name: 'Hollydell Ice Arena',
+      address: '601 Holly Dell Dr, Sewell, NJ 08080',
+      phone: '(856) 589-4799',
+      website: 'https://www.hollydellicearena.com/'
+    },
+    'Bennett Blazers': {
+      name: 'Ice World',
+      address: '1300 Governor Court, Abingdon, MD 21009',
+      phone: '(410) 612-1000',
+      website: 'https://www.iceworldmd.com/'
+    },
+    'DC Sled Sharks': {
+      name: 'Kettler Capitals Ice Plex',
+      address: '627 N. Glebe Rd, Suite 800, Arlington, VA 22203',
+      phone: '(703) 243-8855',
+      website: 'https://www.kettlercapitalsiceplex.com/'
+    }
+  };
+
+  const homeRink = {
+    name: 'Flyers Skate Zone',
+    address: '601 Laurel Oak Rd, Voorhees Township, NJ 08043',
+    phone: '(856) 751-9161',
+    website: 'https://flyersskatezone.com/'
+  };
 
   if (loading) {
     return (
@@ -199,8 +242,23 @@ const Schedule = () => {
                                   <span className="font-medium text-gray-700">{formatTime(game.game_time || '')}</span>
                                 </div>
                                 <button
-                                  onClick={() => setShowRinkModal(true)}
-                                  className="flex items-center gap-2 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-full transition-colors group"
+                                  onClick={() => {
+                                    const rinkInfo = isHome
+                                      ? homeRink
+                                      : awayRinks[game.opponent] || null;
+
+                                    if (rinkInfo) {
+                                      setSelectedRink({
+                                        ...rinkInfo,
+                                        opponent: game.opponent,
+                                        isHome
+                                      });
+                                    } else {
+                                      // Fallback to home rink modal if no away rink info
+                                      setShowRinkModal(true);
+                                    }
+                                  }}
+                                  className="flex items-center gap-2 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-full transition-colors group cursor-pointer"
                                 >
                                   <FaMapMarkerAlt className="text-steel-blue" />
                                   <span className="text-blue-700 font-medium group-hover:underline">{game.location}</span>
@@ -513,7 +571,109 @@ const Schedule = () => {
         </motion.div>
       </div>
 
-      {/* Rink Details Modal */}
+      {/* Selected Rink Details Modal */}
+      <AnimatePresence>
+        {selectedRink && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+            onClick={() => setSelectedRink(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-xl shadow-2xl max-w-2xl w-full"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="relative p-6 border-b">
+                <button
+                  onClick={() => setSelectedRink(null)}
+                  className="absolute top-4 right-4 p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+                >
+                  <FaTimes className="w-5 h-5" />
+                </button>
+
+                <h2 className="text-2xl font-bold text-gray-900 pr-10">{selectedRink.name}</h2>
+                <p className="text-gray-600 mt-1">
+                  {selectedRink.isHome ? 'Home of Wings of Steel Sled Hockey' : `Home of ${selectedRink.opponent}`}
+                </p>
+              </div>
+
+              <div className="p-6">
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                      <FaMapMarkerAlt className="text-steel-blue" />
+                      Location
+                    </h3>
+                    <p className="text-gray-700">{selectedRink.address}</p>
+                  </div>
+
+                  {selectedRink.phone && (
+                    <div>
+                      <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                        <FaPhone className="text-steel-blue" />
+                        Contact
+                      </h3>
+                      <p className="text-gray-700">Phone: {selectedRink.phone}</p>
+                    </div>
+                  )}
+
+
+                  {selectedRink.isHome && (
+                    <div>
+                      <h3 className="font-semibold text-gray-900 mb-2">Rink Information</h3>
+                      <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Main Rink:</span>
+                          <span className="font-medium">NHL Regulation Size</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Rink #3:</span>
+                          <span className="font-medium">Practice Rink (Main Season)</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Parking:</span>
+                          <span className="font-medium">Free, Ample Spaces</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Accessibility:</span>
+                          <span className="font-medium">Fully Accessible</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="pt-4 border-t">
+                    <a
+                      href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(selectedRink.address)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 bg-steel-blue text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-bold shadow-md w-full justify-center"
+                    >
+                      <FaDirections className="text-lg" />
+                      Get Directions
+                    </a>
+                  </div>
+
+                  {!selectedRink.isHome && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <p className="text-sm text-blue-900">
+                        <strong>Away Game:</strong> This is an away game location. Please plan extra time for travel and arrival.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Original Home Rink Details Modal */}
       <AnimatePresence>
         {showRinkModal && (
           <motion.div
