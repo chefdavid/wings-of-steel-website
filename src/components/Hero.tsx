@@ -38,7 +38,7 @@ const Hero = () => {
   }
 
   return (
-    <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden" role="banner" aria-label="Hero section">
       <div 
         className="absolute inset-0 bg-dark-steel"
       >
@@ -54,9 +54,9 @@ const Hero = () => {
       {/* TB Logo in Top Right */}
       <div className="absolute top-24 right-4 md:right-8 z-30 group">
         <div className="relative">
-          <img 
-            src="/images/tb-logo.png" 
-            alt="Tom Brake Memorial" 
+          <img
+            src="/images/tb-logo.png"
+            alt="Tom Brake Memorial Logo - In loving memory" 
             className="w-24 md:w-32 lg:w-40 h-auto opacity-90 group-hover:opacity-100 transition-opacity"
           />
           <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
@@ -80,7 +80,7 @@ const Hero = () => {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="flex justify-center items-center mb-4 md:mb-6"
           >
-            <FaHockeyPuck className="text-5xl md:text-6xl text-ice-blue animate-pulse" />
+            <FaHockeyPuck className="text-5xl md:text-6xl text-ice-blue animate-pulse" aria-hidden="true" />
           </motion.div>
 
           <div className="mb-4 md:mb-6">
@@ -98,11 +98,11 @@ const Hero = () => {
           
           <div className="flex flex-col md:flex-row gap-2 md:gap-3 justify-center items-stretch max-w-2xl mx-auto mb-4 md:mb-6">
             <div className="flex-1 flex items-center justify-center gap-2 bg-yellow-400 text-black px-3 py-4 md:px-4 md:py-5 rounded-lg font-medium text-xs md:text-sm min-h-[60px] md:min-h-[70px]">
-              <FaTrophy className="text-black flex-shrink-0 text-sm md:text-base" />
+              <FaTrophy className="text-black flex-shrink-0 text-sm md:text-base" aria-hidden="true" />
               <span className="text-center leading-relaxed">{heroData?.award1 || heroData?.subtitle || '2023 National Champions'}</span>
             </div>
             <div className="flex-1 flex items-center justify-center gap-2 bg-yellow-400 text-black px-3 py-4 md:px-4 md:py-5 rounded-lg font-medium text-xs md:text-sm min-h-[60px] md:min-h-[70px]">
-              <FaTrophy className="text-black flex-shrink-0 text-sm md:text-base" />
+              <FaTrophy className="text-black flex-shrink-0 text-sm md:text-base" aria-hidden="true" />
               <span className="text-center leading-relaxed">{heroData?.award2 || heroData?.tagline || '2025 USA Sled Hockey Champions 1st Place'}</span>
             </div>
           </div>
@@ -116,18 +116,20 @@ const Hero = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               href="#get-involved"
-              className="bg-yellow-400 text-black px-6 py-3 md:px-8 md:py-4 rounded-lg font-bold text-base md:text-lg hover:bg-yellow-300 transition-colors duration-300 shadow-lg flex items-center justify-center gap-2"
+              className="bg-yellow-400 text-black px-6 py-3 md:px-8 md:py-4 rounded-lg font-bold text-base md:text-lg hover:bg-yellow-300 transition-colors duration-300 shadow-lg flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-600"
+              aria-label="Learn about our no child pays to play mission"
             >
-              <FaHeart className="text-red-500 text-lg md:text-xl" />
+              <FaHeart className="text-red-500 text-lg md:text-xl" aria-hidden="true" />
               NO CHILD PAYS TO PLAY
             </motion.a>
             <motion.a
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               href="/join-team"
-              className="bg-white text-black px-6 py-3 md:px-8 md:py-4 rounded-lg font-bold text-base md:text-lg hover:bg-gray-100 transition-all duration-300 shadow-lg flex items-center justify-center gap-2"
+              className="bg-white text-black px-6 py-3 md:px-8 md:py-4 rounded-lg font-bold text-base md:text-lg hover:bg-gray-100 transition-all duration-300 shadow-lg flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-steel-blue"
+              aria-label="Join Wings of Steel sled hockey team"
             >
-              <FaUsers className="text-lg md:text-xl" />
+              <FaUsers className="text-lg md:text-xl" aria-hidden="true" />
               JOIN THE TEAM
             </motion.a>
           </div>
@@ -138,6 +140,7 @@ const Hero = () => {
         animate={{ y: [0, -10, 0] }}
         transition={{ repeat: Infinity, duration: 2 }}
         className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
+        aria-hidden="true"
       >
         <div className="w-6 h-10 border-2 border-white rounded-full flex justify-center">
           <div className="w-1 h-3 bg-white rounded-full mt-2 animate-bounce"></div>

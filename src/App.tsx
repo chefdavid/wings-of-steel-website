@@ -4,6 +4,7 @@ import { CartProvider } from './contexts/CartContext'
 import LoadingSpinner from './components/LoadingSpinner'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import ModalEscapeHandler from './components/ModalEscapeHandler'
+import { GlobalAriaLive } from './components/AriaLiveRegion'
 
 // Lazy load heavy components
 const TeamSite = lazy(() => import('./components/TeamSite'))
@@ -16,6 +17,7 @@ const JoinTeam = lazy(() => import('./pages/JoinTeam'))
 const PracticeSchedule = lazy(() => import('./pages/PracticeSchedule'))
 const PizzaPinsAndPop = lazy(() => import('./pages/PizzaPinsAndPop'))
 const PizzaPinsDashboard = lazy(() => import('./pages/PizzaPinsDashboard'))
+const AccessibilityStatement = lazy(() => import('./pages/AccessibilityStatement'))
 // Temporarily disable FeedbackAdmin until properly configured
 // const FeedbackAdmin = lazy(() => import('./components/FeedbackAdmin'))
 
@@ -23,6 +25,7 @@ function App() {
   return (
     <ErrorBoundary>
       <CartProvider>
+          <GlobalAriaLive />
           <ModalEscapeHandler />
           <Suspense fallback={<LoadingSpinner />}>
             <Routes>
@@ -37,7 +40,8 @@ function App() {
               <Route path="/practice-schedule" element={<PracticeSchedule />} />
               <Route path="/pizza-pins-pop" element={<PizzaPinsAndPop />} />
               <Route path="/pizza-pins-dashboard" element={<PizzaPinsDashboard />} />
-              
+              <Route path="/accessibility" element={<AccessibilityStatement />} />
+
               {/* Team-specific routes (for backwards compatibility) */}
               <Route path="/team/:team" element={<TeamSite />} />
               <Route path="/team/:team/admin" element={<Admin />} />

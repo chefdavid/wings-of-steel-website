@@ -144,9 +144,9 @@ const Team = () => {
                   {/* Back of card */}
                   <div className="flip-card-back bg-gradient-to-br from-team-primary to-team-secondary rounded-xl shadow-xl p-3 sm:p-4 md:p-6 flex items-center justify-center">
                     <div className="text-center text-white">
-                      <img 
+                      <img
                         src={getAvatarUrl(player.image_url, player.first_name, player.last_name, '#4682B4', 128)}
-                        alt={`${player.first_name} ${player.last_name}`}
+                        alt={`${player.first_name} ${player.last_name} - Wings of Steel player, jersey number ${player.jersey_number === 0 ? 'TBD' : player.jersey_number}, ${player.position}`}
                         className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-full mx-auto mb-2 sm:mb-3 border-2 sm:border-3 md:border-4 border-white shadow-lg object-cover"
                       />
                       <p className="font-bold text-xs sm:text-sm md:text-lg mb-0.5 sm:mb-1">{player.first_name} {player.last_name}</p>

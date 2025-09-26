@@ -142,9 +142,9 @@ const Navigation = () => {
                   transition={{ duration: 0.5 }}
                   className="flex items-center min-w-0"
                 >
-                  <img 
-                    src="/assets/wings-logo.webp" 
-                    alt="Wings of Steel Logo" 
+                  <img
+                    src="/assets/wings-logo.webp"
+                    alt="Wings of Steel Youth Sled Hockey Team Logo - Home" 
                     className="h-12 w-auto mr-4 group-hover:scale-105 transition-transform duration-200"
                     width="48"
                     height="48"
@@ -183,10 +183,17 @@ const Navigation = () => {
                     onMouseLeave={() => setActiveDropdown(null)}
                   >
                     <button
-                      className="flex items-center px-4 py-2 text-gray-300 hover:text-white hover:bg-steel-blue/20 rounded-md transition-all duration-200 font-sport tracking-wider"
+                      className="flex items-center px-4 py-2 text-gray-300 hover:text-white hover:bg-steel-blue/20 rounded-md transition-all duration-200 font-sport tracking-wider focus:outline-none focus:ring-2 focus:ring-ice-blue"
+                      aria-expanded={activeDropdown === item.key}
+                      aria-haspopup="true"
+                      aria-label={`${item.name} menu`}
+                      onClick={() => setActiveDropdown(activeDropdown === item.key ? null : item.key || null)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Escape') setActiveDropdown(null);
+                      }}
                     >
                       {item.name}
-                      <FaChevronDown className="ml-2 text-xs" />
+                      <FaChevronDown className="ml-2 text-xs" aria-hidden="true" />
                     </button>
 
                     {/* Mega Menu Dropdown */}
@@ -267,10 +274,12 @@ const Navigation = () => {
             <div className="lg:hidden">
               <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="text-gray-400 hover:text-white focus:outline-none focus:text-white p-2"
-                aria-label="Toggle menu"
+                className="text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-ice-blue focus:text-white p-2 rounded-md"
+                aria-label={isOpen ? "Close navigation menu" : "Open navigation menu"}
+                aria-expanded={isOpen}
+                aria-controls="mobile-menu"
               >
-                {isOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+                {isOpen ? <FaTimes size={24} aria-hidden="true" /> : <FaBars size={24} aria-hidden="true" />}
               </button>
             </div>
           </div>
@@ -285,6 +294,9 @@ const Navigation = () => {
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.3 }}
               className="lg:hidden bg-dark-steel/98 backdrop-blur-md border-t border-steel-blue/20"
+              id="mobile-menu"
+              role="region"
+              aria-label="Mobile navigation menu"
             >
               <div className="px-4 pt-2 pb-6 space-y-2">
                 {megaMenuItems.map((item) => (
