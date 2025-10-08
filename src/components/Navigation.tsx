@@ -73,6 +73,7 @@ const Navigation = () => {
           title: 'Events',
           items: [
             { name: 'Game Schedule', href: '/#schedule', isHashLink: true, description: '2025-2026 season games' },
+            { name: 'Game Highlights', href: '/game-highlights', isHashLink: false, description: 'Recaps, photos & moments' },
             { name: 'Practice Schedule', href: '/practice-schedule', isHashLink: false, description: 'All practice times' },
             { name: 'Pizza, Pins & Pop', href: '/pizza-pins-pop', isHashLink: false, description: 'Fundraiser event Oct 26', highlight: true }
           ]

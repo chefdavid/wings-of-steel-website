@@ -1,10 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaCalendarAlt, FaClock, FaMapMarkerAlt, FaTrophy, FaBan, FaHockeyPuck, FaHome, FaTimes, FaPhone, FaGlobe, FaDirections } from 'react-icons/fa';
-import { useGameSchedule } from '../hooks';
+import { FaCalendarAlt, FaClock, FaMapMarkerAlt, FaTrophy, FaBan, FaHockeyPuck, FaHome, FaTimes, FaPhone, FaGlobe, FaDirections, FaEye } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
+import { useGameSchedule, useGameHighlights } from '../hooks';
+import GameHighlightsPreview from './GameHighlightsPreview';
+import type { GameHighlight } from '../types/database';
 
 const Schedule = () => {
   const { upcomingGames, pastGames, loading, error } = useGameSchedule();
+  const { highlights } = useGameHighlights();
   const [showRinkModal, setShowRinkModal] = useState(false);
   const [selectedRink, setSelectedRink] = useState<{
     name: string;
@@ -14,6 +18,14 @@ const Schedule = () => {
     phone?: string;
     website?: string;
   } | null>(null);
+
+  // Filter published highlights and match with past games
+  const gamesWithHighlights = pastGames
+    .map(game => {
+      const highlight = highlights.find(h => h.game_id === game.id && h.is_published);
+      return highlight ? { game, highlight } : null;
+    })
+    .filter((item): item is { game: typeof pastGames[0]; highlight: GameHighlight } => item !== null);
 
   // Mapping of opponents to their rink information
   const awayRinks: { [key: string]: { name: string; address: string; phone?: string; website?: string } } = {
@@ -286,6 +298,33 @@ const Schedule = () => {
           </div>
         )}
 
+        {/* Game Highlights */}
+        {gamesWithHighlights.length > 0 && (
+          <div className="mb-16">
+            <motion.h3
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+              className="text-3xl font-bold text-dark-steel mb-8 flex items-center gap-3"
+            >
+              <FaTrophy className="text-yellow-500" />
+              Game Highlights
+            </motion.h3>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {gamesWithHighlights.slice(0, 6).map(({ game, highlight }, index) => (
+                <GameHighlightsPreview
+                  key={game.id}
+                  game={game}
+                  highlight={highlight}
+                  index={index}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Past Games */}
         {pastGames.length > 0 && (
           <motion.div
@@ -296,7 +335,7 @@ const Schedule = () => {
           >
             <h3 className="text-3xl font-bold text-dark-steel mb-8 flex items-center gap-3">
               <FaTrophy className="text-yellow-500" />
-              Recent Results
+              Previous Games
             </h3>
             
             <div className="bg-white rounded-2xl shadow-xl p-6">
@@ -304,6 +343,9 @@ const Schedule = () => {
                 {pastGames.slice(-5).reverse().map((game, index) => {
                   const dateInfo = formatDate(game.game_date || game.date || '');
                   const isHome = game.home_away === 'home' || game.home_game;
+                  const gameHighlight = highlights.find(h => h.game_id === game.id && h.is_published);
+                  const hasHighlight = !!gameHighlight;
+
                   return (
                     <motion.div
                       key={game.id}
@@ -313,16 +355,21 @@ const Schedule = () => {
                       viewport={{ once: true }}
                       className="flex flex-col md:flex-row md:items-center justify-between p-4 rounded-lg hover:bg-gray-50 transition-colors border-b last:border-0"
                     >
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-4 flex-1">
                         <div className="text-center">
                           <div className="text-2xl font-bold text-steel-blue">{dateInfo.day}</div>
                           <div className="text-xs text-gray-500">{dateInfo.month}</div>
                         </div>
-                        <div>
+                        <div className="flex-1">
                           <div className="font-semibold text-dark-steel flex items-center gap-2">
                             Wings of Steel vs {game.opponent}
                             {game.status === 'Complete' && (
                               <FaTrophy className="text-yellow-500 text-sm" />
+                            )}
+                            {hasHighlight && (
+                              <span className="bg-yellow-400 text-black text-xs px-2 py-0.5 rounded-full font-bold">
+                                HIGHLIGHTS
+                              </span>
                             )}
                           </div>
                           <div className="text-sm text-gray-600 flex items-center gap-3">
@@ -332,12 +379,23 @@ const Schedule = () => {
                           </div>
                         </div>
                       </div>
-                      <div className={`text-sm font-bold px-3 py-1 rounded-full ${
-                        game.status === 'Complete' 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-gray-100 text-gray-800'
-                      }`}>
-                        {game.status}
+                      <div className="flex items-center gap-3 mt-3 md:mt-0">
+                        {hasHighlight && (
+                          <Link
+                            to={`/game/${game.id}`}
+                            className="flex items-center gap-2 px-4 py-2 bg-steel-blue text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-semibold"
+                          >
+                            <FaEye />
+                            View Highlights
+                          </Link>
+                        )}
+                        <div className={`text-sm font-bold px-3 py-1 rounded-full ${
+                          game.status === 'Complete'
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-gray-100 text-gray-800'
+                        }`}>
+                          {game.status}
+                        </div>
                       </div>
                     </motion.div>
                   );

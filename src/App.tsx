@@ -18,6 +18,8 @@ const PracticeSchedule = lazy(() => import('./pages/PracticeSchedule'))
 const PizzaPinsAndPop = lazy(() => import('./pages/PizzaPinsAndPop'))
 const PizzaPinsDashboard = lazy(() => import('./pages/PizzaPinsDashboard'))
 const AccessibilityStatement = lazy(() => import('./pages/AccessibilityStatement'))
+const GamePage = lazy(() => import('./pages/GamePage'))
+const GameHighlightsGallery = lazy(() => import('./pages/GameHighlightsGallery'))
 // Temporarily disable FeedbackAdmin until properly configured
 // const FeedbackAdmin = lazy(() => import('./components/FeedbackAdmin'))
 
@@ -41,6 +43,8 @@ function App() {
               <Route path="/pizza-pins-pop" element={<PizzaPinsAndPop />} />
               <Route path="/pizza-pins-dashboard" element={<PizzaPinsDashboard />} />
               <Route path="/accessibility" element={<AccessibilityStatement />} />
+              <Route path="/game/:gameId" element={<GamePage />} />
+              <Route path="/game-highlights" element={<GameHighlightsGallery />} />
 
               {/* Team-specific routes (for backwards compatibility) */}
               <Route path="/team/:team" element={<TeamSite />} />

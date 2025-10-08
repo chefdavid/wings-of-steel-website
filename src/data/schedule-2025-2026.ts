@@ -18,7 +18,7 @@ export const schedule2025_2026: Omit<Game, 'id'>[] = [
     game_date: '2025-10-11',
     game_time: '10:45',
     opponent: 'Sled Stars',
-    location: 'NHL Rink',
+    location: 'Hollydell Ice Arena',
     home_away: 'away',
     season: '2025-2026',
     is_active: true
@@ -88,7 +88,7 @@ export const schedule2025_2026: Omit<Game, 'id'>[] = [
     game_date: '2026-01-31',
     game_time: '10:40',
     opponent: 'Sled Stars',
-    location: 'North Rink',
+    location: 'Hollydell Ice Arena',
     home_away: 'away',
     season: '2025-2026',
     is_active: true
@@ -99,7 +99,7 @@ export const schedule2025_2026: Omit<Game, 'id'>[] = [
     game_date: '2026-02-07',
     game_time: '18:10',
     opponent: 'Bennett Blazers',
-    location: 'Bennett',
+    location: 'Ice World',
     home_away: 'away',
     season: '2025-2026',
     is_active: true

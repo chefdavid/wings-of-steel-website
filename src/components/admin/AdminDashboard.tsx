@@ -1,18 +1,19 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { FaUsers, FaHockeyPuck, FaCalendarAlt, FaCog, FaSignOutAlt, FaBars, FaTimes, FaClock, FaImage, FaGolfBall, FaPizzaSlice } from 'react-icons/fa';
+import { FaUsers, FaHockeyPuck, FaCalendarAlt, FaCog, FaSignOutAlt, FaBars, FaTimes, FaClock, FaImage, FaGolfBall, FaPizzaSlice, FaTrophy } from 'react-icons/fa';
 import { Users } from 'lucide-react';
 import PlayerManagement from './PlayerManagement';
 import CoachManagement from './CoachManagement';
 import HeroSectionEditor from './HeroSectionEditor';
 import GameScheduleManagement from './GameScheduleManagement';
+import GameHighlightsManagement from './GameHighlightsManagement';
 import OpponentTeamsManagement from './OpponentTeamsManagement';
 import PracticeScheduleManagement from './PracticeScheduleManagement';
 import ImageBatchUpdate from './ImageBatchUpdate';
 import GolfOutingAdmin from './GolfOutingAdmin';
 import PizzaPinsDashboard from '../../pages/PizzaPinsDashboard';
 
-type AdminSection = 'players' | 'coaches' | 'site-sections' | 'schedule' | 'practice' | 'opponents' | 'settings' | 'batch-images' | 'golf-outing' | 'pizza-pins';
+type AdminSection = 'players' | 'coaches' | 'site-sections' | 'schedule' | 'game-highlights' | 'practice' | 'opponents' | 'settings' | 'batch-images' | 'golf-outing' | 'pizza-pins';
 
 interface AdminDashboardProps {
   onLogout: () => void;
@@ -30,6 +31,7 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
     { id: 'opponents' as AdminSection, label: 'Opponent Teams', icon: Users },
     { id: 'practice' as AdminSection, label: 'Practice Schedule', icon: FaClock },
     { id: 'schedule' as AdminSection, label: 'Game Schedule', icon: FaCalendarAlt },
+    { id: 'game-highlights' as AdminSection, label: 'Game Highlights', icon: FaTrophy },
     { id: 'site-sections' as AdminSection, label: 'Site Content', icon: FaCog },
     { id: 'batch-images' as AdminSection, label: 'Batch Update Images', icon: FaImage },
   ];
@@ -52,6 +54,8 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
         return <HeroSectionEditor />;
       case 'schedule':
         return <GameScheduleManagement />;
+      case 'game-highlights':
+        return <GameHighlightsManagement />;
       case 'batch-images':
         return <ImageBatchUpdate />;
       default:

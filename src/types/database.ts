@@ -130,3 +130,39 @@ export interface Game {
   home_game?: boolean;
   status?: "Scheduled" | "Cancelled" | "Complete";
 }
+
+export interface GamePhoto {
+  url: string;
+  caption?: string;
+  order: number;
+}
+
+export interface KeyMoment {
+  time: string;
+  description: string;
+}
+
+export interface PlayerHighlight {
+  player_name: string;
+  achievement: string;
+}
+
+export interface GameHighlight {
+  id: string;
+  game_id: string;
+  title?: string;
+  summary?: string;
+  final_score?: string;
+  key_moments: KeyMoment[];
+  player_highlights: PlayerHighlight[];
+  photos: GamePhoto[];
+  video_url?: string;
+  created_at: string;
+  updated_at: string;
+  created_by?: string;
+  is_published: boolean;
+}
+
+export interface GameWithHighlights extends Game {
+  highlights?: GameHighlight;
+}
