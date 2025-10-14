@@ -46,45 +46,76 @@ const GameScheduleManagement = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    console.log('📋 Form submitted with data:', formData);
+
     try {
+      // Validate required fields
+      if (!formData.game_date || !formData.opponent || !formData.location) {
+        alert('Please fill in all required fields');
+        return;
+      }
+
       // Extract date and time from the datetime-local input
       const [dateStr, timeStr] = formData.game_date.split('T');
-      
+
+      if (!dateStr || !timeStr) {
+        alert('Invalid date/time format. Please select a valid date and time.');
+        return;
+      }
+
       const gameData = {
         game_date: dateStr,
-        game_time: timeStr || formData.game_time,
-        opponent: formData.opponent,
-        location: formData.location,
+        game_time: timeStr,
+        opponent: formData.opponent.trim(),
+        location: formData.location.trim(),
         home_away: formData.home_away,
-        notes: formData.notes || null,
+        notes: formData.notes?.trim() || null,
         status: formData.status
       };
 
+      console.log('💾 Prepared game data:', gameData);
+
       if (editingGame) {
-        console.log('🚀 Updating game:', editingGame.id, gameData);
+        console.log('🚀 Updating game:', editingGame.id);
         const { data, error } = await supabase
           .from('game_schedules')
           .update(gameData)
           .eq('id', editingGame.id)
           .select();
-        
+
         console.log('✅ Update result:', { data, error });
-        if (error) throw error;
+
+        if (error) {
+          console.error('❌ Update error:', error);
+          alert(`Failed to update game: ${error.message}`);
+          return;
+        }
+
+        console.log('✅ Game updated successfully');
       } else {
-        console.log('🚀 Inserting new game:', gameData);
+        console.log('🚀 Inserting new game');
         const { data, error } = await supabase
           .from('game_schedules')
           .insert([gameData])
           .select();
-        
+
         console.log('✅ Insert result:', { data, error });
-        if (error) throw error;
+
+        if (error) {
+          console.error('❌ Insert error:', error);
+          alert(`Failed to add game: ${error.message}`);
+          return;
+        }
+
+        console.log('✅ Game added successfully');
       }
 
       await fetchGames();
       handleCancel();
     } catch (error) {
-      console.error('Error saving game:', error);
+      console.error('❌ Error saving game:', error);
+      alert(`An error occurred: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
@@ -142,18 +173,24 @@ const GameScheduleManagement = () => {
   const formatDate = (game: Game) => {
     // Handle new format with separate date and time
     if (game.game_date && game.game_time) {
-      const date = new Date(game.game_date + 'T' + game.game_time);
+      // Parse date parts to avoid timezone conversion issues
+      const [year, month, day] = game.game_date.split('-').map(Number);
+      const [hours, minutes] = game.game_time.split(':').map(Number);
+
+      // Create date object in local timezone
+      const date = new Date(year, month - 1, day, hours, minutes);
+
       return {
-        date: date.toLocaleDateString('en-US', { 
-          weekday: 'short', 
-          month: 'short', 
+        date: date.toLocaleDateString('en-US', {
+          weekday: 'short',
+          month: 'short',
           day: 'numeric',
           year: 'numeric'
         }),
-        time: date.toLocaleTimeString('en-US', { 
-          hour: 'numeric', 
+        time: date.toLocaleTimeString('en-US', {
+          hour: 'numeric',
           minute: '2-digit',
-          hour12: true 
+          hour12: true
         })
       };
     }
@@ -161,16 +198,16 @@ const GameScheduleManagement = () => {
     else if (game.date) {
       const date = new Date(game.date);
       return {
-        date: date.toLocaleDateString('en-US', { 
-          weekday: 'short', 
-          month: 'short', 
+        date: date.toLocaleDateString('en-US', {
+          weekday: 'short',
+          month: 'short',
           day: 'numeric',
           year: 'numeric'
         }),
-        time: date.toLocaleTimeString('en-US', { 
-          hour: 'numeric', 
+        time: date.toLocaleTimeString('en-US', {
+          hour: 'numeric',
           minute: '2-digit',
-          hour12: true 
+          hour12: true
         })
       };
     }
