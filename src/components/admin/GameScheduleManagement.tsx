@@ -19,8 +19,7 @@ const GameScheduleManagement = () => {
     opponent: '',
     location: '',
     home_away: 'home' as 'home' | 'away',
-    notes: '',
-    status: 'Scheduled' as Game['status']
+    notes: ''
   });
 
   useEffect(() => {
@@ -70,8 +69,7 @@ const GameScheduleManagement = () => {
         opponent: formData.opponent.trim(),
         location: formData.location.trim(),
         home_away: formData.home_away,
-        notes: formData.notes?.trim() || null,
-        status: formData.status
+        notes: formData.notes?.trim() || null
       };
 
       console.log('💾 Prepared game data:', gameData);
@@ -134,8 +132,7 @@ const GameScheduleManagement = () => {
       opponent: game.opponent || '',
       location: game.location || '',
       home_away: game.home_away || 'away',
-      notes: game.notes || '',
-      status: game.status || 'Scheduled'
+      notes: game.notes || ''
     });
     setShowForm(true);
   };
@@ -165,8 +162,7 @@ const GameScheduleManagement = () => {
       opponent: '',
       location: '',
       home_away: 'home' as 'home' | 'away',
-      notes: '',
-      status: 'Scheduled' as Game['status']
+      notes: ''
     });
   };
 
@@ -522,29 +518,14 @@ const GameScheduleManagement = () => {
                     </label>
                     <select
                       value={formData.home_away}
-                      onChange={(e) => setFormData({ 
-                        ...formData, 
+                      onChange={(e) => setFormData({
+                        ...formData,
                         home_away: e.target.value as 'home' | 'away'
                       })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-steel-blue focus:border-transparent outline-none"
                     >
                       <option value="home">Home Game</option>
                       <option value="away">Away Game</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Status
-                    </label>
-                    <select
-                      value={formData.status}
-                      onChange={(e) => setFormData({ ...formData, status: e.target.value as Game['status'] })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-steel-blue focus:border-transparent outline-none"
-                    >
-                      <option value="Scheduled">Scheduled</option>
-                      <option value="Complete">Complete</option>
-                      <option value="Cancelled">Cancelled</option>
                     </select>
                   </div>
                 </div>
