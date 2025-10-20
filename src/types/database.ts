@@ -157,6 +157,7 @@ export interface GameHighlight {
   player_highlights: PlayerHighlight[];
   photos: GamePhoto[];
   video_url?: string;
+  featured_photo_url?: string; // URL of the photo to display on the card
   created_at: string;
   updated_at: string;
   created_by?: string;

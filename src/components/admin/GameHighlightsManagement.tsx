@@ -29,6 +29,7 @@ export default function GameHighlightsManagement() {
   const [videoUrl, setVideoUrl] = useState('');
   const [isPublished, setIsPublished] = useState(false);
   const [photos, setPhotos] = useState<GamePhoto[]>([]);
+  const [featuredPhotoUrl, setFeaturedPhotoUrl] = useState<string>('');
   const [keyMoments, setKeyMoments] = useState<KeyMoment[]>([]);
   const [playerHighlights, setPlayerHighlights] = useState<PlayerHighlight[]>([]);
 
@@ -63,6 +64,7 @@ export default function GameHighlightsManagement() {
       setVideoUrl(highlight.video_url || '');
       setIsPublished(highlight.is_published);
       setPhotos(highlight.photos || []);
+      setFeaturedPhotoUrl(highlight.featured_photo_url || '');
       setKeyMoments(highlight.key_moments || []);
       setPlayerHighlights(highlight.player_highlights || []);
       setIsEditing(true);
@@ -88,6 +90,7 @@ export default function GameHighlightsManagement() {
     setVideoUrl('');
     setIsPublished(false);
     setPhotos([]);
+    setFeaturedPhotoUrl('');
     setKeyMoments([]);
     setPlayerHighlights([]);
     setCurrentHighlight(null);
@@ -225,6 +228,7 @@ export default function GameHighlightsManagement() {
         video_url: videoUrl,
         is_published: isPublished,
         photos,
+        featured_photo_url: featuredPhotoUrl || null,
         key_moments: keyMoments,
         player_highlights: playerHighlights,
       };
@@ -548,6 +552,36 @@ export default function GameHighlightsManagement() {
                 <div>
                   <label className="block font-semibold mb-2">Photos</label>
 
+                  {/* Featured Photo Preview */}
+                  {featuredPhotoUrl && (
+                    <div className="mb-4 p-4 bg-yellow-50 border-2 border-yellow-400 rounded-lg">
+                      <div className="flex items-start gap-4">
+                        <div className="flex-shrink-0">
+                          <img
+                            src={featuredPhotoUrl}
+                            alt="Featured"
+                            className="w-32 h-24 object-cover rounded-lg ring-2 ring-yellow-400"
+                          />
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-2xl">★</span>
+                            <h3 className="font-bold text-lg text-yellow-900">Featured Photo for Card</h3>
+                          </div>
+                          <p className="text-sm text-yellow-800">
+                            This photo will appear on the game highlight card in the gallery.
+                          </p>
+                          <button
+                            onClick={() => setFeaturedPhotoUrl('')}
+                            className="mt-2 text-sm text-yellow-900 underline hover:text-yellow-700"
+                          >
+                            Clear featured photo (use first photo instead)
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Upload Progress */}
                   {uploadProgress && (
                     <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
@@ -575,7 +609,9 @@ export default function GameHighlightsManagement() {
                         <img
                           src={photo.url}
                           alt={photo.caption || `Photo ${index + 1}`}
-                          className="w-full h-40 object-cover rounded-lg"
+                          className={`w-full h-40 object-cover rounded-lg ${
+                            featuredPhotoUrl === photo.url ? 'ring-4 ring-yellow-400' : ''
+                          }`}
                         />
                         <button
                           onClick={() => handleDeletePhoto(index)}
@@ -583,12 +619,31 @@ export default function GameHighlightsManagement() {
                         >
                           Delete
                         </button>
+                        <button
+                          onClick={() => setFeaturedPhotoUrl(photo.url)}
+                          className={`absolute bottom-2 left-2 px-2 py-1 rounded text-sm transition-all ${
+                            featuredPhotoUrl === photo.url
+                              ? 'bg-yellow-400 text-black font-bold'
+                              : 'bg-black/70 text-white opacity-0 group-hover:opacity-100'
+                          }`}
+                        >
+                          {featuredPhotoUrl === photo.url ? '★ Featured' : 'Set as Featured'}
+                        </button>
                         {photo.caption && (
                           <div className="text-xs text-gray-600 mt-1">{photo.caption}</div>
                         )}
                       </div>
                     ))}
                   </div>
+
+                  {photos.length > 0 && (
+                    <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                      <p className="text-sm text-blue-900">
+                        <span className="font-semibold">📌 Featured Photo:</span> Click "Set as Featured" on any photo to use it for the game highlight card.
+                        {featuredPhotoUrl ? ' Current featured photo has a yellow border.' : ' First photo will be used by default if none selected.'}
+                      </p>
+                    </div>
+                  )}
 
                   {/* Upload Controls */}
                   <div className="space-y-2">

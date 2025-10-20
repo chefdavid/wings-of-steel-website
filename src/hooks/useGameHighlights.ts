@@ -70,6 +70,7 @@ export function useGameHighlights(gameId?: string) {
           player_highlights: data.player_highlights || [],
           photos: data.photos || [],
           video_url: data.video_url || '',
+          featured_photo_url: data.featured_photo_url || null,
           is_published: data.is_published || false,
           created_by: data.created_by || '',
         })
@@ -101,6 +102,7 @@ export function useGameHighlights(gameId?: string) {
           player_highlights: data.player_highlights,
           photos: data.photos,
           video_url: data.video_url,
+          featured_photo_url: data.featured_photo_url,
           is_published: data.is_published,
         })
         .eq('id', id)

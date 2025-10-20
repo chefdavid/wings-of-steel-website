@@ -32,9 +32,9 @@ export default function GameHighlightsPreview({ game, highlight, index = 0 }: Ga
         <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden transform hover:-translate-y-1">
           {/* Header with Image or Gradient */}
           <div className="relative h-48 bg-gradient-to-br from-steel-blue via-dark-steel to-steel-blue overflow-hidden">
-            {highlight.photos && highlight.photos.length > 0 ? (
+            {(highlight.featured_photo_url || (highlight.photos && highlight.photos.length > 0)) ? (
               <img
-                src={highlight.photos[0].url}
+                src={highlight.featured_photo_url || highlight.photos[0].url}
                 alt={highlight.title || `Game vs ${game.opponent}`}
                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
               />
