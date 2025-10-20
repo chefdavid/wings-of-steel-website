@@ -1,4 +1,4 @@
-import { FaHeart, FaUniversalAccess } from 'react-icons/fa';
+import { FaHeart, FaUniversalAccess, FaFacebook } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
 const Footer = () => {
@@ -28,7 +28,17 @@ const Footer = () => {
             </a>
           </div>
 
-          <div className="mb-4">
+          <div className="mb-6 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <a
+              href="https://www.facebook.com/wingsofsteel"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-ice-blue hover:text-blue-400 transition-colors text-sm bg-steel-blue/30 px-4 py-2 rounded-lg hover:bg-steel-blue/50"
+              aria-label="Follow us on Facebook"
+            >
+              <FaFacebook className="text-2xl" aria-hidden="true" />
+              Follow Us on Facebook
+            </a>
             <Link
               to="/accessibility"
               className="inline-flex items-center gap-2 text-ice-blue hover:text-yellow-400 transition-colors text-sm"

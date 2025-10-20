@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaBars, FaTimes, FaChevronDown } from 'react-icons/fa';
+import { FaBars, FaTimes, FaChevronDown, FaFacebook } from 'react-icons/fa';
 import { Link, useLocation } from 'react-router-dom';
 
 const Navigation = () => {
@@ -262,13 +262,24 @@ const Navigation = () => {
                 )
               ))}
 
-              {/* CTA Button */}
-              <Link
-                to="/store"
-                className="ml-4 px-6 py-2 bg-steel-blue text-white rounded-full hover:bg-steel-blue/80 transition-all duration-200 font-sport tracking-wider shadow-lg"
-              >
-                Shop
-              </Link>
+              {/* Social & CTA Buttons */}
+              <div className="flex items-center gap-2">
+                <a
+                  href="https://www.facebook.com/wingsofsteel"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2 text-ice-blue hover:text-blue-400 hover:bg-steel-blue/20 rounded-full transition-all duration-200"
+                  aria-label="Follow us on Facebook"
+                >
+                  <FaFacebook className="text-2xl" />
+                </a>
+                <Link
+                  to="/store"
+                  className="px-6 py-2 bg-steel-blue text-white rounded-full hover:bg-steel-blue/80 transition-all duration-200 font-sport tracking-wider shadow-lg"
+                >
+                  Shop
+                </Link>
+              </div>
             </div>
 
             {/* Mobile menu button */}
@@ -371,15 +382,27 @@ const Navigation = () => {
                     </div>
                   )
                 ))}
-                
-                {/* Mobile CTA */}
-                <Link
-                  to="/store"
-                  onClick={() => setIsOpen(false)}
-                  className="block mt-4 px-6 py-3 bg-steel-blue text-white text-center rounded-full hover:bg-steel-blue/80 transition-all duration-200 font-sport tracking-wider"
-                >
-                  Visit Team Store
-                </Link>
+
+                {/* Mobile Social & CTA */}
+                <div className="mt-4 space-y-2">
+                  <a
+                    href="https://www.facebook.com/wingsofsteel"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white text-center rounded-full hover:bg-blue-700 transition-all duration-200 font-sport tracking-wider"
+                    aria-label="Follow us on Facebook"
+                  >
+                    <FaFacebook className="text-xl" />
+                    Follow on Facebook
+                  </a>
+                  <Link
+                    to="/store"
+                    onClick={() => setIsOpen(false)}
+                    className="block px-6 py-3 bg-steel-blue text-white text-center rounded-full hover:bg-steel-blue/80 transition-all duration-200 font-sport tracking-wider"
+                  >
+                    Visit Team Store
+                  </Link>
+                </div>
               </div>
             </motion.div>
           )}
