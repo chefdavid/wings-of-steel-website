@@ -301,8 +301,12 @@ export default function GameHighlightsManagement() {
             <div className="space-y-2 max-h-96 overflow-y-auto">
               {games.map((game) => {
                 const hasHighlight = highlights.some((h) => h.game_id === game.id);
-                const gameDate = new Date(game.game_date || game.date || '');
+                const dateString = game.game_date || game.date || '';
+                const gameDate = new Date(dateString + 'T00:00:00');
                 const isPastGame = gameDate < new Date();
+
+                // Format date properly to avoid timezone issues
+                const formattedDate = `${gameDate.getMonth() + 1}/${gameDate.getDate()}/${gameDate.getFullYear()}`;
 
                 return (
                   <button
@@ -318,7 +322,7 @@ export default function GameHighlightsManagement() {
                       <div>
                         <div className="font-semibold">vs {game.opponent}</div>
                         <div className="text-sm opacity-80">
-                          {new Date(game.game_date || game.date || '').toLocaleDateString()}
+                          {formattedDate}
                         </div>
                         {game.result && <div className="text-sm opacity-80">Score: {game.result}</div>}
                       </div>
@@ -357,7 +361,11 @@ export default function GameHighlightsManagement() {
               <div className="mb-4 p-4 bg-gray-100 rounded-lg">
                 <h3 className="font-semibold">Game: Wings of Steel vs {selectedGame.opponent}</h3>
                 <p className="text-sm text-gray-600">
-                  {new Date(selectedGame.game_date || selectedGame.date || '').toLocaleDateString()} at{' '}
+                  {(() => {
+                    const dateString = selectedGame.game_date || selectedGame.date || '';
+                    const gameDate = new Date(dateString + 'T00:00:00');
+                    return `${gameDate.getMonth() + 1}/${gameDate.getDate()}/${gameDate.getFullYear()}`;
+                  })()} at{' '}
                   {selectedGame.location}
                 </p>
               </div>
