@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useGameSchedule, useGameHighlights } from '../../hooks';
 import type { Game, GameHighlight, GamePhoto, KeyMoment, PlayerHighlight } from '../../types/database';
 import { compressMultipleImages, formatFileSize, isValidImage, isValidFileSize } from '../../utils/imageCompression';
+import { supabase } from '../../lib/supabaseClient';
 
 export default function GameHighlightsManagement() {
   const { games, loading: gamesLoading } = useGameSchedule();
@@ -24,6 +25,7 @@ export default function GameHighlightsManagement() {
   const [title, setTitle] = useState('');
   const [summary, setSummary] = useState('');
   const [finalScore, setFinalScore] = useState('');
+  const [gameResult, setGameResult] = useState<'W' | 'L' | 'T' | ''>('');
   const [videoUrl, setVideoUrl] = useState('');
   const [isPublished, setIsPublished] = useState(false);
   const [photos, setPhotos] = useState<GamePhoto[]>([]);
@@ -68,12 +70,21 @@ export default function GameHighlightsManagement() {
       resetForm();
       setIsEditing(false);
     }
+
+    // Load game result from the selected game
+    if (selectedGame?.result) {
+      const resultPrefix = selectedGame.result.charAt(0).toUpperCase();
+      if (resultPrefix === 'W' || resultPrefix === 'L' || resultPrefix === 'T') {
+        setGameResult(resultPrefix as 'W' | 'L' | 'T');
+      }
+    }
   };
 
   const resetForm = () => {
     setTitle('');
     setSummary('');
     setFinalScore('');
+    setGameResult('');
     setVideoUrl('');
     setIsPublished(false);
     setPhotos([]);
@@ -226,6 +237,22 @@ export default function GameHighlightsManagement() {
         setMessage({ type: 'success', text: 'Highlight created successfully' });
       }
 
+      // Update game result in game_schedules if provided
+      if (gameResult && finalScore) {
+        const resultString = `${gameResult} ${finalScore}`;
+        const { error: gameUpdateError } = await supabase
+          .from('game_schedules')
+          .update({ result: resultString })
+          .eq('id', selectedGame.id);
+
+        if (gameUpdateError) {
+          console.error('Error updating game result:', gameUpdateError);
+          setMessage({ type: 'error', text: 'Highlight saved but failed to update game result' });
+        } else {
+          setMessage({ type: 'success', text: 'Highlight and game result saved successfully!' });
+        }
+      }
+
       await loadHighlightForGame(selectedGame.id);
     } catch (error) {
       setMessage({ type: 'error', text: 'Failed to save highlight' });
@@ -358,6 +385,49 @@ export default function GameHighlightsManagement() {
                     placeholder="e.g., 5-2"
                     className="w-full px-4 py-2 border rounded-lg"
                   />
+                </div>
+
+                {/* Game Result */}
+                <div>
+                  <label className="block font-semibold mb-2">Game Result</label>
+                  <div className="flex gap-4">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="gameResult"
+                        value="W"
+                        checked={gameResult === 'W'}
+                        onChange={(e) => setGameResult(e.target.value as 'W')}
+                        className="w-5 h-5"
+                      />
+                      <span className="font-medium text-green-700">Win</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="gameResult"
+                        value="L"
+                        checked={gameResult === 'L'}
+                        onChange={(e) => setGameResult(e.target.value as 'L')}
+                        className="w-5 h-5"
+                      />
+                      <span className="font-medium text-red-700">Loss</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="gameResult"
+                        value="T"
+                        checked={gameResult === 'T'}
+                        onChange={(e) => setGameResult(e.target.value as 'T')}
+                        className="w-5 h-5"
+                      />
+                      <span className="font-medium text-gray-700">Tie</span>
+                    </label>
+                  </div>
+                  <p className="text-xs text-gray-600 mt-2">
+                    This will update the victories counter on the schedule page. Result format: "{gameResult || 'W'} {finalScore || '5-2'}"
+                  </p>
                 </div>
 
                 {/* Summary */}
