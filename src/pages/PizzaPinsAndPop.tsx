@@ -263,9 +263,9 @@ export default function PizzaPinsAndPop() {
                        selectedAddOns.reduce((sum, addon) => sum + addon.price, 0) +
                        (donationAmount ? parseInt(donationAmount) * 100 : 0);
 
-    // Send email notifications using Netlify
+    // Send email notifications using proper email service
     try {
-      await fetch('/.netlify/functions/send-emails-pizza-pins', {
+      await fetch('/.netlify/functions/send-pizza-pins-emails', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -286,7 +286,7 @@ export default function PizzaPinsAndPop() {
           paymentIntentId: paymentIntent.id
         }),
       });
-      console.log('Email notifications sent via Netlify');
+      console.log('Email notifications sent successfully');
     } catch (error) {
       console.error('Failed to send email notifications:', error);
       // Don't block the success flow if email fails
