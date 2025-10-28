@@ -1245,7 +1245,7 @@ const PlayerManagement = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Biography
+                    Biography (Optional)
                   </label>
                   <textarea
                     value={formData.bio}
@@ -1253,14 +1253,13 @@ const PlayerManagement = () => {
                     rows={4}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-steel-blue focus:border-transparent outline-none"
                     placeholder="Tell us about this player..."
-                    required
                   />
                 </div>
 
                 {/* Player Notes */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Player Notes
+                    Player Notes (Optional)
                   </label>
                   <textarea
                     value={formData.player_notes}
