@@ -212,7 +212,7 @@ const PlayerManagement = () => {
           .from('players')
           .insert([playerData])
           .select();
-        
+
         console.log('✅ Insert result:', { data, error });
         if (error) {
           // Check if error is due to missing 'active' column
@@ -223,15 +223,57 @@ const PlayerManagement = () => {
               .from('players')
               .insert([playerDataWithoutActive])
               .select();
-            
+
             if (retryError) {
               console.error('❌ Retry insert error:', retryError);
               throw retryError;
             }
             console.log('🎉 Player inserted successfully (without active field):', retryData);
+
+            // Assign player to the youth team
+            if (retryData && retryData[0]) {
+              console.log('📝 Assigning player to youth team...');
+              const { error: teamError } = await dbClient
+                .from('player_teams')
+                .insert([{
+                  player_id: retryData[0].id,
+                  team_type: 'youth',
+                  jersey_number: parseInt(formData.jersey_number),
+                  position: formData.position,
+                  is_captain: formData.tags.some(tag => tag.toLowerCase().includes('captain'))
+                }]);
+
+              if (teamError) {
+                console.error('❌ Error assigning player to team:', teamError);
+              } else {
+                console.log('✅ Player assigned to youth team successfully');
+              }
+            }
+
             alert('⚠️ Player added, but Active/Inactive status could not be saved.\\n\\nThe database needs an "active" column. Please contact your administrator to add this column to enable active/inactive functionality.');
           } else {
             throw error;
+          }
+        }
+
+        // After successful insert, assign player to the youth team
+        if (data && data[0]) {
+          console.log('📝 Assigning player to youth team...');
+          const { error: teamError } = await dbClient
+            .from('player_teams')
+            .insert([{
+              player_id: data[0].id,
+              team_type: 'youth',
+              jersey_number: parseInt(formData.jersey_number),
+              position: formData.position,
+              is_captain: formData.tags.some(tag => tag.toLowerCase().includes('captain'))
+            }]);
+
+          if (teamError) {
+            console.error('❌ Error assigning player to team:', teamError);
+            alert('⚠️ Player was created but could not be assigned to the team. Please contact your administrator.');
+          } else {
+            console.log('✅ Player assigned to youth team successfully');
           }
         }
       }
