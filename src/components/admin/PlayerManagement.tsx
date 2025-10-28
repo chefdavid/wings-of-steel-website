@@ -95,6 +95,7 @@ const PlayerManagement = () => {
         first_name: formData.first_name,
         last_name: formData.last_name,
         birthdate: formData.birthdate,
+        age: formData.birthdate ? calculateAge(formData.birthdate) : 15, // Calculate age from birthdate
         start_date: formData.start_date,
         position: formData.position,
         bio: formData.bio,
