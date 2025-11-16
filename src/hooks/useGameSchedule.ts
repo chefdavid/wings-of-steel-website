@@ -37,10 +37,39 @@ export function useGameSchedule() {
     const past: Game[] = [];
     const upcoming: Game[] = [];
 
+    const getGameDateTime = (game: Game) => {
+      const datePart = game.game_date || game.date;
+      if (!datePart) return null;
+
+      // Force local midnight to avoid timezone conversions pushing the game into the previous day
+      const date = new Date(`${datePart}T00:00:00`);
+      const timePart = game.game_time;
+
+      if (timePart) {
+        const [hourStr, minuteStr] = timePart.split(':');
+        const hours = Number(hourStr);
+        const minutes = Number(minuteStr) || 0;
+
+        if (!Number.isNaN(hours)) {
+          date.setHours(hours, minutes, 0, 0);
+        }
+      }
+
+      return date;
+    };
+
     games.forEach(game => {
-      // Use game_date if available, fallback to date for legacy
-      const gameDate = game.game_date || game.date;
-      if (gameDate && new Date(gameDate) < now) {
+      const gameDateTime = getGameDateTime(game);
+
+      if (!gameDateTime) {
+        upcoming.push(game);
+        return;
+      }
+
+      const gracePeriodEnd = new Date(gameDateTime);
+      gracePeriodEnd.setDate(gracePeriodEnd.getDate() + 2);
+
+      if (gracePeriodEnd < now) {
         past.push(game);
       } else {
         upcoming.push(game);
