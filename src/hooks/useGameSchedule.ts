@@ -38,20 +38,39 @@ export function useGameSchedule() {
     const upcoming: Game[] = [];
 
     const getGameDateTime = (game: Game) => {
-      const datePart = game.game_date || game.date;
-      if (!datePart) return null;
+      const datePart = game.game_date || (game.date ? game.date.split('T')[0] : null);
+      if (!datePart) return game.date ? new Date(game.date) : null;
 
-      // Force local midnight to avoid timezone conversions pushing the game into the previous day
-      const date = new Date(`${datePart}T00:00:00`);
+      const [yearStr, monthStr, dayStr] = datePart.split('-');
+      const year = Number(yearStr);
+      const month = Number(monthStr);
+      const day = Number(dayStr);
+
+      if (
+        Number.isNaN(year) ||
+        Number.isNaN(month) ||
+        Number.isNaN(day)
+      ) {
+        return game.date ? new Date(game.date) : null;
+      }
+
+      // Construct the date using local timezone to avoid implicit UTC conversion
+      const date = new Date(year, month - 1, day, 0, 0, 0, 0);
       const timePart = game.game_time;
 
       if (timePart) {
-        const [hourStr, minuteStr] = timePart.split(':');
+        const [hourStr, minuteStr, secondStr] = timePart.split(':');
         const hours = Number(hourStr);
         const minutes = Number(minuteStr) || 0;
+        const seconds = Number(secondStr) || 0;
 
         if (!Number.isNaN(hours)) {
-          date.setHours(hours, minutes, 0, 0);
+          date.setHours(hours, minutes, seconds, 0);
+        }
+      } else if (game.date) {
+        const legacyDate = new Date(game.date);
+        if (!Number.isNaN(legacyDate.getTime())) {
+          return legacyDate;
         }
       }
 
