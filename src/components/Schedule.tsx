@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaCalendarAlt, FaClock, FaMapMarkerAlt, FaTrophy, FaBan, FaHockeyPuck, FaHome, FaTimes, FaPhone, FaGlobe, FaDirections, FaEye } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
@@ -101,6 +101,16 @@ const Schedule = () => {
     return `${displayHour}:${minutes} ${ampm}`;
   };
 
+  const isGameToday = (gameDate: string | null | undefined) => {
+    if (!gameDate) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    // Handle date string format (YYYY-MM-DD)
+    const game = new Date(gameDate + 'T00:00:00');
+    game.setHours(0, 0, 0, 0);
+    return game.getTime() === today.getTime();
+  };
+
   return (
     <section id="schedule" className="py-20 bg-gradient-to-br from-gray-50 via-white to-ice-blue/10 relative overflow-hidden">
       {/* Background decoration */}
@@ -188,6 +198,7 @@ const Schedule = () => {
               {upcomingGames.map((game, index) => {
                 const dateInfo = formatDate(game.game_date || game.date || '');
                 const isHome = game.home_away === 'home' || game.home_game;
+                const isToday = isGameToday(game.game_date || game.date);
                 return (
                   <motion.div
                     key={game.id}
@@ -198,12 +209,58 @@ const Schedule = () => {
                     className="group"
                   >
                     <div className="relative bg-gradient-to-r from-white to-gray-50 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden transform hover:-translate-y-1">
-                      {/* Background Hockey Puck */}
-                      <div className="absolute right-0 top-1/2 -translate-y-1/2 opacity-5 pointer-events-none">
-                        <FaHockeyPuck className="text-[120px] text-steel-blue transform rotate-12" />
-                      </div>
+                      {/* TODAY Flag - Diagonal Corner Banner */}
+                      {isToday && (
+                        <>
+                          {/* Mobile Flag */}
+                          <div className="absolute top-0 right-0 z-30 pointer-events-none overflow-hidden w-[140px] h-[140px] md:hidden">
+                            <div 
+                              className="absolute bg-red-600 text-white text-[10px] font-bold py-2 shadow-lg"
+                              style={{
+                                top: '15px',
+                                right: '-22px',
+                                transform: 'rotate(45deg)',
+                                transformOrigin: 'center',
+                                width: '140px',
+                                paddingLeft: '45px',
+                                paddingRight: '45px',
+                                textAlign: 'center',
+                                letterSpacing: '0.5px'
+                              }}
+                            >
+                              TODAY
+                            </div>
+                          </div>
+                          {/* Desktop Flag */}
+                          <div className="absolute top-0 right-0 z-30 pointer-events-none overflow-hidden w-[280px] h-[280px] hidden md:block">
+                            <div 
+                              className="absolute bg-red-600 text-white text-xs font-bold py-4 shadow-lg"
+                              style={{
+                                top: '30px',
+                                right: '-45px',
+                                transform: 'rotate(45deg)',
+                                transformOrigin: 'center',
+                                width: '280px',
+                                paddingLeft: '90px',
+                                paddingRight: '90px',
+                                textAlign: 'center',
+                                letterSpacing: '0.5px'
+                              }}
+                            >
+                              TODAY
+                            </div>
+                          </div>
+                        </>
+                      )}
                       
-                      <div className="relative flex items-stretch">
+                      {/* Inner container */}
+                      <div className="relative">
+                        {/* Background Hockey Puck */}
+                        <div className="absolute right-0 top-1/2 -translate-y-1/2 opacity-5 pointer-events-none">
+                          <FaHockeyPuck className="text-[120px] text-steel-blue transform rotate-12" />
+                        </div>
+                        
+                        <div className="relative flex items-stretch">
                         {/* Date Block with Gradient */}
                         <div className="bg-gradient-to-br from-steel-blue via-steel-blue to-dark-steel p-5 md:p-7 text-white text-center w-28 md:w-36 rounded-l-2xl relative overflow-hidden">
                           <div className="absolute inset-0 bg-black opacity-10"></div>
@@ -263,7 +320,7 @@ const Schedule = () => {
                                       setSelectedRink({
                                         ...rinkInfo,
                                         opponent: game.opponent,
-                                        isHome
+                                        isHome: !!isHome
                                       });
                                     } else {
                                       // Fallback to home rink modal if no away rink info
@@ -289,6 +346,7 @@ const Schedule = () => {
                             )}
                           </div>
                         </div>
+                      </div>
                       </div>
                     </div>
                   </motion.div>
