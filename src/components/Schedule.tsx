@@ -231,20 +231,20 @@ const Schedule = () => {
                               TODAY
                             </div>
                           </div>
-                          {/* Desktop Flag */}
-                          <div className="absolute top-0 right-0 z-30 pointer-events-none overflow-hidden w-[280px] h-[280px] hidden md:block">
+                          {/* Desktop Flag - Full Corner Coverage */}
+                          <div className="absolute top-0 right-0 z-30 pointer-events-none overflow-hidden w-[320px] h-[320px] hidden md:block">
                             <div 
-                              className="absolute bg-red-600 text-white text-xs font-bold py-4 shadow-lg"
+                              className="absolute bg-red-600 text-white text-base font-bold py-6 shadow-lg"
                               style={{
-                                top: '30px',
-                                right: '-45px',
+                                top: '45px',
+                                right: '-55px',
                                 transform: 'rotate(45deg)',
                                 transformOrigin: 'center',
-                                width: '280px',
-                                paddingLeft: '90px',
-                                paddingRight: '90px',
+                                width: '320px',
+                                paddingLeft: '110px',
+                                paddingRight: '110px',
                                 textAlign: 'center',
-                                letterSpacing: '0.5px'
+                                letterSpacing: '1.5px'
                               }}
                             >
                               TODAY
