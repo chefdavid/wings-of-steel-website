@@ -103,12 +103,62 @@ const Schedule = () => {
 
   const isGameToday = (gameDate: string | null | undefined) => {
     if (!gameDate) return false;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    // Handle date string format (YYYY-MM-DD)
-    const game = new Date(gameDate + 'T00:00:00');
-    game.setHours(0, 0, 0, 0);
-    return game.getTime() === today.getTime();
+    
+    // Get current date and time in EST/EDT
+    const getESTDateTime = () => {
+      const now = new Date();
+      const formatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/New_York',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      });
+      
+      const parts = formatter.formatToParts(now);
+      const year = parseInt(parts.find(p => p.type === 'year')?.value || '0');
+      const month = parseInt(parts.find(p => p.type === 'month')?.value || '0') - 1;
+      const day = parseInt(parts.find(p => p.type === 'day')?.value || '0');
+      const hour = parseInt(parts.find(p => p.type === 'hour')?.value || '0');
+      
+      return { date: new Date(year, month, day), hour };
+    };
+    
+    const estNow = getESTDateTime();
+    const estDate = estNow.date;
+    const estHour = estNow.hour;
+    
+    // Parse game date
+    const gameDateObj = new Date(gameDate + 'T00:00:00');
+    const gameYear = gameDateObj.getFullYear();
+    const gameMonth = gameDateObj.getMonth();
+    const gameDay = gameDateObj.getDate();
+    
+    // Game is "today" if:
+    // 1. Current EST date matches game date, OR
+    // 2. Current EST date is the day after the game but before 1 AM EST
+    const estDateYear = estDate.getFullYear();
+    const estDateMonth = estDate.getMonth();
+    const estDateDay = estDate.getDate();
+    
+    // Check if it's the game date
+    const isGameDate = 
+      estDateYear === gameYear &&
+      estDateMonth === gameMonth &&
+      estDateDay === gameDay;
+    
+    // Check if it's the day after but before 1 AM EST
+    const nextDay = new Date(gameYear, gameMonth, gameDay + 1);
+    const isDayAfterBefore1AM = 
+      estDateYear === nextDay.getFullYear() &&
+      estDateMonth === nextDay.getMonth() &&
+      estDateDay === nextDay.getDate() &&
+      estHour < 1;
+    
+    return isGameDate || isDayAfterBefore1AM;
   };
 
   return (

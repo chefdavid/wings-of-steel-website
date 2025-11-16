@@ -8,6 +8,7 @@ import Admin from './Admin';
 import type { TeamType } from '../types/team';
 
 // Lazy load sections that are below the fold
+const TodayGameCard = lazy(() => import('./TodayGameCard'));
 const About = lazy(() => import('./About'));
 const Team = lazy(() => import('./Team'));
 const Schedule = lazy(() => import('./Schedule'));
@@ -54,6 +55,7 @@ const TeamSite: React.FC = () => {
         <main id="main-content" className="pt-20">
           <Hero />
           <Suspense fallback={<div className="h-32" />}>
+            <TodayGameCard />
             <About />
             <Team />
             <Schedule />

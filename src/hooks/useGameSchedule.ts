@@ -33,9 +33,35 @@ export function useGameSchedule() {
   }, []);
 
   const { pastGames, upcomingGames } = useMemo(() => {
-    // Set to start of today for date comparison
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    // Get current date and time in EST/EDT
+    const getESTDateTime = () => {
+      const now = new Date();
+      // Format current time in EST/EDT timezone
+      const formatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/New_York',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      });
+      
+      const parts = formatter.formatToParts(now);
+      const year = parseInt(parts.find(p => p.type === 'year')?.value || '0');
+      const month = parseInt(parts.find(p => p.type === 'month')?.value || '0') - 1;
+      const day = parseInt(parts.find(p => p.type === 'day')?.value || '0');
+      const hour = parseInt(parts.find(p => p.type === 'hour')?.value || '0');
+      const minute = parseInt(parts.find(p => p.type === 'minute')?.value || '0');
+      const second = parseInt(parts.find(p => p.type === 'second')?.value || '0');
+      
+      return { date: new Date(year, month, day), hour, minute, second };
+    };
+    
+    const estNow = getESTDateTime();
+    const estDate = estNow.date;
+    const estHour = estNow.hour;
     
     const past: Game[] = [];
     const upcoming: Game[] = [];
@@ -44,23 +70,33 @@ export function useGameSchedule() {
       // Use game_date if available, fallback to date for legacy
       const gameDate = game.game_date || game.date;
       if (gameDate) {
-        // Parse game date and set to start of day for comparison
-        const gameDateObj = new Date(gameDate);
-        const gameDateOnly = new Date(gameDateObj.getFullYear(), gameDateObj.getMonth(), gameDateObj.getDate());
+        // Parse game date
+        const gameDateObj = new Date(gameDate + 'T00:00:00');
+        const gameYear = gameDateObj.getFullYear();
+        const gameMonth = gameDateObj.getMonth();
+        const gameDay = gameDateObj.getDate();
         
-        // Games should show if they are today or within 2 days after the game date
-        // Only move to past if more than 2 days have passed since the game date
-        if (gameDateOnly < today) {
-          // Check if more than 2 days have passed
-          const daysDiff = Math.floor((today.getTime() - gameDateOnly.getTime()) / (1000 * 60 * 60 * 24));
-          if (daysDiff > 2) {
-            past.push(game);
-          } else {
-            // Still within 2 days, show as upcoming
-            upcoming.push(game);
-          }
+        // Cutoff is the day after the game at 1 AM EST
+        const cutoffDate = new Date(gameYear, gameMonth, gameDay + 1);
+        const cutoffYear = cutoffDate.getFullYear();
+        const cutoffMonth = cutoffDate.getMonth();
+        const cutoffDay = cutoffDate.getDate();
+        
+        // Compare: check if current EST is past the cutoff (game date + 1 day at 1 AM EST)
+        const estDateYear = estDate.getFullYear();
+        const estDateMonth = estDate.getMonth();
+        const estDateDay = estDate.getDate();
+        
+        // Check if we're past 1 AM EST on the day after the game
+        const isAfterCutoff = 
+          (estDateYear > cutoffYear) ||
+          (estDateYear === cutoffYear && estDateMonth > cutoffMonth) ||
+          (estDateYear === cutoffYear && estDateMonth === cutoffMonth && estDateDay > cutoffDay) ||
+          (estDateYear === cutoffYear && estDateMonth === cutoffMonth && estDateDay === cutoffDay && estHour >= 1);
+        
+        if (isAfterCutoff) {
+          past.push(game);
         } else {
-          // Game is today or in the future
           upcoming.push(game);
         }
       } else {
