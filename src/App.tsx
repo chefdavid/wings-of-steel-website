@@ -5,6 +5,7 @@ import LoadingSpinner from './components/LoadingSpinner'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import ModalEscapeHandler from './components/ModalEscapeHandler'
 import { GlobalAriaLive } from './components/AriaLiveRegion'
+import ProtectedEventRoute from './components/ProtectedEventRoute'
 
 // Lazy load heavy components
 const TeamSite = lazy(() => import('./components/TeamSite'))
@@ -37,10 +38,18 @@ function App() {
               <Route path="/opponents" element={<OpponentTeams />} />
               <Route path="/store" element={<StorePage />} />
               <Route path="/gallery" element={<LocalGallery />} />
-              <Route path="/golf-outing" element={<GolfOuting />} />
+              <Route path="/golf-outing" element={
+                <ProtectedEventRoute eventKey="golf-outing">
+                  <GolfOuting />
+                </ProtectedEventRoute>
+              } />
               <Route path="/join-team" element={<JoinTeam />} />
               <Route path="/practice-schedule" element={<PracticeSchedule />} />
-              <Route path="/pizza-pins-pop" element={<PizzaPinsAndPop />} />
+              <Route path="/pizza-pins-pop" element={
+                <ProtectedEventRoute eventKey="pizza-pins-pop">
+                  <PizzaPinsAndPop />
+                </ProtectedEventRoute>
+              } />
               <Route path="/pizza-pins-dashboard" element={<PizzaPinsDashboard />} />
               <Route path="/accessibility" element={<AccessibilityStatement />} />
               <Route path="/game/:gameId" element={<GamePage />} />

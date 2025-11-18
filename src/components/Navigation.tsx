@@ -1,12 +1,14 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaBars, FaTimes, FaChevronDown, FaFacebook } from 'react-icons/fa';
 import { Link, useLocation } from 'react-router-dom';
+import { useEventVisibility } from '../hooks/useEventVisibility';
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const location = useLocation();
+  const { isEventVisible, loading: visibilityLoading } = useEventVisibility();
 
   const handleHashLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
@@ -43,84 +45,136 @@ const Navigation = () => {
     setIsOpen(false);
   };
 
-  const megaMenuItems = [
-    { name: 'Home', href: '/', isHashLink: false, standalone: true, forceReload: true },
-    {
-      name: 'Team',
-      key: 'team',
-      sections: [
-        {
-          title: 'About Us',
-          items: [
-            { name: 'Our Mission', href: '/#about', isHashLink: true, description: 'Learn about Wings of Steel' },
-            { name: 'Location', href: '/#location', isHashLink: true, description: 'Find our practice facility' }
-          ]
-        },
-        {
-          title: 'Roster',
-          items: [
-            { name: 'Players', href: '/#team-players', isHashLink: true, description: 'Meet our athletes' },
-            { name: 'Coaches', href: '/#team-coaches', isHashLink: true, description: 'Our coaching staff' }
-          ]
-        }
-      ]
-    },
-    {
-      name: 'Schedule',
-      key: 'schedule',
-      sections: [
-        {
-          title: 'Events',
-          items: [
-            { name: 'Game Schedule', href: '/#schedule', isHashLink: true, description: '2025-2026 season games' },
-            { name: 'Game Highlights', href: '/game-highlights', isHashLink: false, description: 'Recaps, photos & moments' },
-            { name: 'Practice Schedule', href: '/practice-schedule', isHashLink: false, description: 'All practice times' },
-            { name: 'Pizza, Pins & Pop', href: '/pizza-pins-pop', isHashLink: false, description: 'Fundraiser event Oct 26', highlight: true }
-          ]
-        }
-      ]
-    },
-    {
-      name: 'Experience',
-      key: 'experience',
-      sections: [
-        {
-          title: 'Media',
-          items: [
-            { name: 'Photo Gallery', href: '/gallery', isHashLink: false, description: 'Tournament photos & memories' },
-            { name: 'Team Store', href: '/store', isHashLink: false, description: 'Official merchandise' }
-          ]
-        },
-        {
-          title: 'Competition',
-          items: [
-            { name: 'Opponents', href: '/opponents', isHashLink: false, description: 'Teams we compete against' }
-          ]
-        }
-      ]
-    },
-    {
-      name: 'Connect',
-      key: 'connect',
-      sections: [
-        {
-          title: 'Get Involved',
-          items: [
-            { name: 'Join the Team', href: '/join-team', isHashLink: false, description: 'Become a player or volunteer' },
-            { name: 'Support Us', href: '/#get-involved', isHashLink: true, description: 'Ways to help our mission' }
-          ]
-        },
-        {
-          title: 'Contact',
-          items: [
-            { name: 'Contact Us', href: '/#contact', isHashLink: true, description: 'Get in touch with our team' }
-          ]
-        }
-      ]
-    },
-    { name: 'Golf Outing', href: '/golf-outing', isHashLink: false, standalone: true, highlight: true },
-    { name: '🎳 Pizza & Pins', href: '/pizza-pins-pop', isHashLink: false, standalone: true, highlight: true, cta: true }
-  ];
+  // Filter menu items based on event visibility
+  const megaMenuItems = useMemo(() => {
+    const allItems = [
+      { name: 'Home', href: '/', isHashLink: false, standalone: true, forceReload: true },
+      {
+        name: 'Team',
+        key: 'team',
+        sections: [
+          {
+            title: 'About Us',
+            items: [
+              { name: 'Our Mission', href: '/#about', isHashLink: true, description: 'Learn about Wings of Steel' },
+              { name: 'Location', href: '/#location', isHashLink: true, description: 'Find our practice facility' }
+            ]
+          },
+          {
+            title: 'Roster',
+            items: [
+              { name: 'Players', href: '/#team-players', isHashLink: true, description: 'Meet our athletes' },
+              { name: 'Coaches', href: '/#team-coaches', isHashLink: true, description: 'Our coaching staff' }
+            ]
+          }
+        ]
+      },
+      {
+        name: 'Schedule',
+        key: 'schedule',
+        sections: [
+          {
+            title: 'Events',
+            items: [
+              { name: 'Game Schedule', href: '/#schedule', isHashLink: true, description: '2025-2026 season games' },
+              { name: 'Game Highlights', href: '/game-highlights', isHashLink: false, description: 'Recaps, photos & moments' },
+              { name: 'Practice Schedule', href: '/practice-schedule', isHashLink: false, description: 'All practice times' },
+              { name: 'Pizza, Pins & Pop', href: '/pizza-pins-pop', isHashLink: false, description: 'Fundraiser event Oct 26', highlight: true, eventKey: 'pizza-pins-pop' }
+            ]
+          }
+        ]
+      },
+      {
+        name: 'Experience',
+        key: 'experience',
+        sections: [
+          {
+            title: 'Media',
+            items: [
+              { name: 'Photo Gallery', href: '/gallery', isHashLink: false, description: 'Tournament photos & memories' },
+              { name: 'Team Store', href: '/store', isHashLink: false, description: 'Official merchandise' }
+            ]
+          },
+          {
+            title: 'Competition',
+            items: [
+              { name: 'Opponents', href: '/opponents', isHashLink: false, description: 'Teams we compete against' }
+            ]
+          }
+        ]
+      },
+      {
+        name: 'Connect',
+        key: 'connect',
+        sections: [
+          {
+            title: 'Get Involved',
+            items: [
+              { name: 'Join the Team', href: '/join-team', isHashLink: false, description: 'Become a player or volunteer' },
+              { name: 'Support Us', href: '/#get-involved', isHashLink: true, description: 'Ways to help our mission' }
+            ]
+          },
+          {
+            title: 'Contact',
+            items: [
+              { name: 'Contact Us', href: '/#contact', isHashLink: true, description: 'Get in touch with our team' }
+            ]
+          }
+        ]
+      },
+      { name: 'Golf Outing', href: '/golf-outing', isHashLink: false, standalone: true, highlight: true, eventKey: 'golf-outing' },
+      { name: '🎳 Pizza & Pins', href: '/pizza-pins-pop', isHashLink: false, standalone: true, highlight: true, cta: true, eventKey: 'pizza-pins-pop' }
+    ];
+
+    // Filter out events that are not visible (unless still loading)
+    if (visibilityLoading) {
+      return allItems; // Show all items while loading
+    }
+
+    return allItems.filter(item => {
+      // If item has an eventKey, check visibility
+      if (item.eventKey) {
+        return isEventVisible(item.eventKey);
+      }
+      
+      // If item has sections, filter items within sections
+      if (item.sections) {
+        const filteredSections = item.sections.map(section => ({
+          ...section,
+          items: section.items.filter(subItem => {
+            // If subItem has eventKey, check visibility
+            if (subItem.eventKey) {
+              return isEventVisible(subItem.eventKey);
+            }
+            return true;
+          })
+        })).filter(section => section.items.length > 0); // Remove empty sections
+        
+        // Only include the item if it has at least one section with items
+        return filteredSections.length > 0;
+      }
+      
+      // Include all other items
+      return true;
+    }).map(item => {
+      // Rebuild sections with filtered items
+      if (item.sections) {
+        return {
+          ...item,
+          sections: item.sections.map(section => ({
+            ...section,
+            items: section.items.filter(subItem => {
+              if (subItem.eventKey) {
+                return isEventVisible(subItem.eventKey);
+              }
+              return true;
+            })
+          })).filter(section => section.items.length > 0)
+        };
+      }
+      return item;
+    });
+  }, [isEventVisible, visibilityLoading]);
 
   return (
     <>

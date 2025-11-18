@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { FaUsers, FaHockeyPuck, FaCalendarAlt, FaCog, FaSignOutAlt, FaBars, FaTimes, FaClock, FaImage, FaGolfBall, FaPizzaSlice, FaTrophy } from 'react-icons/fa';
+import { FaUsers, FaHockeyPuck, FaCalendarAlt, FaCog, FaSignOutAlt, FaBars, FaTimes, FaClock, FaImage, FaGolfBall, FaPizzaSlice, FaTrophy, FaEye } from 'react-icons/fa';
 import { Users } from 'lucide-react';
 import PlayerManagement from './PlayerManagement';
 import CoachManagement from './CoachManagement';
@@ -12,8 +12,9 @@ import PracticeScheduleManagement from './PracticeScheduleManagement';
 import ImageBatchUpdate from './ImageBatchUpdate';
 import GolfOutingAdmin from './GolfOutingAdmin';
 import PizzaPinsDashboard from '../../pages/PizzaPinsDashboard';
+import EventVisibilityManagement from './EventVisibilityManagement';
 
-type AdminSection = 'players' | 'coaches' | 'site-sections' | 'schedule' | 'game-highlights' | 'practice' | 'opponents' | 'settings' | 'batch-images' | 'golf-outing' | 'pizza-pins';
+type AdminSection = 'players' | 'coaches' | 'site-sections' | 'schedule' | 'game-highlights' | 'practice' | 'opponents' | 'settings' | 'batch-images' | 'golf-outing' | 'pizza-pins' | 'event-visibility';
 
 interface AdminDashboardProps {
   onLogout: () => void;
@@ -26,6 +27,7 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
   const menuItems = [
     { id: 'pizza-pins' as AdminSection, label: 'Pizza Pins Sales', icon: FaPizzaSlice },
     { id: 'golf-outing' as AdminSection, label: 'Golf Outing', icon: FaGolfBall },
+    { id: 'event-visibility' as AdminSection, label: 'Event Visibility', icon: FaEye },
     { id: 'players' as AdminSection, label: 'Team Roster', icon: FaUsers },
     { id: 'coaches' as AdminSection, label: 'Coaching Staff', icon: FaHockeyPuck },
     { id: 'opponents' as AdminSection, label: 'Opponent Teams', icon: Users },
@@ -42,6 +44,8 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
         return <div className="-m-6"><PizzaPinsDashboard /></div>;
       case 'golf-outing':
         return <GolfOutingAdmin />;
+      case 'event-visibility':
+        return <EventVisibilityManagement />;
       case 'players':
         return <PlayerManagement />;
       case 'coaches':
@@ -185,6 +189,6 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
       </div>
     </div>
   );
-};
+}
 
 export default AdminDashboard;
