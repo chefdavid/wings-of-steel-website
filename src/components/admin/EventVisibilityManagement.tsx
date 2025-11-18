@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabaseClient';
+import { supabaseAdmin } from '../../lib/supabaseAdmin';
 import { Eye, EyeOff, RefreshCw, CheckCircle, AlertCircle } from 'lucide-react';
 
 interface EventVisibility {
@@ -24,13 +25,19 @@ const EventVisibilityManagement = () => {
     setLoading(true);
     setError('');
     try {
-      const { data, error: fetchError } = await supabase
+      // Use admin client for admin operations (bypasses RLS)
+      const dbClient = supabaseAdmin || supabase;
+      console.log('🔐 Fetching events using:', supabaseAdmin ? 'Admin (service role)' : 'Regular (anon key)');
+      console.log('🔐 Admin client available:', !!supabaseAdmin);
+      
+      const { data, error: fetchError } = await dbClient
         .from('event_visibility')
         .select('*')
         .order('event_name', { ascending: true });
 
       if (fetchError) throw fetchError;
 
+      console.log('📊 Fetched events:', data);
       setEvents(data || []);
     } catch (err: any) {
       console.error('Error fetching events:', err);
@@ -44,35 +51,53 @@ const EventVisibilityManagement = () => {
     setError('');
     setSuccess('');
     
+    const eventName = events.find(e => e.event_key === eventKey)?.event_name || 'Event';
+    const newVisibility = !currentVisibility;
+    
     try {
-      const { error: updateError } = await supabase
+      // Use admin client for admin operations (bypasses RLS)
+      const dbClient = supabaseAdmin || supabase;
+      console.log('🔐 Updating visibility using:', supabaseAdmin ? 'Admin (service role)' : 'Regular (anon key)');
+      console.log('🔐 Admin client available:', !!supabaseAdmin);
+      console.log('🔄 Updating event:', eventKey, 'from', currentVisibility, 'to', newVisibility);
+      
+      // Update and return the updated data to verify the update succeeded
+      const { data: updatedData, error: updateError } = await dbClient
         .from('event_visibility')
-        .update({ is_visible: !currentVisibility })
-        .eq('event_key', eventKey);
+        .update({ is_visible: newVisibility })
+        .eq('event_key', eventKey)
+        .select();
 
-      if (updateError) throw updateError;
+      console.log('📝 Update response:', { updatedData, updateError });
 
-      // Update local state immediately
-      setEvents(prevEvents =>
-        prevEvents.map(event =>
-          event.event_key === eventKey
-            ? { ...event, is_visible: !currentVisibility }
-            : event
-        )
-      );
+      if (updateError) {
+        console.error('❌ Update error:', updateError);
+        throw updateError;
+      }
+
+      // Check if any rows were actually updated
+      if (!updatedData || updatedData.length === 0) {
+        console.error('❌ No rows updated. This usually means RLS blocked the update.');
+        throw new Error('No rows were updated. The service role key may not be configured. Please check your .env file has VITE_SUPABASE_SERVICE_ROLE_KEY set.');
+      }
+
+      console.log('✅ Update successful:', updatedData);
+
+      // Refetch from database to ensure we have the latest data
+      await fetchEvents();
 
       setSuccess(
-        `${events.find(e => e.event_key === eventKey)?.event_name} is now ${
-          !currentVisibility ? 'visible' : 'hidden'
+        `${eventName} is now ${
+          newVisibility ? 'visible' : 'hidden'
         } on the frontend`
       );
 
       // Clear success message after 3 seconds
       setTimeout(() => setSuccess(''), 3000);
     } catch (err: any) {
-      console.error('Error updating visibility:', err);
+      console.error('❌ Error updating visibility:', err);
       setError(err.message || 'Failed to update visibility');
-      // Revert on error
+      // Revert on error by refetching
       fetchEvents();
     }
   };
