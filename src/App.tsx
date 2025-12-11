@@ -18,7 +18,6 @@ const GolfOuting = lazy(() => import('./pages/GolfOuting'))
 const JoinTeam = lazy(() => import('./pages/JoinTeam'))
 const PracticeSchedule = lazy(() => import('./pages/PracticeSchedule'))
 const PizzaPinsAndPop = lazy(() => import('./pages/PizzaPinsAndPop'))
-const Donate = lazy(() => import('./pages/Donate'))
 const PizzaPinsDashboard = lazy(() => import('./pages/PizzaPinsDashboard'))
 const AccessibilityStatement = lazy(() => import('./pages/AccessibilityStatement'))
 const GamePage = lazy(() => import('./pages/GamePage'))
@@ -46,7 +45,6 @@ function App() {
                   <GolfOuting />
                 </ProtectedEventRoute>
               } />
-              <Route path="/donate" element={<Donate />} />
               <Route path="/join-team" element={<JoinTeam />} />
               <Route path="/practice-schedule" element={<PracticeSchedule />} />
               <Route path="/pizza-pins-pop" element={
