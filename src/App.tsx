@@ -6,6 +6,7 @@ import { ErrorBoundary } from './components/ErrorBoundary'
 import ModalEscapeHandler from './components/ModalEscapeHandler'
 import { GlobalAriaLive } from './components/AriaLiveRegion'
 import ProtectedEventRoute from './components/ProtectedEventRoute'
+import PracticeCanceledPopup from './components/PracticeCanceledPopup'
 
 // Lazy load heavy components
 const TeamSite = lazy(() => import('./components/TeamSite'))
@@ -17,6 +18,7 @@ const GolfOuting = lazy(() => import('./pages/GolfOuting'))
 const JoinTeam = lazy(() => import('./pages/JoinTeam'))
 const PracticeSchedule = lazy(() => import('./pages/PracticeSchedule'))
 const PizzaPinsAndPop = lazy(() => import('./pages/PizzaPinsAndPop'))
+const Donate = lazy(() => import('./pages/Donate'))
 const PizzaPinsDashboard = lazy(() => import('./pages/PizzaPinsDashboard'))
 const AccessibilityStatement = lazy(() => import('./pages/AccessibilityStatement'))
 const GamePage = lazy(() => import('./pages/GamePage'))
@@ -30,6 +32,7 @@ function App() {
       <CartProvider>
           <GlobalAriaLive />
           <ModalEscapeHandler />
+          <PracticeCanceledPopup />
           <Suspense fallback={<LoadingSpinner />}>
             <Routes>
               {/* Root routes - Direct access */}
@@ -43,6 +46,7 @@ function App() {
                   <GolfOuting />
                 </ProtectedEventRoute>
               } />
+              <Route path="/donate" element={<Donate />} />
               <Route path="/join-team" element={<JoinTeam />} />
               <Route path="/practice-schedule" element={<PracticeSchedule />} />
               <Route path="/pizza-pins-pop" element={
