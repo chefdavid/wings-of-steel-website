@@ -4,10 +4,12 @@ import { supabase } from '../lib/supabaseClient';
 interface EventVisibility {
   event_key: string;
   is_visible: boolean;
+  is_featured?: boolean;
 }
 
 export function useEventVisibility() {
   const [visibility, setVisibility] = useState<Record<string, boolean>>({});
+  const [featuredEventKey, setFeaturedEventKey] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -17,7 +19,7 @@ export function useEventVisibility() {
         setLoading(true);
         const { data, error: fetchError } = await supabase
           .from('event_visibility')
-          .select('event_key, is_visible');
+          .select('event_key, is_visible, is_featured');
 
         if (fetchError) throw fetchError;
 
@@ -27,15 +29,21 @@ export function useEventVisibility() {
             return acc;
           }, {} as Record<string, boolean>);
           setVisibility(visibilityMap);
+
+          // Find the featured event (must also be visible)
+          const featured = data.find(
+            (item) => item.is_featured && item.is_visible
+          );
+          setFeaturedEventKey(featured?.event_key ?? null);
         }
       } catch (err) {
         console.error('Error fetching event visibility:', err);
         setError(err instanceof Error ? err.message : 'An error occurred');
         // Default to visible if there's an error (fail open)
         setVisibility({
-          'pizza-pins-pop': true,
           'golf-outing': true,
         });
+        setFeaturedEventKey(null);
       } finally {
         setLoading(false);
       }
@@ -70,6 +78,5 @@ export function useEventVisibility() {
     return visibility[eventKey] !== false;
   };
 
-  return { visibility, loading, error, isEventVisible };
+  return { visibility, loading, error, isEventVisible, featuredEventKey };
 }
-

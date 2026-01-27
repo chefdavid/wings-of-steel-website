@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { supabaseAdmin } from '../../lib/supabaseAdmin';
-import { Eye, EyeOff, RefreshCw, CheckCircle, AlertCircle } from 'lucide-react';
+import { Eye, EyeOff, RefreshCw, CheckCircle, AlertCircle, Star } from 'lucide-react';
 
 interface EventVisibility {
   id: string;
   event_key: string;
   event_name: string;
   is_visible: boolean;
+  is_featured: boolean;
   updated_at: string;
 }
 
@@ -29,7 +30,7 @@ const EventVisibilityManagement = () => {
       const dbClient = supabaseAdmin || supabase;
       console.log('🔐 Fetching events using:', supabaseAdmin ? 'Admin (service role)' : 'Regular (anon key)');
       console.log('🔐 Admin client available:', !!supabaseAdmin);
-      
+
       const { data, error: fetchError } = await dbClient
         .from('event_visibility')
         .select('*')
@@ -38,7 +39,8 @@ const EventVisibilityManagement = () => {
       if (fetchError) throw fetchError;
 
       console.log('📊 Fetched events:', data);
-      setEvents(data || []);
+      // Ensure is_featured defaults to false if column doesn't exist yet
+      setEvents((data || []).map(e => ({ ...e, is_featured: e.is_featured ?? false })));
     } catch (err: any) {
       console.error('Error fetching events:', err);
       setError(err.message || 'Failed to load event visibility settings');
@@ -50,17 +52,25 @@ const EventVisibilityManagement = () => {
   const toggleVisibility = async (eventKey: string, currentVisibility: boolean) => {
     setError('');
     setSuccess('');
-    
+
     const eventName = events.find(e => e.event_key === eventKey)?.event_name || 'Event';
     const newVisibility = !currentVisibility;
-    
+
     try {
       // Use admin client for admin operations (bypasses RLS)
       const dbClient = supabaseAdmin || supabase;
       console.log('🔐 Updating visibility using:', supabaseAdmin ? 'Admin (service role)' : 'Regular (anon key)');
-      console.log('🔐 Admin client available:', !!supabaseAdmin);
       console.log('🔄 Updating event:', eventKey, 'from', currentVisibility, 'to', newVisibility);
-      
+
+      // If hiding an event that is featured, unfeature it first
+      const event = events.find(e => e.event_key === eventKey);
+      if (!newVisibility && event?.is_featured) {
+        await dbClient
+          .from('event_visibility')
+          .update({ is_featured: false })
+          .eq('event_key', eventKey);
+      }
+
       // Update and return the updated data to verify the update succeeded
       const { data: updatedData, error: updateError } = await dbClient
         .from('event_visibility')
@@ -98,6 +108,51 @@ const EventVisibilityManagement = () => {
       console.error('❌ Error updating visibility:', err);
       setError(err.message || 'Failed to update visibility');
       // Revert on error by refetching
+      fetchEvents();
+    }
+  };
+
+  const toggleFeatured = async (eventKey: string, currentFeatured: boolean) => {
+    setError('');
+    setSuccess('');
+
+    const eventName = events.find(e => e.event_key === eventKey)?.event_name || 'Event';
+    const newFeatured = !currentFeatured;
+
+    try {
+      const dbClient = supabaseAdmin || supabase;
+
+      if (newFeatured) {
+        // Unfeature all others first
+        await dbClient
+          .from('event_visibility')
+          .update({ is_featured: false })
+          .neq('event_key', eventKey);
+      }
+
+      // Toggle the selected event
+      const { data: updatedData, error: updateError } = await dbClient
+        .from('event_visibility')
+        .update({ is_featured: newFeatured })
+        .eq('event_key', eventKey)
+        .select();
+
+      if (updateError) throw updateError;
+      if (!updatedData || updatedData.length === 0) {
+        throw new Error('No rows were updated. Check service role key configuration.');
+      }
+
+      await fetchEvents();
+
+      setSuccess(
+        newFeatured
+          ? `${eventName} is now featured in the navigation bar`
+          : `${eventName} is no longer featured`
+      );
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (err: any) {
+      console.error('❌ Error updating featured:', err);
+      setError(err.message || 'Failed to update featured status');
       fetchEvents();
     }
   };
@@ -162,9 +217,17 @@ const EventVisibilityManagement = () => {
                   className="p-6 flex items-center justify-between hover:bg-gray-50 transition-colors"
                 >
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-dark-steel mb-1">
-                      {event.event_name}
-                    </h3>
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="text-lg font-semibold text-dark-steel">
+                        {event.event_name}
+                      </h3>
+                      {event.is_featured && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                          <Star size={12} className="fill-yellow-500" />
+                          Featured
+                        </span>
+                      )}
+                    </div>
                     <p className="text-sm text-gray-500">
                       Event Key: <code className="bg-gray-100 px-2 py-1 rounded">{event.event_key}</code>
                     </p>
@@ -173,7 +236,33 @@ const EventVisibilityManagement = () => {
                     </p>
                   </div>
 
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-3">
+                    {/* Featured toggle */}
+                    <button
+                      onClick={() => toggleFeatured(event.event_key, event.is_featured)}
+                      disabled={!event.is_visible}
+                      title={
+                        !event.is_visible
+                          ? 'Event must be visible to be featured'
+                          : event.is_featured
+                          ? 'Remove from featured nav CTA'
+                          : 'Feature in navigation bar'
+                      }
+                      className={`p-2 rounded-lg transition-colors ${
+                        !event.is_visible
+                          ? 'text-gray-300 cursor-not-allowed'
+                          : event.is_featured
+                          ? 'text-yellow-500 bg-yellow-50 hover:bg-yellow-100'
+                          : 'text-gray-400 hover:text-yellow-500 hover:bg-yellow-50'
+                      }`}
+                    >
+                      <Star
+                        size={20}
+                        className={event.is_featured ? 'fill-yellow-500' : ''}
+                      />
+                    </button>
+
+                    {/* Visibility badge */}
                     <div className="text-right">
                       <div
                         className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${
@@ -196,6 +285,7 @@ const EventVisibilityManagement = () => {
                       </div>
                     </div>
 
+                    {/* Visibility toggle button */}
                     <button
                       onClick={() => toggleVisibility(event.event_key, event.is_visible)}
                       className={`px-6 py-2 rounded-lg font-semibold transition-colors ${
@@ -229,6 +319,9 @@ const EventVisibilityManagement = () => {
           <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
             <li>When an event is <strong>hidden</strong>, it will not appear in the navigation menu</li>
             <li>Direct links to hidden events will redirect to the home page</li>
+            <li>The <strong>featured</strong> event (star icon) gets a highlighted CTA button in the navigation bar</li>
+            <li>Only one event can be featured at a time — featuring a new one unfeatures the previous</li>
+            <li>An event must be visible before it can be featured</li>
             <li>Admin access to event management is not affected by visibility settings</li>
             <li>Changes take effect immediately on the frontend</li>
           </ul>
@@ -239,4 +332,3 @@ const EventVisibilityManagement = () => {
 };
 
 export default EventVisibilityManagement;
-

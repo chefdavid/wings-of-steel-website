@@ -3,12 +3,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FaBars, FaTimes, FaChevronDown, FaFacebook } from 'react-icons/fa';
 import { Link, useLocation } from 'react-router-dom';
 import { useEventVisibility } from '../hooks/useEventVisibility';
+import { useDonationModal } from '../contexts/DonationModalContext';
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const location = useLocation();
-  const { isEventVisible, loading: visibilityLoading } = useEventVisibility();
+  const { isEventVisible, loading: visibilityLoading, featuredEventKey } = useEventVisibility();
+  const { openModal } = useDonationModal();
 
   const handleHashLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
@@ -45,9 +47,14 @@ const Navigation = () => {
     setIsOpen(false);
   };
 
+  // Lookup map for featured event CTA
+  const featuredEventMeta: Record<string, { name: string; href: string }> = {
+    'golf-outing': { name: 'Golf Outing', href: '/golf-outing' },
+  };
+
   // Filter menu items based on event visibility
   const megaMenuItems = useMemo(() => {
-    const allItems = [
+    const allItems: any[] = [
       { name: 'Home', href: '/', isHashLink: false, standalone: true, forceReload: true },
       {
         name: 'Team',
@@ -78,8 +85,7 @@ const Navigation = () => {
             items: [
               { name: 'Game Schedule', href: '/#schedule', isHashLink: true, description: '2025-2026 season games' },
               { name: 'Game Highlights', href: '/game-highlights', isHashLink: false, description: 'Recaps, photos & moments' },
-              { name: 'Practice Schedule', href: '/practice-schedule', isHashLink: false, description: 'All practice times' },
-              { name: 'Pizza, Pins & Pop', href: '/pizza-pins-pop', isHashLink: false, description: 'Fundraiser event Oct 26', highlight: true, eventKey: 'pizza-pins-pop' }
+              { name: 'Practice Schedule', href: '/practice-schedule', isHashLink: false, description: 'All practice times' }
             ]
           }
         ]
@@ -122,59 +128,68 @@ const Navigation = () => {
           }
         ]
       },
-      { name: 'Golf Outing', href: '/golf-outing', isHashLink: false, standalone: true, highlight: true, eventKey: 'golf-outing' },
-      { name: '🎳 Pizza & Pins', href: '/pizza-pins-pop', isHashLink: false, standalone: true, highlight: true, cta: true, eventKey: 'pizza-pins-pop' }
+      { name: 'Events', href: '/events', isHashLink: false, standalone: true },
     ];
+
+    // Add dynamic featured event CTA if one is set
+    if (!visibilityLoading && featuredEventKey && featuredEventMeta[featuredEventKey]) {
+      const meta = featuredEventMeta[featuredEventKey];
+      allItems.push({
+        name: meta.name,
+        href: meta.href,
+        isHashLink: false,
+        standalone: true,
+        highlight: true,
+        cta: true,
+        eventKey: featuredEventKey,
+      });
+    }
+
+    // Donate always last
+    allItems.push(
+      { name: 'Donate', href: '#', isHashLink: false, standalone: true, highlight: true, cta: true, isDonate: true }
+    );
 
     // Filter out events that are not visible (unless still loading)
     if (visibilityLoading) {
-      return allItems; // Show all items while loading
+      return allItems;
     }
 
     return allItems.filter(item => {
-      // If item has an eventKey, check visibility
       if (item.eventKey) {
         return isEventVisible(item.eventKey);
       }
-      
-      // If item has sections, filter items within sections
       if (item.sections) {
-        const filteredSections = item.sections.map(section => ({
+        const filteredSections = item.sections.map((section: any) => ({
           ...section,
-          items: section.items.filter(subItem => {
-            // If subItem has eventKey, check visibility
+          items: section.items.filter((subItem: any) => {
             if (subItem.eventKey) {
               return isEventVisible(subItem.eventKey);
             }
             return true;
           })
-        })).filter(section => section.items.length > 0); // Remove empty sections
-        
-        // Only include the item if it has at least one section with items
+        })).filter((section: any) => section.items.length > 0);
         return filteredSections.length > 0;
       }
-      
-      // Include all other items
       return true;
     }).map(item => {
-      // Rebuild sections with filtered items
       if (item.sections) {
         return {
           ...item,
-          sections: item.sections.map(section => ({
+          sections: item.sections.map((section: any) => ({
             ...section,
-            items: section.items.filter(subItem => {
+            items: section.items.filter((subItem: any) => {
               if (subItem.eventKey) {
                 return isEventVisible(subItem.eventKey);
               }
               return true;
             })
-          })).filter(section => section.items.length > 0)
+          })).filter((section: any) => section.items.length > 0)
         };
       }
       return item;
     });
-  }, [isEventVisible, visibilityLoading]);
+  }, [isEventVisible, visibilityLoading, featuredEventKey]);
 
   return (
     <>
@@ -217,6 +232,21 @@ const Navigation = () => {
             <div className="hidden lg:flex items-center space-x-1">
               {megaMenuItems.map((item) => (
                 item.standalone ? (
+                  item.isDonate ? (
+                  <button
+                    key={item.name}
+                    onClick={() => openModal()}
+                    className={`px-4 py-2 ${
+                      item.cta
+                        ? 'bg-yellow-500 text-black rounded-full hover:bg-yellow-400 shadow-lg px-6 font-bold animate-pulse'
+                        : item.highlight
+                        ? 'text-championship-gold hover:text-yellow-300 hover:bg-championship-gold/20'
+                        : 'text-gray-300 hover:text-white hover:bg-steel-blue/20'
+                    } rounded-md transition-all duration-200 font-sport tracking-wider`}
+                  >
+                    {item.name}
+                  </button>
+                  ) : (
                   <Link
                     key={item.name}
                     to={item.href}
@@ -230,6 +260,7 @@ const Navigation = () => {
                   >
                     {item.name}
                   </Link>
+                  )
                 ) : (
                   <div
                     key={item.key}
@@ -367,6 +398,21 @@ const Navigation = () => {
               <div className="px-4 pt-2 pb-6 space-y-2">
                 {megaMenuItems.map((item) => (
                   item.standalone ? (
+                    item.isDonate ? (
+                    <button
+                      key={item.name}
+                      onClick={() => { openModal(); setIsOpen(false); }}
+                      className={`block w-full px-3 py-2 ${
+                        item.cta
+                          ? 'bg-yellow-500 text-black rounded-full hover:bg-yellow-400 shadow-lg font-bold text-center animate-pulse'
+                          : item.highlight
+                          ? 'text-championship-gold hover:text-yellow-300'
+                          : 'text-gray-300 hover:text-white hover:bg-steel-blue/20'
+                      } rounded-md font-sport tracking-wider`}
+                    >
+                      {item.name}
+                    </button>
+                    ) : (
                     <Link
                       key={item.name}
                       to={item.href}
@@ -381,6 +427,7 @@ const Navigation = () => {
                     >
                       {item.name}
                     </Link>
+                    )
                   ) : (
                     <div key={item.key}>
                       <button
