@@ -627,7 +627,7 @@ const DonationModal = ({ isOpen, onClose, onSuccess, initialAmount }: DonationMo
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[10000]"
           />
 
           {/* Modal */}
@@ -636,7 +636,7 @@ const DonationModal = ({ isOpen, onClose, onSuccess, initialAmount }: DonationMo
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed inset-0 md:inset-auto md:right-0 md:top-0 md:bottom-0 w-full max-w-2xl bg-dark-steel shadow-2xl z-50 overflow-y-auto md:rounded-l-2xl border-l-2 border-steel-blue"
+            className="fixed inset-0 md:inset-auto md:right-0 md:top-0 md:bottom-0 w-full max-w-2xl bg-dark-steel shadow-2xl z-[10000] overflow-y-auto md:rounded-l-2xl border-l-2 border-steel-blue"
           >
             {/* Mobile: Full-screen header with progress */}
             <div className="sticky top-0 bg-gradient-to-b from-dark-steel to-dark-steel/95 backdrop-blur-sm border-b-2 border-steel-blue z-10">
