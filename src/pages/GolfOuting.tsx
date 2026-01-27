@@ -118,7 +118,7 @@ const GolfOuting = () => {
               WINGS OF STEEL ANNUAL
             </h1>
             <h2 className="font-sport text-2xl md:text-6xl text-ice-blue mb-3 md:mb-6">
-              GOLF OUTING 2026
+              Tom Brake GOLF OUTING 2026
             </h2>
             <p className="text-sm md:text-2xl text-white/90 mb-4 md:mb-8 max-w-3xl mx-auto">
               <span className="font-bold">Golf with Purpose - Sponsor - Keep Kids on the Ice</span>
