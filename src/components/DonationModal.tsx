@@ -640,15 +640,14 @@ const DonationModal = ({ isOpen, onClose, onSuccess, initialAmount, eventTag }: 
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
             className="fixed inset-0 md:inset-auto md:right-0 md:top-0 md:bottom-0 w-full max-w-2xl bg-dark-steel shadow-2xl z-[10000] overflow-y-auto md:rounded-l-2xl border-l-2 border-steel-blue"
           >
-            {/* Mobile: Full-screen header with progress */}
+            {/* Header */}
             <div className="sticky top-0 bg-gradient-to-b from-dark-steel to-dark-steel/95 backdrop-blur-sm border-b-2 border-steel-blue z-10">
-              {/* Mobile: Enhanced header with progress bar */}
               <div className="p-4 md:p-6">
                 <div className="flex items-center justify-between mb-3">
                   <h2 className="text-xl md:text-3xl font-sport text-white flex items-center gap-2 md:gap-3">
                     <FaHeart className="text-yellow-400 text-xl md:text-2xl" />
-                    <span className="md:hidden">Donate</span>
-                    <span className="hidden md:inline">Support Wings of Steel</span>
+                    <span className="md:hidden">{eventTag ? 'Event Donation' : 'Donate'}</span>
+                    <span className="hidden md:inline">{eventTag ? 'Event Donation' : 'Support Wings of Steel'}</span>
                   </h2>
                   <button
                     onClick={onClose}
@@ -658,6 +657,19 @@ const DonationModal = ({ isOpen, onClose, onSuccess, initialAmount, eventTag }: 
                     <X className="w-6 h-6" />
                   </button>
                 </div>
+                {/* Event banner */}
+                {eventTag && (
+                  <div className="bg-yellow-500/15 border border-yellow-400/30 rounded-lg px-4 py-3 mb-3">
+                    <p className="text-yellow-400 font-sport tracking-wide text-sm uppercase">
+                      {eventTag === 'hockey-for-a-cause'
+                        ? 'Hockey for a Cause — Entry by Donation'
+                        : eventTag.replace(/-/g, ' ')}
+                    </p>
+                    <p className="text-gray-300 text-xs mt-1">
+                      This donation will be attributed to the event. Thank you for your support!
+                    </p>
+                  </div>
+                )}
                 {/* Mobile: Compact progress indicator */}
                 <div className="md:hidden">
                   <DonationProgressBar mode="compact" showDetails={false} />
