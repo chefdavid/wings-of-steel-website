@@ -129,7 +129,25 @@ const Navigation = () => {
           }
         ]
       },
-      { name: 'Events', href: '/events', isHashLink: false, standalone: true },
+      {
+        name: 'Events',
+        key: 'events',
+        sections: [
+          {
+            title: 'Upcoming Events',
+            items: [
+              { name: 'Hockey for a Cause', href: '/hockey-for-a-cause', isHashLink: false, description: 'Mar 22 — Entry by Donation', eventKey: 'hockey-for-a-cause' },
+              { name: 'Golf Outing', href: '/golf-outing', isHashLink: false, description: 'Tom Brake Memorial — Apr 2026', eventKey: 'golf-outing' },
+            ]
+          },
+          {
+            title: 'Browse',
+            items: [
+              { name: 'All Events', href: '/events', isHashLink: false, description: 'View all upcoming events' },
+            ]
+          }
+        ]
+      },
     ];
 
     // Add dynamic featured event CTA if one is set
