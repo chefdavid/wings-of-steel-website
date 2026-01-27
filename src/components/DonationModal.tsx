@@ -660,7 +660,7 @@ const DonationModal = ({ isOpen, onClose, onSuccess, initialAmount, eventTag }: 
                 {/* Event banner */}
                 {eventTag && (
                   <div className="bg-yellow-500/15 border border-yellow-400/30 rounded-lg px-4 py-3 mb-3">
-                    <p className="text-yellow-400 font-sport tracking-wide text-sm uppercase">
+                    <p className="text-yellow-400 font-sport tracking-wide text-lg md:text-xl uppercase">
                       {eventTag === 'hockey-for-a-cause'
                         ? 'Hockey for a Cause — Entry by Donation'
                         : eventTag.replace(/-/g, ' ')}
