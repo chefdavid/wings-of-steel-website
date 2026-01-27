@@ -5,7 +5,7 @@ import { stripeService } from '../services/stripe';
 import { useDonationGoals } from '../hooks/useDonationGoals';
 import { useTeamRoster } from '../hooks/useTeamRoster';
 import DonationProgressBar from './DonationProgressBar';
-import { X, Loader, CreditCard, CheckCircle } from 'lucide-react';
+import { X, Loader, CreditCard, CheckCircle, Lock } from 'lucide-react';
 import { FaHeart } from 'react-icons/fa';
 
 interface DonationModalProps {
@@ -512,6 +512,10 @@ function DonationForm({ onSuccess, onClose, initialAmount, eventTag }: { onSucce
               )}
             </button>
           </div>
+          <p className="text-center text-gray-500 text-xs mt-2 flex items-center justify-center gap-1">
+            <Lock className="w-3 h-3" />
+            Secure payment powered by Stripe
+          </p>
         </motion.div>
       )}
 
@@ -663,6 +667,10 @@ const DonationModal = ({ isOpen, onClose, onSuccess, initialAmount, eventTag }: 
                     <p className="text-yellow-400 font-sport tracking-wide text-lg md:text-xl uppercase">
                       {eventTag === 'hockey-for-a-cause'
                         ? 'Hockey for a Cause — Entry by Donation'
+                        : eventTag === 'topgolf-youth'
+                        ? 'Topgolf Fundraiser — Youth Team'
+                        : eventTag === 'topgolf-adult'
+                        ? 'Topgolf Fundraiser — Adult Team'
                         : eventTag.replace(/-/g, ' ')}
                     </p>
                     <p className="text-gray-300 text-xs mt-1">

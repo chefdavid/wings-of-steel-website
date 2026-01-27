@@ -1,15 +1,8 @@
 import { motion } from 'framer-motion'
-import { Trophy, Target, Zap, DollarSign, Gift, Users } from 'lucide-react'
+import { Target, Zap, DollarSign, Gift, Users } from 'lucide-react'
 
 const ContestSection = () => {
   const contests = [
-    {
-      title: 'Hole-in-One Contest',
-      icon: Trophy,
-      description: 'Win a brand new car or $10,000 cash!',
-      details: 'Make an ace on the designated par 3 and drive home in style.',
-      color: 'from-championship-gold to-yellow-600'
-    },
     {
       title: 'Longest Drive',
       icon: Zap,
@@ -23,13 +16,6 @@ const ContestSection = () => {
       description: 'Precision pays off',
       details: 'Test your accuracy on our signature par 3 holes.',
       color: 'from-green-500 to-green-700'
-    },
-    {
-      title: 'Putting Contest',
-      icon: Target,
-      description: '$500 grand prize',
-      details: 'Pre-tournament putting contest - $20 entry, everyone can play!',
-      color: 'from-purple-500 to-purple-700'
     },
     {
       title: '50/50 Raffle',
@@ -50,23 +36,8 @@ const ContestSection = () => {
   const fundraisers = [
     {
       title: 'Mulligans',
-      description: '$10 each (max 4 per player)',
+      description: '$5 each — no limit!',
       icon: '🎯'
-    },
-    {
-      title: 'Beat the Pro',
-      description: '$20 per attempt - Outdrive our club pro!',
-      icon: '⛳'
-    },
-    {
-      title: 'Skins Game',
-      description: '$25 buy-in for extra competition',
-      icon: '💰'
-    },
-    {
-      title: 'Golden Ticket',
-      description: 'Win free entry to next year\'s outing',
-      icon: '🎟️'
     }
   ]
 
@@ -77,7 +48,7 @@ const ContestSection = () => {
           CONTESTS & CHALLENGES
         </h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-12">
           {contests.map((contest, index) => {
             const Icon = contest.icon
             return (
@@ -106,9 +77,9 @@ const ContestSection = () => {
 
         <div className="bg-gradient-to-r from-dark-steel to-steel-gray rounded-lg p-8 text-white">
           <h3 className="font-sport text-3xl text-center mb-8">
-            MORE WAYS TO SUPPORT THE TEAM
+            FUNDRAISER ADD-ONS
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="flex justify-center gap-6">
             {fundraisers.map((item, index) => (
               <motion.div
                 key={item.title}

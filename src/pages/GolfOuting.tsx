@@ -9,24 +9,11 @@ import ContestSection from '../components/golf/ContestSection'
 import VenueSection from '../components/golf/VenueSection'
 
 const GolfOuting = () => {
-  const [daysUntilEarlyBird, setDaysUntilEarlyBird] = useState(0)
   const [spotsRemaining, setSpotsRemaining] = useState(32) // 32 teams max (128 golfers)
   const [videoError, setVideoError] = useState(false)
   const [videoLoaded, setVideoLoaded] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
-  const earlyBirdDate = new Date('2025-03-15') // Set early bird deadline
-  const eventDate = new Date('2025-04-25')
-  
-  useEffect(() => {
-    const timer = setInterval(() => {
-      const now = new Date()
-      const diff = earlyBirdDate.getTime() - now.getTime()
-      const days = Math.ceil(diff / (1000 * 60 * 60 * 24))
-      setDaysUntilEarlyBird(days > 0 ? days : 0)
-    }, 1000 * 60) // Update every minute
-    
-    return () => clearInterval(timer)
-  }, [])
+  const eventDate = new Date('2026-05-18')
 
   // Debug video loading
   useEffect(() => {
@@ -140,27 +127,11 @@ const GolfOuting = () => {
               Your round of golf and your sponsorship make the difference—funding the equipment, ice time, and support that ensures no child is left on the sidelines.
             </p>
             
-            {/* Early Bird Alert */}
-            {daysUntilEarlyBird > 0 && (
-              <motion.div 
-                className="bg-championship-gold/20 border-2 border-championship-gold rounded-lg p-4 mb-8 max-w-2xl mx-auto"
-                animate={{ scale: [1, 1.02, 1] }}
-                transition={{ repeat: Infinity, duration: 2 }}
-              >
-                <p className="text-championship-gold font-bold text-xl">
-                  🎯 EARLY BIRD SPECIAL - SAVE $20 PER GOLFER!
-                </p>
-                <p className="text-white text-lg mt-2">
-                  Only {daysUntilEarlyBird} days left to lock in discounted pricing
-                </p>
-              </motion.div>
-            )}
-            
             {/* Event Details Bar */}
             <div className="bg-white/10 backdrop-blur-md rounded-lg p-6 max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
               <div className="flex items-center justify-center space-x-2">
                 <Calendar className="text-ice-blue" size={24} />
-                <span className="text-white font-semibold">April 25, 2025</span>
+                <span className="text-white font-semibold">Monday, May 18, 2026</span>
               </div>
               <div className="flex items-center justify-center space-x-2">
                 <MapPin className="text-ice-blue" size={24} />
@@ -195,7 +166,7 @@ const GolfOuting = () => {
                 <div className="hidden md:block text-white/40">•</div>
                 <div className="flex items-center gap-2">
                   <span className="bg-white/20 text-white w-6 h-6 rounded-full flex items-center justify-center font-semibold text-xs">2</span>
-                  <span className="text-white/90">Sponsor a hole for $100</span>
+                  <span className="text-white/90">Become a sponsor</span>
                 </div>
                 <div className="hidden md:block text-white/40">•</div>
                 <div className="flex items-center gap-2">
@@ -207,23 +178,17 @@ const GolfOuting = () => {
             
             {/* CTA Buttons - Consistent Style */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a 
-                href="#register" 
+              <a
+                href="#register"
                 className="inline-block bg-steel-blue text-white border-2 border-ice-blue font-bold py-4 px-8 rounded-full text-lg shadow-lg hover:bg-dark-steel hover:border-white transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
               >
                 Register Team
               </a>
-              <a 
-                href="#register" 
+              <a
+                href="#sponsor"
                 className="inline-block bg-steel-blue text-white border-2 border-ice-blue font-bold py-4 px-8 rounded-full text-lg shadow-lg hover:bg-dark-steel hover:border-white transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
               >
-                Sponsor Hole ($100)
-              </a>
-              <a 
-                href="#sponsor" 
-                className="inline-block bg-steel-blue text-white border-2 border-ice-blue font-bold py-4 px-8 rounded-full text-lg shadow-lg hover:bg-dark-steel hover:border-white transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
-              >
-                View All Sponsors
+                Sponsorship Opportunities
               </a>
             </div>
           </motion.div>
@@ -247,7 +212,6 @@ const GolfOuting = () => {
                 <li>• Four-Person Scramble Format</li>
                 <li>• Green Fees & Cart</li>
                 <li>• Practice Range Access</li>
-                <li>• Team Photo</li>
               </ul>
             </motion.div>
             
@@ -261,7 +225,7 @@ const GolfOuting = () => {
                 <li>• Catered Lunch (11:15 AM)</li>
                 <li>• Hot Dog & Beer on Course</li>
                 <li>• Full Dinner Buffet</li>
-                <li>• Open Bar at Dinner</li>
+                <li>• Beer at Dinner</li>
               </ul>
             </motion.div>
             
@@ -275,7 +239,6 @@ const GolfOuting = () => {
                 <li>• 1st, 2nd, 3rd Place Teams</li>
                 <li>• Longest Drive Contest</li>
                 <li>• Closest to Pin Contest</li>
-                <li>• Hole-in-One Prize</li>
               </ul>
             </motion.div>
           </div>
@@ -319,11 +282,11 @@ const GolfOuting = () => {
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
-                <div className="text-5xl font-sport text-championship-gold mb-3">$160</div>
+                <div className="text-5xl font-sport text-championship-gold mb-3">$140</div>
                 <p>Covers equipment for one athlete for an entire season</p>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
-                <div className="text-5xl font-sport text-championship-gold mb-3">$640</div>
+                <div className="text-5xl font-sport text-championship-gold mb-3">$560</div>
                 <p>Sponsors ice time for a full team practice</p>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
@@ -358,8 +321,7 @@ const GolfOuting = () => {
           <h2 className="font-sport text-5xl text-center text-white mb-12">
             REGISTER YOUR TEAM
           </h2>
-          <GolfRegistrationForm 
-            earlyBirdDate={earlyBirdDate}
+          <GolfRegistrationForm
             spotsRemaining={spotsRemaining}
             setSpotsRemaining={setSpotsRemaining}
           />

@@ -7,6 +7,7 @@ const DonationManagement = () => {
   const [filterType, setFilterType] = useState<'all' | 'one-time' | 'recurring'>('all');
   const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'succeeded' | 'failed'>('all');
   const [filterDateRange, setFilterDateRange] = useState<'all' | 'month' | 'year'>('all');
+  const [filterEvent, setFilterEvent] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDonation, setSelectedDonation] = useState<any>(null);
 
@@ -15,6 +16,7 @@ const DonationManagement = () => {
     status: filterStatus === 'all' ? undefined : filterStatus,
     dateRange: filterDateRange === 'all' ? undefined : filterDateRange,
     search: searchTerm || undefined,
+    eventTag: filterEvent === 'all' ? undefined : filterEvent,
   });
 
   const exportToCSV = () => {
@@ -26,6 +28,7 @@ const DonationManagement = () => {
       'Company',
       'Amount',
       'Type',
+      'Event',
       'Player Name',
       'Anonymous',
       'Status',
@@ -41,6 +44,7 @@ const DonationManagement = () => {
       d.company_name || '',
       `$${d.amount.toFixed(2)}`,
       d.donation_type,
+      d.event_tag || '',
       d.player_name || '',
       d.is_anonymous ? 'Yes' : 'No',
       d.payment_status,
@@ -184,7 +188,7 @@ const DonationManagement = () => {
 
         {/* Filters */}
         <div className="bg-white rounded-lg shadow p-4 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
               <input
@@ -195,6 +199,19 @@ const DonationManagement = () => {
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-steel-blue focus:border-transparent"
               />
             </div>
+
+            <select
+              value={filterEvent}
+              onChange={(e) => setFilterEvent(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-steel-blue focus:border-transparent"
+            >
+              <option value="all">All Events</option>
+              <option value="topgolf">Topgolf (All)</option>
+              <option value="topgolf-youth">Topgolf — Youth</option>
+              <option value="topgolf-adult">Topgolf — Adult</option>
+              <option value="hockey-for-a-cause">Hockey for a Cause</option>
+              <option value="golf-outing">Golf Outing</option>
+            </select>
 
             <select
               value={filterType}
@@ -237,10 +254,9 @@ const DonationManagement = () => {
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Donor</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Company</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Event</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Player</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                 </tr>
@@ -259,11 +275,29 @@ const DonationManagement = () => {
                         <div className="text-sm text-gray-500">{donation.donor_email}</div>
                       </div>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {donation.company_name || '-'}
-                    </td>
                     <td className="px-4 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
                       {formatCurrency(donation.amount)}
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      {donation.event_tag ? (
+                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          donation.event_tag.startsWith('topgolf')
+                            ? 'bg-emerald-100 text-emerald-800'
+                            : donation.event_tag === 'hockey-for-a-cause'
+                            ? 'bg-red-100 text-red-800'
+                            : donation.event_tag === 'golf-outing'
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-purple-100 text-purple-800'
+                        }`}>
+                          {donation.event_tag === 'topgolf-youth' ? 'Topgolf — Youth'
+                            : donation.event_tag === 'topgolf-adult' ? 'Topgolf — Adult'
+                            : donation.event_tag === 'hockey-for-a-cause' ? 'Hockey for a Cause'
+                            : donation.event_tag === 'golf-outing' ? 'Golf Outing'
+                            : donation.event_tag.replace(/-/g, ' ')}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400 text-sm">—</span>
+                      )}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
                       <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
@@ -273,9 +307,6 @@ const DonationManagement = () => {
                       }`}>
                         {donation.donation_type === 'recurring' ? 'Recurring' : 'One-Time'}
                       </span>
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {donation.player_name || '-'}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
                       <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
@@ -350,6 +381,18 @@ const DonationManagement = () => {
                   <label className="text-sm font-medium text-gray-500">Type</label>
                   <p className="text-gray-900 capitalize">{selectedDonation.donation_type}</p>
                 </div>
+                {selectedDonation.event_tag && (
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">Event</label>
+                    <p className="text-gray-900">
+                      {selectedDonation.event_tag === 'topgolf-youth' ? 'Topgolf Fundraiser — Youth Team'
+                        : selectedDonation.event_tag === 'topgolf-adult' ? 'Topgolf Fundraiser — Adult Team'
+                        : selectedDonation.event_tag === 'hockey-for-a-cause' ? 'Hockey for a Cause'
+                        : selectedDonation.event_tag === 'golf-outing' ? 'Golf Outing'
+                        : selectedDonation.event_tag.replace(/-/g, ' ')}
+                    </p>
+                  </div>
+                )}
                 {selectedDonation.player_name && (
                   <div>
                     <label className="text-sm font-medium text-gray-500">In Honor Of</label>

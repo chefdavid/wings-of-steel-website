@@ -16,6 +16,7 @@ export interface Donation {
   stripe_subscription_id: string | null;
   payment_status: 'pending' | 'succeeded' | 'failed' | 'canceled';
   campaign_id: string | null;
+  event_tag: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -38,6 +39,7 @@ export function useDonations(filters?: {
   status?: 'pending' | 'succeeded' | 'failed' | 'all';
   dateRange?: 'month' | 'year' | 'all';
   search?: string;
+  eventTag?: string;
 }) {
   const [donations, setDonations] = useState<Donation[]>([]);
   const [statistics, setStatistics] = useState<DonationStatistics | null>(null);
@@ -68,7 +70,7 @@ export function useDonations(filters?: {
     return () => {
       channel.unsubscribe();
     };
-  }, [filters?.type, filters?.status, filters?.dateRange, filters?.search]);
+  }, [filters?.type, filters?.status, filters?.dateRange, filters?.search, filters?.eventTag]);
 
   const fetchDonations = async () => {
     try {
@@ -104,6 +106,10 @@ export function useDonations(filters?: {
 
       if (filters?.search) {
         query = query.or(`donor_name.ilike.%${filters.search}%,donor_email.ilike.%${filters.search}%,company_name.ilike.%${filters.search}%`);
+      }
+
+      if (filters?.eventTag) {
+        query = query.ilike('event_tag', `${filters.eventTag}%`);
       }
 
       const { data, error: fetchError } = await query;

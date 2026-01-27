@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaBars, FaTimes, FaChevronDown, FaFacebook } from 'react-icons/fa';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useEventVisibility } from '../hooks/useEventVisibility';
 import { useDonationModal } from '../contexts/DonationModalContext';
 
@@ -11,6 +11,7 @@ const Navigation = () => {
   const location = useLocation();
   const { isEventVisible, loading: visibilityLoading, featuredEventKey } = useEventVisibility();
   const { openModal } = useDonationModal();
+  const navigate = useNavigate();
 
   const handleHashLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
@@ -49,6 +50,7 @@ const Navigation = () => {
 
   // Lookup map for featured event CTA
   const featuredEventMeta: Record<string, { name: string; href: string }> = {
+    'topgolf': { name: 'Topgolf', href: '/topgolf' },
     'golf-outing': { name: 'Golf Outing', href: '/golf-outing' },
     'hockey-for-a-cause': { name: 'Hockey for a Cause', href: '/hockey-for-a-cause' },
   };
@@ -136,6 +138,7 @@ const Navigation = () => {
           {
             title: 'Upcoming Events',
             items: [
+              { name: 'Topgolf Fundraiser', href: '/topgolf', isHashLink: false, description: 'Mar 8 — $20/person', eventKey: 'topgolf' },
               { name: 'Hockey for a Cause', href: '/hockey-for-a-cause', isHashLink: false, description: 'Mar 22 — Entry by Donation', eventKey: 'hockey-for-a-cause' },
               { name: 'Golf Outing', href: '/golf-outing', isHashLink: false, description: 'Tom Brake Memorial — Apr 2026', eventKey: 'golf-outing' },
             ]
@@ -292,12 +295,25 @@ const Navigation = () => {
                       aria-expanded={activeDropdown === item.key}
                       aria-haspopup="true"
                       aria-label={`${item.name} menu`}
-                      onClick={() => setActiveDropdown(activeDropdown === item.key ? null : item.key || null)}
+                      onClick={() => {
+                        if (item.key === 'events') {
+                          navigate('/events');
+                          setActiveDropdown(null);
+                        } else {
+                          setActiveDropdown(activeDropdown === item.key ? null : item.key || null);
+                        }
+                      }}
                       onKeyDown={(e) => {
                         if (e.key === 'Escape') setActiveDropdown(null);
                       }}
                     >
                       {item.name}
+                      {item.key === 'events' && (
+                        <span className="relative ml-1.5 flex h-2 w-2">
+                          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-yellow-400 opacity-75" />
+                          <span className="relative inline-flex h-2 w-2 rounded-full bg-yellow-400" />
+                        </span>
+                      )}
                       <FaChevronDown className="ml-2 text-xs" aria-hidden="true" />
                     </button>
 
@@ -450,10 +466,26 @@ const Navigation = () => {
                   ) : (
                     <div key={item.key}>
                       <button
-                        onClick={() => setActiveDropdown(activeDropdown === item.key ? null : (item.key || null))}
+                        onClick={() => {
+                          if (item.key === 'events') {
+                            navigate('/events');
+                            setIsOpen(false);
+                            setActiveDropdown(null);
+                          } else {
+                            setActiveDropdown(activeDropdown === item.key ? null : (item.key || null));
+                          }
+                        }}
                         className="flex items-center justify-between w-full px-3 py-2 text-gray-300 hover:text-white hover:bg-steel-blue/20 rounded-md font-sport tracking-wider"
                       >
-                        {item.name}
+                        <span className="flex items-center">
+                          {item.name}
+                          {item.key === 'events' && (
+                            <span className="relative ml-1.5 flex h-2 w-2">
+                              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-yellow-400 opacity-75" />
+                              <span className="relative inline-flex h-2 w-2 rounded-full bg-yellow-400" />
+                            </span>
+                          )}
+                        </span>
                         <FaChevronDown 
                           className={`transform transition-transform ${activeDropdown === item.key ? 'rotate-180' : ''}`} 
                         />

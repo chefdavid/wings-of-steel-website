@@ -16,6 +16,7 @@ interface EventCard {
   href: string
   icon: React.ReactNode
   color: string
+  image: string
 }
 
 const allEvents: EventCard[] = [
@@ -30,6 +31,20 @@ const allEvents: EventCard[] = [
     href: '/hockey-for-a-cause',
     icon: <FaHockeyPuck className="text-3xl" />,
     color: 'from-red-600 to-red-800',
+    image: '/images/hockey-for-a-cause-flyer.jpg',
+  },
+  {
+    key: 'topgolf',
+    name: 'Topgolf Fundraiser',
+    tagline: 'Swing for a cause — support sled hockey',
+    date: 'March 8, 2026',
+    location: 'Topgolf Mt. Laurel, NJ',
+    description:
+      '$20 per person includes golf and unlimited soda & lemonade. Baskets, 50/50, and silent auction on-site. Choose to support the youth or adult team when you register!',
+    href: '/topgolf',
+    icon: <FaGolfBall className="text-3xl" />,
+    color: 'from-emerald-600 to-emerald-800',
+    image: '/images/topgolf-hero.webp',
   },
   {
     key: 'golf-outing',
@@ -42,6 +57,7 @@ const allEvents: EventCard[] = [
     href: '/golf-outing',
     icon: <FaGolfBall className="text-3xl" />,
     color: 'from-green-600 to-green-800',
+    image: '/images/golf-hero.jpg',
   },
 ]
 
@@ -95,10 +111,16 @@ const Events = () => {
                       to={event.href}
                       className="group block bg-dark-steel/60 border border-steel-blue/20 rounded-2xl overflow-hidden hover:border-steel-blue/50 transition-all duration-300 hover:shadow-xl hover:shadow-steel-blue/10"
                     >
-                      {/* Color bar */}
-                      <div
-                        className={`h-2 bg-gradient-to-r ${event.color}`}
-                      />
+                      {/* Event image */}
+                      <div className="relative h-44 overflow-hidden">
+                        <img
+                          src={event.image}
+                          alt={event.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-dark-steel/80 to-transparent" />
+                        <div className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${event.color}`} />
+                      </div>
 
                       <div className="p-6">
                         {/* Icon + name */}

@@ -16,6 +16,7 @@ const StorePage = lazy(() => import('./components/StorePage'))
 const LocalGallery = lazy(() => import('./pages/LocalGallery'))
 const GolfOuting = lazy(() => import('./pages/GolfOuting'))
 const HockeyForACause = lazy(() => import('./pages/HockeyForACause'))
+const TopGolf = lazy(() => import('./pages/TopGolf'))
 const JoinTeam = lazy(() => import('./pages/JoinTeam'))
 const PracticeSchedule = lazy(() => import('./pages/PracticeSchedule'))
 const Events = lazy(() => import('./pages/Events'))
@@ -24,6 +25,7 @@ const GamePage = lazy(() => import('./pages/GamePage'))
 const GameHighlightsGallery = lazy(() => import('./pages/GameHighlightsGallery'))
 const Donate = lazy(() => import('./pages/Donate'))
 const DonationModal = lazy(() => import('./components/DonationModal'))
+const NotFound = lazy(() => import('./pages/NotFound'))
 // Temporarily disable FeedbackAdmin until properly configured
 // const FeedbackAdmin = lazy(() => import('./components/FeedbackAdmin'))
 
@@ -68,6 +70,11 @@ function App() {
                   <HockeyForACause />
                 </ProtectedEventRoute>
               } />
+              <Route path="/topgolf" element={
+                <ProtectedEventRoute eventKey="topgolf">
+                  <TopGolf />
+                </ProtectedEventRoute>
+              } />
               <Route path="/join-team" element={<JoinTeam />} />
               <Route path="/practice-schedule" element={<PracticeSchedule />} />
               <Route path="/events" element={<Events />} />
@@ -85,8 +92,8 @@ function App() {
               {/* Redirect old adult team URLs to root */}
               <Route path="/team/adult/*" element={<Navigate to="/" replace />} />
 
-              {/* Catch all - redirect to root */}
-              <Route path="*" element={<Navigate to="/" replace />} />
+              {/* Catch all - 404 page */}
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
           <GlobalDonationModal />

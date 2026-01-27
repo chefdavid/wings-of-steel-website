@@ -1,50 +1,56 @@
 import { motion } from 'framer-motion'
-import { Star, Award, Medal, Target, Beer, Heart, Trophy, Users, Megaphone } from 'lucide-react'
+import { Star, Award, Medal, Beer } from 'lucide-react'
 
 const SponsorshipOptions = () => {
   const premiumSponsors = [
     {
-      level: 'GOLD SPONSOR',
+      level: 'DINNER SPONSOR',
       price: '$2,700',
       icon: Star,
       color: 'bg-gradient-to-br from-yellow-500 to-amber-600',
       borderColor: 'border-yellow-500',
       benefits: [
         'Golf for 4 players',
-        'Lunch & beverage sponsorship',
-        'Premium signage at registration',
-        'Logo on all event materials',
+        'Signage at dinner and registration',
         'Social media recognition',
         'Recognition at dinner'
       ],
       featured: true
     },
     {
-      level: 'SILVER SPONSOR',
+      level: 'LUNCH SPONSOR',
       price: '$1,800',
       icon: Award,
       color: 'bg-gradient-to-br from-gray-400 to-gray-600',
       borderColor: 'border-gray-400',
       benefits: [
         'Golf for 4 players',
-        'Lunch sponsorship recognition',
-        'Signage at registration',
-        'Logo on event website',
+        'Recognition at lunch',
+        'Signage at registration and lunch',
         'Social media recognition'
       ]
     },
     {
-      level: 'BRONZE SPONSOR',
+      level: 'PREMIUM BEER SPONSOR',
       price: '$1,000',
       icon: Medal,
       color: 'bg-gradient-to-br from-orange-600 to-orange-700',
       borderColor: 'border-orange-600',
       benefits: [
         'Golf for 2 players',
-        'Beer sponsorship recognition',
-        'Recognition in print materials',
-        'Logo on event website',
-        'Social media shout-out'
+        'Social media recognition',
+        'Premium beer sponsorship (cart)'
+      ]
+    },
+    {
+      level: 'BEER KEG SPONSORSHIP',
+      price: '$450',
+      icon: Beer,
+      color: 'bg-gradient-to-br from-amber-500 to-amber-600',
+      borderColor: 'border-amber-500',
+      benefits: [
+        'Sign at keg',
+        'Recognition on social media'
       ]
     }
   ]
@@ -53,51 +59,14 @@ const SponsorshipOptions = () => {
     level: string
     price: string
     icon: any
-    image?: string
     description: string
     color: string
   }> = [
     {
-      level: 'BEVERAGE CART',
-      price: '$450',
+      level: 'HOT DOG SPONSOR',
+      price: '$400',
       icon: Beer,
-      description: 'Sponsor the on-course refreshments',
-      color: 'from-amber-500 to-amber-600'
-    },
-    {
-      level: 'CONTEST SPONSOR',
-      price: '$250',
-      icon: Target,
-      description: 'Sponsor longest drive or closest to pin',
-      color: 'from-purple-500 to-purple-600'
-    },
-    {
-      level: 'HOLE SPONSOR',
-      price: '$100',
-      icon: Megaphone,
-      description: 'Your signage on a tee box',
-      color: 'from-green-500 to-green-600'
-    },
-    {
-      level: "LET'S GO GOLFING",
-      price: 'Join Us!',
-      icon: null,
-      image: '/images/tee-placement.jpg',
-      description: 'Ready to tee off for a great cause',
-      color: 'from-championship-gold to-yellow-600'
-    },
-    {
-      level: 'TEAM REGISTRATION',
-      price: '$640',
-      icon: Users,
-      description: 'Register a foursome to play',
-      color: 'from-blue-500 to-blue-600'
-    },
-    {
-      level: 'DONATION',
-      price: 'Any Amount',
-      icon: Heart,
-      description: 'Support our mission directly',
+      description: 'Sign at window, recognition on social media',
       color: 'from-red-500 to-red-600'
     }
   ]
@@ -105,7 +74,7 @@ const SponsorshipOptions = () => {
   return (
     <div className="max-w-7xl mx-auto">
       {/* Premium Sponsorship Tiers */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
         {premiumSponsors.map((sponsor, index) => {
           const Icon = sponsor.icon
           return (
@@ -163,46 +132,13 @@ const SponsorshipOptions = () => {
         <div className="flex flex-wrap justify-center gap-4">
           {additionalSponsors.map((sponsor, index) => {
             const Icon = sponsor.icon
-            
-            // Special layout for Let's Go Golfing box
-            if (sponsor.image) {
-              return (
-                <motion.div
-                  key={sponsor.level}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.3 + index * 0.05 }}
-                  className="relative rounded-lg overflow-hidden hover:shadow-xl transition-all transform hover:-translate-y-1 w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.75rem)] max-w-sm h-[200px]"
-                  style={{
-                    backgroundImage: `url(${sponsor.image})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center'
-                  }}
-                >
-                  {/* Dark overlay for text readability */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
-                  
-                  {/* Content overlay */}
-                  <div className="relative h-full flex flex-col items-center justify-center text-center p-6">
-                    <h4 className="font-sport text-3xl text-white mb-2 drop-shadow-lg">
-                      {sponsor.level}
-                    </h4>
-                    <p className="text-white/90 text-lg font-semibold drop-shadow">
-                      {sponsor.description}
-                    </p>
-                  </div>
-                </motion.div>
-              )
-            }
-            
-            // Regular layout for other boxes
             return (
               <motion.div
                 key={sponsor.level}
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.3 + index * 0.05 }}
-                className="bg-white rounded-lg p-6 hover:shadow-xl transition-all transform hover:-translate-y-1 w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.75rem)] max-w-sm"
+                className="bg-white rounded-lg p-6 hover:shadow-xl transition-all transform hover:-translate-y-1 w-full sm:w-[calc(50%-0.5rem)] max-w-sm"
               >
                 <div className="flex items-center mb-3">
                   <div className={`bg-gradient-to-r ${sponsor.color} p-3 rounded-lg text-white mr-4`}>
@@ -217,7 +153,7 @@ const SponsorshipOptions = () => {
                 </div>
                 <p className="text-gray-600 text-sm">{sponsor.description}</p>
                 <button className="w-full mt-4 border-2 border-steel-blue text-steel-blue hover:bg-steel-blue hover:text-white font-semibold py-2 rounded transition-all">
-                  Select
+                  Inquire
                 </button>
               </motion.div>
             )

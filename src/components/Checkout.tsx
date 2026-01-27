@@ -308,6 +308,10 @@ function CheckoutForm() {
             >
               Continue to Payment
             </button>
+            <div className="flex items-center justify-center gap-2 text-steel-gray text-sm mt-2">
+              <Lock className="w-4 h-4" />
+              <span>Secure checkout powered by Stripe</span>
+            </div>
           </form>
         ) : (
           <form onSubmit={handlePaymentSubmit} className="space-y-6">
