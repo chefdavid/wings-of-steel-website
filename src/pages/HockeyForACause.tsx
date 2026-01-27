@@ -16,13 +16,13 @@ const HockeyForACause = () => {
         {/* Hero Section */}
         <section className="relative md:min-h-[90vh] flex flex-col md:flex-row md:items-center md:justify-center overflow-hidden pt-20">
           {/* Background image — hidden on mobile, shown on desktop as overlay */}
-          <div className="hidden md:block absolute inset-0">
+          <div className="hidden md:block absolute inset-0 bg-dark-steel">
             <img
               src="/images/hockey-for-a-cause-flyer.jpg"
               alt="Hockey for a Cause - Wings of Steel vs Gloucester Catholic"
-              className="w-full h-full object-cover object-center"
+              className="w-full h-full object-contain object-center"
             />
-            <div className="absolute inset-0 bg-gradient-to-b from-dark-steel/70 via-dark-steel/50 to-dark-steel" />
+            <div className="absolute inset-0 bg-gradient-to-b from-dark-steel/30 via-dark-steel/20 to-dark-steel/70" />
           </div>
 
           {/* Mobile-only image — displayed at top */}
