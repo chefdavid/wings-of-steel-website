@@ -57,8 +57,8 @@ const DonationProgressBar = ({
       <div className={`${className}`}>
         {showDetails && (
           <div className="flex justify-between items-center mb-2 text-sm">
-            <span className="text-gray-200">
-              {goal_name}
+            <span className="text-gray-200 capitalize">
+              {goal_type} Goal
             </span>
             <span className="text-yellow-400 font-semibold">
               {formattedCurrent} of {formattedTarget}
@@ -91,8 +91,7 @@ const DonationProgressBar = ({
       <div className={`bg-dark-steel backdrop-blur-sm rounded-lg p-6 border-2 border-steel-blue ${className}`}>
         <div className="flex justify-between items-center mb-4">
           <div>
-            <h3 className="text-xl font-sport text-white">{goal_name}</h3>
-            <p className="text-sm text-ice-blue capitalize font-medium">{goal_type} Goal</p>
+            <h3 className="text-xl font-sport text-white capitalize">{goal_type} Goal</h3>
           </div>
           <div className="text-right">
             <div className="text-3xl font-sport text-yellow-400">{percentage.toFixed(1)}%</div>
