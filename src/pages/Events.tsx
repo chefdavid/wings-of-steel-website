@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
-import { Calendar, MapPin, ArrowRight } from 'lucide-react'
-import { FaGolfBall } from 'react-icons/fa'
+import { Calendar, MapPin, ArrowRight, Heart } from 'lucide-react'
+import { FaGolfBall, FaHockeyPuck } from 'react-icons/fa'
 import { Link } from 'react-router-dom'
 import Navigation from '../components/Navigation'
 import Footer from '../components/Footer'
@@ -19,6 +19,18 @@ interface EventCard {
 }
 
 const allEvents: EventCard[] = [
+  {
+    key: 'hockey-for-a-cause',
+    name: 'Hockey for a Cause',
+    tagline: 'Wings of Steel vs Gloucester Catholic',
+    date: 'March 22, 2026 — 1:20 PM',
+    location: 'Voorhees Flyers Skate Zone',
+    description:
+      'Watch the GC Rams hop into sleds and face off against Wings of Steel in a fun exhibition game! Entry by donation, basket auction on-site. All proceeds keep sled hockey free for every child.',
+    href: '/hockey-for-a-cause',
+    icon: <FaHockeyPuck className="text-3xl" />,
+    color: 'from-red-600 to-red-800',
+  },
   {
     key: 'golf-outing',
     name: 'Tom Brake Memorial Golf Outing',

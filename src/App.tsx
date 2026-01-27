@@ -15,6 +15,7 @@ const OpponentTeams = lazy(() => import('./components/OpponentTeams'))
 const StorePage = lazy(() => import('./components/StorePage'))
 const LocalGallery = lazy(() => import('./pages/LocalGallery'))
 const GolfOuting = lazy(() => import('./pages/GolfOuting'))
+const HockeyForACause = lazy(() => import('./pages/HockeyForACause'))
 const JoinTeam = lazy(() => import('./pages/JoinTeam'))
 const PracticeSchedule = lazy(() => import('./pages/PracticeSchedule'))
 const Events = lazy(() => import('./pages/Events'))
@@ -59,6 +60,11 @@ function App() {
               <Route path="/golf-outing" element={
                 <ProtectedEventRoute eventKey="golf-outing">
                   <GolfOuting />
+                </ProtectedEventRoute>
+              } />
+              <Route path="/hockey-for-a-cause" element={
+                <ProtectedEventRoute eventKey="hockey-for-a-cause">
+                  <HockeyForACause />
                 </ProtectedEventRoute>
               } />
               <Route path="/join-team" element={<JoinTeam />} />

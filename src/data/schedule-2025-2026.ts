@@ -154,9 +154,11 @@ export const schedule2025_2026: Omit<Game, 'id'>[] = [
   {
     game_date: '2026-03-22',
     game_time: '13:20',
-    opponent: 'TBD',
+    opponent: 'Gloucester Catholic',
     location: 'Flyers Skate Zone',
     home_away: 'home',
+    game_type: 'Exhibition',
+    notes: 'Hockey for a Cause — Entry by Donation. Basket auction on-site!',
     season: '2025-2026',
     is_active: true
   }

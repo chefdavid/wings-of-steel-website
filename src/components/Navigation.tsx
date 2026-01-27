@@ -50,6 +50,7 @@ const Navigation = () => {
   // Lookup map for featured event CTA
   const featuredEventMeta: Record<string, { name: string; href: string }> = {
     'golf-outing': { name: 'Golf Outing', href: '/golf-outing' },
+    'hockey-for-a-cause': { name: 'Hockey for a Cause', href: '/hockey-for-a-cause' },
   };
 
   // Filter menu items based on event visibility
