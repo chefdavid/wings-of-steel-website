@@ -74,7 +74,7 @@ const SponsorshipOptions = () => {
   return (
     <div className="max-w-7xl mx-auto">
       {/* Premium Sponsorship Tiers */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8 mb-6 md:mb-12">
         {premiumSponsors.map((sponsor, index) => {
           const Icon = sponsor.icon
           return (
@@ -96,14 +96,14 @@ const SponsorshipOptions = () => {
               <div className={`h-full bg-white rounded-xl shadow-2xl overflow-hidden border-2 ${sponsor.borderColor} ${
                 sponsor.featured ? 'transform scale-105' : ''
               } flex flex-col`}>
-                <div className={`${sponsor.color} p-8 text-white text-center`}>
-                  <Icon className="mx-auto mb-4" size={56} />
-                  <h3 className="text-3xl font-sport mb-2">{sponsor.level}</h3>
-                  <p className="text-4xl font-bold">{sponsor.price}</p>
+                <div className={`${sponsor.color} p-4 md:p-8 text-white text-center`}>
+                  <Icon className="mx-auto mb-2 md:mb-4" size={36} />
+                  <h3 className="text-xl md:text-3xl font-sport mb-1 md:mb-2">{sponsor.level}</h3>
+                  <p className="text-2xl md:text-4xl font-bold">{sponsor.price}</p>
                 </div>
-                
-                <div className="p-8 flex-1 flex flex-col">
-                  <ul className="space-y-4 mb-8 flex-1">
+
+                <div className="p-4 md:p-8 flex-1 flex flex-col">
+                  <ul className="space-y-3 md:space-y-4 mb-4 md:mb-8 flex-1">
                     {sponsor.benefits.map((benefit, idx) => (
                       <li key={idx} className="flex items-start">
                         <svg className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -114,7 +114,7 @@ const SponsorshipOptions = () => {
                     ))}
                   </ul>
                   
-                  <button className={`w-full ${sponsor.featured ? 'bg-championship-gold hover:bg-yellow-500 text-dark-steel' : 'bg-steel-blue hover:bg-dark-steel text-white'} font-bold py-4 rounded-lg transition-all transform hover:scale-105 shadow-lg`}>
+                  <button className={`w-full ${sponsor.featured ? 'bg-championship-gold hover:bg-yellow-500 text-dark-steel' : 'bg-steel-blue hover:bg-dark-steel text-white'} font-bold py-3 md:py-4 rounded-lg transition-all transform hover:scale-105 shadow-lg text-sm md:text-base`}>
                     Choose This Package
                   </button>
                 </div>
@@ -125,8 +125,8 @@ const SponsorshipOptions = () => {
       </div>
 
       {/* Additional Sponsorship Options */}
-      <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8">
-        <h3 className="text-2xl font-sport text-white text-center mb-8">
+      <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 md:p-8">
+        <h3 className="text-xl md:text-2xl font-sport text-white text-center mb-4 md:mb-8">
           MORE WAYS TO SUPPORT
         </h3>
         <div className="flex flex-wrap justify-center gap-4">
@@ -162,11 +162,11 @@ const SponsorshipOptions = () => {
       </div>
 
       {/* Call to Action */}
-      <div className="text-center mt-12">
-        <p className="text-white text-lg mb-4">
+      <div className="text-center mt-6 md:mt-12">
+        <p className="text-white text-sm md:text-lg mb-3 md:mb-4">
           All sponsorships are tax-deductible • Wings of Steel is a 501(c)(3) nonprofit
         </p>
-        <p className="text-ice-blue text-xl font-semibold">
+        <p className="text-ice-blue text-base md:text-xl font-semibold">
           Questions? Contact us at{' '}
           <a href="mailto:golf@wingsofsteel.org" className="underline hover:text-white transition-colors">
             golf@wingsofsteel.org

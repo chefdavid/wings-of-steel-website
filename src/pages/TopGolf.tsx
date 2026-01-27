@@ -235,7 +235,7 @@ const TopGolf = () => {
             <img
               src="/images/topgolf-hero.webp"
               alt="Topgolf driving range with hockey player"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover object-[30%_center] md:object-center"
             />
             <div className="absolute inset-0 bg-gradient-to-b from-dark-steel/40 via-dark-steel/25 to-dark-steel/80" />
           </div>

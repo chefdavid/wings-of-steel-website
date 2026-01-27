@@ -401,7 +401,7 @@ const GolfRegistrationForm: React.FC<GolfRegistrationFormProps> = ({
   if (step === 'success') {
     return (
       <motion.div
-        className="max-w-2xl mx-auto bg-green-50 border-2 border-green-500 rounded-lg p-8 text-center"
+        className="max-w-2xl mx-auto bg-green-50 border-2 border-green-500 rounded-lg p-5 md:p-8 text-center"
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
       >
@@ -420,10 +420,10 @@ const GolfRegistrationForm: React.FC<GolfRegistrationFormProps> = ({
   return (
     <div className="max-w-4xl mx-auto">
       {/* Number of Players */}
-      <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg p-8 mb-6 border border-gray-100">
-        <h3 className="text-2xl font-bold text-dark-steel mb-6 text-center">Select Your Team Size</h3>
+      <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg p-4 md:p-8 mb-4 md:mb-6 border border-gray-100">
+        <h3 className="text-xl md:text-2xl font-bold text-dark-steel mb-4 md:mb-6 text-center">Select Your Team Size</h3>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-4 md:mb-6">
           {[1, 2, 3, 4].map(num => (
             <motion.button
               key={num}
@@ -432,13 +432,13 @@ const GolfRegistrationForm: React.FC<GolfRegistrationFormProps> = ({
               disabled={step === 'payment'}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className={`relative p-6 rounded-xl font-bold transition-all border-2 ${
+              className={`relative p-3 md:p-6 rounded-xl font-bold transition-all border-2 ${
                 numPlayers === num
                   ? 'bg-gradient-to-br from-steel-blue to-dark-steel text-white border-steel-blue shadow-xl'
                   : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-200 hover:border-steel-blue'
               } ${step === 'payment' ? 'opacity-60 cursor-not-allowed' : ''}`}
             >
-              <div className="text-3xl mb-2">{num === 1 ? '🏌️' : num === 2 ? '🏌️🏌️' : num === 3 ? '🏌️🏌️🏌️' : '🏌️🏌️🏌️🏌️'}</div>
+              <div className="text-2xl md:text-3xl mb-1 md:mb-2">{num === 1 ? '🏌️' : num === 2 ? '🏌️🏌️' : num === 3 ? '🏌️🏌️🏌️' : '🏌️🏌️🏌️🏌️'}</div>
               <div className="text-2xl font-sport mb-1">{num}</div>
               <div className="text-sm">{num === 1 ? 'Golfer' : 'Golfers'}</div>
               <div className={`text-xs mt-2 ${numPlayers === num ? 'text-ice-blue' : 'text-gray-500'}`}>
@@ -458,7 +458,7 @@ const GolfRegistrationForm: React.FC<GolfRegistrationFormProps> = ({
         </div>
 
         {/* Pricing Display */}
-        <div className="bg-white rounded-lg p-4 border-2 border-championship-gold">
+        <div className="bg-white rounded-lg p-3 md:p-4 border-2 border-championship-gold">
           <div className="flex justify-between items-center">
             <div>
               <p className="text-sm text-gray-600">Selected Package:</p>
@@ -477,19 +477,19 @@ const GolfRegistrationForm: React.FC<GolfRegistrationFormProps> = ({
           </div>
         </div>
 
-        <p className="text-center text-sm text-gray-600 mt-4">
+        <p className="text-center text-xs md:text-sm text-gray-600 mt-3 md:mt-4">
           <span className="font-semibold">Note:</span> Teams can have 1-4 players.
           We'll pair smaller groups with others to form complete foursomes.
         </p>
       </div>
 
       {/* Player Information */}
-      <div className="bg-white rounded-xl shadow-lg p-8 mb-6">
-        <h3 className="text-2xl font-bold text-dark-steel mb-2 text-center">Player Information</h3>
-        <p className="text-sm text-gray-500 text-center mb-6">One player must be designated as Team Captain</p>
+      <div className="bg-white rounded-xl shadow-lg p-4 md:p-8 mb-4 md:mb-6">
+        <h3 className="text-xl md:text-2xl font-bold text-dark-steel mb-1 md:mb-2 text-center">Player Information</h3>
+        <p className="text-xs md:text-sm text-gray-500 text-center mb-4 md:mb-6">One player must be designated as Team Captain</p>
 
         <AnimatePresence mode="wait">
-          <div className="space-y-6">
+          <div className="space-y-5 md:space-y-6">
             {Array.from({ length: numPlayers }).map((_, index) => {
               const isThisCaptain = players[index].isCaptain
               return (
@@ -499,7 +499,7 @@ const GolfRegistrationForm: React.FC<GolfRegistrationFormProps> = ({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ delay: index * 0.1 }}
-                className={`relative rounded-lg p-6 border-2 transition-colors ${
+                className={`relative rounded-lg p-4 md:p-6 border-2 transition-colors ${
                   isThisCaptain
                     ? 'bg-gradient-to-br from-championship-gold/10 to-yellow-50 border-championship-gold'
                     : 'bg-gradient-to-br from-gray-50 to-white border-gray-200 hover:border-steel-blue'
@@ -514,7 +514,7 @@ const GolfRegistrationForm: React.FC<GolfRegistrationFormProps> = ({
                 </div>
 
                 {/* Team Captain checkbox */}
-                <div className="mt-2 mb-4">
+                <div className="mt-2 mb-3">
                   <label className="flex items-center space-x-2 cursor-pointer">
                     <input
                       type="checkbox"
@@ -529,7 +529,7 @@ const GolfRegistrationForm: React.FC<GolfRegistrationFormProps> = ({
                   </label>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                   <input
                     type="text"
                     placeholder="First Name*"
@@ -596,7 +596,7 @@ const GolfRegistrationForm: React.FC<GolfRegistrationFormProps> = ({
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
-                    className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4"
+                    className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 mt-3 md:mt-4"
                   >
                     <input
                       type="tel"
@@ -618,8 +618,8 @@ const GolfRegistrationForm: React.FC<GolfRegistrationFormProps> = ({
                 )}
 
                 {/* Mulligans for this player */}
-                <div className="mt-3 flex items-center space-x-4">
-                  <span className="font-semibold">Mulligans ($5 each):</span>
+                <div className="mt-3 flex items-center space-x-3 md:space-x-4">
+                  <span className="font-semibold text-sm md:text-base">Mulligans ($5 each):</span>
                   <div className="flex items-center space-x-2">
                     <button
                       type="button"
@@ -649,9 +649,9 @@ const GolfRegistrationForm: React.FC<GolfRegistrationFormProps> = ({
       </div>
 
       {/* Who are you golfing with? */}
-      <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-        <h3 className="text-2xl font-bold text-dark-steel mb-2">Who are you golfing with?</h3>
-        <p className="text-sm text-gray-600 mb-4">
+      <div className="bg-white rounded-lg shadow-lg p-4 md:p-6 mb-4 md:mb-6">
+        <h3 className="text-lg md:text-2xl font-bold text-dark-steel mb-1 md:mb-2">Who are you golfing with?</h3>
+        <p className="text-xs md:text-sm text-gray-600 mb-3 md:mb-4">
           If you're registering separately from your group, let us know who you'd like to be paired with.
         </p>
         <textarea
@@ -665,8 +665,8 @@ const GolfRegistrationForm: React.FC<GolfRegistrationFormProps> = ({
       </div>
 
       {/* Add-Ons */}
-      <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-        <h3 className="text-2xl font-bold text-dark-steel mb-4">Enhance Your Experience</h3>
+      <div className="bg-white rounded-lg shadow-lg p-4 md:p-6 mb-4 md:mb-6">
+        <h3 className="text-lg md:text-2xl font-bold text-dark-steel mb-3 md:mb-4">Enhance Your Experience</h3>
 
         <div className="space-y-4">
           <div className="flex items-center justify-between">
@@ -698,8 +698,8 @@ const GolfRegistrationForm: React.FC<GolfRegistrationFormProps> = ({
       </div>
 
       {/* Order Summary */}
-      <div className="bg-gradient-to-r from-steel-blue to-dark-steel text-white rounded-lg shadow-lg p-6 mb-6">
-        <h3 className="text-2xl font-bold mb-4 flex items-center">
+      <div className="bg-gradient-to-r from-steel-blue to-dark-steel text-white rounded-lg shadow-lg p-4 md:p-6 mb-4 md:mb-6">
+        <h3 className="text-lg md:text-2xl font-bold mb-3 md:mb-4 flex items-center">
           <ShoppingCart className="mr-2" /> Order Summary
         </h3>
         <div className="space-y-2">
@@ -719,8 +719,8 @@ const GolfRegistrationForm: React.FC<GolfRegistrationFormProps> = ({
               <span>${addOns.dinnerGuests * 50}</span>
             </div>
           )}
-          <div className="border-t pt-2 mt-4">
-            <div className="flex justify-between text-2xl font-bold">
+          <div className="border-t pt-2 mt-3 md:mt-4">
+            <div className="flex justify-between text-xl md:text-2xl font-bold">
               <span>Total</span>
               <span>${calculateTotal()}</span>
             </div>
@@ -729,7 +729,7 @@ const GolfRegistrationForm: React.FC<GolfRegistrationFormProps> = ({
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-300 rounded-lg p-4 mb-6">
+        <div className="bg-red-50 border border-red-300 rounded-lg p-3 md:p-4 mb-4 md:mb-6">
           <p className="text-red-700">{error}</p>
         </div>
       )}

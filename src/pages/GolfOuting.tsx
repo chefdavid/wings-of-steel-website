@@ -23,19 +23,19 @@ const GolfOuting = () => {
   }, [videoLoaded, videoError])
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-white overflow-y-auto">
+    <div className="fixed inset-0 z-[9999] bg-white overflow-y-auto overflow-x-hidden">
       <div className="min-h-screen bg-gradient-to-b from-dark-steel to-steel-gray">
         <Navigation />
         
         {/* Hero Section with Video Background */}
-        <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
+        <section className="relative min-h-[60vh] md:min-h-screen flex items-center justify-center overflow-hidden pt-16 md:pt-20">
         {/* TB Logo in Top Right */}
-        <div className="absolute top-24 right-4 md:right-8 z-30 group">
+        <div className="absolute top-20 right-3 md:top-24 md:right-8 z-30 group">
           <div className="relative">
-            <img 
-              src="/images/tb-logo.png" 
-              alt="Tom Brake Memorial" 
-              className="w-24 md:w-32 lg:w-40 h-auto opacity-90 group-hover:opacity-100 transition-opacity"
+            <img
+              src="/images/tb-logo.png"
+              alt="Tom Brake Memorial"
+              className="w-16 md:w-32 lg:w-40 h-auto opacity-90 group-hover:opacity-100 transition-opacity"
             />
             <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
               <p className="text-white text-sm md:text-base font-semibold bg-black/50 backdrop-blur-sm px-3 py-1 rounded">
@@ -63,8 +63,7 @@ const GolfOuting = () => {
             playsInline={true}
             controls={false}
             poster="/images/golf-hero.jpg"
-            className="absolute inset-0 w-full h-full object-cover"
-            style={{ objectPosition: 'center' }}
+            className="absolute inset-0 w-full h-full object-cover object-center"
             onCanPlay={() => {
               console.log('Video can play')
               setVideoLoaded(true)
@@ -115,78 +114,78 @@ const GolfOuting = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h1 className="font-sport text-6xl md:text-8xl text-white mb-4">
+            <h1 className="font-sport text-3xl md:text-8xl text-white mb-2 md:mb-4">
               WINGS OF STEEL ANNUAL
             </h1>
-            <h2 className="font-sport text-4xl md:text-6xl text-ice-blue mb-6">
+            <h2 className="font-sport text-2xl md:text-6xl text-ice-blue mb-3 md:mb-6">
               GOLF OUTING 2026
             </h2>
-            <p className="text-xl md:text-2xl text-white/90 mb-8 max-w-3xl mx-auto">
+            <p className="text-sm md:text-2xl text-white/90 mb-4 md:mb-8 max-w-3xl mx-auto">
               <span className="font-bold">Golf with Purpose - Sponsor - Keep Kids on the Ice</span>
-              <br />
-              Your round of golf and your sponsorship make the difference—funding the equipment, ice time, and support that ensures no child is left on the sidelines.
+              <br className="hidden md:block" />
+              <span className="hidden md:inline"> Your round of golf and your sponsorship make the difference—funding the equipment, ice time, and support that ensures no child is left on the sidelines.</span>
             </p>
             
             {/* Event Details Bar */}
-            <div className="bg-white/10 backdrop-blur-md rounded-lg p-6 max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-              <div className="flex items-center justify-center space-x-2">
-                <Calendar className="text-ice-blue" size={24} />
-                <span className="text-white font-semibold">Monday, May 18, 2026</span>
+            <div className="bg-white/10 backdrop-blur-md rounded-lg p-3 md:p-6 max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 mb-4 md:mb-8">
+              <div className="flex items-center justify-center space-x-1 md:space-x-2">
+                <Calendar className="text-ice-blue flex-shrink-0" size={16} />
+                <span className="text-white font-semibold text-xs md:text-base">May 18, 2026</span>
               </div>
-              <div className="flex items-center justify-center space-x-2">
-                <MapPin className="text-ice-blue" size={24} />
-                <a 
-                  href="https://ramblewoodcc.com/" 
-                  target="_blank" 
+              <div className="flex items-center justify-center space-x-1 md:space-x-2">
+                <MapPin className="text-ice-blue flex-shrink-0" size={16} />
+                <a
+                  href="https://ramblewoodcc.com/"
+                  target="_blank"
                   rel="noopener noreferrer"
-                  className="text-white font-semibold hover:text-ice-blue transition-colors underline"
+                  className="text-white font-semibold hover:text-ice-blue transition-colors underline text-xs md:text-base"
                 >
-                  Ron Jaworski's Ramblewood
+                  Ramblewood CC
                 </a>
               </div>
-              <div className="flex items-center justify-center space-x-2">
-                <Clock className="text-ice-blue" size={24} />
-                <span className="text-white font-semibold">1:00 PM Tee-Off</span>
+              <div className="flex items-center justify-center space-x-1 md:space-x-2">
+                <Clock className="text-ice-blue flex-shrink-0" size={16} />
+                <span className="text-white font-semibold text-xs md:text-base">1:00 PM Tee-Off</span>
               </div>
-              <div className="flex items-center justify-center space-x-2">
-                <Users className="text-championship-gold" size={24} />
-                <span className="text-championship-gold font-bold">
+              <div className="flex items-center justify-center space-x-1 md:space-x-2">
+                <Users className="text-championship-gold flex-shrink-0" size={16} />
+                <span className="text-championship-gold font-bold text-xs md:text-base">
                   {spotsRemaining} Teams Left!
                 </span>
               </div>
             </div>
             
             {/* 3-Step Guide - Subtle */}
-            <div className="max-w-3xl mx-auto mb-6 text-center">
-              <div className="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-8 text-sm">
-                <div className="flex items-center gap-2">
-                  <span className="bg-white/20 text-white w-6 h-6 rounded-full flex items-center justify-center font-semibold text-xs">1</span>
-                  <span className="text-white/90">Register your team</span>
+            <div className="max-w-3xl mx-auto mb-4 md:mb-6 text-center">
+              <div className="flex flex-row justify-center items-center gap-3 md:gap-8 text-xs md:text-sm">
+                <div className="flex items-center gap-1 md:gap-2">
+                  <span className="bg-white/20 text-white w-5 h-5 md:w-6 md:h-6 rounded-full flex items-center justify-center font-semibold text-[10px] md:text-xs">1</span>
+                  <span className="text-white/90">Register</span>
                 </div>
-                <div className="hidden md:block text-white/40">•</div>
-                <div className="flex items-center gap-2">
-                  <span className="bg-white/20 text-white w-6 h-6 rounded-full flex items-center justify-center font-semibold text-xs">2</span>
-                  <span className="text-white/90">Become a sponsor</span>
+                <div className="text-white/40">•</div>
+                <div className="flex items-center gap-1 md:gap-2">
+                  <span className="bg-white/20 text-white w-5 h-5 md:w-6 md:h-6 rounded-full flex items-center justify-center font-semibold text-[10px] md:text-xs">2</span>
+                  <span className="text-white/90">Sponsor</span>
                 </div>
-                <div className="hidden md:block text-white/40">•</div>
-                <div className="flex items-center gap-2">
-                  <span className="bg-white/20 text-white w-6 h-6 rounded-full flex items-center justify-center font-semibold text-xs">3</span>
-                  <span className="text-white/90">Share with friends</span>
+                <div className="text-white/40">•</div>
+                <div className="flex items-center gap-1 md:gap-2">
+                  <span className="bg-white/20 text-white w-5 h-5 md:w-6 md:h-6 rounded-full flex items-center justify-center font-semibold text-[10px] md:text-xs">3</span>
+                  <span className="text-white/90">Share</span>
                 </div>
               </div>
             </div>
             
             {/* CTA Buttons - Consistent Style */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center">
               <a
                 href="#register"
-                className="inline-block bg-steel-blue text-white border-2 border-ice-blue font-bold py-4 px-8 rounded-full text-lg shadow-lg hover:bg-dark-steel hover:border-white transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+                className="inline-block bg-steel-blue text-white border-2 border-ice-blue font-bold py-3 px-6 md:py-4 md:px-8 rounded-full text-base md:text-lg shadow-lg hover:bg-dark-steel hover:border-white transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
               >
                 Register Team
               </a>
               <a
                 href="#sponsor"
-                className="inline-block bg-steel-blue text-white border-2 border-ice-blue font-bold py-4 px-8 rounded-full text-lg shadow-lg hover:bg-dark-steel hover:border-white transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+                className="inline-block bg-steel-blue text-white border-2 border-ice-blue font-bold py-3 px-6 md:py-4 md:px-8 rounded-full text-base md:text-lg shadow-lg hover:bg-dark-steel hover:border-white transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
               >
                 Sponsorship Opportunities
               </a>
@@ -196,46 +195,46 @@ const GolfOuting = () => {
       </section>
 
       {/* What's Included Section */}
-      <section className="py-16 bg-white">
+      <section className="py-8 md:py-16 bg-white">
         <div className="container mx-auto px-4">
-          <h2 className="font-sport text-5xl text-center text-dark-steel mb-12">
+          <h2 className="font-sport text-3xl md:text-5xl text-center text-dark-steel mb-6 md:mb-12">
             WHAT'S INCLUDED
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <motion.div 
-              className="bg-gradient-to-br from-steel-blue to-dark-steel p-6 rounded-lg text-white"
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 max-w-5xl mx-auto">
+            <motion.div
+              className="bg-gradient-to-br from-steel-blue to-dark-steel p-4 md:p-6 rounded-lg text-white"
               whileHover={{ scale: 1.05 }}
             >
-              <Trophy className="mb-4 text-championship-gold" size={48} />
-              <h3 className="font-bold text-xl mb-3">Tournament Play</h3>
-              <ul className="space-y-2">
+              <Trophy className="mb-3 md:mb-4 text-championship-gold" size={32} />
+              <h3 className="font-bold text-lg md:text-xl mb-2 md:mb-3">Tournament Play</h3>
+              <ul className="space-y-1 md:space-y-2 text-sm md:text-base">
                 <li>• Four-Person Scramble Format</li>
                 <li>• Green Fees & Cart</li>
                 <li>• Practice Range Access</li>
               </ul>
             </motion.div>
-            
-            <motion.div 
-              className="bg-gradient-to-br from-steel-blue to-dark-steel p-6 rounded-lg text-white"
+
+            <motion.div
+              className="bg-gradient-to-br from-steel-blue to-dark-steel p-4 md:p-6 rounded-lg text-white"
               whileHover={{ scale: 1.05 }}
             >
-              <Gift className="mb-4 text-championship-gold" size={48} />
-              <h3 className="font-bold text-xl mb-3">Food & Beverages</h3>
-              <ul className="space-y-2">
+              <Gift className="mb-3 md:mb-4 text-championship-gold" size={32} />
+              <h3 className="font-bold text-lg md:text-xl mb-2 md:mb-3">Food & Beverages</h3>
+              <ul className="space-y-1 md:space-y-2 text-sm md:text-base">
                 <li>• Catered Lunch (11:15 AM)</li>
                 <li>• Hot Dog & Beer on Course</li>
                 <li>• Full Dinner Buffet</li>
                 <li>• Beer at Dinner</li>
               </ul>
             </motion.div>
-            
-            <motion.div 
-              className="bg-gradient-to-br from-steel-blue to-dark-steel p-6 rounded-lg text-white"
+
+            <motion.div
+              className="bg-gradient-to-br from-steel-blue to-dark-steel p-4 md:p-6 rounded-lg text-white"
               whileHover={{ scale: 1.05 }}
             >
-              <DollarSign className="mb-4 text-championship-gold" size={48} />
-              <h3 className="font-bold text-xl mb-3">Prizes & Contests</h3>
-              <ul className="space-y-2">
+              <DollarSign className="mb-3 md:mb-4 text-championship-gold" size={32} />
+              <h3 className="font-bold text-lg md:text-xl mb-2 md:mb-3">Prizes & Contests</h3>
+              <ul className="space-y-1 md:space-y-2 text-sm md:text-base">
                 <li>• 1st, 2nd, 3rd Place Teams</li>
                 <li>• Longest Drive Contest</li>
                 <li>• Closest to Pin Contest</li>
@@ -246,55 +245,55 @@ const GolfOuting = () => {
       </section>
 
       {/* Mission Impact Section */}
-      <section className="min-h-screen flex items-center text-white relative overflow-hidden">
+      <section className="py-12 md:py-0 md:min-h-screen flex items-center text-white relative overflow-hidden">
         {/* Hockey Goal Background Image */}
-        <div 
+        <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
             backgroundImage: 'url("/images/hockey-goal.jpg")',
           }}
         />
-        
+
         {/* Dark overlay for text readability */}
         <div className="absolute inset-0 bg-gradient-to-b from-dark-steel/50 via-dark-steel/60 to-dark-steel/50" />
-        
+
         {/* Additional gradient for depth */}
         <div className="absolute inset-0" style={{
           background: 'radial-gradient(ellipse at center, transparent 40%, rgba(10,25,41,0.3) 100%)'
         }} />
-        
+
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
-            <h2 className="font-sport text-5xl mb-8">What Your Support Makes Possible</h2>
-            <p className="text-xl mb-2">
+            <h2 className="font-sport text-3xl md:text-5xl mb-4 md:mb-8">What Your Support Makes Possible</h2>
+            <p className="text-base md:text-xl mb-2">
               Your generosity turns into equipment, ice time, and opportunities to play.
             </p>
-            <p className="text-lg mb-6">
+            <p className="text-sm md:text-lg mb-4 md:mb-6">
               The Annual Golf Outing is our largest fundraiser, raising <span className="text-championship-gold font-bold">75% of our annual budget</span>.
             </p>
-            
+
             {/* Big Thank You */}
-            <div className="my-12">
-              <h3 className="font-sport text-4xl md:text-6xl text-championship-gold mb-4">
+            <div className="my-6 md:my-12">
+              <h3 className="font-sport text-2xl md:text-6xl text-championship-gold mb-2 md:mb-4">
                 THANK YOU FOR SUPPORTING THE KIDS
               </h3>
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
-                <div className="text-5xl font-sport text-championship-gold mb-3">$140</div>
-                <p>Covers equipment for one athlete for an entire season</p>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6">
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 md:p-6">
+                <div className="text-3xl md:text-5xl font-sport text-championship-gold mb-2 md:mb-3">$140</div>
+                <p className="text-sm md:text-base">Covers equipment for one athlete for an entire season</p>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
-                <div className="text-5xl font-sport text-championship-gold mb-3">$560</div>
-                <p>Sponsors ice time for a full team practice</p>
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 md:p-6">
+                <div className="text-3xl md:text-5xl font-sport text-championship-gold mb-2 md:mb-3">$560</div>
+                <p className="text-sm md:text-base">Sponsors ice time for a full team practice</p>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
-                <div className="text-5xl font-sport text-championship-gold mb-3">$2,500</div>
-                <p>Covers tournament travel for the entire team</p>
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 md:p-6">
+                <div className="text-3xl md:text-5xl font-sport text-championship-gold mb-2 md:mb-3">$2,500</div>
+                <p className="text-sm md:text-base">Covers tournament travel for the entire team</p>
               </div>
             </div>
-            <p className="mt-8 text-lg italic">
+            <p className="mt-4 md:mt-8 text-sm md:text-lg italic">
               As a 501(c)(3) nonprofit, your registration and donations are tax-deductible.
             </p>
           </div>
@@ -308,17 +307,17 @@ const GolfOuting = () => {
       <ContestSection />
 
       {/* Registration Form */}
-      <section id="register" className="py-16 relative">
+      <section id="register" className="py-8 md:py-16 relative">
         {/* Greens and Balls Background - No Overlay */}
-        <div 
+        <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
             backgroundImage: 'url("/images/greens-and-balls.jpg")',
           }}
         />
-        
+
         <div className="container mx-auto px-4 relative z-10">
-          <h2 className="font-sport text-5xl text-center text-white mb-12">
+          <h2 className="font-sport text-3xl md:text-5xl text-center text-white mb-6 md:mb-12">
             REGISTER YOUR TEAM
           </h2>
           <GolfRegistrationForm
@@ -329,9 +328,9 @@ const GolfOuting = () => {
       </section>
 
       {/* Sponsorship Options */}
-      <section id="sponsor" className="py-16 bg-gradient-to-b from-steel-gray to-dark-steel">
+      <section id="sponsor" className="py-8 md:py-16 bg-gradient-to-b from-steel-gray to-dark-steel">
         <div className="container mx-auto px-4">
-          <h2 className="font-sport text-5xl text-center text-white mb-12">
+          <h2 className="font-sport text-3xl md:text-5xl text-center text-white mb-6 md:mb-12">
             SPONSORSHIP OPPORTUNITIES
           </h2>
           <SponsorshipOptions />

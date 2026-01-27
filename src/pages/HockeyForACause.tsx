@@ -14,18 +14,27 @@ const HockeyForACause = () => {
         <Navigation />
 
         {/* Hero Section */}
-        <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden pt-20">
-          {/* Background image */}
-          <div className="absolute inset-0">
+        <section className="relative md:min-h-[90vh] flex flex-col md:flex-row md:items-center md:justify-center overflow-hidden pt-20">
+          {/* Background image — hidden on mobile, shown on desktop as overlay */}
+          <div className="hidden md:block absolute inset-0">
             <img
               src="/images/hockey-for-a-cause-flyer.jpg"
               alt="Hockey for a Cause - Wings of Steel vs Gloucester Catholic"
-              className="w-full h-full object-cover object-top"
+              className="w-full h-full object-cover object-center"
             />
             <div className="absolute inset-0 bg-gradient-to-b from-dark-steel/70 via-dark-steel/50 to-dark-steel" />
           </div>
 
-          <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
+          {/* Mobile-only image — displayed at top */}
+          <div className="md:hidden w-full">
+            <img
+              src="/images/hockey-for-a-cause-flyer.jpg"
+              alt="Hockey for a Cause - Wings of Steel vs Gloucester Catholic"
+              className="w-full h-auto"
+            />
+          </div>
+
+          <div className="relative z-10 text-center px-4 max-w-4xl mx-auto py-10 md:py-0">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -63,9 +72,9 @@ const HockeyForACause = () => {
             </motion.div>
           </div>
 
-          {/* Scroll indicator */}
+          {/* Scroll indicator — desktop only */}
           <motion.div
-            className="absolute bottom-8 left-1/2 -translate-x-1/2"
+            className="hidden md:block absolute bottom-8 left-1/2 -translate-x-1/2"
             animate={{ y: [0, 10, 0] }}
             transition={{ repeat: Infinity, duration: 2 }}
           >

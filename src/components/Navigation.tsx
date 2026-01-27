@@ -101,7 +101,7 @@ const Navigation = () => {
             title: 'Media',
             items: [
               { name: 'Photo Gallery', href: '/gallery', isHashLink: false, description: 'Tournament photos & memories' },
-              { name: 'Team Store', href: '/store', isHashLink: false, description: 'Official merchandise' }
+              // { name: 'Team Store', href: '/store', isHashLink: false, description: 'Official merchandise' } // Temporarily hidden while store is disabled
             ]
           },
           {
@@ -393,12 +393,7 @@ const Navigation = () => {
                 >
                   <FaFacebook className="text-2xl" />
                 </a>
-                <Link
-                  to="/store"
-                  className="px-6 py-2 bg-steel-blue text-white rounded-full hover:bg-steel-blue/80 transition-all duration-200 font-sport tracking-wider shadow-lg"
-                >
-                  Shop
-                </Link>
+                {/* Shop button temporarily hidden while store is disabled */}
               </div>
             </div>
 
@@ -547,13 +542,7 @@ const Navigation = () => {
                     <FaFacebook className="text-xl" />
                     Follow on Facebook
                   </a>
-                  <Link
-                    to="/store"
-                    onClick={() => setIsOpen(false)}
-                    className="block px-6 py-3 bg-steel-blue text-white text-center rounded-full hover:bg-steel-blue/80 transition-all duration-200 font-sport tracking-wider"
-                  >
-                    Visit Team Store
-                  </Link>
+                  {/* Visit Team Store link temporarily hidden while store is disabled */}
                 </div>
               </div>
             </motion.div>
