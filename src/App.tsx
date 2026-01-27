@@ -7,7 +7,6 @@ import { ErrorBoundary } from './components/ErrorBoundary'
 import ModalEscapeHandler from './components/ModalEscapeHandler'
 import { GlobalAriaLive } from './components/AriaLiveRegion'
 import ProtectedEventRoute from './components/ProtectedEventRoute'
-import PracticeCanceledPopup from './components/PracticeCanceledPopup'
 
 // Lazy load heavy components
 const TeamSite = lazy(() => import('./components/TeamSite'))
@@ -49,7 +48,6 @@ function App() {
         <DonationModalProvider>
           <GlobalAriaLive />
           <ModalEscapeHandler />
-          <PracticeCanceledPopup />
           <Suspense fallback={<LoadingSpinner />}>
             <Routes>
               {/* Root routes - Direct access */}
