@@ -43,7 +43,8 @@ export const handler = async (event, context) => {
       donorInfo,
       donationType, // 'one-time' or 'recurring'
       campaignId,
-      isRecurring = false
+      isRecurring = false,
+      eventTag = null
     } = JSON.parse(event.body);
 
     // Validate required fields
@@ -119,6 +120,7 @@ export const handler = async (event, context) => {
           company_name: donorInfo.companyName || '',
           player_name: donorInfo.playerName || '',
           campaign_id: campaignId || '',
+          event_tag: eventTag || '',
           is_anonymous: donorInfo.isAnonymous ? 'true' : 'false'
         }
       });
@@ -142,6 +144,7 @@ export const handler = async (event, context) => {
           player_name: donorInfo.playerName || '',
           message: donorInfo.message || '',
           campaign_id: campaignId || '',
+          event_tag: eventTag || '',
           is_anonymous: donorInfo.isAnonymous ? 'true' : 'false'
         },
         receipt_email: donorInfo.email,
@@ -164,7 +167,8 @@ export const handler = async (event, context) => {
       stripe_payment_intent_id: paymentIntent.id,
       stripe_subscription_id: subscription ? subscription.id : null,
       payment_status: 'pending',
-      campaign_id: campaignId || null
+      campaign_id: campaignId || null,
+      event_tag: eventTag || null
     };
 
     const { data: donation, error: insertError } = await supabase

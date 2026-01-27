@@ -47,7 +47,7 @@ const HockeyForACause = () => {
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <button
-                  onClick={() => openModal()}
+                  onClick={() => openModal(undefined, 'hockey-for-a-cause')}
                   className="px-8 py-4 bg-yellow-500 text-black rounded-full hover:bg-yellow-400 shadow-lg font-bold text-lg font-sport tracking-wider transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2"
                 >
                   <Heart size={20} />
@@ -231,7 +231,7 @@ const HockeyForACause = () => {
                 accessible for all children.
               </p>
               <button
-                onClick={() => openModal()}
+                onClick={() => openModal(undefined, 'hockey-for-a-cause')}
                 className="px-10 py-4 bg-yellow-500 text-black rounded-full hover:bg-yellow-400 shadow-lg font-bold text-xl font-sport tracking-wider transition-all duration-300 hover:scale-105 inline-flex items-center gap-3"
               >
                 <Heart size={22} />

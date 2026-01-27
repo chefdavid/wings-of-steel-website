@@ -3,7 +3,8 @@ import { createContext, useContext, useState, ReactNode, useCallback } from 'rea
 interface DonationModalContextType {
   isOpen: boolean;
   initialAmount?: number;
-  openModal: (amount?: number) => void;
+  eventTag?: string;
+  openModal: (amount?: number, eventTag?: string) => void;
   closeModal: () => void;
 }
 
@@ -12,19 +13,22 @@ const DonationModalContext = createContext<DonationModalContextType | undefined>
 export const DonationModalProvider = ({ children }: { children: ReactNode }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [initialAmount, setInitialAmount] = useState<number | undefined>(undefined);
+  const [eventTag, setEventTag] = useState<string | undefined>(undefined);
 
-  const openModal = useCallback((amount?: number) => {
+  const openModal = useCallback((amount?: number, tag?: string) => {
     setInitialAmount(amount);
+    setEventTag(tag);
     setIsOpen(true);
   }, []);
 
   const closeModal = useCallback(() => {
     setIsOpen(false);
     setInitialAmount(undefined);
+    setEventTag(undefined);
   }, []);
 
   return (
-    <DonationModalContext.Provider value={{ isOpen, initialAmount, openModal, closeModal }}>
+    <DonationModalContext.Provider value={{ isOpen, initialAmount, eventTag, openModal, closeModal }}>
       {children}
     </DonationModalContext.Provider>
   );

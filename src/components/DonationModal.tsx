@@ -13,6 +13,7 @@ interface DonationModalProps {
   onClose: () => void;
   onSuccess?: () => void;
   initialAmount?: number;
+  eventTag?: string;
 }
 
 interface DonorInfo {
@@ -28,7 +29,7 @@ interface DonorInfo {
 
 const PRESET_AMOUNTS = [5, 10, 25, 50, 100];
 
-function DonationForm({ onSuccess, onClose, initialAmount }: { onSuccess: () => void; onClose: () => void; initialAmount?: number }) {
+function DonationForm({ onSuccess, onClose, initialAmount, eventTag }: { onSuccess: () => void; onClose: () => void; initialAmount?: number; eventTag?: string }) {
   const stripe = useStripe();
   const elements = useElements();
   const { activeGoal } = useDonationGoals();
@@ -151,6 +152,7 @@ function DonationForm({ onSuccess, onClose, initialAmount }: { onSuccess: () => 
           donationType: donorInfo.isRecurring ? 'recurring' : 'one-time',
           isRecurring: donorInfo.isRecurring,
           campaignId: activeGoal?.goal_id || null,
+          eventTag: eventTag || null,
         }),
       });
 
@@ -596,7 +598,7 @@ function DonationForm({ onSuccess, onClose, initialAmount }: { onSuccess: () => 
   );
 }
 
-const DonationModal = ({ isOpen, onClose, onSuccess, initialAmount }: DonationModalProps) => {
+const DonationModal = ({ isOpen, onClose, onSuccess, initialAmount, eventTag }: DonationModalProps) => {
   const [stripePromise, setStripePromise] = useState<any>(null);
   const [success, setSuccess] = useState(false);
 
@@ -680,7 +682,7 @@ const DonationModal = ({ isOpen, onClose, onSuccess, initialAmount }: DonationMo
                 </div>
               ) : stripePromise ? (
                 <Elements stripe={stripePromise}>
-                  <DonationForm onSuccess={handleSuccess} onClose={onClose} initialAmount={initialAmount} />
+                  <DonationForm onSuccess={handleSuccess} onClose={onClose} initialAmount={initialAmount} eventTag={eventTag} />
                 </Elements>
               ) : (
                 <div className="text-center py-8">

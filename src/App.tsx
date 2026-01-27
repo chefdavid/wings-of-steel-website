@@ -28,7 +28,7 @@ const DonationModal = lazy(() => import('./components/DonationModal'))
 // const FeedbackAdmin = lazy(() => import('./components/FeedbackAdmin'))
 
 function GlobalDonationModal() {
-  const { isOpen, initialAmount, closeModal } = useDonationModal()
+  const { isOpen, initialAmount, eventTag, closeModal } = useDonationModal()
   if (!isOpen) return null
   return (
     <Suspense fallback={null}>
@@ -37,6 +37,7 @@ function GlobalDonationModal() {
         onClose={closeModal}
         onSuccess={closeModal}
         initialAmount={initialAmount}
+        eventTag={eventTag}
       />
     </Suspense>
   )
