@@ -21,16 +21,7 @@ export const getTeamPlayers = async (teamType: TeamType): Promise<PlayerWithTeam
 
     if (error) throw error;
 
-    // Log raw data for Laurel
-    const laurelRaw = data?.find(p => p.first_name?.toLowerCase() === 'laurel');
-    if (laurelRaw) {
-      console.log(`🔍 [${timestamp}] Laurel raw data from player_team_details view:`, {
-        first_name: laurelRaw.first_name,
-        position: laurelRaw.position,
-        team_position: laurelRaw.team_position,
-        team_type: laurelRaw.team_type
-      });
-    }
+    // Removed debug logs
 
     // Transform the data to match PlayerWithTeams interface
     const playersWithTeams: PlayerWithTeams[] = (data || []).map(player => ({
@@ -46,7 +37,6 @@ export const getTeamPlayers = async (teamType: TeamType): Promise<PlayerWithTeam
       }
     }));
 
-    console.log(`Fetched ${playersWithTeams.length} players at ${timestamp}`);
     return playersWithTeams;
   } catch (error) {
     console.error('Error fetching team players:', error);

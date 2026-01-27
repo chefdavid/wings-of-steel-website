@@ -3,9 +3,11 @@ import { motion } from 'framer-motion';
 import { FaDonate, FaHandHoldingHeart, FaEnvelope, FaHockeyPuck, FaMapMarkerAlt } from 'react-icons/fa';
 import { supabase } from '../lib/supabaseClient';
 import ContactForms from './ContactForms';
+import { useDonationModal } from '../contexts/DonationModalContext';
 
 const GetInvolved = () => {
   const [getInvolvedData, setGetInvolvedData] = useState<any>(null);
+  const { openModal } = useDonationModal();
 
   useEffect(() => {
     fetchGetInvolvedData();
@@ -72,11 +74,16 @@ const GetInvolved = () => {
             </div>
             
             <div className="space-y-4">
-              {donationOptions.map((option: any, index: number) => (
-                <motion.div
+              {donationOptions.map((option: any, index: number) => {
+                const numericAmount = typeof option.amount === 'string'
+                  ? parseInt(option.amount.replace(/[^0-9]/g, ''), 10)
+                  : option.amount;
+                return (
+                <motion.button
                   key={index}
                   whileHover={{ x: 10 }}
-                  className="bg-steel-gray/30 backdrop-blur-sm rounded-lg p-3 md:p-4 border border-steel-blue/30 hover:border-steel-blue transition-colors duration-300"
+                  onClick={() => openModal(numericAmount)}
+                  className="bg-steel-gray/30 backdrop-blur-sm rounded-lg p-3 md:p-4 border border-steel-blue/30 hover:border-steel-blue transition-colors duration-300 text-left w-full cursor-pointer"
                 >
                   <div className="flex justify-between items-start">
                     <div>
@@ -87,18 +94,19 @@ const GetInvolved = () => {
                     </div>
                   </div>
                   <p className="text-sm text-gray-300 mt-2">{option.impact}</p>
-                </motion.div>
-              ))}
+                </motion.button>
+                );
+              })}
             </div>
 
-            <motion.a
+            <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              href="#donate"
+              onClick={() => openModal()}
               className="inline-block w-full bg-steel-blue text-white px-8 py-4 rounded-full font-medium text-center mt-6 hover:bg-blue-600 transition-colors duration-300"
             >
               Donate Now
-            </motion.a>
+            </motion.button>
           </motion.div>
 
           <motion.div

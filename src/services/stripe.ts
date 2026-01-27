@@ -7,10 +7,10 @@ let stripePromise: Promise<Stripe | null> | null = null;
 const getStripePromise = async () => {
   if (!stripePromise) {
     const publishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
-    console.log('Stripe publishable key:', publishableKey ? `${publishableKey.substring(0, 20)}...` : 'MISSING');
     
     if (publishableKey) {
       const { loadStripe } = await import('@stripe/stripe-js');
+      // loadStripe doesn't accept apiVersion - that's only for server-side SDK
       stripePromise = loadStripe(publishableKey);
     } else {
       stripePromise = Promise.resolve(null);

@@ -12,7 +12,7 @@
   font-family: 'Oswald';
   font-style: normal;
   font-weight: 600;
-  font-display: swap;
+  font-display: optional; /* Use optional to prevent blocking if font fails */
   src: url('/fonts/oswald-600.woff2') format('woff2');
 }
 

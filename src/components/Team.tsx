@@ -92,13 +92,6 @@ const Team = () => {
           <div id="team-players" className="mb-16">
             <div className="flex justify-center items-center gap-4 mb-8">
               <h3 className="text-2xl md:text-3xl font-bold text-black text-center">Players</h3>
-              <button
-                onClick={refetch}
-                className="px-3 py-1 bg-steel-blue text-white rounded hover:bg-ice-blue transition-colors text-sm"
-                title="Refresh player data"
-              >
-                Refresh
-              </button>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6 lg:gap-8 max-w-6xl mx-auto">
             {players.map((player, index) => (
@@ -133,13 +126,29 @@ const Team = () => {
                   <div className="flip-card-inner">
                   
                   {/* Front of card */}
-                  <div className="flip-card-front bg-white rounded-xl shadow-xl p-4 sm:p-5 md:p-6 flex flex-col items-center justify-center border border-gray-100">
-    <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-team-primary rounded-full flex items-center justify-center text-white text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4 md:mb-6 shadow-lg">
-      {player.jersey_number === 0 ? 'TBD' : player.jersey_number}
-    </div>
-    <h3 className="text-sm sm:text-base md:text-xl font-bold text-center text-gray-800 leading-tight">{player.first_name} {player.last_name}</h3>
-    <p className="text-xs sm:text-sm text-steel-gray mt-1 sm:mt-2">{player.position}</p>
-  </div>
+                  <div className="flip-card-front bg-white rounded-xl shadow-xl p-4 sm:p-5 md:p-6 flex flex-col items-center justify-center border border-gray-100 relative overflow-hidden">
+                    {/* Background image for mobile only */}
+                    <div 
+                      className="absolute inset-0 bg-cover bg-center md:hidden"
+                      style={{
+                        backgroundImage: `url(${getAvatarUrl(player.image_url, player.first_name, player.last_name, '#4682B4', 256)})`,
+                      }}
+                    ></div>
+                    
+                    {/* Dark overlay for mobile to ensure text readability */}
+                    <div className="absolute inset-0 bg-black/50 md:hidden z-0"></div>
+                    
+                    {/* Player number - bottom left on mobile, centered on desktop */}
+                    <div className="absolute bottom-2 left-2 md:static w-10 h-10 sm:w-12 sm:h-12 md:w-24 md:h-24 bg-white md:bg-team-primary rounded-full flex items-center justify-center text-team-primary md:text-white text-xs sm:text-sm md:text-2xl font-bold md:mb-6 shadow-lg border-2 md:border-0 border-team-primary z-20">
+                      {player.jersey_number === 0 ? 'TBD' : player.jersey_number}
+                    </div>
+                    
+                    {/* Content */}
+                    <div className="relative z-10 flex flex-col items-center justify-center w-full md:mt-0">
+                      <h3 className="text-sm sm:text-base md:text-xl font-bold text-center text-white md:text-gray-800 leading-tight">{player.first_name} {player.last_name}</h3>
+                      <p className="text-xs sm:text-sm text-white/90 md:text-steel-gray mt-1 sm:mt-2">{player.position}</p>
+                    </div>
+                  </div>
                   
                   {/* Back of card */}
                   <div className="flip-card-back bg-gradient-to-br from-team-primary to-team-secondary rounded-xl shadow-xl p-3 sm:p-4 md:p-6 flex items-center justify-center">

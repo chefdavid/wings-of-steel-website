@@ -20,7 +20,7 @@ export function useTeamRoster() {
 
         // Fetch players for the current team
         const teamPlayers = await getTeamPlayers(currentTeam);
-        console.log('Fetched players:', teamPlayers.length, 'players');
+        // Removed debug log
         setPlayers(teamPlayers);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
@@ -45,13 +45,13 @@ export function useTeamRoster() {
           table: 'team_roster'
         },
         (payload) => {
-          console.log('Real-time update received:', payload);
+          // Removed debug log
           // Refetch players when any change occurs
           fetchPlayers(false);
         }
       )
       .subscribe((status) => {
-        console.log('Subscription status:', status);
+        // Removed debug log
       });
 
     // Cleanup subscription on unmount

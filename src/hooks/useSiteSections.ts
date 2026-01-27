@@ -23,8 +23,7 @@ export function useSiteSections() {
             acc[section.section_key] = section;
             return acc;
           }, {} as Record<string, SiteSection>);
-          console.log('Frontend fetched sections:', sectionsMap);
-          console.log('Frontend hero data:', sectionsMap.hero?.content);
+          // Removed debug logs
           setSections(sectionsMap);
         }
       } catch (err) {
@@ -56,7 +55,7 @@ export function useSiteSections() {
 
     // Also refetch on window focus to catch any missed updates
     const handleFocus = () => {
-      console.log('🔄 Window focused, refreshing site sections');
+      // Removed debug log
       fetchSections();
     };
     window.addEventListener('focus', handleFocus);

@@ -44,6 +44,11 @@
   -webkit-text-size-adjust: 100%;
 }
 
+/* Hero background image scaling for mobile visibility */
+.hero-bg-image {
+  transition: transform 0.3s ease-out;
+}
+
 body {
   margin: 0;
   min-width: 320px;

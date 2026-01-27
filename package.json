@@ -16,7 +16,8 @@
     "db:replace": "node scripts/db-manager.js replace",
     "db:test": "node scripts/db-manager.js test",
     "db:stats": "node scripts/db-manager.js stats",
-    "debug:frontend": "node scripts/debug-frontend.js"
+    "debug:frontend": "node scripts/debug-frontend.js",
+    "verify:stripe": "node scripts/verify-stripe-setup.js"
   },
   "dependencies": {
     "@netlify/functions": "^4.2.5",

@@ -15,6 +15,7 @@ const Schedule = lazy(() => import('./Schedule'));
 const Location = lazy(() => import('./Location'));
 const GetInvolved = lazy(() => import('./GetInvolved'));
 const Contact = lazy(() => import('./Contact'));
+const DonationSlideOut = lazy(() => import('./DonationSlideOut'));
 
 const TeamSite: React.FC = () => {
   const [showAdmin, setShowAdmin] = useState(false);
@@ -65,6 +66,9 @@ const TeamSite: React.FC = () => {
           </Suspense>
           <Footer />
         </main>
+        <Suspense fallback={null}>
+          <DonationSlideOut />
+        </Suspense>
       </div>
     </URLTeamProvider>
   );

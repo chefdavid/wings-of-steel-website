@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { FaUsers, FaHockeyPuck, FaCalendarAlt, FaCog, FaSignOutAlt, FaBars, FaTimes, FaClock, FaImage, FaGolfBall, FaPizzaSlice, FaTrophy, FaEye } from 'react-icons/fa';
+import { FaUsers, FaHockeyPuck, FaCalendarAlt, FaCog, FaSignOutAlt, FaBars, FaTimes, FaClock, FaImage, FaGolfBall, FaPizzaSlice, FaTrophy, FaEye, FaHeart, FaChartLine } from 'react-icons/fa';
 import { Users } from 'lucide-react';
 import PlayerManagement from './PlayerManagement';
 import CoachManagement from './CoachManagement';
@@ -13,8 +13,10 @@ import ImageBatchUpdate from './ImageBatchUpdate';
 import GolfOutingAdmin from './GolfOutingAdmin';
 import PizzaPinsDashboard from '../../pages/PizzaPinsDashboard';
 import EventVisibilityManagement from './EventVisibilityManagement';
+import DonationManagement from './DonationManagement';
+import DonationGoalManagement from './DonationGoalManagement';
 
-type AdminSection = 'players' | 'coaches' | 'site-sections' | 'schedule' | 'game-highlights' | 'practice' | 'opponents' | 'settings' | 'batch-images' | 'golf-outing' | 'pizza-pins' | 'event-visibility';
+type AdminSection = 'players' | 'coaches' | 'site-sections' | 'schedule' | 'game-highlights' | 'practice' | 'opponents' | 'settings' | 'batch-images' | 'golf-outing' | 'pizza-pins' | 'event-visibility' | 'donations' | 'donation-goals';
 
 interface AdminDashboardProps {
   onLogout: () => void;
@@ -28,6 +30,8 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
     { id: 'pizza-pins' as AdminSection, label: 'Pizza Pins Sales', icon: FaPizzaSlice },
     { id: 'golf-outing' as AdminSection, label: 'Golf Outing', icon: FaGolfBall },
     { id: 'event-visibility' as AdminSection, label: 'Event Visibility', icon: FaEye },
+    { id: 'donations' as AdminSection, label: 'Donations', icon: FaHeart },
+    { id: 'donation-goals' as AdminSection, label: 'Donation Goals', icon: FaChartLine },
     { id: 'players' as AdminSection, label: 'Team Roster', icon: FaUsers },
     { id: 'coaches' as AdminSection, label: 'Coaching Staff', icon: FaHockeyPuck },
     { id: 'opponents' as AdminSection, label: 'Opponent Teams', icon: Users },
@@ -46,6 +50,10 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
         return <GolfOutingAdmin />;
       case 'event-visibility':
         return <EventVisibilityManagement />;
+      case 'donations':
+        return <DonationManagement />;
+      case 'donation-goals':
+        return <DonationGoalManagement />;
       case 'players':
         return <PlayerManagement />;
       case 'coaches':

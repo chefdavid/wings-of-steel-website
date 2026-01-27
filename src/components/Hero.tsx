@@ -3,10 +3,13 @@ import { motion } from 'framer-motion';
 import { FaHockeyPuck, FaTrophy, FaUsers, FaHeart } from 'react-icons/fa';
 import { useSiteSections } from '../hooks';
 import { useTeam } from '../hooks/useTeam';
+import DonationProgressBar from './DonationProgressBar';
+import { useDonationModal } from '../contexts/DonationModalContext';
 
 const Hero = () => {
   const { sections, loading } = useSiteSections();
   const { teamConfig } = useTeam();
+  const { openModal } = useDonationModal();
   const heroData = sections['hero']?.content as {
     title?: string;
     subtitle?: string;  // Legacy: award1
@@ -18,7 +21,7 @@ const Hero = () => {
     heading1?: string;
     heading2?: string;
   } | undefined;
-  console.log('Hero component data:', heroData);
+  // Removed debug log
 
   // Preload hero background image
   useEffect(() => {
@@ -43,21 +46,22 @@ const Hero = () => {
         className="absolute inset-0 bg-dark-steel"
       >
         <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          className="hero-bg-image absolute inset-0 bg-contain md:bg-cover bg-top md:bg-center bg-no-repeat"
           style={{
             backgroundImage: `url('/images/hockey-sticks2.webp')`,
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60"></div>
+        {/* Reduced overlay opacity on mobile for better image visibility */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 md:from-black/60 via-black/30 md:via-black/40 to-black/40 md:to-black/60"></div>
       </div>
 
-      {/* TB Logo in Top Right */}
-      <div className="absolute top-24 right-4 md:right-8 z-30 group">
+      {/* TB Logo in Top Right - Smaller on mobile */}
+      <div className="absolute top-20 md:top-24 right-2 md:right-8 z-30 group">
         <div className="relative">
           <img
             src="/images/tb-logo.png"
             alt="Tom Brake Memorial Logo - In loving memory" 
-            className="w-24 md:w-32 lg:w-40 h-auto opacity-90 group-hover:opacity-100 transition-opacity"
+            className="w-16 md:w-32 lg:w-40 h-auto opacity-90 group-hover:opacity-100 transition-opacity"
           />
           <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
             <p className="text-white text-sm md:text-base font-semibold bg-black/50 backdrop-blur-sm px-3 py-1 rounded">
@@ -111,7 +115,7 @@ const Hero = () => {
             {heroData?.description || teamConfig.description}
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center mb-6 md:mb-8">
+          <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center mb-4 md:mb-6">
             <motion.a
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -132,6 +136,21 @@ const Hero = () => {
               <FaUsers className="text-lg md:text-xl" aria-hidden="true" />
               JOIN THE TEAM
             </motion.a>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => openModal()}
+              className="bg-yellow-400 text-black px-6 py-3 md:px-8 md:py-4 rounded-lg font-bold text-base md:text-lg hover:bg-yellow-300 transition-all duration-300 shadow-lg flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-600"
+              aria-label="Donate to support Wings of Steel"
+            >
+              <FaHeart className="text-lg md:text-xl" aria-hidden="true" />
+              DONATE NOW
+            </motion.button>
+          </div>
+
+          {/* Donation Progress Bar */}
+          <div className="max-w-2xl mx-auto mb-6 md:mb-8">
+            <DonationProgressBar mode="compact" showDetails={true} />
           </div>
         </motion.div>
       </div>
