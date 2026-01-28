@@ -281,16 +281,16 @@ const GolfOuting = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6">
               <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 md:p-6">
-                <div className="text-3xl md:text-5xl font-sport text-championship-gold mb-2 md:mb-3">$140</div>
-                <p className="text-sm md:text-base">Covers equipment for one athlete for an entire season</p>
+                <div className="text-3xl md:text-5xl font-sport text-championship-gold mb-2 md:mb-3">$1,870</div>
+                <p className="text-sm md:text-base">Fully equips one athlete for the season — sled, sticks, pads, helmet, gloves & jerseys</p>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 md:p-6">
-                <div className="text-3xl md:text-5xl font-sport text-championship-gold mb-2 md:mb-3">$560</div>
-                <p className="text-sm md:text-base">Sponsors ice time for a full team practice</p>
+                <div className="text-3xl md:text-5xl font-sport text-championship-gold mb-2 md:mb-3">$10,000</div>
+                <p className="text-sm md:text-base">Covers one full year of ice time for the entire team</p>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 md:p-6">
                 <div className="text-3xl md:text-5xl font-sport text-championship-gold mb-2 md:mb-3">$2,500</div>
-                <p className="text-sm md:text-base">Covers tournament travel for the entire team</p>
+                <p className="text-sm md:text-base">Funds one player's tournament travel for the season</p>
               </div>
             </div>
             <p className="mt-4 md:mt-8 text-sm md:text-lg italic">

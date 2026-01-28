@@ -20,11 +20,12 @@ const Donate = () => {
   }, [openModal]);
 
   const impactMessages = [
-    { amount: 5, text: 'Helps provide equipment maintenance for one practice' },
-    { amount: 10, text: 'Supports ice time for one player' },
-    { amount: 25, text: 'Covers tournament entry fees' },
-    { amount: 50, text: 'Provides new equipment for a player' },
-    { amount: 100, text: 'Funds a full practice session for the team' },
+    { amount: 80, text: 'Provides shin pads for one player' },
+    { amount: 120, text: 'Funds a helmet, gloves, or shoulder pads' },
+    { amount: 130, text: 'Provides sticks for one player' },
+    { amount: 250, text: 'Covers one team practice session' },
+    { amount: 300, text: 'Provides jerseys (home & away) for one player' },
+    { amount: 900, text: 'Funds a sled for a new player' },
   ];
 
   return (

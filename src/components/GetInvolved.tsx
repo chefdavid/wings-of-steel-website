@@ -36,10 +36,10 @@ const GetInvolved = () => {
   };
 
   const donationOptions = getInvolvedData?.donation_options || [
-    { amount: "$5", frequency: "Weekly", impact: "Helps provide equipment maintenance" },
-    { amount: "$10", frequency: "Weekly", impact: "Supports ice time and practice sessions" },
-    { amount: "$25", frequency: "Monthly", impact: "Covers tournament entry fees" },
-    { amount: "$50", frequency: "Monthly", impact: "Provides new equipment for players" }
+    { amount: "$25", frequency: "Monthly", impact: "Contributes to practice sessions" },
+    { amount: "$50", frequency: "Monthly", impact: "Helps cover ice time costs" },
+    { amount: "$80", frequency: "Monthly", impact: "Funds a sled over the season" },
+    { amount: "$150", frequency: "Monthly", impact: "Nearly equips one athlete for the year" }
   ];
 
   return (
