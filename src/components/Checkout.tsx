@@ -105,6 +105,29 @@ function CheckoutForm() {
 
         try {
           await printifyService.createOrder(order);
+
+          // Send admin notification (don't block on failure)
+          try {
+            await fetch('/.netlify/functions/send-order-notification', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                customer: formData,
+                items: items.map(item => ({
+                  title: item.product.title,
+                  variant: item.variant.title,
+                  quantity: item.quantity,
+                  price: item.variant.price,
+                })),
+                total: getTotalPrice(),
+                paymentId: paymentIntent.id,
+              }),
+            });
+          } catch (notifyError) {
+            console.error('Failed to send order notification:', notifyError);
+            // Don't fail checkout if notification fails
+          }
+
           setSuccess(true);
           clearCart();
           setPaymentStep('complete');

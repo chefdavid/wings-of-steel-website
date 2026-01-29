@@ -115,7 +115,7 @@ async function handlePaymentIntentSucceeded(paymentIntent) {
 
       console.log('Donation status updated to succeeded');
 
-      // Fetch donation details and send thank you email
+      // Fetch donation details and send emails
       try {
         const { data: donation, error: fetchError } = await supabase
           .from('donations')
@@ -124,10 +124,13 @@ async function handlePaymentIntentSucceeded(paymentIntent) {
           .single();
 
         if (!fetchError && donation) {
+          // Send thank you email to donor
           await sendThankYouEmail(donation);
+          // Send notification to admins
+          await sendAdminNotification(donation);
         }
       } catch (emailError) {
-        console.error('Error sending thank you email:', emailError);
+        console.error('Error sending emails:', emailError);
         // Don't fail the webhook if email fails
       }
       
@@ -320,6 +323,135 @@ async function handleInvoicePaymentFailed(invoice) {
     } catch (dbError) {
       console.error('Database error:', dbError);
     }
+  }
+}
+
+// Admin email addresses for notifications
+const ADMIN_EMAILS = [
+  'jeanmwiederholt@gmail.com',
+  'sjsledhockey@hotmail.com',
+  'pkjlp@comcast.net'
+];
+
+// Send admin notification email via Resend
+async function sendAdminNotification(donation) {
+  const resendApiKey = process.env.RESEND_API_KEY;
+  if (!resendApiKey) {
+    console.error('RESEND_API_KEY not configured for admin notification');
+    return;
+  }
+
+  const fromEmail = process.env.RESEND_FROM_EMAIL || 'noreply@wingsofsteel.org';
+  const donorName = donation.is_anonymous ? 'Anonymous' : donation.donor_name;
+
+  const amount = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+  }).format(donation.amount);
+
+  const isRecurring = donation.donation_type === 'recurring';
+  const eventSource = donation.event_source || 'General';
+
+  const adminEmailHtml = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>New Donation Received</title>
+    </head>
+    <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <div style="background: #1e3a5f; padding: 20px; text-align: center; border-radius: 10px 10px 0 0;">
+        <h1 style="color: #ffd700; margin: 0; font-size: 24px;">💰 New Donation Received!</h1>
+      </div>
+
+      <div style="background: #fff; padding: 30px; border: 1px solid #e0e0e0; border-top: none; border-radius: 0 0 10px 10px;">
+        <div style="background: #d4edda; padding: 20px; border-radius: 5px; margin-bottom: 20px; text-align: center;">
+          <p style="margin: 0; font-size: 32px; font-weight: bold; color: #155724;">${amount}</p>
+          <p style="margin: 5px 0 0 0; color: #155724;">${isRecurring ? 'Monthly Recurring Donation' : 'One-Time Donation'}</p>
+        </div>
+
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 10px; border-bottom: 1px solid #eee; font-weight: bold;">Donor:</td>
+            <td style="padding: 10px; border-bottom: 1px solid #eee;">${donorName}</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px; border-bottom: 1px solid #eee; font-weight: bold;">Email:</td>
+            <td style="padding: 10px; border-bottom: 1px solid #eee;">${donation.donor_email}</td>
+          </tr>
+          ${donation.donor_phone ? `
+          <tr>
+            <td style="padding: 10px; border-bottom: 1px solid #eee; font-weight: bold;">Phone:</td>
+            <td style="padding: 10px; border-bottom: 1px solid #eee;">${donation.donor_phone}</td>
+          </tr>
+          ` : ''}
+          ${donation.company_name ? `
+          <tr>
+            <td style="padding: 10px; border-bottom: 1px solid #eee; font-weight: bold;">Company:</td>
+            <td style="padding: 10px; border-bottom: 1px solid #eee;">${donation.company_name}</td>
+          </tr>
+          ` : ''}
+          ${donation.player_name ? `
+          <tr>
+            <td style="padding: 10px; border-bottom: 1px solid #eee; font-weight: bold;">In Honor Of:</td>
+            <td style="padding: 10px; border-bottom: 1px solid #eee;">${donation.player_name}</td>
+          </tr>
+          ` : ''}
+          <tr>
+            <td style="padding: 10px; border-bottom: 1px solid #eee; font-weight: bold;">Source:</td>
+            <td style="padding: 10px; border-bottom: 1px solid #eee;">${eventSource}</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px; border-bottom: 1px solid #eee; font-weight: bold;">Date:</td>
+            <td style="padding: 10px; border-bottom: 1px solid #eee;">${new Date(donation.created_at).toLocaleString()}</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px; border-bottom: 1px solid #eee; font-weight: bold;">Payment ID:</td>
+            <td style="padding: 10px; border-bottom: 1px solid #eee; font-size: 12px; font-family: monospace;">${donation.stripe_payment_intent_id}</td>
+          </tr>
+        </table>
+
+        ${donation.message ? `
+        <div style="background: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 20px 0;">
+          <p style="margin: 0; font-weight: bold;">Donor Message:</p>
+          <p style="margin: 5px 0 0 0; font-style: italic;">"${donation.message}"</p>
+        </div>
+        ` : ''}
+
+        <p style="text-align: center; margin-top: 20px; color: #666; font-size: 12px;">
+          This is an automated notification from the Wings of Steel website.
+        </p>
+      </div>
+    </body>
+    </html>
+  `;
+
+  try {
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${resendApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: fromEmail,
+        to: ADMIN_EMAILS,
+        subject: `💰 New Donation: ${amount} from ${donorName}`,
+        html: adminEmailHtml,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Resend API error: ${response.status} - ${errorText}`);
+    }
+
+    const result = await response.json();
+    console.log('Admin notification email sent successfully:', result);
+    return result;
+  } catch (error) {
+    console.error('Error sending admin notification email:', error);
+    // Don't throw - we don't want to fail the webhook if admin email fails
   }
 }
 
