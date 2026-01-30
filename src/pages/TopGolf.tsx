@@ -259,11 +259,17 @@ const TopGolf = () => {
               </p>
 
               {/* Event Details Bar */}
-              <div className="bg-white/10 backdrop-blur-md rounded-lg p-4 md:p-6 max-w-3xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-white/10 backdrop-blur-md rounded-lg p-4 md:p-6 max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="flex items-center justify-center space-x-2">
                   <Calendar className="text-emerald-400" size={24} />
                   <span className="text-white font-semibold">
                     March 8, 2026
+                  </span>
+                </div>
+                <div className="flex items-center justify-center space-x-2">
+                  <Clock className="text-emerald-400" size={24} />
+                  <span className="text-white font-semibold">
+                    1 PM - 3 PM
                   </span>
                 </div>
                 <div className="flex items-center justify-center space-x-2">
