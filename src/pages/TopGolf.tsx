@@ -568,7 +568,7 @@ const TopGolf = () => {
                   icon: <Clock size={28} />,
                   title: 'Time',
                   value: '1 PM - 3 PM',
-                  sub: 'Check-in at 12:30 PM',
+                  sub: '',
                 },
                 {
                   icon: <MapPin size={28} />,
