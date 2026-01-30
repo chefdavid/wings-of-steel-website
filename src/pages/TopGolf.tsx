@@ -4,6 +4,7 @@ import {
   Calendar,
   MapPin,
   Phone,
+  Clock,
   DollarSign,
   Users,
   Gift,
@@ -555,13 +556,19 @@ const TopGolf = () => {
             </motion.div>
 
             {/* Info cards */}
-            <div className="grid md:grid-cols-3 gap-6 mb-16">
+            <div className="grid md:grid-cols-4 gap-6 mb-16">
               {[
                 {
                   icon: <Calendar size={28} />,
                   title: 'Date',
                   value: 'March 8, 2026',
                   sub: 'Sunday',
+                },
+                {
+                  icon: <Clock size={28} />,
+                  title: 'Time',
+                  value: '1 PM - 3 PM',
+                  sub: 'Check-in at 12:30 PM',
                 },
                 {
                   icon: <MapPin size={28} />,
