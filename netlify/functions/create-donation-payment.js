@@ -132,6 +132,8 @@ export const handler = async (event, context) => {
       if (eventTag && eventTag.startsWith('topgolf')) {
         const team = eventTag.includes('youth') ? 'Youth' : eventTag.includes('adult') ? 'Adult' : '';
         description = `TopGolf Fundraiser Registration${team ? ` - ${team} Team` : ''} - Wings of Steel`;
+      } else if (eventTag === 'hockey-for-a-cause') {
+        description = `Hockey for a Cause - Entry Donation - Wings of Steel`;
       } else {
         description = `Donation to Wings of Steel${donorInfo.playerName ? ` - In honor of ${donorInfo.playerName}` : ''}`;
       }
