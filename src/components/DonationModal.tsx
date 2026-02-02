@@ -29,11 +29,141 @@ interface DonorInfo {
 
 const PRESET_AMOUNTS = [5, 10, 25, 50, 100];
 
-function DonationForm({ onSuccess, onClose, initialAmount, eventTag }: { onSuccess: () => void; onClose: () => void; initialAmount?: number; eventTag?: string }) {
+// Payment form component that uses Stripe hooks (must be inside Elements provider)
+function PaymentForm({
+  donorInfo,
+  displayAmount,
+  loading,
+  setLoading,
+  error,
+  setError,
+  setStep,
+  onSuccess
+}: {
+  donorInfo: DonorInfo;
+  displayAmount: number;
+  loading: boolean;
+  setLoading: (loading: boolean) => void;
+  error: string;
+  setError: (error: string) => void;
+  setStep: (step: 'amount' | 'info' | 'payment') => void;
+  onSuccess: () => void;
+}) {
   const stripe = useStripe();
   const elements = useElements();
+
+  const handlePaymentSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!stripe || !elements) {
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      const { error: stripeError, paymentIntent } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          receipt_email: donorInfo.email,
+        },
+        redirect: 'if_required',
+      });
+
+      if (stripeError) {
+        setError(stripeError.message || 'Payment failed');
+        setLoading(false);
+        return;
+      }
+
+      if (paymentIntent && paymentIntent.status === 'succeeded') {
+        setTimeout(() => {
+          onSuccess();
+        }, 1500);
+      }
+    } catch (err: any) {
+      setError('Payment processing failed. Please try again.');
+      console.error('Payment error:', err);
+      setLoading(false);
+    }
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      className="space-y-6"
+    >
+      <div className="text-center mb-6">
+        <h3 className="text-2xl md:text-3xl font-sport text-white mb-2">Payment Information</h3>
+        <p className="text-ice-blue text-base">
+          Secure payment powered by Stripe. Your information is encrypted and secure.
+        </p>
+        <p className="text-yellow-400 font-semibold text-sm mt-2">
+          🔒 Secure & Encrypted
+        </p>
+      </div>
+
+      <div className="bg-steel-blue/30 rounded-lg p-4 border-2 border-steel-blue">
+        <div className="flex justify-between items-center mb-2">
+          <span className="text-ice-blue font-medium">Donation Amount</span>
+          <span className="text-white font-sport text-xl text-yellow-400">${displayAmount.toFixed(2)}</span>
+        </div>
+        {donorInfo.isRecurring && (
+          <div className="text-xs text-ice-blue mt-1">
+            This will be charged monthly. You can cancel anytime.
+          </div>
+        )}
+        {donorInfo.playerName && (
+          <div className="text-xs text-yellow-400 mt-1 font-semibold">
+            In honor of: {donorInfo.playerName}
+          </div>
+        )}
+      </div>
+
+      <div className="bg-dark-steel rounded-lg p-6 border-2 border-steel-blue">
+        <PaymentElement />
+      </div>
+
+      {error && (
+        <div className="bg-red-600/20 border-2 border-red-500 rounded-lg p-4">
+          <p className="text-red-300">{error}</p>
+        </div>
+      )}
+
+      <div className="flex gap-3">
+        <button
+          onClick={() => setStep('info')}
+          className="flex-1 bg-dark-steel text-white py-3 rounded-lg font-semibold hover:bg-steel-gray transition-colors border-2 border-steel-blue"
+        >
+          Back
+        </button>
+        <button
+          onClick={handlePaymentSubmit}
+          disabled={loading || !stripe || !elements}
+          className="flex-1 bg-yellow-400 text-black py-4 rounded-lg font-sport text-lg hover:bg-yellow-300 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2 shadow-lg"
+        >
+          {loading ? (
+            <>
+              <Loader className="w-5 h-5 animate-spin" />
+              Processing...
+            </>
+          ) : (
+            <>
+              <CreditCard className="w-5 h-5" />
+              Complete Donation - ${displayAmount.toFixed(2)}
+            </>
+          )}
+        </button>
+      </div>
+    </motion.div>
+  );
+}
+
+function DonationForm({ stripePromise, onSuccess, onClose, initialAmount, eventTag }: { stripePromise: any; onSuccess: () => void; onClose: () => void; initialAmount?: number; eventTag?: string }) {
   const { activeGoal } = useDonationGoals();
-  
+
   // Try to get players, but don't fail if URLTeamProvider is not available
   let players: any[] = [];
   try {
@@ -42,11 +172,11 @@ function DonationForm({ onSuccess, onClose, initialAmount, eventTag }: { onSucce
   } catch (error) {
     console.log('Player roster not available (URLTeamProvider not found), continuing without player dropdown');
   }
-  
+
   const [amount, setAmount] = useState<number>(initialAmount || 25);
   const [customAmount, setCustomAmount] = useState<string>('');
   const [isCustom, setIsCustom] = useState(false);
-  
+
   // Update amount when initialAmount changes
   useEffect(() => {
     if (initialAmount) {
@@ -80,7 +210,7 @@ function DonationForm({ onSuccess, onClose, initialAmount, eventTag }: { onSucce
     return playerName.includes(searchLower);
   });
 
-  const selectedPlayer = players.find(p => 
+  const selectedPlayer = players.find(p =>
     `${p.first_name || ''} ${p.last_name || ''}`.trim().toLowerCase() === donorInfo.playerName.toLowerCase()
   );
 
@@ -112,12 +242,12 @@ function DonationForm({ onSuccess, onClose, initialAmount, eventTag }: { onSucce
     setStep('info');
   };
 
-  const handleInfoNext = () => {
+  const handleInfoNext = async () => {
     if (!donorInfo.name || !donorInfo.email) {
       setError('Please fill in your name and email');
       return;
     }
-    
+
     // Validate email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(donorInfo.email)) {
@@ -126,15 +256,10 @@ function DonationForm({ onSuccess, onClose, initialAmount, eventTag }: { onSucce
     }
 
     setError('');
-    setStep('payment');
-    createPaymentIntent();
-  };
+    setLoading(true);
 
-  const createPaymentIntent = async () => {
+    // Create payment intent before going to payment step
     try {
-      setLoading(true);
-      setError('');
-
       const response = await fetch('/.netlify/functions/create-donation-payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -163,49 +288,11 @@ function DonationForm({ onSuccess, onClose, initialAmount, eventTag }: { onSucce
       }
 
       setClientSecret(data.clientSecret);
+      setStep('payment');
     } catch (err: any) {
       console.error('Error creating payment intent:', err);
       setError(err.message || 'Failed to initialize payment. Please try again.');
-      setStep('info');
     } finally {
-      setLoading(false);
-    }
-  };
-
-  const handlePaymentSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!stripe || !elements) {
-      return;
-    }
-
-    setLoading(true);
-    setError('');
-
-    try {
-      const { error: stripeError, paymentIntent } = await stripe.confirmPayment({
-        elements,
-        confirmParams: {
-          receipt_email: donorInfo.email,
-        },
-        redirect: 'if_required',
-      });
-
-      if (stripeError) {
-        setError(stripeError.message || 'Payment failed');
-        setLoading(false);
-        return;
-      }
-
-      if (paymentIntent && paymentIntent.status === 'succeeded') {
-        // Success! Show success message
-        setTimeout(() => {
-          onSuccess();
-        }, 1500);
-      }
-    } catch (err: any) {
-      setError('Payment processing failed. Please try again.');
-      console.error('Payment error:', err);
       setLoading(false);
     }
   };
@@ -302,8 +389,8 @@ function DonationForm({ onSuccess, onClose, initialAmount, eventTag }: { onSucce
 
           {/* Recurring Donation Option - Prominent */}
           <div className={`border-2 rounded-lg p-4 transition-all ${
-            donorInfo.isRecurring 
-              ? 'bg-yellow-400/20 border-yellow-400 shadow-lg shadow-yellow-400/30' 
+            donorInfo.isRecurring
+              ? 'bg-yellow-400/20 border-yellow-400 shadow-lg shadow-yellow-400/30'
               : 'bg-steel-blue/20 border-steel-blue hover:border-yellow-400/50'
           }`}>
             <div className="flex items-start gap-3">
@@ -333,6 +420,12 @@ function DonationForm({ onSuccess, onClose, initialAmount, eventTag }: { onSucce
               </div>
             </div>
           </div>
+
+          {error && (
+            <div className="bg-red-600/20 border-2 border-red-500 rounded-lg p-4">
+              <p className="text-red-300">{error}</p>
+            </div>
+          )}
 
           <button
             onClick={handleAmountNext}
@@ -434,7 +527,7 @@ function DonationForm({ onSuccess, onClose, initialAmount, eventTag }: { onSucce
                 className="w-full px-4 py-3 bg-dark-steel border-2 border-steel-blue rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/50"
                 placeholder="Search for a player or type a name"
               />
-              
+
               {showPlayerDropdown && filteredPlayers.length > 0 && (
                 <div className="absolute z-10 w-full mt-1 bg-dark-steel border-2 border-steel-blue rounded-lg shadow-xl max-h-60 overflow-y-auto">
                   {filteredPlayers.slice(0, 10).map((player) => {
@@ -490,6 +583,12 @@ function DonationForm({ onSuccess, onClose, initialAmount, eventTag }: { onSucce
             </label>
           </div>
 
+          {error && (
+            <div className="bg-red-600/20 border-2 border-red-500 rounded-lg p-4">
+              <p className="text-red-300">{error}</p>
+            </div>
+          )}
+
           <div className="flex gap-3">
             <button
               onClick={() => setStep('amount')}
@@ -519,80 +618,40 @@ function DonationForm({ onSuccess, onClose, initialAmount, eventTag }: { onSucce
         </motion.div>
       )}
 
-      {/* Payment Step */}
+      {/* Payment Step - Wrapped with Elements provider */}
       {step === 'payment' && clientSecret && (
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="space-y-6"
+        <Elements
+          stripe={stripePromise}
+          options={{
+            clientSecret,
+            appearance: {
+              theme: 'night',
+              variables: {
+                colorPrimary: '#facc15',
+                colorBackground: '#1a1a2e',
+                colorText: '#ffffff',
+                colorDanger: '#ef4444',
+                fontFamily: 'Oswald, sans-serif',
+                borderRadius: '8px',
+              },
+            },
+          }}
         >
-          <div className="text-center mb-6">
-            <h3 className="text-2xl md:text-3xl font-sport text-white mb-2">Payment Information</h3>
-            <p className="text-ice-blue text-base">
-              Secure payment powered by Stripe. Your information is encrypted and secure.
-            </p>
-            <p className="text-yellow-400 font-semibold text-sm mt-2">
-              🔒 Secure & Encrypted
-            </p>
-          </div>
-
-          <div className="bg-steel-blue/30 rounded-lg p-4 border-2 border-steel-blue">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-ice-blue font-medium">Donation Amount</span>
-              <span className="text-white font-sport text-xl text-yellow-400">${displayAmount.toFixed(2)}</span>
-            </div>
-            {donorInfo.isRecurring && (
-              <div className="text-xs text-ice-blue mt-1">
-                This will be charged monthly. You can cancel anytime.
-              </div>
-            )}
-            {donorInfo.playerName && (
-              <div className="text-xs text-yellow-400 mt-1 font-semibold">
-                In honor of: {donorInfo.playerName}
-              </div>
-            )}
-          </div>
-
-          <div className="bg-dark-steel rounded-lg p-6 border-2 border-steel-blue">
-            <PaymentElement />
-          </div>
-
-          {error && (
-            <div className="bg-red-600/20 border-2 border-red-500 rounded-lg p-4">
-              <p className="text-red-300">{error}</p>
-            </div>
-          )}
-
-          <div className="flex gap-3">
-            <button
-              onClick={() => setStep('info')}
-              className="flex-1 bg-dark-steel text-white py-3 rounded-lg font-semibold hover:bg-steel-gray transition-colors border-2 border-steel-blue"
-            >
-              Back
-            </button>
-            <button
-              onClick={handlePaymentSubmit}
-              disabled={loading || !stripe || !elements}
-              className="flex-1 bg-yellow-400 text-black py-4 rounded-lg font-sport text-lg hover:bg-yellow-300 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2 shadow-lg"
-            >
-              {loading ? (
-                <>
-                  <Loader className="w-5 h-5 animate-spin" />
-                  Processing...
-                </>
-              ) : (
-                <>
-                  <CreditCard className="w-5 h-5" />
-                  Complete Donation - ${displayAmount.toFixed(2)}
-                </>
-              )}
-            </button>
-          </div>
-        </motion.div>
+          <PaymentForm
+            donorInfo={donorInfo}
+            displayAmount={displayAmount}
+            loading={loading}
+            setLoading={setLoading}
+            error={error}
+            setError={setError}
+            setStep={setStep}
+            onSuccess={onSuccess}
+          />
+        </Elements>
       )}
 
       {/* Loading state while creating payment intent */}
-      {step === 'payment' && !clientSecret && loading && (
+      {step === 'payment' && !clientSecret && (
         <div className="text-center py-8">
           <Loader className="w-8 h-8 animate-spin mx-auto text-yellow-400 mb-4" />
           <p className="text-gray-300">Preparing your donation...</p>
@@ -701,9 +760,7 @@ const DonationModal = ({ isOpen, onClose, onSuccess, initialAmount, eventTag }: 
                   </p>
                 </div>
               ) : stripePromise ? (
-                <Elements stripe={stripePromise}>
-                  <DonationForm onSuccess={handleSuccess} onClose={onClose} initialAmount={initialAmount} eventTag={eventTag} />
-                </Elements>
+                <DonationForm stripePromise={stripePromise} onSuccess={handleSuccess} onClose={onClose} initialAmount={initialAmount} eventTag={eventTag} />
               ) : (
                 <div className="text-center py-8">
                   <Loader className="w-8 h-8 animate-spin mx-auto text-yellow-400" />
@@ -719,4 +776,3 @@ const DonationModal = ({ isOpen, onClose, onSuccess, initialAmount, eventTag }: 
 };
 
 export default DonationModal;
-
