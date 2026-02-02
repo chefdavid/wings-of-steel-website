@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { FaUsers, FaHockeyPuck, FaCalendarAlt, FaCog, FaSignOutAlt, FaBars, FaTimes, FaClock, FaImage, FaGolfBall, FaPizzaSlice, FaTrophy, FaEye, FaHeart, FaChartLine } from 'react-icons/fa';
+import { FaUsers, FaHockeyPuck, FaCalendarAlt, FaCog, FaSignOutAlt, FaBars, FaTimes, FaClock, FaImage, FaGolfBall, FaPizzaSlice, FaTrophy, FaEye, FaHeart, FaChartLine, FaChevronDown, FaChevronRight } from 'react-icons/fa';
 import { Users } from 'lucide-react';
 import PlayerManagement from './PlayerManagement';
 import CoachManagement from './CoachManagement';
@@ -15,8 +15,9 @@ import PizzaPinsDashboard from '../../pages/PizzaPinsDashboard';
 import EventVisibilityManagement from './EventVisibilityManagement';
 import DonationManagement from './DonationManagement';
 import DonationGoalManagement from './DonationGoalManagement';
+import TopgolfAdmin from './TopgolfAdmin';
 
-type AdminSection = 'players' | 'coaches' | 'site-sections' | 'schedule' | 'game-highlights' | 'practice' | 'opponents' | 'settings' | 'batch-images' | 'golf-outing' | 'pizza-pins' | 'event-visibility' | 'donations' | 'donation-goals';
+type AdminSection = 'players' | 'coaches' | 'site-sections' | 'schedule' | 'game-highlights' | 'practice' | 'opponents' | 'settings' | 'batch-images' | 'golf-outing' | 'pizza-pins' | 'topgolf' | 'event-visibility' | 'donations' | 'donation-goals';
 
 interface AdminDashboardProps {
   onLogout: () => void;
@@ -25,11 +26,16 @@ interface AdminDashboardProps {
 const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
   const [activeSection, setActiveSection] = useState<AdminSection>('players');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [eventsExpanded, setEventsExpanded] = useState(true);
 
-  const menuItems = [
+  const eventItems = [
     { id: 'pizza-pins' as AdminSection, label: 'Pizza Pins Sales', icon: FaPizzaSlice },
     { id: 'golf-outing' as AdminSection, label: 'Golf Outing', icon: FaGolfBall },
+    { id: 'topgolf' as AdminSection, label: 'Topgolf', icon: FaGolfBall },
     { id: 'event-visibility' as AdminSection, label: 'Event Visibility', icon: FaEye },
+  ];
+
+  const menuItems = [
     { id: 'donations' as AdminSection, label: 'Donations', icon: FaHeart },
     { id: 'donation-goals' as AdminSection, label: 'Donation Goals', icon: FaChartLine },
     { id: 'players' as AdminSection, label: 'Team Roster', icon: FaUsers },
@@ -42,12 +48,17 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
     { id: 'batch-images' as AdminSection, label: 'Batch Update Images', icon: FaImage },
   ];
 
+  const isEventSection = (section: AdminSection) =>
+    eventItems.some(item => item.id === section);
+
   const renderContent = () => {
     switch (activeSection) {
       case 'pizza-pins':
         return <div className="-m-6"><PizzaPinsDashboard /></div>;
       case 'golf-outing':
         return <GolfOutingAdmin />;
+      case 'topgolf':
+        return <TopgolfAdmin />;
       case 'event-visibility':
         return <EventVisibilityManagement />;
       case 'donations':
@@ -75,6 +86,14 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
     }
   };
 
+  const getCurrentLabel = () => {
+    const eventItem = eventItems.find(item => item.id === activeSection);
+    if (eventItem) return eventItem.label;
+    const menuItem = menuItems.find(item => item.id === activeSection);
+    if (menuItem) return menuItem.label;
+    return 'Dashboard';
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 flex">
       {/* Mobile sidebar backdrop */}
@@ -92,6 +111,43 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
         </div>
 
         <nav className="flex-1 mt-6 overflow-y-auto">
+          {/* Events Section */}
+          <div className="mb-2">
+            <button
+              onClick={() => setEventsExpanded(!eventsExpanded)}
+              className={`w-full flex items-center justify-between px-6 py-3 text-left transition-colors ${
+                isEventSection(activeSection)
+                  ? 'bg-steel-gray text-white'
+                  : 'text-gray-300 hover:bg-steel-gray hover:text-white'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <FaCalendarAlt className="text-lg" />
+                Events
+              </div>
+              {eventsExpanded ? <FaChevronDown className="text-sm" /> : <FaChevronRight className="text-sm" />}
+            </button>
+            {eventsExpanded && (
+              <div className="bg-dark-steel/50">
+                {eventItems.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveSection(item.id)}
+                    className={`w-full flex items-center gap-3 pl-12 pr-6 py-2.5 text-left transition-colors text-sm ${
+                      activeSection === item.id
+                        ? 'bg-steel-blue text-white'
+                        : 'text-gray-400 hover:bg-steel-gray hover:text-white'
+                    }`}
+                  >
+                    <item.icon className="text-base" />
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Regular menu items */}
           {menuItems.map((item) => (
             <button
               key={item.id}
@@ -136,6 +192,46 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
         </div>
 
         <nav className="flex-1 mt-6 overflow-y-auto">
+          {/* Events Section */}
+          <div className="mb-2">
+            <button
+              onClick={() => setEventsExpanded(!eventsExpanded)}
+              className={`w-full flex items-center justify-between px-6 py-3 text-left transition-colors ${
+                isEventSection(activeSection)
+                  ? 'bg-steel-gray text-white'
+                  : 'text-gray-300 hover:bg-steel-gray hover:text-white'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <FaCalendarAlt className="text-lg" />
+                Events
+              </div>
+              {eventsExpanded ? <FaChevronDown className="text-sm" /> : <FaChevronRight className="text-sm" />}
+            </button>
+            {eventsExpanded && (
+              <div className="bg-dark-steel/50">
+                {eventItems.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      setActiveSection(item.id);
+                      setSidebarOpen(false);
+                    }}
+                    className={`w-full flex items-center gap-3 pl-12 pr-6 py-2.5 text-left transition-colors text-sm ${
+                      activeSection === item.id
+                        ? 'bg-steel-blue text-white'
+                        : 'text-gray-400 hover:bg-steel-gray hover:text-white'
+                    }`}
+                  >
+                    <item.icon className="text-base" />
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Regular menu items */}
           {menuItems.map((item) => (
             <button
               key={item.id}
@@ -179,7 +275,7 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
                 <FaBars className="text-xl" />
               </button>
               <h2 className="text-2xl font-bold text-gray-900">
-                {menuItems.find(item => item.id === activeSection)?.label}
+                {getCurrentLabel()}
               </h2>
             </div>
             <div className="flex items-center gap-4">

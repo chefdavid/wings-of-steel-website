@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabaseClient'
-import { Download, DollarSign, Users, Clock, CheckCircle, AlertCircle } from 'lucide-react'
+import { Download, DollarSign, Users, Clock, CheckCircle, AlertCircle, Trash2 } from 'lucide-react'
 
 interface Registration {
   id: string
@@ -98,7 +98,7 @@ const GolfOutingAdmin = () => {
     try {
       const { error } = await supabase
         .from('golf_registrations')
-        .update({ 
+        .update({
           payment_status: status,
           payment_date: status === 'completed' ? new Date().toISOString() : null
         })
@@ -109,6 +109,27 @@ const GolfOutingAdmin = () => {
       await fetchRegistrations()
     } catch (error) {
       console.error('Error updating payment status:', error)
+    }
+  }
+
+  const deleteRegistration = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this registration? This action cannot be undone.')) {
+      return
+    }
+
+    try {
+      const { error } = await supabase
+        .from('golf_registrations')
+        .delete()
+        .eq('id', id)
+
+      if (error) throw error
+
+      setSelectedRegistration(null)
+      await fetchRegistrations()
+    } catch (error: any) {
+      console.error('Error deleting registration:', error)
+      alert('Failed to delete registration: ' + error.message)
     }
   }
 
@@ -324,11 +345,18 @@ const GolfOutingAdmin = () => {
                     {reg.payment_status === 'pending' && (
                       <button
                         onClick={() => updatePaymentStatus(reg.id, 'completed')}
-                        className="text-green-600 hover:text-green-800"
+                        className="text-green-600 hover:text-green-800 mr-3"
                       >
                         Mark Paid
                       </button>
                     )}
+                    <button
+                      onClick={() => deleteRegistration(reg.id)}
+                      className="text-red-600 hover:text-red-800"
+                      title="Delete registration"
+                    >
+                      <Trash2 size={16} />
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -432,24 +460,33 @@ const GolfOutingAdmin = () => {
               </div>
             )}
 
-            <div className="mt-6 flex justify-end space-x-3">
-              {selectedRegistration.payment_status === 'pending' && (
-                <button
-                  onClick={() => {
-                    updatePaymentStatus(selectedRegistration.id, 'completed')
-                    setSelectedRegistration(null)
-                  }}
-                  className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
-                >
-                  Mark as Paid
-                </button>
-              )}
+            <div className="mt-6 flex justify-between">
               <button
-                onClick={() => setSelectedRegistration(null)}
-                className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400"
+                onClick={() => deleteRegistration(selectedRegistration.id)}
+                className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
               >
-                Close
+                <Trash2 size={18} />
+                Delete
               </button>
+              <div className="flex space-x-3">
+                {selectedRegistration.payment_status === 'pending' && (
+                  <button
+                    onClick={() => {
+                      updatePaymentStatus(selectedRegistration.id, 'completed')
+                      setSelectedRegistration(null)
+                    }}
+                    className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+                  >
+                    Mark as Paid
+                  </button>
+                )}
+                <button
+                  onClick={() => setSelectedRegistration(null)}
+                  className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         </div>

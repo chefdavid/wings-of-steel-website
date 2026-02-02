@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useDonations } from '../../hooks/useDonations';
-import { Download, Search, Filter, Mail, X, CheckCircle, AlertCircle, Eye, EyeOff } from 'lucide-react';
+import { Download, Search, Filter, Mail, X, CheckCircle, AlertCircle, Eye, EyeOff, Trash2 } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
 
 const DonationManagement = () => {
@@ -70,6 +70,27 @@ const DonationManagement = () => {
       style: 'currency',
       currency: 'USD',
     }).format(amount);
+  };
+
+  const deleteDonation = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this donation record? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('donations')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setSelectedDonation(null);
+      refetch();
+    } catch (error: any) {
+      console.error('Error deleting donation:', error);
+      alert('Failed to delete donation: ' + error.message);
+    }
   };
 
   if (loading && !donations.length) {
@@ -326,6 +347,13 @@ const DonationManagement = () => {
                       >
                         View
                       </button>
+                      <button
+                        onClick={() => deleteDonation(donation.id)}
+                        className="text-red-600 hover:text-red-800"
+                        title="Delete donation"
+                      >
+                        <Trash2 size={16} />
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -424,22 +452,31 @@ const DonationManagement = () => {
                 </div>
               )}
 
-              <div className="flex gap-3 pt-4 border-t">
+              <div className="flex justify-between pt-4 border-t">
                 <button
-                  onClick={() => {
-                    window.open(`mailto:${selectedDonation.donor_email}?subject=Thank you for your donation to Wings of Steel`, '_blank');
-                  }}
-                  className="flex items-center gap-2 bg-steel-blue text-white px-4 py-2 rounded-lg hover:bg-dark-steel transition-colors"
+                  onClick={() => deleteDonation(selectedDonation.id)}
+                  className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
                 >
-                  <Mail size={18} />
-                  Send Email
+                  <Trash2 size={18} />
+                  Delete
                 </button>
-                <button
-                  onClick={() => setSelectedDonation(null)}
-                  className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition-colors"
-                >
-                  Close
-                </button>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => {
+                      window.open(`mailto:${selectedDonation.donor_email}?subject=Thank you for your donation to Wings of Steel`, '_blank');
+                    }}
+                    className="flex items-center gap-2 bg-steel-blue text-white px-4 py-2 rounded-lg hover:bg-dark-steel transition-colors"
+                  >
+                    <Mail size={18} />
+                    Send Email
+                  </button>
+                  <button
+                    onClick={() => setSelectedDonation(null)}
+                    className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition-colors"
+                  >
+                    Close
+                  </button>
+                </div>
               </div>
             </div>
           </div>
