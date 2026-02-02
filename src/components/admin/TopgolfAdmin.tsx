@@ -84,24 +84,37 @@ const TopgolfAdmin = () => {
     setStats(stats);
   };
 
+  const [deleting, setDeleting] = useState(false);
+
   const deleteRegistration = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this registration? This action cannot be undone.')) {
+    const confirmed = window.confirm('Are you sure you want to delete this registration? This action cannot be undone.');
+    if (!confirmed) {
       return;
     }
 
+    setDeleting(true);
     try {
-      const { error } = await supabase
+      console.log('Attempting to delete registration:', id);
+      const { error, count } = await supabase
         .from('donations')
         .delete()
-        .eq('id', id);
+        .eq('id', id)
+        .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase delete error:', error);
+        throw error;
+      }
 
+      console.log('Delete successful, rows affected:', count);
       setSelectedRegistration(null);
-      fetchRegistrations();
+      await fetchRegistrations();
+      alert('Registration deleted successfully');
     } catch (error: any) {
       console.error('Error deleting registration:', error);
-      alert('Failed to delete registration: ' + error.message);
+      alert('Failed to delete registration: ' + (error.message || 'Unknown error'));
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -317,7 +330,8 @@ const TopgolfAdmin = () => {
                       </button>
                       <button
                         onClick={() => deleteRegistration(reg.id)}
-                        className="text-red-600 hover:text-red-800"
+                        disabled={deleting}
+                        className="text-red-600 hover:text-red-800 disabled:opacity-50"
                         title="Delete registration"
                       >
                         <Trash2 size={16} />
@@ -388,10 +402,11 @@ const TopgolfAdmin = () => {
               <div className="flex justify-between pt-4 border-t">
                 <button
                   onClick={() => deleteRegistration(selectedRegistration.id)}
-                  className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+                  disabled={deleting}
+                  className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
                 >
                   <Trash2 size={18} />
-                  Delete
+                  {deleting ? 'Deleting...' : 'Delete'}
                 </button>
                 <div className="flex gap-3">
                   <button

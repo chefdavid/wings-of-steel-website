@@ -127,6 +127,15 @@ export const handler = async (event, context) => {
 
       paymentIntent = subscription.latest_invoice.payment_intent;
     } else {
+      // Determine the description based on eventTag
+      let description;
+      if (eventTag && eventTag.startsWith('topgolf')) {
+        const team = eventTag.includes('youth') ? 'Youth' : eventTag.includes('adult') ? 'Adult' : '';
+        description = `TopGolf Fundraiser Registration${team ? ` - ${team} Team` : ''} - Wings of Steel`;
+      } else {
+        description = `Donation to Wings of Steel${donorInfo.playerName ? ` - In honor of ${donorInfo.playerName}` : ''}`;
+      }
+
       // Create one-time payment intent
       paymentIntent = await stripe.paymentIntents.create({
         amount: Math.round(amount * 100), // Convert to cents
@@ -134,7 +143,7 @@ export const handler = async (event, context) => {
         automatic_payment_methods: {
           enabled: true,
         },
-        description: `Donation to Wings of Steel${donorInfo.playerName ? ` - In honor of ${donorInfo.playerName}` : ''}`,
+        description,
         metadata: {
           donation_type: 'one-time',
           donor_name: donorInfo.name,

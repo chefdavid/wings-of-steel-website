@@ -53,6 +53,7 @@ const GolfOutingAdmin = () => {
   }, [])
 
   const fetchRegistrations = async () => {
+    console.log('Fetching registrations...')
     try {
       const { data, error } = await supabase
         .from('golf_registrations')
@@ -61,6 +62,7 @@ const GolfOutingAdmin = () => {
 
       if (error) throw error
 
+      console.log('Fetched registrations count:', data?.length)
       setRegistrations(data || [])
       calculateStats(data || [])
     } catch (error) {
@@ -112,24 +114,53 @@ const GolfOutingAdmin = () => {
     }
   }
 
+  const [deleting, setDeleting] = useState(false)
+
   const deleteRegistration = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this registration? This action cannot be undone.')) {
+    console.log('Delete button clicked for:', id)
+    const confirmed = window.confirm('Are you sure you want to delete this registration? This action cannot be undone.')
+    console.log('Confirm result:', confirmed)
+
+    if (!confirmed) {
       return
     }
 
+    setDeleting(true)
     try {
-      const { error } = await supabase
+      console.log('Attempting to delete from golf_registrations:', id)
+      const { error, count } = await supabase
         .from('golf_registrations')
-        .delete()
+        .delete({ count: 'exact' })
         .eq('id', id)
 
-      if (error) throw error
+      console.log('Delete response - error:', error, 'count:', count)
 
+      if (error) {
+        console.error('Supabase error:', error)
+        throw error
+      }
+
+      // Verify the record was actually deleted
+      const { data: checkData } = await supabase
+        .from('golf_registrations')
+        .select('id')
+        .eq('id', id)
+        .single()
+
+      if (checkData) {
+        console.error('Record still exists after delete - RLS policy may be blocking')
+        throw new Error('Delete failed - record still exists. Check Supabase RLS policies.')
+      }
+
+      console.log('Delete verified successful')
       setSelectedRegistration(null)
       await fetchRegistrations()
+      alert('Registration deleted successfully')
     } catch (error: any) {
       console.error('Error deleting registration:', error)
-      alert('Failed to delete registration: ' + error.message)
+      alert('Failed to delete registration: ' + (error.message || 'Unknown error'))
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -352,7 +383,8 @@ const GolfOutingAdmin = () => {
                     )}
                     <button
                       onClick={() => deleteRegistration(reg.id)}
-                      className="text-red-600 hover:text-red-800"
+                      disabled={deleting}
+                      className="text-red-600 hover:text-red-800 disabled:opacity-50"
                       title="Delete registration"
                     >
                       <Trash2 size={16} />
@@ -463,10 +495,11 @@ const GolfOutingAdmin = () => {
             <div className="mt-6 flex justify-between">
               <button
                 onClick={() => deleteRegistration(selectedRegistration.id)}
-                className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
+                disabled={deleting}
+                className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 disabled:opacity-50"
               >
                 <Trash2 size={18} />
-                Delete
+                {deleting ? 'Deleting...' : 'Delete'}
               </button>
               <div className="flex space-x-3">
                 {selectedRegistration.payment_status === 'pending' && (
