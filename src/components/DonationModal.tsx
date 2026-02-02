@@ -187,7 +187,7 @@ function DonationForm({ stripePromise, onSuccess, onClose, initialAmount, eventT
   }, [initialAmount]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [step, setStep] = useState<'amount' | 'info' | 'payment'>('amount');
+  const [step, setStep] = useState<'info' | 'payment'>('info');
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [donorInfo, setDonorInfo] = useState<DonorInfo>({
     name: '',
@@ -233,16 +233,12 @@ function DonationForm({ stripePromise, onSuccess, onClose, initialAmount, eventT
     setDonorInfo(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleAmountNext = () => {
+  const handleInfoNext = async () => {
     if (amount <= 0) {
       setError('Please select or enter a donation amount');
       return;
     }
-    setError('');
-    setStep('info');
-  };
 
-  const handleInfoNext = async () => {
     if (!donorInfo.name || !donorInfo.email) {
       setError('Please fill in your name and email');
       return;
@@ -307,27 +303,27 @@ function DonationForm({ stripePromise, onSuccess, onClose, initialAmount, eventT
 
       {/* Step Indicator */}
       <div className="flex items-center justify-center gap-2 mb-6">
-        {['amount', 'info', 'payment'].map((s, index) => (
+        {['info', 'payment'].map((s, index) => (
           <div key={s} className="flex items-center">
             <div
               className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
                 step === s
                   ? 'bg-yellow-400 text-black'
-                  : ['amount', 'info', 'payment'].indexOf(step) > index
+                  : ['info', 'payment'].indexOf(step) > index
                   ? 'bg-green-500 text-white'
                   : 'bg-gray-600 text-gray-300'
               }`}
             >
-              {['amount', 'info', 'payment'].indexOf(step) > index ? (
+              {['info', 'payment'].indexOf(step) > index ? (
                 <CheckCircle className="w-5 h-5" />
               ) : (
                 index + 1
               )}
             </div>
-            {index < 2 && (
+            {index < 1 && (
               <div
                 className={`w-12 h-1 ${
-                  ['amount', 'info', 'payment'].indexOf(step) > index
+                  ['info', 'payment'].indexOf(step) > index
                     ? 'bg-green-500'
                     : 'bg-gray-600'
                 }`}
@@ -337,120 +333,56 @@ function DonationForm({ stripePromise, onSuccess, onClose, initialAmount, eventT
         ))}
       </div>
 
-      {/* Amount Selection Step */}
-      {step === 'amount' && (
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="space-y-6"
-        >
-          <div className="text-center mb-6">
-            <h3 className="text-2xl md:text-3xl font-sport text-white mb-2">Choose Your Donation Amount</h3>
-            <p className="text-ice-blue text-base">
-              Every donation helps us provide equipment, ice time, and support to our athletes.
-            </p>
-            <div className="mt-3 bg-steel-blue/20 border border-steel-blue rounded-lg p-3 inline-block">
-              <p className="text-yellow-400 font-bold text-sm">
-                💛 100% goes directly to our players • Monthly donations provide consistent support
-              </p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-3 gap-2 md:gap-3">
-            {PRESET_AMOUNTS.map((preset) => (
-              <button
-                key={preset}
-                onClick={() => handleAmountSelect(preset)}
-                className={`p-3 md:p-4 rounded-lg border-2 transition-all transform active:scale-95 md:hover:scale-105 ${
-                  amount === preset && !isCustom
-                    ? 'border-yellow-400 bg-yellow-400/30 text-yellow-400 shadow-lg'
-                    : 'border-steel-blue bg-dark-steel text-white hover:border-yellow-400 hover:bg-steel-blue/30'
-                }`}
-              >
-                <div className="text-xl md:text-2xl font-bold">${preset}</div>
-              </button>
-            ))}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-ice-blue mb-2">
-              Or enter a custom amount
-            </label>
-            <input
-              type="number"
-              min="1"
-              step="0.01"
-              value={customAmount}
-              onChange={(e) => handleCustomAmount(e.target.value)}
-              placeholder="Enter amount"
-              className="w-full px-4 py-3 bg-dark-steel border-2 border-steel-blue rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/50"
-            />
-          </div>
-
-          {/* Recurring Donation Option - Prominent */}
-          <div className={`border-2 rounded-lg p-4 transition-all ${
-            donorInfo.isRecurring
-              ? 'bg-yellow-400/20 border-yellow-400 shadow-lg shadow-yellow-400/30'
-              : 'bg-steel-blue/20 border-steel-blue hover:border-yellow-400/50'
-          }`}>
-            <div className="flex items-start gap-3">
-              <input
-                type="checkbox"
-                id="recurring"
-                checked={donorInfo.isRecurring}
-                onChange={(e) => handleDonorInfoChange('isRecurring', e.target.checked)}
-                className="w-6 h-6 text-yellow-400 bg-dark-steel border-2 border-steel-blue rounded focus:ring-2 focus:ring-yellow-400/50 cursor-pointer mt-0.5"
-              />
-              <div className="flex-1">
-                <label htmlFor="recurring" className="cursor-pointer">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-yellow-400 font-sport text-lg">💛</span>
-                    <span className="text-white font-bold text-lg">Make this a monthly recurring donation</span>
-                    <span className="bg-yellow-400 text-black text-xs font-bold px-2 py-0.5 rounded">RECOMMENDED</span>
-                  </div>
-                  <p className="text-ice-blue text-sm mb-2">
-                    Provide consistent support throughout the season. You'll be charged <strong className="text-yellow-400">${displayAmount.toFixed(2)}</strong> each month.
-                  </p>
-                  <div className="flex flex-wrap gap-2 text-xs">
-                    <span className="bg-dark-steel/50 text-yellow-400 px-2 py-1 rounded">✓ Cancel anytime</span>
-                    <span className="bg-dark-steel/50 text-yellow-400 px-2 py-1 rounded">✓ More impact</span>
-                    <span className="bg-dark-steel/50 text-yellow-400 px-2 py-1 rounded">✓ Set & forget</span>
-                  </div>
-                </label>
-              </div>
-            </div>
-          </div>
-
-          {error && (
-            <div className="bg-red-600/20 border-2 border-red-500 rounded-lg p-4">
-              <p className="text-red-300">{error}</p>
-            </div>
-          )}
-
-          <button
-            onClick={handleAmountNext}
-            className="w-full bg-yellow-400 text-black py-4 rounded-lg font-sport text-xl hover:bg-yellow-300 transition-all transform hover:scale-105 shadow-lg"
-          >
-            Continue - ${displayAmount.toFixed(2)}
-          </button>
-        </motion.div>
-      )}
-
-      {/* Donor Information Step */}
+      {/* Donor Information Step (Combined with Amount Selection) */}
       {step === 'info' && (
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           className="space-y-4"
         >
-          <div className="text-center mb-6">
-            <h3 className="text-2xl md:text-3xl font-sport text-white mb-2">Your Information</h3>
-            <p className="text-ice-blue text-base">
-              We'll send you a receipt for your tax-deductible donation.
+          <div className="text-center mb-4">
+            <h3 className="text-2xl md:text-3xl font-sport text-white mb-2">Make a Donation</h3>
+            <p className="text-ice-blue text-sm">
+              100% goes directly to our players. Tax-deductible 501(c)(3).
             </p>
-            <p className="text-yellow-400 font-semibold text-sm mt-2">
-              ✓ Tax-deductible 501(c)(3) nonprofit
-            </p>
+          </div>
+
+          {/* Amount Selection */}
+          <div className="grid grid-cols-5 gap-2">
+            {PRESET_AMOUNTS.map((preset) => (
+              <button
+                key={preset}
+                onClick={() => handleAmountSelect(preset)}
+                className={`p-2 md:p-3 rounded-lg border-2 transition-all ${
+                  amount === preset && !isCustom
+                    ? 'border-yellow-400 bg-yellow-400/30 text-yellow-400'
+                    : 'border-steel-blue bg-dark-steel text-white hover:border-yellow-400'
+                }`}
+              >
+                <div className="text-lg md:text-xl font-bold">${preset}</div>
+              </button>
+            ))}
+          </div>
+
+          <div className="flex gap-2 items-center">
+            <input
+              type="number"
+              min="1"
+              step="0.01"
+              value={customAmount}
+              onChange={(e) => handleCustomAmount(e.target.value)}
+              placeholder="Custom amount"
+              className="flex-1 px-4 py-2 bg-dark-steel border-2 border-steel-blue rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-yellow-400"
+            />
+            <label className="flex items-center gap-2 text-sm text-ice-blue whitespace-nowrap">
+              <input
+                type="checkbox"
+                checked={donorInfo.isRecurring}
+                onChange={(e) => handleDonorInfoChange('isRecurring', e.target.checked)}
+                className="w-5 h-5 text-yellow-400 bg-dark-steel border-2 border-steel-blue rounded"
+              />
+              Monthly
+            </label>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -589,28 +521,20 @@ function DonationForm({ stripePromise, onSuccess, onClose, initialAmount, eventT
             </div>
           )}
 
-          <div className="flex gap-3">
-            <button
-              onClick={() => setStep('amount')}
-              className="flex-1 bg-dark-steel text-white py-3 rounded-lg font-semibold hover:bg-steel-gray transition-colors border-2 border-steel-blue"
-            >
-              Back
-            </button>
-            <button
-              onClick={handleInfoNext}
-              disabled={loading}
-              className="flex-1 bg-yellow-400 text-black py-3 rounded-lg font-sport text-lg hover:bg-yellow-300 transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none shadow-lg"
-            >
-              {loading ? (
-                <>
-                  <Loader className="w-5 h-5 animate-spin inline mr-2" />
-                  Processing...
-                </>
-              ) : (
-                `Continue to Payment - $${displayAmount.toFixed(2)}`
-              )}
-            </button>
-          </div>
+          <button
+            onClick={handleInfoNext}
+            disabled={loading}
+            className="w-full bg-yellow-400 text-black py-4 rounded-lg font-sport text-xl hover:bg-yellow-300 transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none shadow-lg"
+          >
+            {loading ? (
+              <>
+                <Loader className="w-5 h-5 animate-spin inline mr-2" />
+                Processing...
+              </>
+            ) : (
+              `Continue to Payment - $${displayAmount.toFixed(2)}${donorInfo.isRecurring ? '/mo' : ''}`
+            )}
+          </button>
           <p className="text-center text-gray-500 text-xs mt-2 flex items-center justify-center gap-1">
             <Lock className="w-3 h-3" />
             Secure payment powered by Stripe
