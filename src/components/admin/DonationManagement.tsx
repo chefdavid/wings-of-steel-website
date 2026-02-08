@@ -16,7 +16,8 @@ const DonationManagement = () => {
     status: filterStatus === 'all' ? undefined : filterStatus,
     dateRange: filterDateRange === 'all' ? undefined : filterDateRange,
     search: searchTerm || undefined,
-    eventTag: filterEvent === 'all' ? undefined : filterEvent,
+    eventTag: filterEvent === 'all' ? undefined : (filterEvent.startsWith('topgolf') ? filterEvent : filterEvent),
+    excludeEventTagPrefix: filterEvent === 'all' ? 'topgolf' : undefined,
   });
 
   const exportToCSV = () => {
@@ -227,9 +228,6 @@ const DonationManagement = () => {
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-steel-blue focus:border-transparent"
             >
               <option value="all">All Events</option>
-              <option value="topgolf">Topgolf (All)</option>
-              <option value="topgolf-youth">Topgolf — Youth</option>
-              <option value="topgolf-adult">Topgolf — Adult</option>
               <option value="hockey-for-a-cause">Hockey for a Cause</option>
               <option value="golf-outing">Golf Outing</option>
             </select>

@@ -40,6 +40,7 @@ export function useDonations(filters?: {
   dateRange?: 'month' | 'year' | 'all';
   search?: string;
   eventTag?: string;
+  excludeEventTagPrefix?: string;
 }) {
   const [donations, setDonations] = useState<Donation[]>([]);
   const [statistics, setStatistics] = useState<DonationStatistics | null>(null);
@@ -70,7 +71,7 @@ export function useDonations(filters?: {
     return () => {
       channel.unsubscribe();
     };
-  }, [filters?.type, filters?.status, filters?.dateRange, filters?.search, filters?.eventTag]);
+  }, [filters?.type, filters?.status, filters?.dateRange, filters?.search, filters?.eventTag, filters?.excludeEventTagPrefix]);
 
   const fetchDonations = async () => {
     try {
@@ -110,6 +111,10 @@ export function useDonations(filters?: {
 
       if (filters?.eventTag) {
         query = query.ilike('event_tag', `${filters.eventTag}%`);
+      }
+
+      if (filters?.excludeEventTagPrefix) {
+        query = query.or(`event_tag.is.null,event_tag.not.ilike.${filters.excludeEventTagPrefix}%`);
       }
 
       const { data, error: fetchError } = await query;

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabaseClient';
-import { Download, Search, Mail, X, CheckCircle, Users, DollarSign, Trash2 } from 'lucide-react';
+import { Download, Search, Mail, X, CheckCircle, Users, DollarSign, Trash2, RefreshCw } from 'lucide-react';
 
 interface TopgolfRegistration {
   id: string;
@@ -22,8 +22,9 @@ const TopgolfAdmin = () => {
   const [stats, setStats] = useState({
     totalRegistrations: 0,
     totalRevenue: 0,
-    youthCount: 0,
-    adultCount: 0,
+    totalPlayers: 0,
+    youthPlayers: 0,
+    adultPlayers: 0,
   });
 
   useEffect(() => {
@@ -62,29 +63,58 @@ const TopgolfAdmin = () => {
     }
   };
 
+  const PRICE_PER_PERSON = 20;
+
   const calculateStats = (data: TopgolfRegistration[]) => {
     const stats = data.reduce((acc, reg) => {
-      if (reg.payment_status === 'succeeded') {
+      // Count all registrations except failed/canceled
+      if (reg.payment_status !== 'failed' && reg.payment_status !== 'canceled') {
         acc.totalRegistrations++;
         acc.totalRevenue += reg.amount;
+        const playerCount = Math.round(reg.amount / PRICE_PER_PERSON);
+        acc.totalPlayers += playerCount;
         if (reg.event_tag === 'topgolf-youth') {
-          acc.youthCount++;
+          acc.youthPlayers += playerCount;
         } else if (reg.event_tag === 'topgolf-adult') {
-          acc.adultCount++;
+          acc.adultPlayers += playerCount;
         }
       }
       return acc;
     }, {
       totalRegistrations: 0,
       totalRevenue: 0,
-      youthCount: 0,
-      adultCount: 0,
+      totalPlayers: 0,
+      youthPlayers: 0,
+      adultPlayers: 0,
     });
 
     setStats(stats);
   };
 
   const [deleting, setDeleting] = useState(false);
+  const [syncing, setSyncing] = useState(false);
+
+  const syncPayments = async () => {
+    setSyncing(true);
+    try {
+      const response = await fetch('/.netlify/functions/sync-topgolf-payments');
+      const result = await response.json();
+
+      if (result.updated > 0) {
+        alert(`Synced ${result.updated} payment(s) to succeeded status.`);
+        fetchRegistrations();
+      } else if (result.total === 0) {
+        alert('No pending payments to sync.');
+      } else {
+        alert(`Checked ${result.total} pending payments. ${result.stillPending} still pending, ${result.failed} failed.`);
+      }
+    } catch (error) {
+      console.error('Error syncing payments:', error);
+      alert('Failed to sync payments. Check console for details.');
+    } finally {
+      setSyncing(false);
+    }
+  };
 
   const deleteRegistration = async (id: string) => {
     const confirmed = window.confirm('Are you sure you want to delete this registration? This action cannot be undone.');
@@ -125,6 +155,7 @@ const TopgolfAdmin = () => {
       'Email',
       'Phone',
       'Team',
+      'Players',
       'Amount',
       'Status',
     ];
@@ -135,6 +166,7 @@ const TopgolfAdmin = () => {
       r.donor_email,
       r.donor_phone || '',
       r.event_tag === 'topgolf-youth' ? 'Youth' : 'Adult',
+      Math.round(r.amount / PRICE_PER_PERSON),
       `$${r.amount.toFixed(2)}`,
       r.payment_status,
     ]);
@@ -185,25 +217,47 @@ const TopgolfAdmin = () => {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-dark-steel">Topgolf Registrations</h1>
-          <button
-            onClick={exportToCSV}
-            className="flex items-center gap-2 bg-steel-blue text-white px-4 py-2 rounded-lg hover:bg-dark-steel transition-colors"
-          >
-            <Download size={20} />
-            Export CSV
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={syncPayments}
+              disabled={syncing}
+              className="flex items-center gap-2 bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50"
+            >
+              <RefreshCw size={20} className={syncing ? 'animate-spin' : ''} />
+              {syncing ? 'Syncing...' : 'Sync Payments'}
+            </button>
+            <button
+              onClick={exportToCSV}
+              className="flex items-center gap-2 bg-steel-blue text-white px-4 py-2 rounded-lg hover:bg-dark-steel transition-colors"
+            >
+              <Download size={20} />
+              Export CSV
+            </button>
+          </div>
         </div>
 
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
           <div className="bg-white rounded-lg shadow p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-500 text-sm">Total Registrations</p>
+                <p className="text-gray-500 text-sm">Registrations</p>
                 <p className="text-2xl font-bold text-dark-steel">{stats.totalRegistrations}</p>
               </div>
               <div className="bg-blue-100 p-3 rounded-full">
-                <Users className="text-blue-600" size={24} />
+                <CheckCircle className="text-blue-600" size={24} />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-500 text-sm">Total Players</p>
+                <p className="text-2xl font-bold text-dark-steel">{stats.totalPlayers}</p>
+              </div>
+              <div className="bg-indigo-100 p-3 rounded-full">
+                <Users className="text-indigo-600" size={24} />
               </div>
             </div>
           </div>
@@ -223,8 +277,8 @@ const TopgolfAdmin = () => {
           <div className="bg-white rounded-lg shadow p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-500 text-sm">Youth Team</p>
-                <p className="text-2xl font-bold text-dark-steel">{stats.youthCount}</p>
+                <p className="text-gray-500 text-sm">Youth Players</p>
+                <p className="text-2xl font-bold text-dark-steel">{stats.youthPlayers}</p>
               </div>
               <div className="bg-emerald-100 p-3 rounded-full">
                 <span className="text-2xl">🏒</span>
@@ -235,8 +289,8 @@ const TopgolfAdmin = () => {
           <div className="bg-white rounded-lg shadow p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-500 text-sm">Adult Team</p>
-                <p className="text-2xl font-bold text-dark-steel">{stats.adultCount}</p>
+                <p className="text-gray-500 text-sm">Adult Players</p>
+                <p className="text-2xl font-bold text-dark-steel">{stats.adultPlayers}</p>
               </div>
               <div className="bg-purple-100 p-3 rounded-full">
                 <span className="text-2xl">🛷</span>
@@ -281,6 +335,7 @@ const TopgolfAdmin = () => {
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Team</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Players</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
@@ -306,6 +361,9 @@ const TopgolfAdmin = () => {
                       }`}>
                         {reg.event_tag === 'topgolf-youth' ? 'Youth' : 'Adult'}
                       </span>
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {Math.round(reg.amount / PRICE_PER_PERSON)}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
                       {formatCurrency(reg.amount)}
