@@ -350,7 +350,13 @@ async function sendAdminNotification(donation) {
   }).format(donation.amount);
 
   const isRecurring = donation.donation_type === 'recurring';
-  const eventSource = donation.event_source || 'General';
+  const eventTag = donation.event_tag;
+  const eventSource = eventTag === 'topgolf-youth' ? 'TopGolf Fundraiser — Youth'
+    : eventTag === 'topgolf-adult' ? 'TopGolf Fundraiser — Adult'
+    : eventTag === 'golf-outing' ? 'Tom Brake Memorial Golf Outing'
+    : eventTag === 'hockey-for-a-cause' ? 'Hockey for a Cause'
+    : eventTag ? eventTag.replace(/-/g, ' ')
+    : 'General Donation';
 
   const adminEmailHtml = `
     <!DOCTYPE html>
@@ -436,7 +442,7 @@ async function sendAdminNotification(donation) {
       body: JSON.stringify({
         from: fromEmail,
         to: ADMIN_EMAILS,
-        subject: `💰 New Donation: ${amount} from ${donorName}`,
+        subject: `💰 New ${eventSource}: ${amount} from ${donorName}`,
         html: adminEmailHtml,
       }),
     });
@@ -475,6 +481,15 @@ async function sendThankYouEmail(donation) {
   const isRecurring = donation.donation_type === 'recurring';
   const playerHonor = donation.player_name ? ` in honor of ${donation.player_name}` : '';
   const companyName = donation.company_name ? ` on behalf of ${donation.company_name}` : '';
+
+  const thankYouEventTag = donation.event_tag;
+  const thankYouSubject = thankYouEventTag === 'golf-outing'
+    ? `Thank You for Registering — Tom Brake Memorial Golf Outing - ${amount}`
+    : thankYouEventTag === 'hockey-for-a-cause'
+    ? `Thank You — Hockey for a Cause - ${amount}`
+    : thankYouEventTag && thankYouEventTag.startsWith('topgolf')
+    ? `Thank You for Registering — TopGolf Fundraiser - ${amount}`
+    : `Thank You for Your Donation to Wings of Steel - ${amount}`;
 
   const emailHtml = `
     <!DOCTYPE html>
@@ -584,7 +599,7 @@ async function sendThankYouEmail(donation) {
       body: JSON.stringify({
         from: fromEmail,
         to: toEmail,
-        subject: `Thank You for Your Donation to Wings of Steel - ${amount}`,
+        subject: thankYouSubject,
         html: emailHtml,
       }),
     });

@@ -80,6 +80,16 @@ function PaymentForm({
       }
 
       if (paymentIntent && paymentIntent.status === 'succeeded') {
+        // Confirm payment status in database (fallback if webhook is delayed)
+        try {
+          await fetch('/.netlify/functions/confirm-payment-status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ paymentIntentId: paymentIntent.id }),
+          })
+        } catch (confirmErr) {
+          console.error('Status confirmation fallback error (non-critical):', confirmErr)
+        }
         onSuccess()
       }
     } catch {
@@ -316,7 +326,7 @@ const GolfRegistrationForm: React.FC<GolfRegistrationFormProps> = ({
               name: `${captain.firstName.trim()} ${captain.lastName.trim()}`,
               email: captain.email.trim(),
               phone: captain.phone.trim() || undefined,
-              company: captain.company.trim() || undefined,
+              companyName: captain.company.trim() || undefined,
             },
             donationType: 'one-time',
             isRecurring: false,

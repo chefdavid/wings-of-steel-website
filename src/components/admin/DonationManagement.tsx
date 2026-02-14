@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useDonations } from '../../hooks/useDonations';
-import { Download, Search, Filter, Mail, X, CheckCircle, AlertCircle, Eye, EyeOff, Trash2 } from 'lucide-react';
+import { Download, Search, Filter, Mail, X, CheckCircle, AlertCircle, Eye, EyeOff, Trash2, RefreshCw } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
 
 const DonationManagement = () => {
@@ -10,6 +10,7 @@ const DonationManagement = () => {
   const [filterEvent, setFilterEvent] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDonation, setSelectedDonation] = useState<any>(null);
+  const [syncing, setSyncing] = useState(false);
 
   const { donations, statistics, loading, refetch } = useDonations({
     type: filterType === 'all' ? undefined : filterType,
@@ -19,6 +20,28 @@ const DonationManagement = () => {
     eventTag: filterEvent === 'all' ? undefined : (filterEvent.startsWith('topgolf') ? filterEvent : filterEvent),
     excludeEventTagPrefix: filterEvent === 'all' ? 'topgolf' : undefined,
   });
+
+  const syncPendingPayments = async () => {
+    setSyncing(true);
+    try {
+      const response = await fetch('/.netlify/functions/sync-pending-payments');
+      const result = await response.json();
+
+      if (result.updated > 0) {
+        alert(`Synced ${result.updated} payment(s) to succeeded status.`);
+        refetch();
+      } else if (result.total === 0) {
+        alert('No pending payments to sync.');
+      } else {
+        alert(`Checked ${result.total} pending payments. ${result.stillPending} still pending, ${result.failed} failed.`);
+      }
+    } catch (error) {
+      console.error('Error syncing payments:', error);
+      alert('Failed to sync payments. Check console for details.');
+    } finally {
+      setSyncing(false);
+    }
+  };
 
   const exportToCSV = () => {
     const headers = [
@@ -108,13 +131,23 @@ const DonationManagement = () => {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-dark-steel">Donation Management</h1>
-          <button
-            onClick={exportToCSV}
-            className="flex items-center gap-2 bg-steel-blue text-white px-4 py-2 rounded-lg hover:bg-dark-steel transition-colors"
-          >
-            <Download size={20} />
-            Export CSV
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={syncPendingPayments}
+              disabled={syncing}
+              className="flex items-center gap-2 bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50"
+            >
+              <RefreshCw size={20} className={syncing ? 'animate-spin' : ''} />
+              {syncing ? 'Syncing...' : 'Sync Payments'}
+            </button>
+            <button
+              onClick={exportToCSV}
+              className="flex items-center gap-2 bg-steel-blue text-white px-4 py-2 rounded-lg hover:bg-dark-steel transition-colors"
+            >
+              <Download size={20} />
+              Export CSV
+            </button>
+          </div>
         </div>
 
         {/* Statistics Cards */}

@@ -70,6 +70,16 @@ function PaymentForm({
       }
 
       if (paymentIntent && paymentIntent.status === 'succeeded') {
+        // Confirm payment status in database (fallback if webhook is delayed)
+        try {
+          await fetch('/.netlify/functions/confirm-payment-status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ paymentIntentId: paymentIntent.id }),
+          })
+        } catch (confirmErr) {
+          console.error('Status confirmation fallback error (non-critical):', confirmErr)
+        }
         onSuccess()
       }
     } catch {
