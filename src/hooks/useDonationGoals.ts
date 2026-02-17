@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
 
 export interface DonationGoal {
@@ -34,13 +34,16 @@ export function useDonationGoals() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Unique ID per hook instance to avoid channel name collisions
+  const instanceId = useRef(Math.random().toString(36).slice(2, 8));
+
   useEffect(() => {
     fetchGoals();
     fetchProgress();
 
-    // Set up real-time subscription for goals
+    // Set up real-time subscription for goals (unique channel per instance)
     const goalsChannel = supabase
-      .channel('donation_goals_changes')
+      .channel(`donation_goals_changes_${instanceId.current}`)
       .on(
         'postgres_changes',
         {
@@ -55,9 +58,9 @@ export function useDonationGoals() {
       )
       .subscribe();
 
-    // Set up real-time subscription for donations (affects progress)
+    // Set up real-time subscription for donations (unique channel per instance)
     const donationsChannel = supabase
-      .channel('donations_changes')
+      .channel(`donations_changes_${instanceId.current}`)
       .on(
         'postgres_changes',
         {
@@ -72,8 +75,8 @@ export function useDonationGoals() {
       .subscribe();
 
     return () => {
-      goalsChannel.unsubscribe();
-      donationsChannel.unsubscribe();
+      supabase.removeChannel(goalsChannel);
+      supabase.removeChannel(donationsChannel);
     };
   }, []);
 

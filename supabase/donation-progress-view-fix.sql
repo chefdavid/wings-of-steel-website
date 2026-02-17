@@ -1,6 +1,6 @@
--- Fix donation_progress view to include ALL sales (donations, TopGolf, Hockey for a Cause, etc.)
--- Previously only counted donations with matching campaign_id, missing event-based sales
--- Now counts ALL succeeded payments within the goal's date range
+-- Fix donation_progress view to count ALL Stripe-processed payments
+-- Counts succeeded + pending (Stripe-processed but webhook may not have updated status)
+-- Excludes only explicitly failed/canceled payments
 -- Run this in Supabase SQL Editor
 
 DROP VIEW IF EXISTS donation_progress;
@@ -29,7 +29,8 @@ SELECT
   dg.updated_at
 FROM donation_goals dg
 LEFT JOIN donations d ON
-  d.payment_status = 'succeeded'
+  d.payment_status IN ('succeeded', 'pending')
+  AND d.stripe_payment_intent_id IS NOT NULL
   AND d.created_at >= dg.start_date
   AND (dg.end_date IS NULL OR d.created_at <= (dg.end_date + INTERVAL '1 day'))
 WHERE dg.is_active = true
@@ -40,3 +41,4 @@ GRANT SELECT ON donation_progress TO PUBLIC;
 
 -- Verify the view works (uncomment to test)
 -- SELECT * FROM donation_progress;
+-- SELECT payment_status, COUNT(*), SUM(amount) FROM donations WHERE stripe_payment_intent_id IS NOT NULL GROUP BY payment_status;

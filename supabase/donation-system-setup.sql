@@ -151,7 +151,9 @@ CREATE POLICY "Allow authenticated users to manage goals" ON donation_goals
   WITH CHECK (true);
 
 -- 11. Create view for donation progress (public-facing)
--- Counts ALL succeeded payments (donations, TopGolf, Hockey for a Cause, etc.) within the goal's date range
+-- Counts ALL Stripe-processed payments (succeeded + pending) within the goal's date range
+-- Pending payments with a stripe_payment_intent_id were processed by Stripe but webhook may not have updated status
+-- Only excludes explicitly failed/canceled payments
 CREATE OR REPLACE VIEW donation_progress AS
 SELECT
   dg.id as goal_id,
@@ -176,7 +178,8 @@ SELECT
   dg.updated_at
 FROM donation_goals dg
 LEFT JOIN donations d ON
-  d.payment_status = 'succeeded'
+  d.payment_status IN ('succeeded', 'pending')
+  AND d.stripe_payment_intent_id IS NOT NULL
   AND d.created_at >= dg.start_date
   AND (dg.end_date IS NULL OR d.created_at <= (dg.end_date + INTERVAL '1 day'))
 WHERE dg.is_active = true

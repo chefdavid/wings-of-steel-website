@@ -3,14 +3,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FaBars, FaTimes, FaChevronDown, FaFacebook } from 'react-icons/fa';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useEventVisibility } from '../hooks/useEventVisibility';
-import { useDonationModal } from '../contexts/DonationModalContext';
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const location = useLocation();
   const { isEventVisible, loading: visibilityLoading, featuredEventKey } = useEventVisibility();
-  const { openModal } = useDonationModal();
   const navigate = useNavigate();
 
   const handleHashLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
@@ -169,7 +167,7 @@ const Navigation = () => {
 
     // Donate always last
     allItems.push(
-      { name: 'Donate', href: '#', isHashLink: false, standalone: true, highlight: true, cta: true, isDonate: true }
+      { name: 'Donate', href: '/donate', isHashLink: false, standalone: true, highlight: true, cta: true }
     );
 
     // Filter out events that are not visible (unless still loading)
@@ -254,21 +252,6 @@ const Navigation = () => {
             <div className="hidden lg:flex items-center space-x-1">
               {megaMenuItems.map((item) => (
                 item.standalone ? (
-                  item.isDonate ? (
-                  <button
-                    key={item.name}
-                    onClick={() => openModal()}
-                    className={`px-4 py-2 ${
-                      item.cta
-                        ? 'bg-yellow-500 text-black rounded-full hover:bg-yellow-400 shadow-lg px-6 font-bold animate-pulse'
-                        : item.highlight
-                        ? 'text-championship-gold hover:text-yellow-300 hover:bg-championship-gold/20'
-                        : 'text-gray-300 hover:text-white hover:bg-steel-blue/20'
-                    } rounded-md transition-all duration-200 font-sport tracking-wider`}
-                  >
-                    {item.name}
-                  </button>
-                  ) : (
                   <Link
                     key={item.name}
                     to={item.href}
@@ -282,7 +265,6 @@ const Navigation = () => {
                   >
                     {item.name}
                   </Link>
-                  )
                 ) : (
                   <div
                     key={item.key}
@@ -428,21 +410,6 @@ const Navigation = () => {
               <div className="px-4 pt-2 pb-6 space-y-2">
                 {megaMenuItems.map((item) => (
                   item.standalone ? (
-                    item.isDonate ? (
-                    <button
-                      key={item.name}
-                      onClick={() => { openModal(); setIsOpen(false); }}
-                      className={`block w-full px-3 py-2 ${
-                        item.cta
-                          ? 'bg-yellow-500 text-black rounded-full hover:bg-yellow-400 shadow-lg font-bold text-center animate-pulse'
-                          : item.highlight
-                          ? 'text-championship-gold hover:text-yellow-300'
-                          : 'text-gray-300 hover:text-white hover:bg-steel-blue/20'
-                      } rounded-md font-sport tracking-wider`}
-                    >
-                      {item.name}
-                    </button>
-                    ) : (
                     <Link
                       key={item.name}
                       to={item.href}
@@ -457,7 +424,6 @@ const Navigation = () => {
                     >
                       {item.name}
                     </Link>
-                    )
                   ) : (
                     <div key={item.key}>
                       <button

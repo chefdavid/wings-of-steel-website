@@ -1,15 +1,14 @@
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FaHockeyPuck, FaTrophy, FaUsers, FaHeart } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 import { useSiteSections } from '../hooks';
 import { useTeam } from '../hooks/useTeam';
 import DonationProgressBar from './DonationProgressBar';
-import { useDonationModal } from '../contexts/DonationModalContext';
 
 const Hero = () => {
   const { sections, loading } = useSiteSections();
   const { teamConfig } = useTeam();
-  const { openModal } = useDonationModal();
   const heroData = sections['hero']?.content as {
     title?: string;
     subtitle?: string;  // Legacy: award1
@@ -136,16 +135,19 @@ const Hero = () => {
               <FaUsers className="text-lg md:text-xl" aria-hidden="true" />
               JOIN THE TEAM
             </motion.a>
-            <motion.button
+            <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => openModal()}
-              className="bg-yellow-400 text-black px-6 py-3 md:px-8 md:py-4 rounded-lg font-bold text-base md:text-lg hover:bg-yellow-300 transition-all duration-300 shadow-lg flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-600"
-              aria-label="Donate to support Wings of Steel"
             >
-              <FaHeart className="text-lg md:text-xl" aria-hidden="true" />
-              DONATE NOW
-            </motion.button>
+              <Link
+                to="/donate"
+                className="bg-yellow-400 text-black px-6 py-3 md:px-8 md:py-4 rounded-lg font-bold text-base md:text-lg hover:bg-yellow-300 transition-all duration-300 shadow-lg flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-600"
+                aria-label="Donate to support Wings of Steel"
+              >
+                <FaHeart className="text-lg md:text-xl" aria-hidden="true" />
+                DONATE NOW
+              </Link>
+            </motion.div>
           </div>
 
           {/* Donation Progress Bar */}

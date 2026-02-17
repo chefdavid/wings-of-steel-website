@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { FaHeart, FaTimes, FaShoppingCart } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 import DonationProgressBar from './DonationProgressBar';
 import MobileDonationBanner from './MobileDonationBanner';
 import { useDonationGoals } from '../hooks/useDonationGoals';
-import { useDonationModal } from '../contexts/DonationModalContext';
 
 const PRESET_AMOUNTS = [5, 10, 25, 50, 100];
 
@@ -12,7 +12,7 @@ const DonationSlideOut = () => {
   const [isHovered, setIsHovered] = useState(false);
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   const { activeGoal } = useDonationGoals();
-  const { openModal } = useDonationModal();
+  const navigate = useNavigate();
 
   if (!activeGoal) {
     return null; // Don't show if no active goal
@@ -127,7 +127,7 @@ const DonationSlideOut = () => {
               <div className="mt-auto pt-4 border-t-2 border-steel-blue">
                 <button
                   onClick={() => {
-                    openModal(selectedAmount || undefined);
+                    navigate(selectedAmount ? `/donate?amount=${selectedAmount}` : '/donate');
                     setIsHovered(false);
                   }}
                   className="w-full bg-yellow-400 text-black py-4 rounded-lg font-sport text-lg hover:bg-yellow-300 transition-all transform hover:scale-105 shadow-lg flex items-center justify-center gap-2"
@@ -146,7 +146,7 @@ const DonationSlideOut = () => {
             {/* Always visible tab - 60% height */}
             <div 
               className="flex flex-col items-center justify-center bg-yellow-400 text-black px-3 py-8 cursor-pointer min-w-[60px] border-l-2 border-steel-blue hover:bg-yellow-300 transition-colors"
-              onClick={() => openModal(selectedAmount || undefined)}
+              onClick={() => navigate(selectedAmount ? `/donate?amount=${selectedAmount}` : '/donate')}
             >
               <FaShoppingCart className="text-2xl mb-3" />
               <div className="text-[11px] font-bold leading-tight text-center whitespace-nowrap mb-3" style={{ writingMode: 'vertical-rl', textOrientation: 'upright' }}>
@@ -173,7 +173,7 @@ const DonationSlideOut = () => {
         transition={{ delay: 0.5 }}
       >
         <motion.button
-          onClick={() => openModal(selectedAmount || undefined)}
+          onClick={() => navigate(selectedAmount ? `/donate?amount=${selectedAmount}` : '/donate')}
           className="group relative bg-gradient-to-br from-yellow-400 to-yellow-500 text-black rounded-2xl shadow-2xl hover:shadow-yellow-400/50 transition-all duration-300 flex items-center gap-3 px-4 py-3 border-2 border-steel-blue min-w-[140px]"
           whileTap={{ scale: 0.95 }}
           aria-label="Donate to Wings of Steel"
@@ -211,7 +211,7 @@ const DonationSlideOut = () => {
       <MobileDonationBanner
         activeGoal={activeGoal}
         onDonateClick={() => {
-          openModal(selectedAmount || undefined);
+          navigate(selectedAmount ? `/donate?amount=${selectedAmount}` : '/donate');
         }}
       />
     </>
