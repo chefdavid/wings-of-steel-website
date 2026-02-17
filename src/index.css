@@ -90,7 +90,15 @@ body {
   transform-style: preserve-3d;
 }
 
-.flip-card:hover .flip-card-inner {
+/* Desktop: hover to flip */
+@media (hover: hover) {
+  .flip-card:hover .flip-card-inner {
+    transform: rotateY(180deg);
+  }
+}
+
+/* Mobile: tap to flip via .flipped class */
+.flip-card.flipped .flip-card-inner {
   transform: rotateY(180deg);
 }
 

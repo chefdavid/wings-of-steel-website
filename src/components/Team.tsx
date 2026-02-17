@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { FaTimes, FaHockeyPuck, FaBirthdayCake } from 'react-icons/fa';
 import { useTeamRoster } from '../hooks';
 import { useTeam } from '../hooks/useTeam';
@@ -13,8 +13,27 @@ const Team = () => {
   const [selectedCoach, setSelectedCoach] = useState<CoachWithTeams | null>(null);
   const [coaches, setCoaches] = useState<CoachWithTeams[]>([]);
   const [coachesLoading, setCoachesLoading] = useState(true);
+  const [flippedCard, setFlippedCard] = useState<string | null>(null);
   const { players, loading, error, refetch } = useTeamRoster();
   const { currentTeam, teamConfig } = useTeam();
+
+  // Handle card tap on mobile: first tap flips, second tap opens modal
+  const handleCardClick = useCallback((id: string, openModal: () => void) => {
+    const isTouchDevice = window.matchMedia('(hover: none)').matches;
+    if (isTouchDevice) {
+      if (flippedCard === id) {
+        // Second tap — open the modal
+        setFlippedCard(null);
+        openModal();
+      } else {
+        // First tap — flip the card
+        setFlippedCard(id);
+      }
+    } else {
+      // Desktop — click always opens modal (hover handles flip)
+      openModal();
+    }
+  }, [flippedCard]);
 
   useEffect(() => {
     fetchCoaches();
@@ -103,7 +122,7 @@ const Team = () => {
                 viewport={{ once: true }}
                 className="relative"
               >
-                {/* Captain Tag - moved outside flip card */}
+                {/* Captain/Tags Badge */}
                 {player.tags && player.tags.length > 0 && (
                   <div className="absolute -top-2 -right-2 sm:-top-3 sm:-right-3 z-20">
                     {player.tags.map((tag, tagIndex) => (
@@ -118,53 +137,49 @@ const Team = () => {
                     ))}
                   </div>
                 )}
-                
+
                 <div
-                  className="flip-card h-56 sm:h-64 md:h-72 w-full cursor-pointer"
-                  onClick={() => setSelectedPlayer(player)}
+                  className={`flip-card h-56 sm:h-64 md:h-72 w-full cursor-pointer ${flippedCard === `player-${player.id}` ? 'flipped' : ''}`}
+                  onClick={() => handleCardClick(`player-${player.id}`, () => setSelectedPlayer(player))}
                 >
                   <div className="flip-card-inner">
-                  
-                  {/* Front of card */}
-                  <div className="flip-card-front bg-white rounded-xl shadow-xl p-4 sm:p-5 md:p-6 flex flex-col items-center justify-center border border-gray-100 relative overflow-hidden">
-                    {/* Background image for mobile only */}
-                    <div 
-                      className="absolute inset-0 bg-cover bg-center md:hidden"
-                      style={{
-                        backgroundImage: `url(${getAvatarUrl(player.image_url, player.first_name, player.last_name, '#4682B4', 256)})`,
-                      }}
-                    ></div>
-                    
-                    {/* Dark overlay for mobile to ensure text readability */}
-                    <div className="absolute inset-0 bg-black/50 md:hidden z-0"></div>
-                    
-                    {/* Player number - bottom left on mobile, centered on desktop */}
-                    <div className="absolute bottom-2 left-2 md:static w-10 h-10 sm:w-12 sm:h-12 md:w-24 md:h-24 bg-white md:bg-team-primary rounded-full flex items-center justify-center text-team-primary md:text-white text-xs sm:text-sm md:text-2xl font-bold md:mb-6 shadow-lg border-2 md:border-0 border-team-primary z-20">
-                      {player.jersey_number === 0 ? 'TBD' : player.jersey_number}
-                    </div>
-                    
-                    {/* Content */}
-                    <div className="relative z-10 flex flex-col items-center justify-center w-full md:mt-0">
-                      <h3 className="text-sm sm:text-base md:text-xl font-bold text-center text-white md:text-gray-800 leading-tight">{player.first_name} {player.last_name}</h3>
-                      <p className="text-xs sm:text-sm text-white/90 md:text-steel-gray mt-1 sm:mt-2">{player.position}</p>
+
+                  {/* Front — Photo trading card */}
+                  <div className="flip-card-front rounded-xl shadow-xl overflow-hidden relative">
+                    <img
+                      src={getAvatarUrl(player.image_url, player.first_name, player.last_name, '#4682B4', 320)}
+                      alt={`${player.first_name} ${player.last_name}`}
+                      className="w-full h-full object-cover"
+                    />
+                    {/* Gradient overlay at bottom */}
+                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent pt-16 pb-3 px-3">
+                      <h3 className="text-white font-bold text-sm sm:text-base md:text-lg leading-tight drop-shadow-lg">
+                        {player.first_name} {player.last_name}
+                      </h3>
+                      <div className="flex items-center justify-between mt-1">
+                        <p className="text-white/80 text-[10px] sm:text-xs">{player.position}</p>
+                        <span className="bg-team-primary text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full">
+                          #{player.jersey_number === 0 ? 'TBD' : player.jersey_number}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                  
-                  {/* Back of card */}
+
+                  {/* Back — Stats */}
                   <div className="flip-card-back bg-gradient-to-br from-team-primary to-team-secondary rounded-xl shadow-xl p-3 sm:p-4 md:p-6 flex items-center justify-center">
                     <div className="text-center text-white">
                       <img
                         src={getAvatarUrl(player.image_url, player.first_name, player.last_name, '#4682B4', 128)}
-                        alt={`${player.first_name} ${player.last_name} - Wings of Steel player, jersey number ${player.jersey_number === 0 ? 'TBD' : player.jersey_number}, ${player.position}`}
+                        alt={`${player.first_name} ${player.last_name}`}
                         className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-full mx-auto mb-2 sm:mb-3 border-2 sm:border-3 md:border-4 border-white shadow-lg object-cover"
                       />
                       <p className="font-bold text-xs sm:text-sm md:text-lg mb-0.5 sm:mb-1">{player.first_name} {player.last_name}</p>
                       <p className="text-xs sm:text-sm md:text-base font-semibold">#{player.jersey_number === 0 ? 'TBD' : player.jersey_number}</p>
-                      <p className="text-[10px] sm:text-xs text-ice-blue mt-0.5 sm:mt-1">{player.position} • Age {player.birthdate ? calculateAge(player.birthdate) : player.age || 'Unknown'}</p>
+                      <p className="text-[10px] sm:text-xs text-ice-blue mt-0.5 sm:mt-1">{player.position} {player.birthdate ? `\u2022 Age ${calculateAge(player.birthdate)}` : ''}</p>
                       {player.start_date && (
                         <p className="text-[10px] sm:text-xs text-yellow-300 mt-0.5">{getYearsWithTeamDisplay(player.start_date)}</p>
                       )}
-                      <p className="text-[10px] sm:text-xs text-yellow-400 mt-1 sm:mt-2">Click for more info</p>
+                      <p className="text-[10px] sm:text-xs text-yellow-400 mt-1 sm:mt-2">Tap for full profile</p>
                     </div>
                   </div>
                 </div>
@@ -218,28 +233,32 @@ const Team = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   viewport={{ once: true }}
-                  className="flip-card h-56 sm:h-64 md:h-72 lg:h-80 w-full cursor-pointer"
-                  onClick={() => setSelectedCoach(coach)}
+                  className={`flip-card h-56 sm:h-64 md:h-72 lg:h-80 w-full cursor-pointer ${flippedCard === `coach-${coach.id}` ? 'flipped' : ''}`}
+                  onClick={() => handleCardClick(`coach-${coach.id}`, () => setSelectedCoach(coach))}
                 >
                   <div className="flip-card-inner">
-                    {/* Front of card */}
-                    <div className="flip-card-front bg-white rounded-lg shadow-lg p-3 sm:p-4 md:p-6 flex flex-col items-center justify-center">
-                      <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-team-primary rounded-full flex items-center justify-center mb-2 sm:mb-3 md:mb-4">
-                        <svg className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-white" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" />
-                        </svg>
+                    {/* Front — Photo trading card */}
+                    <div className="flip-card-front rounded-xl shadow-xl overflow-hidden relative">
+                      <img
+                        src={getAvatarUrl(coach.image_url, coach.first_name, coach.last_name, '#2C3E50', 320)}
+                        alt={`${coach.first_name} ${coach.last_name}`}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent pt-16 pb-3 px-3">
+                        <h3 className="text-white font-bold text-sm sm:text-base md:text-lg leading-tight drop-shadow-lg">
+                          {coach.first_name} {coach.last_name}
+                        </h3>
+                        <p className="text-white/80 text-[10px] sm:text-xs mt-1">{coach.role}</p>
                       </div>
-                      <h3 className="text-sm sm:text-base md:text-xl font-semibold text-center mb-1 sm:mb-2">{coach.first_name} {coach.last_name}</h3>
-                      <p className="text-xs sm:text-sm md:text-base text-steel-blue font-medium">{coach.role}</p>
                     </div>
-                    
-                    {/* Back of card */}
-                    <div className="flip-card-back bg-gradient-to-br from-team-secondary to-team-background rounded-lg shadow-lg p-3 sm:p-4 md:p-6 flex items-center justify-center">
+
+                    {/* Back — Info */}
+                    <div className="flip-card-back bg-gradient-to-br from-team-secondary to-team-background rounded-xl shadow-xl p-3 sm:p-4 md:p-6 flex items-center justify-center">
                       <div className="text-center text-white">
-                        <img 
+                        <img
                           src={getAvatarUrl(coach.image_url, coach.first_name, coach.last_name, '#2C3E50', 128)}
                           alt={`${coach.first_name} ${coach.last_name}`}
-                          className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-full mx-auto mb-2 sm:mb-3"
+                          className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-full mx-auto mb-2 sm:mb-3 border-2 sm:border-3 md:border-4 border-white shadow-lg object-cover"
                         />
                         <p className="font-bold text-xs sm:text-sm md:text-lg mb-0.5 sm:mb-1">{coach.first_name} {coach.last_name}</p>
                         <p className="text-ice-blue mb-1 sm:mb-2 text-[10px] sm:text-xs md:text-sm">{coach.role}</p>
@@ -247,7 +266,7 @@ const Team = () => {
                           <p className="text-[10px] sm:text-xs text-yellow-300 mb-1">{getYearsWithTeamDisplay(coach.start_date)}</p>
                         )}
                         <p className="text-[10px] sm:text-xs px-1 sm:px-2 line-clamp-2 sm:line-clamp-3">{coach.description}</p>
-                        <p className="text-[10px] sm:text-xs text-yellow-400 mt-1 sm:mt-2">Click for more info</p>
+                        <p className="text-[10px] sm:text-xs text-yellow-400 mt-1 sm:mt-2">Tap for full profile</p>
                       </div>
                     </div>
                   </div>
