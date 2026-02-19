@@ -37,7 +37,7 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
   ];
 
   const menuItems = [
-    { id: 'registrations' as AdminSection, label: 'Registrations', icon: FaClipboardList },
+    { id: 'registrations' as AdminSection, label: 'New Player Registration', icon: FaClipboardList },
     { id: 'donations' as AdminSection, label: 'Donations', icon: FaHeart },
     { id: 'donation-goals' as AdminSection, label: 'Donation Goals', icon: FaChartLine },
     { id: 'players' as AdminSection, label: 'Team Roster', icon: FaUsers },
