@@ -45,6 +45,8 @@ const RegistrationManagement = () => {
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [selectedRegistration, setSelectedRegistration] = useState<Registration | null>(null);
   const [updating, setUpdating] = useState(false);
+  const [confirmingActive, setConfirmingActive] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const fetchRegistrations = async () => {
     try {
@@ -73,20 +75,29 @@ const RegistrationManagement = () => {
     const firstName = nameParts[0] || '';
     const lastName = nameParts.slice(1).join(' ') || '';
 
-    // Create the player record
+    // Calculate age from DOB
+    const birth = new Date(reg.date_of_birth);
+    const now = new Date();
+    let age = now.getFullYear() - birth.getFullYear();
+    const m = now.getMonth() - birth.getMonth();
+    if (m < 0 || (m === 0 && now.getDate() < birth.getDate())) age--;
+
+    // Create the player record — match all NOT NULL fields from PlayerManagement
     const { data: player, error: playerError } = await supabase
       .from('players')
       .insert({
         first_name: firstName,
         last_name: lastName,
         name: reg.player_name,
+        age,
         birthdate: reg.date_of_birth,
         start_date: new Date().toISOString().split('T')[0],
         position: 'TBD',
         bio: '',
+        image_url: '',
         jersey_number: 0,
+        tags: [],
         active: true,
-        team_type: 'youth',
         contacts: [{
           type: 'parent',
           name: reg.parent_name,
@@ -140,15 +151,19 @@ const RegistrationManagement = () => {
   const updateStatus = async (id: string, newStatus: string) => {
     const reg = registrations.find(r => r.id === id);
 
-    // If marking as active, confirm and add to roster
+    // If marking as active, show inline confirmation first
     if (newStatus === 'active' && reg) {
-      const confirmed = window.confirm(
-        `Add ${reg.player_name} to the team roster?\n\nThis will create a new player in the roster with jersey #0 and position TBD. You can update these in Team Roster.`
-      );
-      if (!confirmed) return;
+      setConfirmingActive(id);
+      return;
     }
 
+    await performStatusUpdate(id, newStatus);
+  };
+
+  const performStatusUpdate = async (id: string, newStatus: string) => {
+    const reg = registrations.find(r => r.id === id);
     setUpdating(true);
+    setSuccessMessage(null);
     try {
       // If activating, create the player first
       if (newStatus === 'active' && reg) {
@@ -170,12 +185,14 @@ const RegistrationManagement = () => {
         setSelectedRegistration(prev => prev ? { ...prev, status: newStatus as Registration['status'] } : null);
       }
 
+      setConfirmingActive(null);
+
       if (newStatus === 'active') {
-        alert(`${reg!.player_name} has been added to the team roster! Go to Team Roster to assign their jersey number and position.`);
+        setSuccessMessage(`${reg!.player_name} has been added to the team roster! Go to Team Roster to assign their jersey number and position.`);
       }
     } catch (err) {
       console.error('Error updating status:', err);
-      alert('Failed to update status. ' + (err instanceof Error ? err.message : ''));
+      setSuccessMessage('Failed to update status. ' + (err instanceof Error ? err.message : ''));
     } finally {
       setUpdating(false);
     }
@@ -377,7 +394,7 @@ const RegistrationManagement = () => {
       {selectedRegistration && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 z-50 p-4 overflow-y-auto"
-          onClick={() => setSelectedRegistration(null)}
+          onClick={() => { setSelectedRegistration(null); setConfirmingActive(null); setSuccessMessage(null); }}
         >
           <div className="min-h-full flex items-center justify-center">
             <div
@@ -387,7 +404,7 @@ const RegistrationManagement = () => {
               {/* Header */}
               <div className="bg-gradient-to-r from-steel-blue to-blue-700 p-6 rounded-t-2xl text-white relative">
                 <button
-                  onClick={() => setSelectedRegistration(null)}
+                  onClick={() => { setSelectedRegistration(null); setConfirmingActive(null); setSuccessMessage(null); }}
                   className="absolute top-4 right-4 text-white/80 hover:text-white"
                 >
                   <X className="w-6 h-6" />
@@ -419,6 +436,46 @@ const RegistrationManagement = () => {
                       </button>
                     ))}
                   </div>
+
+                  {/* Inline confirmation for Active Player */}
+                  {confirmingActive === selectedRegistration.id && (
+                    <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                      <p className="text-sm text-green-800 font-medium mb-2">
+                        Add {selectedRegistration.player_name} to the team roster?
+                      </p>
+                      <p className="text-xs text-green-600 mb-3">
+                        This will create a new player with jersey #0 and position TBD. You can update these in Team Roster.
+                      </p>
+                      <div className="flex gap-2">
+                        <button
+                          disabled={updating}
+                          onClick={() => performStatusUpdate(selectedRegistration.id, 'active')}
+                          className="px-3 py-1.5 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 disabled:opacity-50"
+                        >
+                          {updating ? 'Adding...' : 'Yes, Add to Roster'}
+                        </button>
+                        <button
+                          disabled={updating}
+                          onClick={() => setConfirmingActive(null)}
+                          className="px-3 py-1.5 bg-gray-200 text-gray-700 text-sm rounded-lg hover:bg-gray-300"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Success/Error message */}
+                  {successMessage && (
+                    <div className={`mt-3 p-3 rounded-lg text-sm flex items-center justify-between ${
+                      successMessage.startsWith('Failed') ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-green-50 text-green-700 border border-green-200'
+                    }`}>
+                      <span>{successMessage}</span>
+                      <button onClick={() => setSuccessMessage(null)} className="ml-2 text-current opacity-60 hover:opacity-100">
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 {/* Parent/Guardian */}
