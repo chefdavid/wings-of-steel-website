@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { FaUsers, FaHockeyPuck, FaCalendarAlt, FaCog, FaSignOutAlt, FaBars, FaTimes, FaClock, FaImage, FaGolfBall, FaPizzaSlice, FaTrophy, FaEye, FaHeart, FaChartLine, FaChevronDown, FaChevronRight } from 'react-icons/fa';
+import { FaUsers, FaHockeyPuck, FaCalendarAlt, FaCog, FaSignOutAlt, FaBars, FaTimes, FaClock, FaImage, FaGolfBall, FaPizzaSlice, FaTrophy, FaEye, FaHeart, FaChartLine, FaChevronDown, FaChevronRight, FaClipboardList } from 'react-icons/fa';
 import { Users } from 'lucide-react';
 import PlayerManagement from './PlayerManagement';
 import CoachManagement from './CoachManagement';
@@ -16,8 +16,9 @@ import EventVisibilityManagement from './EventVisibilityManagement';
 import DonationManagement from './DonationManagement';
 import DonationGoalManagement from './DonationGoalManagement';
 import TopgolfAdmin from './TopgolfAdmin';
+import RegistrationManagement from './RegistrationManagement';
 
-type AdminSection = 'players' | 'coaches' | 'site-sections' | 'schedule' | 'game-highlights' | 'practice' | 'opponents' | 'settings' | 'batch-images' | 'golf-outing' | 'pizza-pins' | 'topgolf' | 'event-visibility' | 'donations' | 'donation-goals';
+type AdminSection = 'players' | 'coaches' | 'site-sections' | 'schedule' | 'game-highlights' | 'practice' | 'opponents' | 'settings' | 'batch-images' | 'golf-outing' | 'pizza-pins' | 'topgolf' | 'event-visibility' | 'donations' | 'donation-goals' | 'registrations';
 
 interface AdminDashboardProps {
   onLogout: () => void;
@@ -36,6 +37,7 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
   ];
 
   const menuItems = [
+    { id: 'registrations' as AdminSection, label: 'Registrations', icon: FaClipboardList },
     { id: 'donations' as AdminSection, label: 'Donations', icon: FaHeart },
     { id: 'donation-goals' as AdminSection, label: 'Donation Goals', icon: FaChartLine },
     { id: 'players' as AdminSection, label: 'Team Roster', icon: FaUsers },
@@ -61,6 +63,8 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
         return <TopgolfAdmin />;
       case 'event-visibility':
         return <EventVisibilityManagement />;
+      case 'registrations':
+        return <RegistrationManagement />;
       case 'donations':
         return <DonationManagement />;
       case 'donation-goals':

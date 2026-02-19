@@ -84,15 +84,16 @@ const JoinTeam = () => {
 
       if (dbError) throw dbError;
 
-      // Then, send email notification to team managers
+      // Then, send email notifications via Netlify function
       try {
-        const { data: emailData, error: emailError } = await supabase.functions.invoke('send-registration-email', {
-          body: formData
+        const emailResponse = await fetch('/.netlify/functions/send-registration-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
         });
-
-        if (emailError) {
-          console.error('Email notification failed:', emailError);
-          // Don't throw - we still saved the registration
+        const emailResult = await emailResponse.json();
+        if (!emailResult.success) {
+          console.error('Email notification failed:', emailResult.message);
         }
       } catch (emailErr) {
         console.error('Email notification error:', emailErr);
