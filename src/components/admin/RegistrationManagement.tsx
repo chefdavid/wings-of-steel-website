@@ -67,9 +67,94 @@ const RegistrationManagement = () => {
     fetchRegistrations();
   }, []);
 
+  const addPlayerToRoster = async (reg: Registration) => {
+    // Split player name into first/last
+    const nameParts = reg.player_name.trim().split(/\s+/);
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ') || '';
+
+    // Create the player record
+    const { data: player, error: playerError } = await supabase
+      .from('players')
+      .insert({
+        first_name: firstName,
+        last_name: lastName,
+        name: reg.player_name,
+        birthdate: reg.date_of_birth,
+        start_date: new Date().toISOString().split('T')[0],
+        position: 'TBD',
+        bio: '',
+        jersey_number: 0,
+        active: true,
+        team_type: 'youth',
+        contacts: [{
+          type: 'parent',
+          name: reg.parent_name,
+          phone: reg.phone,
+          email: reg.email,
+          address: {
+            street: reg.address,
+            city: reg.city,
+            state: reg.state,
+            zip: reg.zip_code,
+          },
+          relationship: 'Parent/Guardian',
+          primary: true,
+        }],
+        emergency_contact: {
+          name: reg.emergency_contact,
+          phone: reg.emergency_phone,
+          relationship: 'Emergency Contact',
+        },
+        player_notes: [
+          reg.diagnosis ? `Diagnosis: ${reg.diagnosis}` : '',
+          `Experience: ${experienceLabelMap[reg.experience_level] || reg.experience_level}`,
+          reg.additional_info ? `Notes: ${reg.additional_info}` : '',
+          reg.how_heard ? `How heard: ${reg.how_heard}` : '',
+        ].filter(Boolean).join('\n'),
+      })
+      .select()
+      .single();
+
+    if (playerError) throw playerError;
+
+    // Add to youth team
+    const { error: teamError } = await supabase
+      .from('player_teams')
+      .insert({
+        player_id: player.id,
+        team_type: 'youth',
+        jersey_number: 0,
+        position: 'TBD',
+        is_captain: false,
+      });
+
+    if (teamError) {
+      console.error('Error adding to player_teams:', teamError);
+      // Player was created, just team assignment failed — not fatal
+    }
+
+    return player;
+  };
+
   const updateStatus = async (id: string, newStatus: string) => {
+    const reg = registrations.find(r => r.id === id);
+
+    // If marking as active, confirm and add to roster
+    if (newStatus === 'active' && reg) {
+      const confirmed = window.confirm(
+        `Add ${reg.player_name} to the team roster?\n\nThis will create a new player in the roster with jersey #0 and position TBD. You can update these in Team Roster.`
+      );
+      if (!confirmed) return;
+    }
+
     setUpdating(true);
     try {
+      // If activating, create the player first
+      if (newStatus === 'active' && reg) {
+        await addPlayerToRoster(reg);
+      }
+
       const { error } = await supabase
         .from('team_registrations')
         .update({ status: newStatus })
@@ -84,9 +169,13 @@ const RegistrationManagement = () => {
       if (selectedRegistration?.id === id) {
         setSelectedRegistration(prev => prev ? { ...prev, status: newStatus as Registration['status'] } : null);
       }
+
+      if (newStatus === 'active') {
+        alert(`${reg!.player_name} has been added to the team roster! Go to Team Roster to assign their jersey number and position.`);
+      }
     } catch (err) {
       console.error('Error updating status:', err);
-      alert('Failed to update status.');
+      alert('Failed to update status. ' + (err instanceof Error ? err.message : ''));
     } finally {
       setUpdating(false);
     }
