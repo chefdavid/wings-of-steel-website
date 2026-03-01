@@ -105,17 +105,21 @@ const TodayGameCard = () => {
               className="inline-flex items-center gap-2 mb-3"
             >
               <FaCalendarAlt className="text-red-600 text-xl" />
-              <h2 className="text-2xl md:text-3xl font-bold text-dark-steel">Game Today!</h2>
+              <h2 className="text-2xl md:text-3xl font-bold text-dark-steel">
+                {todayGame.status === 'Cancelled' ? "Today's Game — Cancelled" : 'Game Today!'}
+              </h2>
             </motion.div>
           </div>
 
           <div className="relative bg-gradient-to-r from-white to-gray-50 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden transform hover:-translate-y-1">
-            {/* TODAY Flag - Diagonal Corner Banner */}
+            {/* Corner Banner Flag */}
             <>
               {/* Mobile Flag */}
               <div className="absolute top-0 right-0 z-30 pointer-events-none overflow-hidden w-[140px] h-[140px] md:hidden">
-                <div 
-                  className="absolute bg-red-600 text-white text-[10px] font-bold py-2 shadow-lg"
+                <div
+                  className={`absolute text-white text-[10px] font-bold py-2 shadow-lg ${
+                    todayGame.status === 'Cancelled' ? 'bg-gray-600' : 'bg-red-600'
+                  }`}
                   style={{
                     top: '15px',
                     right: '-22px',
@@ -128,13 +132,15 @@ const TodayGameCard = () => {
                     letterSpacing: '0.5px'
                   }}
                 >
-                  TODAY
+                  {todayGame.status === 'Cancelled' ? 'CANCELLED' : 'TODAY'}
                 </div>
               </div>
               {/* Desktop Flag - Full Corner Coverage */}
               <div className="absolute top-0 right-0 z-30 pointer-events-none overflow-hidden w-[320px] h-[320px] hidden md:block">
-                <div 
-                  className="absolute bg-red-600 text-white text-base font-bold py-6 shadow-lg"
+                <div
+                  className={`absolute text-white text-base font-bold py-6 shadow-lg ${
+                    todayGame.status === 'Cancelled' ? 'bg-gray-600' : 'bg-red-600'
+                  }`}
                   style={{
                     top: '45px',
                     right: '-55px',
@@ -147,7 +153,7 @@ const TodayGameCard = () => {
                     letterSpacing: '1.5px'
                   }}
                 >
-                  TODAY
+                  {todayGame.status === 'Cancelled' ? 'CANCELLED' : 'TODAY'}
                 </div>
               </div>
             </>

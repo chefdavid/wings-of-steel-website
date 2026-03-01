@@ -137,6 +137,9 @@ function PaymentForm({
 /* ------------------------------------------------------------------ */
 /*  Main page component                                                */
 /* ------------------------------------------------------------------ */
+// Registration cutoff: March 1, 2026 at 12:00 PM EST
+const REGISTRATION_CUTOFF = new Date('2026-03-01T12:00:00-05:00')
+
 const TopGolf = () => {
   const [selectedTeam, setSelectedTeam] = useState<TeamChoice>(null)
   const [quantity, setQuantity] = useState(1)
@@ -152,12 +155,29 @@ const TopGolf = () => {
   const [stripePromise, setStripePromise] = useState<any>(null)
   const [creatingPayment, setCreatingPayment] = useState(false)
 
+  // Registration cutoff
+  const [registrationClosed, setRegistrationClosed] = useState(
+    () => new Date() >= REGISTRATION_CUTOFF
+  )
+
   const PRICE_PER_PERSON = 20
   const totalAmount = quantity * PRICE_PER_PERSON
 
   useEffect(() => {
     stripeService.getStripe().then((s) => setStripePromise(s))
   }, [])
+
+  // Auto-close registration at cutoff time
+  useEffect(() => {
+    if (registrationClosed) return
+    const msUntilCutoff = REGISTRATION_CUTOFF.getTime() - Date.now()
+    if (msUntilCutoff <= 0) {
+      setRegistrationClosed(true)
+      return
+    }
+    const timer = setTimeout(() => setRegistrationClosed(true), msUntilCutoff)
+    return () => clearTimeout(timer)
+  }, [registrationClosed])
 
   const handleContinueToPayment = async () => {
     // Validate
@@ -309,12 +329,33 @@ const TopGolf = () => {
               transition={{ duration: 0.6 }}
             >
               <h2 className="text-4xl md:text-5xl font-sport text-white mb-2 tracking-wide text-center">
-                REGISTER NOW
+                {registrationClosed ? 'REGISTRATION CLOSED' : 'REGISTER NOW'}
               </h2>
               <p className="text-ice-blue text-center mb-8">
-                $20 per person — select your team and complete your registration
-                below.
+                {registrationClosed
+                  ? 'Online registration for this event has closed. See you at Topgolf on March 8!'
+                  : '$20 per person — select your team and complete your registration below.'}
               </p>
+
+              {/* Registration closed state */}
+              {registrationClosed && step !== 'success' && (
+                <motion.div
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="bg-red-500/15 border-2 border-red-400/40 rounded-2xl p-10 text-center"
+                >
+                  <Lock className="w-16 h-16 text-red-400 mx-auto mb-4" />
+                  <h3 className="text-3xl font-sport text-white mb-2">
+                    THE BOOK IS CLOSED
+                  </h3>
+                  <p className="text-gray-300 mb-4">
+                    Online registration is no longer available for this event.
+                  </p>
+                  <p className="text-gray-400 text-sm">
+                    Questions? Contact us and we'll help you out.
+                  </p>
+                </motion.div>
+              )}
 
               {/* Success state */}
               {step === 'success' && (
@@ -343,7 +384,7 @@ const TopGolf = () => {
               )}
 
               {/* Info + Payment form */}
-              {step !== 'success' && (
+              {step !== 'success' && !registrationClosed && (
                 <div className="bg-dark-steel/60 border border-steel-blue/30 rounded-2xl p-6 md:p-8 space-y-6">
                   {/* ---------- TEAM SELECTION ---------- */}
                   <div>

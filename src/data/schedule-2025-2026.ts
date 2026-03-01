@@ -149,6 +149,7 @@ export const schedule2025_2026: Omit<Game, 'id'>[] = [
     location: 'Flyers Skate Zone',
     home_away: 'home',
     season: '2025-2026',
+    status: 'Cancelled',
     is_active: true
   },
   {
