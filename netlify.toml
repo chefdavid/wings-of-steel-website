@@ -9,3 +9,9 @@
   SECRETS_SCAN_OMIT_PATHS = "scripts/**,dist/**"
   # Force clean builds
   NODE_ENV = "production"
+
+# SPA fallback — serves index.html for routes without prerendered files
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
