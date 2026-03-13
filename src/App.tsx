@@ -25,6 +25,11 @@ const GamePage = lazy(() => import('./pages/GamePage'))
 const GameHighlightsGallery = lazy(() => import('./pages/GameHighlightsGallery'))
 const Donate = lazy(() => import('./pages/Donate'))
 const DonationModal = lazy(() => import('./components/DonationModal'))
+const WhatIsSledHockey = lazy(() => import('./pages/WhatIsSledHockey'))
+const SledHockeyNJ = lazy(() => import('./pages/SledHockeyNJ'))
+const SledHockeyTeams = lazy(() => import('./pages/SledHockeyTeams'))
+const FreeYouthHockey = lazy(() => import('./pages/FreeYouthHockey'))
+const SledHockeyEquipment = lazy(() => import('./pages/SledHockeyEquipment'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 // Temporarily disable FeedbackAdmin until properly configured
 // const FeedbackAdmin = lazy(() => import('./components/FeedbackAdmin'))
@@ -82,6 +87,11 @@ function App() {
               <Route path="/game/:gameId" element={<GamePage />} />
               <Route path="/game-highlights" element={<GameHighlightsGallery />} />
               <Route path="/donate" element={<Donate />} />
+              <Route path="/what-is-sled-hockey" element={<WhatIsSledHockey />} />
+              <Route path="/sled-hockey-nj" element={<SledHockeyNJ />} />
+              <Route path="/sled-hockey-teams" element={<SledHockeyTeams />} />
+              <Route path="/free-youth-hockey" element={<FreeYouthHockey />} />
+              <Route path="/sled-hockey-equipment-guide" element={<SledHockeyEquipment />} />
 
               {/* Team-specific routes (for backwards compatibility) */}
               <Route path="/team/:team" element={<TeamSite />} />

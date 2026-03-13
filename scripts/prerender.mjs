@@ -161,9 +161,107 @@ const ROUTES = [
     description: 'Wings of Steel website accessibility statement. Committed to making our site accessible to all users.',
     h1: 'Accessibility Statement',
     content: `
-      <p>Wings of Steel is committed to making our website accessible to all users, including those 
+      <p>Wings of Steel is committed to making our website accessible to all users, including those
       with disabilities. Our mission of inclusion extends to our digital presence.</p>
       <p><a href="/">Back to home</a></p>
+    `,
+  },
+  {
+    path: '/what-is-sled-hockey',
+    title: 'What Is Sled Hockey? Complete Guide to Adaptive Ice Hockey',
+    description: 'Learn what sled hockey is, the rules, equipment, history, and how it connects to the Paralympics. Comprehensive guide to sledge hockey / adaptive ice hockey.',
+    h1: 'What Is Sled Hockey?',
+    content: `
+      <p>Sled hockey (also called sledge hockey) is an adaptive form of ice hockey designed for players
+      with physical disabilities affecting the lower body. Players sit in specially designed sleds mounted
+      on two hockey skate blades and use two short sticks to propel themselves and handle the puck.</p>
+      <h2>History of Sled Hockey</h2>
+      <p>Sled hockey was invented in the early 1960s in Stockholm, Sweden, at a rehabilitation center.
+      It has been a Paralympic sport since the 1994 Winter Games in Lillehammer, Norway.</p>
+      <h2>Rules & Gameplay</h2>
+      <p>The rules closely mirror standard ice hockey: three periods of 15 minutes, same rink dimensions,
+      same goals, offsides, and icing. The main difference is the equipment and mode of movement.</p>
+      <h2>Who Plays Sled Hockey?</h2>
+      <p>Sled hockey is for people with physical disabilities affecting the lower body, including spinal cord
+      injuries, amputations, cerebral palsy, and more. Many programs also welcome able-bodied players.</p>
+      <p><a href="/join-team">Join Wings of Steel</a> | <a href="/donate">Support our team</a> |
+      <a href="/sled-hockey-nj">Play in New Jersey</a></p>
+    `,
+  },
+  {
+    path: '/sled-hockey-nj',
+    title: 'Sled Hockey in New Jersey | Wings of Steel - Voorhees, NJ',
+    description: 'Play sled hockey in New Jersey with Wings of Steel at Flyers Skate Zone in Voorhees, NJ. Free youth sled hockey — Thursdays 6:10-7:10 PM. All equipment provided.',
+    h1: 'Sled Hockey in New Jersey',
+    content: `
+      <p>Wings of Steel is New Jersey's premier youth sled hockey team, based at Flyers Skate Zone
+      in Voorhees, NJ. We are the 2025 and 2026 USA Sled Hockey Champions.</p>
+      <h2>Practice Location & Schedule</h2>
+      <p><strong>Location:</strong> Flyers Skate Zone, 601 Laurel Oak Rd, Voorhees, NJ 08043</p>
+      <p><strong>Schedule:</strong> Thursdays 6:10-7:10 PM</p>
+      <h2>What to Expect</h2>
+      <p>All equipment is provided free of charge. No experience needed. Show up 15 minutes early
+      for your first practice.</p>
+      <p><a href="/join-team">Join the team</a> | <a href="/what-is-sled-hockey">What is sled hockey?</a> |
+      <a href="/donate">Support us</a></p>
+    `,
+  },
+  {
+    path: '/sled-hockey-teams',
+    title: 'Sled Hockey Teams in the USA | Complete Team Directory',
+    description: 'Directory of sled hockey teams across the United States organized by region. Find a sled hockey team near you — Northeast, Southeast, Midwest, and West.',
+    h1: 'Sled Hockey Teams in the USA',
+    content: `
+      <p>Sled hockey is growing across the United States, with teams in nearly every region. Many NHL franchises
+      sponsor sled hockey programs through USA Hockey's disabled hockey program.</p>
+      <h2>Northeast Teams</h2>
+      <p>Wings of Steel (Voorhees, NJ), Philadelphia Flyers Sled Hockey, New York Rangers Sled Hockey,
+      Northeast Passage Wildcats, Boston Sled Hockey, Pittsburgh Mighty Penguins, and more.</p>
+      <h2>Midwest Teams</h2>
+      <p>Chicago Blackhawks Sled Hockey, Minnesota Wild Sled Hockey, Detroit Sled Wings,
+      St. Louis Blues Sled Hockey, Columbus Blue Jackets Sled Hockey.</p>
+      <p><a href="/join-team">Join Wings of Steel</a> | <a href="/what-is-sled-hockey">About sled hockey</a></p>
+    `,
+  },
+  {
+    path: '/free-youth-hockey',
+    title: 'Free Youth Hockey | Wings of Steel - No Child Pays to Play',
+    description: 'Wings of Steel provides free youth sled hockey in NJ. All equipment, ice time, and travel included at no cost. Learn how we remove financial barriers from youth sports.',
+    h1: 'Free Youth Hockey — No Child Pays to Play',
+    content: `
+      <p>Youth ice hockey costs families $2,000-5,000+ per year. Wings of Steel removes every financial barrier
+      so that no child misses out on the life-changing experience of team sports.</p>
+      <h2>What We Cover</h2>
+      <ul>
+        <li>Adaptive sleds ($800-2,000 each)</li>
+        <li>Sticks, helmets, gloves, pads, jerseys</li>
+        <li>Ice time at Flyers Skate Zone</li>
+        <li>Travel to tournaments including nationals</li>
+        <li>Coaching and player development</li>
+      </ul>
+      <p>We are a 501(c)(3) nonprofit. 100% of donations go directly to our players.</p>
+      <p><a href="/donate">Make a donation</a> | <a href="/join-team">Join the team</a></p>
+    `,
+  },
+  {
+    path: '/sled-hockey-equipment-guide',
+    title: 'Sled Hockey Equipment Guide | Sleds, Sticks & Protective Gear',
+    description: 'Complete guide to sled hockey equipment: sleds, sticks, helmets, gloves, and protective gear. Learn what you need and what Wings of Steel provides for free.',
+    h1: 'Sled Hockey Equipment Guide',
+    content: `
+      <p>Sled hockey requires specialized adaptive equipment. This guide covers everything you need to know
+      about sleds, sticks, helmets, and protective gear.</p>
+      <h2>The Sled</h2>
+      <p>Players sit in a bucket-style seat mounted on a frame with two hockey skate blades underneath.
+      The seat height allows the puck to pass beneath. Cost: $800-2,000.</p>
+      <h2>Sticks</h2>
+      <p>Each player uses TWO short sticks. One end has a blade for shooting and passing; the other end
+      has metal picks for propulsion on the ice. Cost: $50-130 per pair.</p>
+      <h2>What Wings of Steel Provides</h2>
+      <p>All equipment is provided free to our players, including sleds fitted to each player, sticks,
+      helmets, gloves, pads, and jerseys.</p>
+      <p><a href="/join-team">Join the team</a> | <a href="/what-is-sled-hockey">What is sled hockey?</a> |
+      <a href="/donate">Support us</a></p>
     `,
   },
 ];
