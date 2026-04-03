@@ -24,6 +24,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS update_tournaments_timestamp ON tournaments;
 CREATE TRIGGER update_tournaments_timestamp
   BEFORE UPDATE ON tournaments
   FOR EACH ROW
@@ -31,6 +32,10 @@ CREATE TRIGGER update_tournaments_timestamp
 
 -- RLS for tournaments
 ALTER TABLE tournaments ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Public can view tournaments" ON tournaments;
+DROP POLICY IF EXISTS "Auth can insert tournaments" ON tournaments;
+DROP POLICY IF EXISTS "Auth can update tournaments" ON tournaments;
+DROP POLICY IF EXISTS "Auth can delete tournaments" ON tournaments;
 CREATE POLICY "Public can view tournaments" ON tournaments FOR SELECT USING (true);
 CREATE POLICY "Auth can insert tournaments" ON tournaments FOR INSERT TO authenticated WITH CHECK (true);
 CREATE POLICY "Auth can update tournaments" ON tournaments FOR UPDATE TO authenticated USING (true);
