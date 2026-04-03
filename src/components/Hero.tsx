@@ -15,6 +15,8 @@ const Hero = () => {
     tagline?: string;   // Legacy: award2
     award1?: string;    // New field name for left trophy
     award2?: string;    // New field name for right trophy
+    award3?: string;    // Third trophy placard
+    undefeated?: string; // Undefeated season callout
     description?: string;
     mission?: string;
     heading1?: string;
@@ -99,16 +101,38 @@ const Hero = () => {
             {heroData?.title || teamConfig.name}
           </p>
           
-          <div className="flex flex-col md:flex-row gap-2 md:gap-3 justify-center items-stretch max-w-2xl mx-auto mb-4 md:mb-6">
-            <div className="flex-1 flex items-center justify-center gap-2 bg-yellow-400 text-black px-3 py-4 md:px-4 md:py-5 rounded-lg font-medium text-xs md:text-sm min-h-[60px] md:min-h-[70px]">
+          <div className="flex flex-col md:flex-row gap-2 md:gap-3 justify-center items-stretch max-w-3xl mx-auto mb-3 md:mb-4">
+            <div className="flex-1 flex items-center justify-center gap-2 bg-yellow-400 text-black px-3 py-3 md:px-4 md:py-4 rounded-lg font-medium text-xs md:text-sm min-h-[56px] md:min-h-[64px]">
               <FaTrophy className="text-black flex-shrink-0 text-sm md:text-base" aria-hidden="true" />
               <span className="text-center leading-relaxed">{heroData?.award1 || heroData?.subtitle || '2023 National Champions'}</span>
             </div>
-            <div className="flex-1 flex items-center justify-center gap-2 bg-yellow-400 text-black px-3 py-4 md:px-4 md:py-5 rounded-lg font-medium text-xs md:text-sm min-h-[60px] md:min-h-[70px]">
+            <div className="flex-1 flex items-center justify-center gap-2 bg-yellow-400 text-black px-3 py-3 md:px-4 md:py-4 rounded-lg font-medium text-xs md:text-sm min-h-[56px] md:min-h-[64px]">
               <FaTrophy className="text-black flex-shrink-0 text-sm md:text-base" aria-hidden="true" />
               <span className="text-center leading-relaxed">{heroData?.award2 || heroData?.tagline || '2025 USA Sled Hockey Champions 1st Place'}</span>
             </div>
+            <div className="flex-1 flex items-center justify-center gap-2 bg-yellow-400 text-black px-3 py-3 md:px-4 md:py-4 rounded-lg font-medium text-xs md:text-sm min-h-[56px] md:min-h-[64px]">
+              <FaTrophy className="text-black flex-shrink-0 text-sm md:text-base" aria-hidden="true" />
+              <span className="text-center leading-relaxed">{heroData?.award3 || '2026 New England Sled Hockey Tournament — 1st Place Juniors'}</span>
+            </div>
           </div>
+
+          {/* Undefeated Season Callout */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+            className="max-w-2xl mx-auto mb-4 md:mb-6"
+          >
+            <div className="relative px-6 py-3 md:px-8 md:py-4 rounded-lg border-2 border-yellow-400 bg-yellow-400/10 backdrop-blur-sm">
+              <div className="flex items-center justify-center gap-3">
+                <FaTrophy className="text-yellow-400 text-lg md:text-2xl" aria-hidden="true" />
+                <span className="text-base md:text-xl font-sport text-yellow-400 tracking-wider">
+                  {heroData?.undefeated || '2025 / 2026 Season — UNDEFEATED'}
+                </span>
+                <FaTrophy className="text-yellow-400 text-lg md:text-2xl" aria-hidden="true" />
+              </div>
+            </div>
+          </motion.div>
 
           <p className="text-base md:text-lg text-gray-200 max-w-2xl mx-auto leading-relaxed mb-6 md:mb-8 px-2">
             {heroData?.description || teamConfig.description}

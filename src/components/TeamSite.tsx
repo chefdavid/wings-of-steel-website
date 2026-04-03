@@ -15,6 +15,7 @@ const Schedule = lazy(() => import('./Schedule'));
 const Location = lazy(() => import('./Location'));
 const GetInvolved = lazy(() => import('./GetInvolved'));
 const Contact = lazy(() => import('./Contact'));
+const FeaturedHighlights = lazy(() => import('./FeaturedHighlights'));
 const DonationSlideOut = lazy(() => import('./DonationSlideOut'));
 
 const TeamSite: React.FC = () => {
@@ -57,6 +58,7 @@ const TeamSite: React.FC = () => {
           <Hero />
           <Suspense fallback={<div className="h-32" />}>
             <TodayGameCard />
+            <FeaturedHighlights />
             <About />
             <Team />
             <Schedule />

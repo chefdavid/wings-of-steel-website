@@ -10,19 +10,23 @@ interface HeroContent {
   // Main headings
   heading1?: string;  // White text: "BREAKING BARRIERS &"
   heading2?: string;  // Yellow text: "BUILDING CHAMPIONS"
-  
+
   // Team name
   title?: string;     // Blue text: "Wings of Steel"
-  
+
   // Trophy buttons
   award1?: string;    // Left trophy button
-  award2?: string;    // Right trophy button
-  
+  award2?: string;    // Middle trophy button
+  award3?: string;    // Right trophy button
+
+  // Undefeated season callout
+  undefeated?: string; // Banner below trophies
+
   // Description
   description?: string; // Gray paragraph text
-  
+
   // CTA buttons (not editable for now, hardcoded)
-  
+
   // Mission statement
   mission?: string;   // Yellow text at bottom: "NO CHILD PAYS TO PLAY"
 }
@@ -58,6 +62,8 @@ const HeroSectionEditor = () => {
           title: existingContent.title || 'Wings of Steel',
           award1: existingContent.subtitle || existingContent.award1 || '2023 National Champions',
           award2: existingContent.tagline || existingContent.award2 || '2025 USA Sled Hockey Champions 1st Place',
+          award3: existingContent.award3 || '2026 New England Sled Hockey Tournament — 1st Place Juniors',
+          undefeated: existingContent.undefeated || '2025 / 2026 Season — UNDEFEATED',
           description: existingContent.description || "New Jersey's premier youth sled hockey team, building champions on and off the ice",
           mission: existingContent.mission || 'NO CHILD PAYS TO PLAY'
         });
@@ -83,6 +89,8 @@ const HeroSectionEditor = () => {
         tagline: content.award2,   // Map award2 to tagline for backward compatibility
         award1: content.award1,    // Also store in new field names
         award2: content.award2,
+        award3: content.award3,
+        undefeated: content.undefeated,
         description: content.description,
         mission: content.mission
       };
@@ -155,15 +163,30 @@ const HeroSectionEditor = () => {
 
             {/* Award Buttons */}
             <div className="flex flex-col sm:flex-row gap-2 justify-center items-stretch">
-              <div className="flex-1 flex items-center justify-center gap-2 bg-yellow-400 text-black px-3 py-3 rounded-lg font-medium text-sm min-h-[50px]">
-                <FaTrophy className="text-black flex-shrink-0" />
+              <div className="flex-1 flex items-center justify-center gap-2 bg-yellow-400 text-black px-3 py-2 rounded-lg font-medium text-xs min-h-[44px]">
+                <FaTrophy className="text-black flex-shrink-0 text-xs" />
                 <span className="text-center">{content.award1}</span>
               </div>
-              <div className="flex-1 flex items-center justify-center gap-2 bg-yellow-400 text-black px-3 py-3 rounded-lg font-medium text-sm min-h-[50px]">
-                <FaTrophy className="text-black flex-shrink-0" />
+              <div className="flex-1 flex items-center justify-center gap-2 bg-yellow-400 text-black px-3 py-2 rounded-lg font-medium text-xs min-h-[44px]">
+                <FaTrophy className="text-black flex-shrink-0 text-xs" />
                 <span className="text-center">{content.award2}</span>
               </div>
+              <div className="flex-1 flex items-center justify-center gap-2 bg-yellow-400 text-black px-3 py-2 rounded-lg font-medium text-xs min-h-[44px]">
+                <FaTrophy className="text-black flex-shrink-0 text-xs" />
+                <span className="text-center">{content.award3}</span>
+              </div>
             </div>
+
+            {/* Undefeated Callout Preview */}
+            {content.undefeated && (
+              <div className="px-4 py-2 rounded-lg border-2 border-yellow-400 bg-yellow-400/10">
+                <div className="flex items-center justify-center gap-2">
+                  <FaTrophy className="text-yellow-400 text-sm" />
+                  <span className="text-sm font-bold text-yellow-400 tracking-wider">{content.undefeated}</span>
+                  <FaTrophy className="text-yellow-400 text-sm" />
+                </div>
+              </div>
+            )}
 
             {/* Description */}
             <p className="text-sm text-gray-300 leading-relaxed">
@@ -261,10 +284,10 @@ const HeroSectionEditor = () => {
             </div>
 
             {/* Award Buttons */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Left Trophy Button
+                  Trophy Button 1
                 </label>
                 <input
                   type="text"
@@ -274,10 +297,10 @@ const HeroSectionEditor = () => {
                 />
                 <p className="text-xs text-gray-500 mt-1">First award/achievement</p>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Right Trophy Button
+                  Trophy Button 2
                 </label>
                 <input
                   type="text"
@@ -287,6 +310,33 @@ const HeroSectionEditor = () => {
                 />
                 <p className="text-xs text-gray-500 mt-1">Second award/achievement</p>
               </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Trophy Button 3
+                </label>
+                <input
+                  type="text"
+                  value={content.award3}
+                  onChange={(e) => updateField('award3', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-steel-blue"
+                />
+                <p className="text-xs text-gray-500 mt-1">Third award/achievement</p>
+              </div>
+            </div>
+
+            {/* Undefeated Season Callout */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Season Callout Banner
+              </label>
+              <input
+                type="text"
+                value={content.undefeated}
+                onChange={(e) => updateField('undefeated', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-steel-blue"
+              />
+              <p className="text-xs text-gray-500 mt-1">Displays as a highlighted banner below the trophy buttons</p>
             </div>
 
             {/* Description */}

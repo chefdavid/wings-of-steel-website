@@ -32,7 +32,7 @@ LEFT JOIN donations d ON
   d.payment_status IN ('succeeded', 'pending')
   AND d.stripe_payment_intent_id IS NOT NULL
   AND d.created_at >= dg.start_date
-  AND (dg.end_date IS NULL OR d.created_at <= (dg.end_date + INTERVAL '1 day'))
+  AND (dg.end_date IS NULL OR d.created_at < (dg.end_date + INTERVAL '1 day'))
 WHERE dg.is_active = true
 GROUP BY dg.id, dg.goal_type, dg.goal_name, dg.target_amount, dg.start_date, dg.end_date, dg.is_active, dg.created_at, dg.updated_at;
 

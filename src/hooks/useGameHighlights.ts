@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabaseClient';
-import type { GameHighlight, GamePhoto, KeyMoment, PlayerHighlight } from '../types/database';
+import type { GameHighlight } from '../types/database';
 
 export function useGameHighlights(gameId?: string) {
   const [highlights, setHighlights] = useState<GameHighlight[]>([]);
@@ -41,7 +41,6 @@ export function useGameHighlights(gameId?: string) {
 
       if (error) {
         if (error.code === 'PGRST116') {
-          // No highlights found for this game
           return null;
         }
         throw error;
@@ -54,15 +53,75 @@ export function useGameHighlights(gameId?: string) {
     }
   }, []);
 
+  const getHighlightById = useCallback(async (id: string): Promise<GameHighlight | null> => {
+    try {
+      const { data, error } = await supabase
+        .from('game_highlights')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (error) {
+        if (error.code === 'PGRST116') return null;
+        throw error;
+      }
+      return data;
+    } catch (err) {
+      console.error('Error fetching highlight by id:', err);
+      return null;
+    }
+  }, []);
+
+  const fetchFeaturedHighlights = useCallback(async (): Promise<GameHighlight[]> => {
+    try {
+      const { data, error } = await supabase
+        .from('game_highlights')
+        .select('*')
+        .eq('is_featured', true)
+        .eq('is_published', true)
+        .order('updated_at', { ascending: false })
+        .limit(4);
+
+      if (error) throw error;
+      return data || [];
+    } catch (err) {
+      console.error('Error fetching featured highlights:', err);
+      return [];
+    }
+  }, []);
+
+  const fetchHighlightsByTournament = useCallback(async (tournamentId: string): Promise<GameHighlight[]> => {
+    try {
+      const { data, error } = await supabase
+        .from('game_highlights')
+        .select('*')
+        .eq('tournament_id', tournamentId)
+        .order('game_date', { ascending: true });
+
+      if (error) throw error;
+      return data || [];
+    } catch (err) {
+      console.error('Error fetching tournament highlights:', err);
+      return [];
+    }
+  }, []);
+
   const createHighlight = useCallback(async (
-    gameId: string,
-    data: Partial<Omit<GameHighlight, 'id' | 'game_id' | 'created_at' | 'updated_at'>>
+    data: Partial<Omit<GameHighlight, 'id' | 'created_at' | 'updated_at'>>
   ) => {
     try {
       const { data: newHighlight, error } = await supabase
         .from('game_highlights')
         .insert({
-          game_id: gameId,
+          game_id: data.game_id || null,
+          tournament_id: data.tournament_id || null,
+          is_featured: data.is_featured || false,
+          opponent: data.opponent || null,
+          game_date: data.game_date || null,
+          game_time: data.game_time || null,
+          game_location: data.game_location || null,
+          home_away: data.home_away || null,
+          game_type: data.game_type || null,
           title: data.title || '',
           summary: data.summary || '',
           final_score: data.final_score || '',
@@ -89,22 +148,31 @@ export function useGameHighlights(gameId?: string) {
 
   const updateHighlight = useCallback(async (
     id: string,
-    data: Partial<Omit<GameHighlight, 'id' | 'game_id' | 'created_at' | 'updated_at'>>
+    data: Partial<Omit<GameHighlight, 'id' | 'created_at' | 'updated_at'>>
   ) => {
     try {
+      const updateData: Record<string, unknown> = {};
+      if (data.title !== undefined) updateData.title = data.title;
+      if (data.summary !== undefined) updateData.summary = data.summary;
+      if (data.final_score !== undefined) updateData.final_score = data.final_score;
+      if (data.key_moments !== undefined) updateData.key_moments = data.key_moments;
+      if (data.player_highlights !== undefined) updateData.player_highlights = data.player_highlights;
+      if (data.photos !== undefined) updateData.photos = data.photos;
+      if (data.video_url !== undefined) updateData.video_url = data.video_url;
+      if (data.featured_photo_url !== undefined) updateData.featured_photo_url = data.featured_photo_url;
+      if (data.is_published !== undefined) updateData.is_published = data.is_published;
+      if (data.is_featured !== undefined) updateData.is_featured = data.is_featured;
+      if (data.tournament_id !== undefined) updateData.tournament_id = data.tournament_id;
+      if (data.opponent !== undefined) updateData.opponent = data.opponent;
+      if (data.game_date !== undefined) updateData.game_date = data.game_date;
+      if (data.game_time !== undefined) updateData.game_time = data.game_time;
+      if (data.game_location !== undefined) updateData.game_location = data.game_location;
+      if (data.home_away !== undefined) updateData.home_away = data.home_away;
+      if (data.game_type !== undefined) updateData.game_type = data.game_type;
+
       const { data: updatedHighlight, error } = await supabase
         .from('game_highlights')
-        .update({
-          title: data.title,
-          summary: data.summary,
-          final_score: data.final_score,
-          key_moments: data.key_moments,
-          player_highlights: data.player_highlights,
-          photos: data.photos,
-          video_url: data.video_url,
-          featured_photo_url: data.featured_photo_url,
-          is_published: data.is_published,
-        })
+        .update(updateData)
         .eq('id', id)
         .select()
         .single();
@@ -115,6 +183,21 @@ export function useGameHighlights(gameId?: string) {
       return updatedHighlight;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update highlight');
+      throw err;
+    }
+  }, [fetchHighlights]);
+
+  const toggleFeatured = useCallback(async (id: string, isFeatured: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('game_highlights')
+        .update({ is_featured: isFeatured })
+        .eq('id', id);
+
+      if (error) throw error;
+      await fetchHighlights();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to toggle featured');
       throw err;
     }
   }, [fetchHighlights]);
@@ -156,7 +239,6 @@ export function useGameHighlights(gameId?: string) {
 
   const deletePhoto = useCallback(async (photoUrl: string) => {
     try {
-      // Extract the file path from the URL
       const urlParts = photoUrl.split('/game-photos/');
       if (urlParts.length < 2) throw new Error('Invalid photo URL');
 
@@ -179,8 +261,12 @@ export function useGameHighlights(gameId?: string) {
     error,
     fetchHighlights,
     getHighlightByGameId,
+    getHighlightById,
+    fetchFeaturedHighlights,
+    fetchHighlightsByTournament,
     createHighlight,
     updateHighlight,
+    toggleFeatured,
     deleteHighlight,
     uploadPhoto,
     deletePhoto,

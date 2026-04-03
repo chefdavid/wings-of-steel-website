@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { supabaseAdmin } from '../../lib/supabaseAdmin';
-import { Eye, EyeOff, RefreshCw, CheckCircle, AlertCircle, Star } from 'lucide-react';
+import { Eye, EyeOff, RefreshCw, CheckCircle, AlertCircle, Star, CircleCheck, CircleOff } from 'lucide-react';
 
 interface EventVisibility {
   id: string;
@@ -9,6 +9,7 @@ interface EventVisibility {
   event_name: string;
   is_visible: boolean;
   is_featured: boolean;
+  is_active: boolean;
   updated_at: string;
 }
 
@@ -39,8 +40,8 @@ const EventVisibilityManagement = () => {
       if (fetchError) throw fetchError;
 
       console.log('📊 Fetched events:', data);
-      // Ensure is_featured defaults to false if column doesn't exist yet
-      setEvents((data || []).map(e => ({ ...e, is_featured: e.is_featured ?? false })));
+      // Ensure is_featured and is_active default if column doesn't exist yet
+      setEvents((data || []).map(e => ({ ...e, is_featured: e.is_featured ?? false, is_active: e.is_active ?? true })));
     } catch (err: any) {
       console.error('Error fetching events:', err);
       setError(err.message || 'Failed to load event visibility settings');
@@ -157,6 +158,156 @@ const EventVisibilityManagement = () => {
     }
   };
 
+  const toggleActive = async (eventKey: string, currentActive: boolean) => {
+    setError('');
+    setSuccess('');
+
+    const eventName = events.find(e => e.event_key === eventKey)?.event_name || 'Event';
+    const newActive = !currentActive;
+
+    try {
+      const dbClient = supabaseAdmin || supabase;
+
+      const { data: updatedData, error: updateError } = await dbClient
+        .from('event_visibility')
+        .update({ is_active: newActive })
+        .eq('event_key', eventKey)
+        .select();
+
+      if (updateError) throw updateError;
+      if (!updatedData || updatedData.length === 0) {
+        throw new Error('No rows were updated. Check service role key configuration.');
+      }
+
+      await fetchEvents();
+
+      setSuccess(
+        `${eventName} is now marked as ${newActive ? 'active' : 'inactive'}`
+      );
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (err: any) {
+      console.error('Error updating active status:', err);
+      setError(err.message || 'Failed to update active status');
+      fetchEvents();
+    }
+  };
+
+  // Separate active and inactive events
+  const activeEvents = events.filter(e => e.is_active);
+  const inactiveEvents = events.filter(e => !e.is_active);
+
+  const renderEventRow = (event: EventVisibility) => (
+    <div
+      key={event.id}
+      className="p-6 flex items-center justify-between hover:bg-gray-50 transition-colors"
+    >
+      <div className="flex-1">
+        <div className="flex items-center gap-2 mb-1">
+          <h3 className="text-lg font-semibold text-dark-steel">
+            {event.event_name}
+          </h3>
+          {event.is_featured && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+              <Star size={12} className="fill-yellow-500" />
+              Featured
+            </span>
+          )}
+        </div>
+        <p className="text-sm text-gray-500">
+          Event Key: <code className="bg-gray-100 px-2 py-1 rounded">{event.event_key}</code>
+        </p>
+        <p className="text-xs text-gray-400 mt-2">
+          Last updated: {new Date(event.updated_at).toLocaleString()}
+        </p>
+      </div>
+
+      <div className="flex items-center gap-3">
+        {/* Active/Inactive toggle */}
+        <button
+          onClick={() => toggleActive(event.event_key, event.is_active)}
+          title={event.is_active ? 'Mark as inactive' : 'Mark as active'}
+          className={`p-2 rounded-lg transition-colors ${
+            event.is_active
+              ? 'text-green-600 bg-green-50 hover:bg-green-100'
+              : 'text-gray-400 hover:text-green-600 hover:bg-green-50'
+          }`}
+        >
+          {event.is_active ? <CircleCheck size={20} /> : <CircleOff size={20} />}
+        </button>
+
+        {/* Featured toggle */}
+        <button
+          onClick={() => toggleFeatured(event.event_key, event.is_featured)}
+          disabled={!event.is_visible}
+          title={
+            !event.is_visible
+              ? 'Event must be visible to be featured'
+              : event.is_featured
+              ? 'Remove from featured nav CTA'
+              : 'Feature in navigation bar'
+          }
+          className={`p-2 rounded-lg transition-colors ${
+            !event.is_visible
+              ? 'text-gray-300 cursor-not-allowed'
+              : event.is_featured
+              ? 'text-yellow-500 bg-yellow-50 hover:bg-yellow-100'
+              : 'text-gray-400 hover:text-yellow-500 hover:bg-yellow-50'
+          }`}
+        >
+          <Star
+            size={20}
+            className={event.is_featured ? 'fill-yellow-500' : ''}
+          />
+        </button>
+
+        {/* Visibility badge */}
+        <div className="text-right">
+          <div
+            className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${
+              event.is_visible
+                ? 'bg-green-100 text-green-800'
+                : 'bg-gray-100 text-gray-600'
+            }`}
+          >
+            {event.is_visible ? (
+              <>
+                <Eye size={16} />
+                Visible
+              </>
+            ) : (
+              <>
+                <EyeOff size={16} />
+                Hidden
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Visibility toggle button */}
+        <button
+          onClick={() => toggleVisibility(event.event_key, event.is_visible)}
+          className={`px-6 py-2 rounded-lg font-semibold transition-colors ${
+            event.is_visible
+              ? 'bg-red-100 text-red-700 hover:bg-red-200'
+              : 'bg-green-100 text-green-700 hover:bg-green-200'
+          }`}
+        >
+          {event.is_visible ? (
+            <span className="flex items-center gap-2">
+              <EyeOff size={18} />
+              Hide
+            </span>
+          ) : (
+            <span className="flex items-center gap-2">
+              <Eye size={18} />
+              Show
+            </span>
+          )}
+        </button>
+      </div>
+    </div>
+  );
+
   if (loading) {
     return (
       <div className="p-6 text-center">
@@ -204,114 +355,45 @@ const EventVisibilityManagement = () => {
         </div>
 
         {/* Events List */}
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="divide-y divide-gray-200">
-            {events.length === 0 ? (
-              <div className="p-12 text-center text-gray-500">
-                <p>No events found. Please run the database setup script.</p>
+        {events.length === 0 ? (
+          <div className="bg-white rounded-lg shadow p-12 text-center text-gray-500">
+            <p>No events found. Please run the database setup script.</p>
+          </div>
+        ) : (
+          <>
+            {/* Active Events */}
+            <div className="mb-6">
+              <h2 className="text-lg font-semibold text-dark-steel mb-3 flex items-center gap-2">
+                <CircleCheck size={20} className="text-green-600" />
+                Active Events ({activeEvents.length})
+              </h2>
+              <div className="bg-white rounded-lg shadow overflow-hidden">
+                <div className="divide-y divide-gray-200">
+                  {activeEvents.length === 0 ? (
+                    <div className="p-6 text-center text-gray-400">No active events</div>
+                  ) : (
+                    activeEvents.map((event) => renderEventRow(event))
+                  )}
+                </div>
               </div>
-            ) : (
-              events.map((event) => (
-                <div
-                  key={event.id}
-                  className="p-6 flex items-center justify-between hover:bg-gray-50 transition-colors"
-                >
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="text-lg font-semibold text-dark-steel">
-                        {event.event_name}
-                      </h3>
-                      {event.is_featured && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                          <Star size={12} className="fill-yellow-500" />
-                          Featured
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-sm text-gray-500">
-                      Event Key: <code className="bg-gray-100 px-2 py-1 rounded">{event.event_key}</code>
-                    </p>
-                    <p className="text-xs text-gray-400 mt-2">
-                      Last updated: {new Date(event.updated_at).toLocaleString()}
-                    </p>
-                  </div>
+            </div>
 
-                  <div className="flex items-center gap-3">
-                    {/* Featured toggle */}
-                    <button
-                      onClick={() => toggleFeatured(event.event_key, event.is_featured)}
-                      disabled={!event.is_visible}
-                      title={
-                        !event.is_visible
-                          ? 'Event must be visible to be featured'
-                          : event.is_featured
-                          ? 'Remove from featured nav CTA'
-                          : 'Feature in navigation bar'
-                      }
-                      className={`p-2 rounded-lg transition-colors ${
-                        !event.is_visible
-                          ? 'text-gray-300 cursor-not-allowed'
-                          : event.is_featured
-                          ? 'text-yellow-500 bg-yellow-50 hover:bg-yellow-100'
-                          : 'text-gray-400 hover:text-yellow-500 hover:bg-yellow-50'
-                      }`}
-                    >
-                      <Star
-                        size={20}
-                        className={event.is_featured ? 'fill-yellow-500' : ''}
-                      />
-                    </button>
-
-                    {/* Visibility badge */}
-                    <div className="text-right">
-                      <div
-                        className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${
-                          event.is_visible
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-gray-100 text-gray-600'
-                        }`}
-                      >
-                        {event.is_visible ? (
-                          <>
-                            <Eye size={16} />
-                            Visible
-                          </>
-                        ) : (
-                          <>
-                            <EyeOff size={16} />
-                            Hidden
-                          </>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Visibility toggle button */}
-                    <button
-                      onClick={() => toggleVisibility(event.event_key, event.is_visible)}
-                      className={`px-6 py-2 rounded-lg font-semibold transition-colors ${
-                        event.is_visible
-                          ? 'bg-red-100 text-red-700 hover:bg-red-200'
-                          : 'bg-green-100 text-green-700 hover:bg-green-200'
-                      }`}
-                    >
-                      {event.is_visible ? (
-                        <span className="flex items-center gap-2">
-                          <EyeOff size={18} />
-                          Hide
-                        </span>
-                      ) : (
-                        <span className="flex items-center gap-2">
-                          <Eye size={18} />
-                          Show
-                        </span>
-                      )}
-                    </button>
+            {/* Inactive Events */}
+            {inactiveEvents.length > 0 && (
+              <div>
+                <h2 className="text-lg font-semibold text-gray-500 mb-3 flex items-center gap-2">
+                  <CircleOff size={20} className="text-gray-400" />
+                  Inactive Events ({inactiveEvents.length})
+                </h2>
+                <div className="bg-white rounded-lg shadow overflow-hidden opacity-75">
+                  <div className="divide-y divide-gray-200">
+                    {inactiveEvents.map((event) => renderEventRow(event))}
                   </div>
                 </div>
-              ))
+              </div>
             )}
-          </div>
-        </div>
+          </>
+        )}
 
         {/* Info Box */}
         <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
@@ -322,6 +404,7 @@ const EventVisibilityManagement = () => {
             <li>The <strong>featured</strong> event (star icon) gets a highlighted CTA button in the navigation bar</li>
             <li>Only one event can be featured at a time — featuring a new one unfeatures the previous</li>
             <li>An event must be visible before it can be featured</li>
+            <li>The <strong>active/inactive</strong> toggle (circle icon) separates current from past events for easier management</li>
             <li>Admin access to event management is not affected by visibility settings</li>
             <li>Changes take effect immediately on the frontend</li>
           </ul>

@@ -1,15 +1,31 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FaTrophy } from 'react-icons/fa';
+import { FaTrophy, FaStar } from 'react-icons/fa';
 import Navigation from '../components/Navigation';
 import Footer from '../components/Footer';
 import GameHighlightsPreview from '../components/GameHighlightsPreview';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { useGameHighlights } from '../hooks/useGameHighlights';
 import { supabase } from '../lib/supabaseClient';
-import type { Game } from '../types/database';
+import type { Game, GameHighlight } from '../types/database';
 
 const ITEMS_PER_PAGE = 6;
+
+function buildGameForHighlight(highlight: GameHighlight, games: Game[]): Game | null {
+  if (highlight.game_id) {
+    return games.find((g) => g.id === highlight.game_id) || null;
+  }
+  // Standalone highlight - build a pseudo-Game from its fields
+  return {
+    id: highlight.id,
+    game_date: highlight.game_date || '',
+    game_time: highlight.game_time || '',
+    opponent: highlight.opponent || 'Unknown',
+    location: highlight.game_location || '',
+    home_away: highlight.home_away,
+    game_type: highlight.game_type,
+  } as Game;
+}
 
 export default function GameHighlightsGallery() {
   const { highlights, loading: highlightsLoading } = useGameHighlights();
@@ -38,23 +54,27 @@ export default function GameHighlightsGallery() {
     }
   };
 
-  // Combine highlights with their corresponding games
-  // Show all highlights (published or not) for now - can filter by is_published later if needed
-  const highlightedGames = highlights
+  // Build highlight entries, supporting both scheduled and standalone games
+  const allHighlightEntries = highlights
     .map((highlight) => {
-      const game = games.find((g) => g.id === highlight.game_id);
+      const game = buildGameForHighlight(highlight, games);
       return game ? { game, highlight } : null;
     })
-    .filter((item): item is { game: Game; highlight: any } => item !== null);
+    .filter((item): item is { game: Game; highlight: GameHighlight } => item !== null);
 
-  const visibleHighlights = highlightedGames.slice(0, displayCount);
-  const hasMore = displayCount < highlightedGames.length;
+  // Split into featured and regular
+  const featuredEntries = allHighlightEntries.filter((e) => e.highlight.is_featured);
+  const regularEntries = allHighlightEntries.filter((e) => !e.highlight.is_featured);
+
+  const visibleRegular = regularEntries.slice(0, displayCount);
+  const hasMore = displayCount < regularEntries.length;
 
   const loadMore = () => {
     setDisplayCount((prev) => prev + ITEMS_PER_PAGE);
   };
 
   const loading = highlightsLoading || gamesLoading;
+  const totalCount = allHighlightEntries.length;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
@@ -85,7 +105,7 @@ export default function GameHighlightsGallery() {
           <div className="flex justify-center items-center py-20">
             <LoadingSpinner />
           </div>
-        ) : highlightedGames.length === 0 ? (
+        ) : totalCount === 0 ? (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -97,17 +117,44 @@ export default function GameHighlightsGallery() {
           </motion.div>
         ) : (
           <>
-            {/* Grid of Game Highlights */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-              {visibleHighlights.map(({ game, highlight }, index) => (
-                <GameHighlightsPreview
-                  key={game.id}
-                  game={game}
-                  highlight={highlight}
-                  index={index}
-                />
-              ))}
-            </div>
+            {/* Featured Highlights (pinned to top) */}
+            {featuredEntries.length > 0 && (
+              <div className="mb-12">
+                <div className="flex items-center gap-2 mb-6">
+                  <FaStar className="text-yellow-500 text-xl" />
+                  <h2 className="text-2xl font-sport text-dark-steel">Featured</h2>
+                </div>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {featuredEntries.map(({ game, highlight }, index) => (
+                    <GameHighlightsPreview
+                      key={highlight.id}
+                      game={game}
+                      highlight={highlight}
+                      index={index}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Regular Highlights */}
+            {regularEntries.length > 0 && (
+              <>
+                {featuredEntries.length > 0 && (
+                  <h2 className="text-2xl font-sport text-dark-steel mb-6">All Highlights</h2>
+                )}
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+                  {visibleRegular.map(({ game, highlight }, index) => (
+                    <GameHighlightsPreview
+                      key={highlight.id}
+                      game={game}
+                      highlight={highlight}
+                      index={index}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
 
             {/* Load More Button */}
             {hasMore && (
@@ -120,7 +167,7 @@ export default function GameHighlightsGallery() {
                   onClick={loadMore}
                   className="px-8 py-4 bg-steel-blue text-white rounded-full hover:bg-steel-blue/80 transition-all duration-200 font-sport tracking-wider shadow-lg hover:shadow-xl transform hover:-translate-y-1"
                 >
-                  Load More ({highlightedGames.length - displayCount} remaining)
+                  Load More ({regularEntries.length - displayCount} remaining)
                 </button>
               </motion.div>
             )}
@@ -128,7 +175,7 @@ export default function GameHighlightsGallery() {
             {/* Stats Summary */}
             <div className="mt-12 text-center text-gray-600">
               <p>
-                Showing {visibleHighlights.length} of {highlightedGames.length} game highlights
+                Showing {featuredEntries.length + visibleRegular.length} of {totalCount} game highlights
               </p>
             </div>
           </>
