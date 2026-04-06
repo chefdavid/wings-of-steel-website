@@ -995,7 +995,17 @@ export default function GameHighlightsManagement() {
                               : 'bg-black/70 text-white opacity-0 group-hover:opacity-100'}`}>
                           {featuredPhotoUrl === photo.url ? '★ Featured' : 'Set as Featured'}
                         </button>
-                        {photo.caption && <div className="text-xs text-gray-600 mt-1">{photo.caption}</div>}
+                        <input
+                          type="text"
+                          value={photo.caption || ''}
+                          onChange={(e) => {
+                            const updated = [...photos];
+                            updated[index] = { ...updated[index], caption: e.target.value };
+                            setPhotos(updated);
+                          }}
+                          placeholder="Add caption..."
+                          className="w-full mt-1 px-2 py-1 text-xs border border-gray-300 rounded focus:border-steel-blue focus:outline-none"
+                        />
                       </div>
                     ))}
                   </div>
