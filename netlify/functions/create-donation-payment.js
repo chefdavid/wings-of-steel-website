@@ -44,7 +44,8 @@ export const handler = async (event, context) => {
       donationType, // 'one-time' or 'recurring'
       campaignId,
       isRecurring = false,
-      eventTag = null
+      eventTag = null,
+      itemName = null
     } = JSON.parse(event.body);
 
     // Validate required fields
@@ -133,7 +134,9 @@ export const handler = async (event, context) => {
         const team = eventTag.includes('youth') ? 'Youth' : eventTag.includes('adult') ? 'Adult' : '';
         description = `TopGolf Fundraiser Registration${team ? ` - ${team} Team` : ''} - Wings of Steel`;
       } else if (eventTag === 'golf-outing') {
-        description = `Tom Brake Memorial Golf Outing Registration - Wings of Steel`;
+        description = itemName
+          ? `Golf Outing Sponsorship: ${itemName} - Wings of Steel`
+          : `Tom Brake Memorial Golf Outing Registration - Wings of Steel`;
       } else if (eventTag === 'hockey-for-a-cause') {
         description = `Hockey for a Cause - Entry Donation - Wings of Steel`;
       } else {
@@ -158,6 +161,7 @@ export const handler = async (event, context) => {
           message: donorInfo.message || '',
           campaign_id: campaignId || '',
           event_tag: eventTag || '',
+          item_name: itemName || '',
           is_anonymous: donorInfo.isAnonymous ? 'true' : 'false'
         },
         receipt_email: donorInfo.email,

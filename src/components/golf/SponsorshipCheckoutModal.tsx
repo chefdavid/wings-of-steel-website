@@ -161,10 +161,12 @@ export default function SponsorshipCheckoutModal({ item, onClose }: SponsorshipC
             name: sponsorInfo.name,
             email: sponsorInfo.email,
             companyName: sponsorInfo.company || undefined,
+            message: `Golf Outing Sponsorship: ${item.level}`,
           },
           donationType: 'one-time',
           isRecurring: false,
           eventTag: 'golf-outing',
+          itemName: item.level,
         }),
       })
 

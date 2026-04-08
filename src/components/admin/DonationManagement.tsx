@@ -344,7 +344,10 @@ const DonationManagement = () => {
                           {donation.event_tag === 'topgolf-youth' ? 'Topgolf — Youth'
                             : donation.event_tag === 'topgolf-adult' ? 'Topgolf — Adult'
                             : donation.event_tag === 'hockey-for-a-cause' ? 'Hockey for a Cause'
-                            : donation.event_tag === 'golf-outing' ? 'Golf Outing'
+                            : donation.event_tag === 'golf-outing'
+                              ? (donation.message?.startsWith('Golf Outing Sponsorship:')
+                                ? donation.message.replace('Golf Outing Sponsorship: ', '')
+                                : 'Golf Outing')
                             : donation.event_tag.replace(/-/g, ' ')}
                         </span>
                       ) : (
