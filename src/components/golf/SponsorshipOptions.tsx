@@ -1,11 +1,15 @@
 import { motion } from 'framer-motion'
-import { Star, Award, Medal, Beer } from 'lucide-react'
+import { Star, Award, Medal, Beer, Flag } from 'lucide-react'
+import { useDonationModal } from '../../contexts/DonationModalContext'
 
 const SponsorshipOptions = () => {
+  const { openModal } = useDonationModal()
+
   const premiumSponsors = [
     {
       level: 'DINNER SPONSOR',
       price: '$2,700',
+      amount: 2700,
       icon: Star,
       color: 'bg-gradient-to-br from-yellow-500 to-amber-600',
       borderColor: 'border-yellow-500',
@@ -20,6 +24,7 @@ const SponsorshipOptions = () => {
     {
       level: 'LUNCH SPONSOR',
       price: '$1,800',
+      amount: 1800,
       icon: Award,
       color: 'bg-gradient-to-br from-gray-400 to-gray-600',
       borderColor: 'border-gray-400',
@@ -33,6 +38,7 @@ const SponsorshipOptions = () => {
     {
       level: 'PREMIUM BEER SPONSOR',
       price: '$1,000',
+      amount: 1000,
       icon: Medal,
       color: 'bg-gradient-to-br from-orange-600 to-orange-700',
       borderColor: 'border-orange-600',
@@ -45,6 +51,7 @@ const SponsorshipOptions = () => {
     {
       level: 'BEER KEG SPONSORSHIP',
       price: '$450',
+      amount: 450,
       icon: Beer,
       color: 'bg-gradient-to-br from-amber-500 to-amber-600',
       borderColor: 'border-amber-500',
@@ -58,6 +65,7 @@ const SponsorshipOptions = () => {
   const additionalSponsors: Array<{
     level: string
     price: string
+    amount: number
     icon: any
     description: string
     color: string
@@ -65,9 +73,18 @@ const SponsorshipOptions = () => {
     {
       level: 'HOT DOG SPONSOR',
       price: '$400',
+      amount: 400,
       icon: Beer,
       description: 'Sign at window, recognition on social media',
       color: 'from-red-500 to-red-600'
+    },
+    {
+      level: 'HOLE SPONSORSHIP',
+      price: '$100',
+      amount: 100,
+      icon: Flag,
+      description: 'Sign at hole, recognition on social media',
+      color: 'from-green-500 to-green-600'
     }
   ]
 
@@ -114,7 +131,10 @@ const SponsorshipOptions = () => {
                     ))}
                   </ul>
                   
-                  <button className={`w-full ${sponsor.featured ? 'bg-championship-gold hover:bg-yellow-500 text-dark-steel' : 'bg-steel-blue hover:bg-dark-steel text-white'} font-bold py-3 md:py-4 rounded-lg transition-all transform hover:scale-105 shadow-lg text-sm md:text-base`}>
+                  <button
+                    onClick={() => openModal(sponsor.amount, 'golf-outing')}
+                    className={`w-full ${sponsor.featured ? 'bg-championship-gold hover:bg-yellow-500 text-dark-steel' : 'bg-steel-blue hover:bg-dark-steel text-white'} font-bold py-3 md:py-4 rounded-lg transition-all transform hover:scale-105 shadow-lg text-sm md:text-base`}
+                  >
                     Choose This Package
                   </button>
                 </div>
@@ -152,8 +172,11 @@ const SponsorshipOptions = () => {
                   </div>
                 </div>
                 <p className="text-gray-600 text-sm">{sponsor.description}</p>
-                <button className="w-full mt-4 border-2 border-steel-blue text-steel-blue hover:bg-steel-blue hover:text-white font-semibold py-2 rounded transition-all">
-                  Inquire
+                <button
+                  onClick={() => openModal(sponsor.amount, 'golf-outing')}
+                  className="w-full mt-4 border-2 border-steel-blue text-steel-blue hover:bg-steel-blue hover:text-white font-semibold py-2 rounded transition-all"
+                >
+                  Sponsor Now
                 </button>
               </motion.div>
             )
