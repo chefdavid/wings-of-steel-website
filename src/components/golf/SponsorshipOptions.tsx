@@ -1,9 +1,18 @@
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Star, Award, Medal, Beer, Flag } from 'lucide-react'
-import { useDonationModal } from '../../contexts/DonationModalContext'
+import SponsorshipCheckoutModal from './SponsorshipCheckoutModal'
+import type { LucideIcon } from 'lucide-react'
+
+interface SponsorshipItem {
+  level: string
+  price: string
+  amount: number
+  icon: LucideIcon
+}
 
 const SponsorshipOptions = () => {
-  const { openModal } = useDonationModal()
+  const [selectedItem, setSelectedItem] = useState<SponsorshipItem | null>(null)
 
   const premiumSponsors = [
     {
@@ -66,7 +75,7 @@ const SponsorshipOptions = () => {
     level: string
     price: string
     amount: number
-    icon: any
+    icon: LucideIcon
     description: string
     color: string
   }> = [
@@ -109,7 +118,7 @@ const SponsorshipOptions = () => {
                   </span>
                 </div>
               )}
-              
+
               <div className={`h-full bg-white rounded-xl shadow-2xl overflow-hidden border-2 ${sponsor.borderColor} ${
                 sponsor.featured ? 'transform scale-105' : ''
               } flex flex-col`}>
@@ -130,9 +139,9 @@ const SponsorshipOptions = () => {
                       </li>
                     ))}
                   </ul>
-                  
+
                   <button
-                    onClick={() => openModal(sponsor.amount, 'golf-outing')}
+                    onClick={() => setSelectedItem({ level: sponsor.level, price: sponsor.price, amount: sponsor.amount, icon: sponsor.icon })}
                     className={`w-full ${sponsor.featured ? 'bg-championship-gold hover:bg-yellow-500 text-dark-steel' : 'bg-steel-blue hover:bg-dark-steel text-white'} font-bold py-3 md:py-4 rounded-lg transition-all transform hover:scale-105 shadow-lg text-sm md:text-base`}
                   >
                     Choose This Package
@@ -173,7 +182,7 @@ const SponsorshipOptions = () => {
                 </div>
                 <p className="text-gray-600 text-sm">{sponsor.description}</p>
                 <button
-                  onClick={() => openModal(sponsor.amount, 'golf-outing')}
+                  onClick={() => setSelectedItem({ level: sponsor.level, price: sponsor.price, amount: sponsor.amount, icon: sponsor.icon })}
                   className="w-full mt-4 border-2 border-steel-blue text-steel-blue hover:bg-steel-blue hover:text-white font-semibold py-2 rounded transition-all"
                 >
                   Sponsor Now
@@ -196,6 +205,12 @@ const SponsorshipOptions = () => {
           </a>
         </p>
       </div>
+
+      {/* Sponsorship Checkout Modal */}
+      <SponsorshipCheckoutModal
+        item={selectedItem}
+        onClose={() => setSelectedItem(null)}
+      />
     </div>
   )
 }
