@@ -200,17 +200,19 @@ export default function GameHighlights({ game, highlight }: GameHighlightsProps)
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.5, delay: 0.6 + index * 0.05 }}
-                    className="relative group cursor-pointer overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow"
+                    className="group cursor-pointer rounded-lg shadow-md hover:shadow-xl transition-shadow"
                     onClick={() => openPhotoModal(index)}
                   >
-                    <img
-                      src={photo.url}
-                      alt={photo.caption || `Game photo ${index + 1}`}
-                      className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-300"
-                      loading="lazy"
-                    />
+                    <div className="overflow-hidden rounded-t-lg">
+                      <img
+                        src={photo.url}
+                        alt={photo.caption || `Game photo ${index + 1}`}
+                        className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-300"
+                        loading="lazy"
+                      />
+                    </div>
                     {photo.caption && (
-                      <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-75 text-white p-2 text-sm">
+                      <div className="bg-gray-100 text-gray-700 p-2 text-sm rounded-b-lg">
                         {photo.caption}
                       </div>
                     )}
