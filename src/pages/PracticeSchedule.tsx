@@ -127,17 +127,39 @@ const PracticeSchedule = () => {
     );
   };
 
-  // Get practice for a specific date
+  // Get practice for a specific date (first match, used for click handling)
   const getPracticeForDate = (date: Date) => {
     const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const dayOfWeek = dayNames[date.getDay()];
     const dateStr = date.toISOString().split('T')[0];
-    
-    return practices.find(p => 
+
+    return practices.find(p =>
       p.day_of_week === dayOfWeek &&
       dateStr >= p.effective_from &&
       dateStr <= p.effective_to
     );
+  };
+
+  // Get all practices for a specific date
+  const getAllPracticesForDate = (date: Date) => {
+    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const dayOfWeek = dayNames[date.getDay()];
+    const dateStr = date.toISOString().split('T')[0];
+
+    return practices.filter(p =>
+      p.day_of_week === dayOfWeek &&
+      dateStr >= p.effective_from &&
+      dateStr <= p.effective_to
+    );
+  };
+
+  // Short time format for calendar tiles (e.g. "7:10p")
+  const formatTimeShort = (time: string) => {
+    const [hours, minutes] = time.split(':');
+    const hour = parseInt(hours);
+    const suffix = hour >= 12 ? 'p' : 'a';
+    const displayHour = hour % 12 || 12;
+    return `${displayHour}:${minutes}${suffix}`;
   };
 
   // Handle date click from calendar
@@ -160,17 +182,26 @@ const PracticeSchedule = () => {
 
   // Custom tile content for calendar
   const tileContent = ({ date, view }: { date: Date; view: string }) => {
-    if (view === 'month' && hasScheduleChange(date)) {
+    if (view !== 'month') return null;
+
+    if (hasScheduleChange(date)) {
       return (
-        <div className="flex justify-center mt-1">
-          <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
+        <div className="flex flex-col items-center mt-0.5 leading-tight">
+          <span className="text-[10px] md:text-xs font-bold text-amber-700">7:10p</span>
+          <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse mt-0.5"></div>
         </div>
       );
     }
-    if (view === 'month' && hasPractice(date)) {
+
+    const datePractices = getAllPracticesForDate(date);
+    if (datePractices.length > 0) {
       return (
-        <div className="flex justify-center mt-1">
-          <div className="w-2 h-2 bg-steel-blue rounded-full"></div>
+        <div className="flex flex-col items-center mt-0.5 leading-tight">
+          {datePractices.map((p, i) => (
+            <span key={i} className="text-[10px] md:text-xs font-semibold text-steel-blue">
+              {formatTimeShort(p.start_time)}
+            </span>
+          ))}
         </div>
       );
     }
@@ -487,12 +518,12 @@ const PracticeSchedule = () => {
             <h3 className="text-2xl font-sport text-white mb-4">
               Practice Location
             </h3>
-            <p className="text-xl text-white mb-2 font-semibold">Grundy Ice Arena</p>
+            <p className="text-xl text-white mb-2 font-semibold">Flyers Skate Zone</p>
             <p className="text-ice-blue mb-6">
-              1001 South Broad St, Bristol, PA 19047
+              601 Laurel Oak Rd, Voorhees, NJ 08043
             </p>
             <a
-              href="https://www.google.com/maps/dir/?api=1&destination=Grundy+Ice+Arena+1001+South+Broad+St+Bristol+PA+19047"
+              href="https://www.google.com/maps/dir/?api=1&destination=Flyers+Skate+Zone+601+Laurel+Oak+Rd+Voorhees+NJ+08043"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-8 py-3 bg-white text-steel-blue rounded-full font-bold hover:bg-gray-100 transition-all duration-200 shadow-lg"
