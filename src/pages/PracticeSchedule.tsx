@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { FaCalendarAlt, FaClock, FaMapMarkerAlt, FaUsers, FaArrowLeft, FaHockeyPuck, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { FaCalendarAlt, FaClock, FaMapMarkerAlt, FaUsers, FaArrowLeft, FaHockeyPuck, FaChevronLeft, FaChevronRight, FaExclamationTriangle } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
@@ -153,8 +153,20 @@ const PracticeSchedule = () => {
     }
   };
 
+  // Check if a date has a schedule change
+  const hasScheduleChange = (date: Date) => {
+    return date.getFullYear() === 2026 && date.getMonth() === 3 && date.getDate() === 23;
+  };
+
   // Custom tile content for calendar
   const tileContent = ({ date, view }: { date: Date; view: string }) => {
+    if (view === 'month' && hasScheduleChange(date)) {
+      return (
+        <div className="flex justify-center mt-1">
+          <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
+        </div>
+      );
+    }
     if (view === 'month' && hasPractice(date)) {
       return (
         <div className="flex justify-center mt-1">
@@ -167,6 +179,9 @@ const PracticeSchedule = () => {
 
   // Custom tile class for calendar
   const tileClassName = ({ date, view }: { date: Date; view: string }) => {
+    if (view === 'month' && hasScheduleChange(date)) {
+      return 'has-practice hover:bg-amber-100 !bg-amber-50 !font-bold !text-amber-800';
+    }
     if (view === 'month' && hasPractice(date)) {
       return 'has-practice hover:bg-ice-blue/20';
     }
@@ -327,6 +342,33 @@ const PracticeSchedule = () => {
       {/* Main Content */}
       <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Schedule Change Alert */}
+          {new Date() <= new Date('2026-04-23T23:59:59') && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="mb-8 bg-amber-50 border-2 border-amber-400 rounded-xl p-6 shadow-lg"
+            >
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 bg-amber-400 rounded-full p-3">
+                  <FaExclamationTriangle className="text-white text-2xl" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-amber-800 mb-1">
+                    Schedule Change — Thursday, April 23rd
+                  </h3>
+                  <p className="text-lg text-amber-700 font-semibold">
+                    Practice will start at <span className="text-amber-900 underline decoration-2">7:10 PM</span> instead of the regular time.
+                  </p>
+                  <p className="text-amber-600 mt-1">
+                    Please plan to arrive accordingly.
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
           {/* Section Header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
