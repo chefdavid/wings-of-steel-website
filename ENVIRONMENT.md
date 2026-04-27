@@ -8,8 +8,7 @@ The application requires the following environment variables:
 
 - `VITE_SUPABASE_URL`: Your Supabase project URL
 - `VITE_SUPABASE_ANON_KEY`: Your Supabase anonymous/public key
-- `VITE_SUPABASE_SERVICE_ROLE_KEY`: Your Supabase service role key (for admin operations)
-- `SUPABASE_SERVICE_ROLE_KEY`: Same as above, used by Node.js scripts
+- `SUPABASE_SERVICE_ROLE_KEY`: Your Supabase service role key, used only by trusted server-side scripts/functions
 
 ## Local Development Setup
 
@@ -23,7 +22,7 @@ The application requires the following environment variables:
 3. Get your credentials from your Supabase project dashboard:
    - Go to Settings > API
    - Copy the Project URL and anon key
-   - Copy the service_role key (keep it secure!)
+   - Copy the service_role key only for server-side use (keep it secure!)
 
 ## Netlify Deployment Setup
 
@@ -33,7 +32,6 @@ The environment variables are already configured in the Netlify dashboard under:
 The following variables are set:
 - `VITE_SUPABASE_URL`
 - `VITE_SUPABASE_ANON_KEY`
-- `VITE_SUPABASE_SERVICE_ROLE_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`
 
 ## Security Notes
@@ -42,6 +40,7 @@ The following variables are set:
 - The `.env` file is ignored by git
 - Service role keys have admin privileges - keep them secure
 - Only the `VITE_` prefixed variables are exposed to the browser
+- Never prefix the service role key with `VITE_`
 - Netlify's secret scanning is configured to allow these expected environment variables
 
 ## Troubleshooting

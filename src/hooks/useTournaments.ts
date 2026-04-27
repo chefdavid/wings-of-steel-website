@@ -1,10 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabaseClient';
-import { supabaseAdmin } from '../lib/supabaseAdmin';
 import type { Tournament } from '../types/database';
 
-// Use admin client for admin operations (bypasses RLS)
-const dbClient = supabaseAdmin || supabase;
+const dbClient = supabase;
 
 export function useTournaments() {
   const [tournaments, setTournaments] = useState<Tournament[]>([]);

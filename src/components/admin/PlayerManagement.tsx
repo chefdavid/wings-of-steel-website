@@ -2,13 +2,14 @@ import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaPlus, FaEdit, FaTrash, FaTimes, FaSave, FaSearch, FaFilter, FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
 import { supabase } from '../../lib/supabaseClient';
-import { supabaseAdmin } from '../../lib/supabaseAdmin';
 import type { Player, ContactInfo, EmergencyContact } from '../../types/database';
 import ImageUpload from './ImageUpload';
 import LayoutToggle, { type LayoutType } from './LayoutToggle';
 import { calculateAge, toInputDate, getTenureDisplay } from '../../utils/dateUtils';
 import { handlePhoneChange } from '../../utils/phoneUtils';
 import { getAvatarUrl } from '../../utils/avatar';
+
+const dbClient = supabase;
 
 const PlayerManagement = () => {
   const [players, setPlayers] = useState<Player[]>([]);
@@ -82,11 +83,6 @@ const PlayerManagement = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log('🚀 Form submitted', { editingPlayer, formData });
-    
-    // Use admin client if available, otherwise fall back to regular client
-    const dbClient = supabaseAdmin || supabase;
-    console.log('🔐 Using client:', supabaseAdmin ? 'Admin (service role)' : 'Regular (anon key)');
-    console.log('🔐 Admin client available:', !!supabaseAdmin);
     
     try {
       const filteredTags = formData.tags.filter(tag => tag.trim() !== '');
@@ -321,7 +317,6 @@ const PlayerManagement = () => {
   const handleDelete = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this player?')) {
       try {
-        const dbClient = supabaseAdmin || supabase;
         const { error } = await dbClient
           .from('players')
           .delete()

@@ -65,7 +65,6 @@ The site uses these critical files for Netlify deployment:
 Required environment variables in Netlify dashboard:
 - `VITE_SUPABASE_URL`
 - `VITE_SUPABASE_ANON_KEY`
-- `VITE_SUPABASE_SERVICE_ROLE_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `VITE_STRIPE_PUBLISHABLE_KEY`
 - `STRIPE_SECRET_KEY`

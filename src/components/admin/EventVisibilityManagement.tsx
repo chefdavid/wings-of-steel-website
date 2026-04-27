@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabaseClient';
-import { supabaseAdmin } from '../../lib/supabaseAdmin';
 import { Eye, EyeOff, RefreshCw, CheckCircle, AlertCircle, Star, CircleCheck, CircleOff } from 'lucide-react';
+
+const dbClient = supabase;
 
 interface EventVisibility {
   id: string;
@@ -27,11 +28,6 @@ const EventVisibilityManagement = () => {
     setLoading(true);
     setError('');
     try {
-      // Use admin client for admin operations (bypasses RLS)
-      const dbClient = supabaseAdmin || supabase;
-      console.log('🔐 Fetching events using:', supabaseAdmin ? 'Admin (service role)' : 'Regular (anon key)');
-      console.log('🔐 Admin client available:', !!supabaseAdmin);
-
       const { data, error: fetchError } = await dbClient
         .from('event_visibility')
         .select('*')
@@ -58,9 +54,6 @@ const EventVisibilityManagement = () => {
     const newVisibility = !currentVisibility;
 
     try {
-      // Use admin client for admin operations (bypasses RLS)
-      const dbClient = supabaseAdmin || supabase;
-      console.log('🔐 Updating visibility using:', supabaseAdmin ? 'Admin (service role)' : 'Regular (anon key)');
       console.log('🔄 Updating event:', eventKey, 'from', currentVisibility, 'to', newVisibility);
 
       // If hiding an event that is featured, unfeature it first
@@ -89,7 +82,7 @@ const EventVisibilityManagement = () => {
       // Check if any rows were actually updated
       if (!updatedData || updatedData.length === 0) {
         console.error('❌ No rows updated. This usually means RLS blocked the update.');
-        throw new Error('No rows were updated. The service role key may not be configured. Please check your .env file has VITE_SUPABASE_SERVICE_ROLE_KEY set.');
+        throw new Error('No rows were updated. Please confirm the current user has admin permissions in Supabase RLS policies.');
       }
 
       console.log('✅ Update successful:', updatedData);
@@ -121,8 +114,6 @@ const EventVisibilityManagement = () => {
     const newFeatured = !currentFeatured;
 
     try {
-      const dbClient = supabaseAdmin || supabase;
-
       if (newFeatured) {
         // Unfeature all others first
         await dbClient
@@ -140,7 +131,7 @@ const EventVisibilityManagement = () => {
 
       if (updateError) throw updateError;
       if (!updatedData || updatedData.length === 0) {
-        throw new Error('No rows were updated. Check service role key configuration.');
+        throw new Error('No rows were updated. Please confirm the current user has admin permissions in Supabase RLS policies.');
       }
 
       await fetchEvents();
@@ -166,8 +157,6 @@ const EventVisibilityManagement = () => {
     const newActive = !currentActive;
 
     try {
-      const dbClient = supabaseAdmin || supabase;
-
       const { data: updatedData, error: updateError } = await dbClient
         .from('event_visibility')
         .update({ is_active: newActive })
@@ -176,7 +165,7 @@ const EventVisibilityManagement = () => {
 
       if (updateError) throw updateError;
       if (!updatedData || updatedData.length === 0) {
-        throw new Error('No rows were updated. Check service role key configuration.');
+        throw new Error('No rows were updated. Please confirm the current user has admin permissions in Supabase RLS policies.');
       }
 
       await fetchEvents();

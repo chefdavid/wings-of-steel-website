@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { FaSave, FaEye, FaEyeSlash, FaTrophy, FaUsers, FaHeart, FaHockeyPuck } from 'react-icons/fa';
 import { supabase } from '../../lib/supabaseClient';
-import { supabaseAdmin } from '../../lib/supabaseAdmin';
 import type { SiteSection } from '../../types/database';
 import { motion } from 'framer-motion';
 
@@ -97,7 +96,7 @@ const HeroSectionEditor = () => {
 
       console.log('Saving hero content:', dbContent);
       
-      const client = supabaseAdmin || supabase;
+      const client = supabase;
       
       const { error: updateError } = await client
         .from('site_sections')

@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { FaSave, FaEdit } from 'react-icons/fa';
 import { supabase } from '../../lib/supabaseClient';
-import { supabaseAdmin } from '../../lib/supabaseAdmin';
 import type { SiteSection } from '../../types/database';
 import { formatPhoneDisplay, handlePhoneChange } from '../../utils/phoneUtils';
 
@@ -42,9 +41,7 @@ const SiteSectionsEditor = () => {
     try {
       console.log('🚀 Saving site section:', sectionKey, content);
       
-      // Use admin client for write operations if available
-      const client = supabaseAdmin || supabase;
-      console.log('📝 Using client:', supabaseAdmin ? 'Admin (Service Role)' : 'Regular (Anon Key)');
+      const client = supabase;
       
       // First update the data
       const { error: updateError } = await client

@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useDonationGoals } from '../../hooks/useDonationGoals';
 import { Plus, Edit, Trash2, X, Save, Calendar } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
-import { supabaseAdmin } from '../../lib/supabaseAdmin';
+
+const dbClient = supabase;
 
 const getMonthBoundaries = () => {
   const now = new Date();
@@ -30,10 +31,6 @@ const DonationGoalManagement = () => {
 
   const handleCreate = async () => {
     try {
-      // Use admin client for admin operations (bypasses RLS)
-      // If admin client is not available, fall back to regular client
-      const dbClient = supabaseAdmin || supabase;
-      console.log('🔐 Using client:', supabaseAdmin ? 'Admin (service role)' : 'Regular (anon key)');
       const { error } = await dbClient
         .from('donation_goals')
         .insert({
@@ -66,8 +63,6 @@ const DonationGoalManagement = () => {
 
   const handleUpdate = async (id: string) => {
     try {
-      // Use admin client for admin operations (bypasses RLS)
-      const dbClient = supabaseAdmin || supabase;
       const { error } = await dbClient
         .from('donation_goals')
         .update({
@@ -105,8 +100,6 @@ const DonationGoalManagement = () => {
     }
 
     try {
-      // Use admin client for admin operations (bypasses RLS)
-      const dbClient = supabaseAdmin || supabase;
       const { error } = await dbClient
         .from('donation_goals')
         .delete()
@@ -443,4 +436,3 @@ const DonationGoalManagement = () => {
 };
 
 export default DonationGoalManagement;
-
