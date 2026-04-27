@@ -99,7 +99,7 @@ const Navigation = () => {
             title: 'Media',
             items: [
               { name: 'Photo Gallery', href: '/gallery', isHashLink: false, description: 'Tournament photos & memories' },
-              // { name: 'Team Store', href: '/store', isHashLink: false, description: 'Official merchandise' } // Temporarily hidden while store is disabled
+              { name: 'Team Store', href: '/store', isHashLink: false, description: 'Official merch — every purchase funds the team' }
             ]
           },
           {

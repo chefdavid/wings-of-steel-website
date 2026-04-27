@@ -1,1083 +1,598 @@
-import { useEffect, useState, useMemo, useCallback } from 'react';
-import { motion } from 'framer-motion';
+import { useEffect, useMemo, useState } from 'react';
+import { AnimatePresence } from 'framer-motion';
+import { Link } from 'react-router-dom';
+import {
+  ArrowRight,
+  ChevronDown,
+  Filter,
+  Search,
+  ShoppingCart,
+  Trophy,
+  Heart,
+  Truck,
+} from 'lucide-react';
 import { printifyService } from '../services/printify';
 import type { PrintifyProduct, ProductVariant } from '../services/printify';
 import { useCart } from '../hooks/useCart';
-import { ShoppingCart, Search, Filter, X, ChevronDown, Heart, Star, Check } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { ProductCard } from './store/ProductCard';
+import { ProductModal } from './store/ProductModal';
+import { buildCategoryBuckets, getCategory } from './store/categories';
+import { getPrimaryImage } from './store/imageSelection';
 
-type SortOption = 'name-asc' | 'name-desc' | 'price-asc' | 'price-desc' | 'newest' | 'oldest';
+type SortOption =
+  | 'newest'
+  | 'oldest'
+  | 'name-asc'
+  | 'name-desc'
+  | 'price-asc'
+  | 'price-desc';
+
+const SORT_LABELS: Record<SortOption, string> = {
+  newest: 'Newest',
+  oldest: 'Oldest',
+  'name-asc': 'Name A–Z',
+  'name-desc': 'Name Z–A',
+  'price-asc': 'Price low → high',
+  'price-desc': 'Price high → low',
+};
 
 interface StoreProps {
   onAvailabilityChange?: (available: boolean) => void;
 }
 
+function getLowestPrice(product: PrintifyProduct): number {
+  const enabled = product.variants.filter((v) => v.is_enabled);
+  const pool = enabled.length > 0 ? enabled : product.variants;
+  return Math.min(...pool.map((v) => v.price));
+}
+
+function StoreHero({
+  featured,
+  loading,
+  onShop,
+  onSelectFeatured,
+}: {
+  featured: PrintifyProduct | null;
+  loading: boolean;
+  onShop: () => void;
+  onSelectFeatured: () => void;
+}) {
+  const featuredImage = featured ? getPrimaryImage(featured) : null;
+  const featuredPrice = featured ? getLowestPrice(featured) : null;
+
+  return (
+    <section className="relative overflow-hidden bg-gradient-to-br from-white via-slate-50 to-ice-blue/10 px-4 pt-20 pb-12 sm:px-6 md:pt-32 md:pb-24">
+      <div className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-steel-blue/10 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-24 -left-24 h-96 w-96 rounded-full bg-ice-blue/20 blur-3xl" />
+
+      <div className="relative mx-auto grid max-w-7xl items-center gap-10 md:grid-cols-2 md:gap-12">
+        <div>
+          <p className="mb-5 inline-flex items-center gap-2 rounded-full bg-steel-blue/10 px-3 py-1.5 text-[11px] font-display font-bold uppercase tracking-[0.18em] text-steel-blue sm:px-4 sm:py-2 sm:text-xs">
+            <Trophy className="h-3.5 w-3.5" />
+            <span className="hidden xs:inline">Official team gear · </span>2026 season
+          </p>
+          <h1 className="font-display font-bold uppercase leading-[0.85] text-dark-steel">
+            <span className="block text-2xl tracking-[0.2em] text-slate-500 sm:text-3xl md:text-4xl">
+              Rep the
+            </span>
+            <span className="block text-6xl tracking-tight sm:text-7xl md:text-[8rem] lg:text-[10rem]">
+              Wings.
+            </span>
+            <span className="mt-2 block text-4xl tracking-tight text-steel-blue sm:text-5xl md:text-7xl">
+              Fund the ice.
+            </span>
+          </h1>
+          <p className="mt-6 max-w-xl text-base text-slate-600 sm:text-lg">
+            Official Wings of Steel gear. Every order helps keep sled hockey
+            free for kids — no child pays to play.
+          </p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={onShop}
+              className="inline-flex items-center gap-2 rounded-full bg-dark-steel px-6 py-3 text-sm font-oswald uppercase tracking-wider text-white transition-colors hover:bg-steel-blue"
+            >
+              Shop the store
+              <ArrowRight className="h-4 w-4" />
+            </button>
+            <Link
+              to="/donate"
+              className="inline-flex items-center gap-2 rounded-full border-2 border-dark-steel px-6 py-3 text-sm font-oswald uppercase tracking-wider text-dark-steel transition-colors hover:bg-dark-steel hover:text-white"
+            >
+              <Heart className="h-4 w-4" />
+              Or donate directly
+            </Link>
+          </div>
+        </div>
+
+        <div className="relative">
+          <div className="absolute inset-0 -rotate-3 rounded-3xl bg-steel-blue" aria-hidden />
+          {loading || !featured || !featuredImage ? (
+            <div className="relative aspect-[4/5] w-full animate-pulse rounded-3xl bg-slate-200 shadow-2xl" />
+          ) : (
+            <button
+              type="button"
+              onClick={onSelectFeatured}
+              className="relative block aspect-[4/5] w-full overflow-hidden rounded-3xl bg-white shadow-2xl transition-transform duration-500 hover:scale-[1.01]"
+              aria-label={`View ${featured.title}`}
+            >
+              <img
+                src={featuredImage}
+                alt={featured.title}
+                className="h-full w-full object-cover"
+                loading="eager"
+              />
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-dark-steel/95 via-dark-steel/60 to-transparent p-6 text-left">
+                <p className="mb-1 text-[11px] font-display font-bold uppercase tracking-[0.18em] text-ice-blue">
+                  Featured drop
+                </p>
+                <p className="font-display text-xl font-bold uppercase leading-tight tracking-tight text-white sm:text-2xl">
+                  {featured.title}
+                </p>
+                <div className="mt-2 flex items-center justify-between">
+                  <span className="font-display text-2xl font-bold text-white">
+                    {featuredPrice !== null
+                      ? `From ${printifyService.formatPrice(featuredPrice)}`
+                      : ''}
+                  </span>
+                  <span className="inline-flex items-center gap-1 text-xs font-oswald uppercase tracking-wider text-ice-blue">
+                    Shop this drop <ArrowRight className="h-3.5 w-3.5" />
+                  </span>
+                </div>
+              </div>
+            </button>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ImpactBar() {
+  return (
+    <section className="bg-dark-steel py-6 text-white">
+      <div className="mx-auto flex max-w-7xl flex-col items-center gap-4 px-6 text-center md:flex-row md:justify-between md:text-left">
+        <p className="font-bebas text-2xl tracking-wide md:text-3xl">
+          100% of proceeds support the team.
+        </p>
+        <div className="flex flex-wrap justify-center gap-6 text-sm font-oswald uppercase tracking-wider text-ice-blue md:gap-10">
+          <span className="inline-flex items-center gap-2">
+            <Truck className="h-4 w-4" /> Equipment
+          </span>
+          <span>Ice time</span>
+          <span>Travel</span>
+          <span>Tournaments</span>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function CategoryTiles({
+  buckets,
+  selected,
+  onSelect,
+}: {
+  buckets: { name: string; count: number }[];
+  selected: string;
+  onSelect: (name: string) => void;
+}) {
+  if (buckets.length <= 1) return null;
+  return (
+    <section className="bg-slate-50 px-6 py-16">
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-8 flex items-end justify-between">
+          <h2 className="font-bebas text-4xl tracking-wide text-dark-steel md:text-5xl">
+            Shop by category
+          </h2>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
+          {buckets.map((bucket) => {
+            const isActive = selected === bucket.name;
+            return (
+              <button
+                key={bucket.name}
+                type="button"
+                onClick={() => onSelect(bucket.name)}
+                className={`group relative overflow-hidden rounded-2xl border-2 p-6 text-left transition-all ${
+                  isActive
+                    ? 'border-steel-blue bg-white shadow-lg'
+                    : 'border-slate-200 bg-white hover:border-steel-blue/40 hover:shadow-md'
+                }`}
+              >
+                <p className="font-bebas text-3xl tracking-wide text-dark-steel">
+                  {bucket.name}
+                </p>
+                <p className="mt-1 text-xs font-oswald uppercase tracking-wider text-slate-500">
+                  {bucket.count} {bucket.count === 1 ? 'item' : 'items'}
+                </p>
+                <ArrowRight
+                  className={`absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 transition-transform ${
+                    isActive ? 'text-steel-blue translate-x-0' : 'text-slate-400 group-hover:translate-x-1'
+                  }`}
+                />
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ProductCardSkeleton() {
+  return (
+    <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white">
+      <div className="aspect-square animate-pulse bg-slate-100" />
+      <div className="space-y-3 p-5">
+        <div className="h-5 w-3/4 animate-pulse rounded bg-slate-100" />
+        <div className="h-3 w-1/3 animate-pulse rounded bg-slate-100" />
+        <div className="flex gap-1.5 pt-1">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="h-5 w-5 animate-pulse rounded-full bg-slate-100" />
+          ))}
+        </div>
+        <div className="flex items-end justify-between pt-3">
+          <div className="h-7 w-20 animate-pulse rounded bg-slate-100" />
+          <div className="h-9 w-20 animate-pulse rounded-full bg-slate-100" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MissionFooterBand() {
+  return (
+    <section className="relative overflow-hidden bg-dark-steel px-6 py-20 text-white">
+      <div className="absolute inset-0 opacity-30">
+        <img
+          src="/images/hero champion.jpg"
+          alt=""
+          className="h-full w-full object-cover"
+          loading="lazy"
+          aria-hidden
+        />
+      </div>
+      <div className="absolute inset-0 bg-gradient-to-r from-dark-steel via-dark-steel/85 to-transparent" />
+      <div className="relative mx-auto max-w-7xl">
+        <p className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-oswald uppercase tracking-[0.18em] text-ice-blue">
+          The mission
+        </p>
+        <h2 className="max-w-3xl font-bebas text-5xl leading-[1] tracking-wide md:text-7xl">
+          No child pays to play.
+        </h2>
+        <p className="mt-6 max-w-2xl text-lg text-slate-200">
+          Sled hockey gear, ice time, tournament travel — none of it is cheap.
+          Every shirt, every hoodie, every mug puts a kid back on the ice.
+        </p>
+        <div className="mt-8 flex flex-wrap gap-3">
+          <Link
+            to="/donate"
+            className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 font-oswald text-sm uppercase tracking-wider text-dark-steel transition-colors hover:bg-ice-blue hover:text-dark-steel"
+          >
+            <Heart className="h-4 w-4" />
+            Donate
+          </Link>
+          <Link
+            to="/join-team"
+            className="inline-flex items-center gap-2 rounded-full border-2 border-white/70 px-6 py-3 font-oswald text-sm uppercase tracking-wider text-white transition-colors hover:bg-white hover:text-dark-steel"
+          >
+            Join the team
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export function Store({ onAvailabilityChange }: StoreProps = {}) {
   const [products, setProducts] = useState<PrintifyProduct[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedProduct, setSelectedProduct] = useState<PrintifyProduct | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedProduct, setSelectedProduct] =
+    useState<PrintifyProduct | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [sortBy, setSortBy] = useState<SortOption>('newest');
   const [searchQuery, setSearchQuery] = useState('');
-  const [showFilters, setShowFilters] = useState(false);
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
   const { addToCart, setIsCartOpen, getTotalItems } = useCart();
 
   useEffect(() => {
-    loadProducts();
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      try {
+        const fetched = await printifyService.getProducts(50);
+        if (cancelled) return;
+        const visible = Array.isArray(fetched)
+          ? fetched.filter((p) => p.visible !== false)
+          : [];
+        setProducts(visible);
+      } catch (err) {
+        console.error('Failed to load Printify products:', err);
+        if (!cancelled) setProducts([]);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
-    if (!loading) {
-      onAvailabilityChange?.(products.length > 0);
-    }
+    if (!loading) onAvailabilityChange?.(products.length > 0);
   }, [loading, products.length, onAvailabilityChange]);
 
-  const loadProducts = async () => {
-    setLoading(true);
-    try {
-      const fetchedProducts = await printifyService.getProducts(50); // Printify max is 50
-      console.log('Fetched products:', fetchedProducts);
-      
-      // Ensure fetchedProducts is an array
-      if (Array.isArray(fetchedProducts) && fetchedProducts.length > 0) {
-        // If products don't have a visible property, show all
-        const visibleProducts = fetchedProducts.filter(p => p.visible !== false);
-        console.log('Visible products:', visibleProducts);
-        setProducts(visibleProducts);
-      } else {
-        console.log('No products fetched or invalid response');
-        setProducts([]);
-      }
-    } catch (error) {
-      console.error('Error loading products:', error);
-      setProducts([]);
+  const buckets = useMemo(() => buildCategoryBuckets(products), [products]);
+  const categoryButtons = useMemo(
+    () => [
+      { name: 'All', count: products.length },
+      ...buckets.map((b) => ({ name: b.name, count: b.count })),
+    ],
+    [buckets, products.length],
+  );
+
+  const filtered = useMemo(() => {
+    let pool = products;
+    if (selectedCategory !== 'All') {
+      pool = pool.filter((p) => getCategory(p) === selectedCategory);
     }
-    setLoading(false);
-  };
-
-  // Extract categories based on product titles
-  const categories = useMemo(() => {
-    const productTypes = new Set<string>();
-    
-    products.forEach(product => {
-      const title = product.title.toLowerCase();
-      
-      // Identify product type from title
-      if (title.includes('t-shirt') || title.includes('tshirt') || title.includes('tee')) {
-        productTypes.add('T-Shirt');
-      } else if (title.includes('hoodie') || title.includes('sweatshirt')) {
-        productTypes.add('Hoodie');
-      } else if (title.includes('mug') || title.includes('cup')) {
-        productTypes.add('Mug');
-      } else if (title.includes('hat') || title.includes('cap')) {
-        productTypes.add('Hat');
-      } else if (title.includes('tank')) {
-        productTypes.add('Tank Top');
-      } else if (title.includes('long sleeve')) {
-        productTypes.add('Long Sleeve');
-      } else if (title.includes('sticker')) {
-        productTypes.add('Sticker');
-      } else if (title.includes('poster') || title.includes('print')) {
-        productTypes.add('Poster');
-      } else if (title.includes('bag') || title.includes('tote')) {
-        productTypes.add('Bag');
-      } else if (title.includes('bottle')) {
-        productTypes.add('Water Bottle');
-      } else if (title.includes('blanket')) {
-        productTypes.add('Blanket');
-      } else if (title.includes('jacket')) {
-        productTypes.add('Jacket');
-      }
-    });
-    
-    const sortedTypes = Array.from(productTypes).sort();
-    return ['all', ...sortedTypes];
-  }, [products]);
-
-  // Helper function to get product type
-  const getProductType = (product: PrintifyProduct): string | null => {
-    const title = product.title.toLowerCase();
-    
-    if (title.includes('t-shirt') || title.includes('tshirt') || title.includes('tee')) {
-      return 'T-Shirt';
-    } else if (title.includes('hoodie') || title.includes('sweatshirt')) {
-      return 'Hoodie';
-    } else if (title.includes('mug') || title.includes('cup')) {
-      return 'Mug';
-    } else if (title.includes('hat') || title.includes('cap')) {
-      return 'Hat';
-    } else if (title.includes('tank')) {
-      return 'Tank Top';
-    } else if (title.includes('long sleeve')) {
-      return 'Long Sleeve';
-    } else if (title.includes('sticker')) {
-      return 'Sticker';
-    } else if (title.includes('poster') || title.includes('print')) {
-      return 'Poster';
-    } else if (title.includes('bag') || title.includes('tote')) {
-      return 'Bag';
-    } else if (title.includes('bottle')) {
-      return 'Water Bottle';
-    } else if (title.includes('blanket')) {
-      return 'Blanket';
-    } else if (title.includes('jacket')) {
-      return 'Jacket';
-    }
-    return null;
-  };
-
-  // Filter and sort products
-  const filteredAndSortedProducts = useMemo(() => {
-    let filtered = products;
-
-    // Category filter
-    if (selectedCategory !== 'all') {
-      filtered = filtered.filter(p => getProductType(p) === selectedCategory);
-    }
-
-    // Search filter
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(p => 
-        p.title.toLowerCase().includes(query) ||
-        p.description.toLowerCase().includes(query) ||
-        p.tags?.some(tag => tag.toLowerCase().includes(query))
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      pool = pool.filter(
+        (p) =>
+          p.title.toLowerCase().includes(q) ||
+          (p.description ?? '').toLowerCase().includes(q) ||
+          (p.tags ?? []).some((t) => t.toLowerCase().includes(q)),
       );
     }
-
-    // Sorting
-    const sorted = [...filtered].sort((a, b) => {
+    return [...pool].sort((a, b) => {
       switch (sortBy) {
         case 'name-asc':
           return a.title.localeCompare(b.title);
         case 'name-desc':
           return b.title.localeCompare(a.title);
         case 'price-asc':
-          return (a.variants[0]?.price || 0) - (b.variants[0]?.price || 0);
+          return getLowestPrice(a) - getLowestPrice(b);
         case 'price-desc':
-          return (b.variants[0]?.price || 0) - (a.variants[0]?.price || 0);
-        case 'newest':
-          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+          return getLowestPrice(b) - getLowestPrice(a);
         case 'oldest':
-          return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+          return (
+            new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+          );
+        case 'newest':
         default:
-          return 0;
+          return (
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          );
       }
     });
-
-    return sorted;
   }, [products, selectedCategory, searchQuery, sortBy]);
 
+  const featured = useMemo(() => {
+    if (products.length === 0) return null;
+    return [...products].sort((a, b) => getLowestPrice(b) - getLowestPrice(a))[0];
+  }, [products]);
+
+  const handleAddToCart = (product: PrintifyProduct, variant: ProductVariant) => {
+    addToCart(product, variant);
+    setIsCartOpen(true);
+  };
+
+  const scrollToGrid = () => {
+    document.getElementById('store-grid')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  if (!loading && products.length === 0) {
+    return (
+      <div className="bg-white">
+        <StoreHero
+          featured={null}
+          loading={false}
+          onShop={scrollToGrid}
+          onSelectFeatured={() => undefined}
+        />
+        <ImpactBar />
+        <section className="px-6 py-24 text-center">
+          <h2 className="font-bebas text-4xl tracking-wide text-dark-steel">
+            New gear is on the way.
+          </h2>
+          <p className="mt-4 text-slate-600">
+            The Printify catalog is empty right now — check back soon, or
+            support the team directly.
+          </p>
+          <Link
+            to="/donate"
+            className="mt-8 inline-flex items-center gap-2 rounded-full bg-dark-steel px-6 py-3 font-oswald text-sm uppercase tracking-wider text-white transition-colors hover:bg-steel-blue"
+          >
+            <Heart className="h-4 w-4" />
+            Donate
+          </Link>
+        </section>
+        <MissionFooterBand />
+      </div>
+    );
+  }
 
   return (
-    <section id="store" className="py-20 px-6 bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 min-h-screen">
-      <div className="max-w-7xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
-          className="text-center mb-12"
-        >
-          <h2 className="text-5xl md:text-7xl font-bebas text-gray-900 mb-4">
-            Wings Store
-          </h2>
-          <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto font-semibold mb-2">
-            Merch That Matters — Every Purchase Fuels the Game
-          </p>
-          <p className="text-base md:text-lg text-gray-500 max-w-xl mx-auto">
-            All proceeds go straight to supporting our sled hockey team.
-          </p>
-        </motion.div>
+    <div className="bg-white text-dark-steel">
+      <StoreHero
+        featured={featured}
+        loading={loading}
+        onShop={scrollToGrid}
+        onSelectFeatured={() => featured && setSelectedProduct(featured)}
+      />
+      <ImpactBar />
 
-        {!loading && products.length === 0 ? (
-          <div className="mx-auto max-w-2xl rounded-lg border border-gray-200 bg-white p-8 text-center shadow-sm">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-yellow-400 text-gray-950">
-              <ShoppingCart className="h-7 w-7" aria-hidden="true" />
-            </div>
-            <h3 className="mb-3 text-2xl font-bold text-gray-950">Team Store Refresh In Progress</h3>
-            <p className="mb-6 text-gray-600">
-              We are updating the Wings of Steel merchandise lineup. In the meantime, donations are the best way to support equipment, ice time, travel, and tournament costs.
-            </p>
-            <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
-              <Link
-                to="/donate"
-                className="rounded-lg bg-yellow-400 px-6 py-3 font-bold text-black transition-colors hover:bg-yellow-300"
-              >
-                Donate Instead
-              </Link>
-              <Link
-                to="/#contact"
-                className="rounded-lg border border-steel-blue px-6 py-3 font-bold text-steel-blue transition-colors hover:bg-steel-blue hover:text-white"
-              >
-                Ask About Merch
-              </Link>
-            </div>
-          </div>
-        ) : (
-          <>
-        {/* Cart Button */}
-        <div className="fixed top-24 right-6 z-40">
-          <button
-            onClick={() => setIsCartOpen(true)}
-            className="bg-gray-900 p-4 rounded-2xl shadow-2xl hover:bg-gray-800 hover:scale-110 transition-all relative"
-          >
-            <ShoppingCart className="w-6 h-6 text-white" />
-            {getTotalItems() > 0 && (
-              <span className="absolute -top-2 -right-2 bg-steel-blue text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">
-                {getTotalItems()}
-              </span>
-            )}
-          </button>
-        </div>
+      <CategoryTiles
+        buckets={categoryButtons}
+        selected={selectedCategory}
+        onSelect={(name) => {
+          setSelectedCategory(name);
+          scrollToGrid();
+        }}
+      />
 
-        {/* Search and Filter Bar */}
-        <div className="mb-8 space-y-4">
-          <div className="flex flex-col md:flex-row gap-4">
-            {/* Search */}
-            <div className="flex-1 relative">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="text"
-                placeholder="Search products..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-4 bg-white text-gray-900 placeholder-gray-400 rounded-2xl shadow-sm border border-gray-200 focus:border-steel-blue focus:shadow-md outline-none transition-all"
-              />
+      <section id="store-grid" className="bg-slate-50 px-6 py-20">
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-10 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+            <div>
+              <h2 className="font-bebas text-4xl tracking-wide text-dark-steel md:text-5xl">
+                The full collection
+              </h2>
+              <p className="mt-2 text-sm text-slate-500">
+                {loading
+                  ? 'Loading the lineup…'
+                  : `${filtered.length} of ${products.length} ${
+                      products.length === 1 ? 'item' : 'items'
+                    }`}
+              </p>
             </div>
 
-            {/* Sort Dropdown */}
-            <div className="relative">
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as SortOption)}
-                className="appearance-none bg-white text-gray-900 px-6 py-4 pr-12 rounded-2xl shadow-sm border border-gray-200 focus:border-steel-blue focus:shadow-md outline-none cursor-pointer font-medium transition-all"
-              >
-                <option value="newest">Newest First</option>
-                <option value="oldest">Oldest First</option>
-                <option value="name-asc">Name (A-Z)</option>
-                <option value="name-desc">Name (Z-A)</option>
-                <option value="price-asc">Price (Low to High)</option>
-                <option value="price-desc">Price (High to Low)</option>
-              </select>
-              <ChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 pointer-events-none" />
-            </div>
-
-            {/* Mobile Filter Toggle */}
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="md:hidden flex items-center gap-2 bg-steel-gray/20 backdrop-blur-sm text-white px-4 py-3 rounded-lg border border-steel-gray/30 hover:bg-steel-gray/30 transition-colors"
-            >
-              <Filter className="w-5 h-5" />
-              Filters {categories.length > 1 && `(${categories.length - 1})`}
-            </button>
-          </div>
-
-          {/* Category Filters - Desktop */}
-          <div className="hidden md:flex flex-wrap gap-3">
-            {categories.map(category => {
-              const count = category === 'all' ? products.length : products.filter(p => getProductType(p) === category).length;
-              return (
-                <button
-                  key={category}
-                  onClick={() => setSelectedCategory(category)}
-                  className={`px-6 py-3 rounded-full font-medium transition-all transform hover:scale-105 ${
-                    selectedCategory === category
-                      ? 'bg-gray-900 text-white shadow-lg'
-                      : 'bg-white text-gray-700 hover:bg-gray-100 shadow-sm border border-gray-200'
-                  }`}
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <div className="relative">
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search gear"
+                  className="w-full rounded-full border-2 border-slate-200 bg-white py-2.5 pl-9 pr-4 text-sm text-dark-steel placeholder-slate-400 focus:border-steel-blue focus:outline-none sm:w-64"
+                />
+              </div>
+              <div className="relative">
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as SortOption)}
+                  className="appearance-none rounded-full border-2 border-slate-200 bg-white py-2.5 pl-4 pr-10 text-sm font-medium text-dark-steel focus:border-steel-blue focus:outline-none"
                 >
-                  {category === 'all' ? 'All Products' : category}
-                  <span className="ml-2 text-sm opacity-70">
-                    {count}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Category Filters - Mobile */}
-          {showFilters && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="md:hidden flex flex-wrap gap-2"
-            >
-              {categories.map(category => (
-                <button
-                  key={category}
-                  onClick={() => {
-                    setSelectedCategory(category);
-                    setShowFilters(false);
-                  }}
-                  className={`px-4 py-2 rounded-full font-oswald transition-all ${
-                    selectedCategory === category
-                      ? 'bg-steel-blue text-white'
-                      : 'bg-steel-gray/20 text-steel-gray hover:bg-steel-gray/30 hover:text-white'
-                  }`}
-                >
-                  {category === 'all' ? 'All Products' : category}
-                  {category === 'all' && ` (${products.length})`}
-                  {category !== 'all' && ` (${products.filter(p => getProductType(p) === category).length})`}
-                </button>
-              ))}
-            </motion.div>
-          )}
-        </div>
-
-        {/* Results Count */}
-        {!loading && (
-          <div className="mb-8 text-gray-600 font-medium">
-            Showing <span className="text-gray-900 font-bold">{filteredAndSortedProducts.length}</span> of {products.length} products
-            {searchQuery && <span className="text-gray-900"> for "{searchQuery}"</span>}
-            {selectedCategory !== 'all' && <span className="text-gray-900"> in {selectedCategory}</span>}
-          </div>
-        )}
-
-        {/* Products Grid */}
-        {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-4 border-steel-blue border-t-transparent"></div>
-          </div>
-        ) : filteredAndSortedProducts.length === 0 ? (
-          <div className="text-center text-steel-gray py-12">
-            <p className="text-xl">No products found.</p>
-            {(searchQuery || selectedCategory !== 'all') && (
+                  {(Object.keys(SORT_LABELS) as SortOption[]).map((key) => (
+                    <option key={key} value={key}>
+                      {SORT_LABELS[key]}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              </div>
               <button
-                onClick={() => {
-                  setSearchQuery('');
-                  setSelectedCategory('all');
-                }}
-                className="mt-4 text-steel-blue hover:text-ice-blue transition-colors"
+                type="button"
+                onClick={() => setShowMobileFilters((s) => !s)}
+                className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-dark-steel md:hidden"
               >
-                Clear filters
+                <Filter className="h-4 w-4" />
+                Filters
               </button>
-            )}
+            </div>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredAndSortedProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onSelect={() => setSelectedProduct(product)}
-                onAddToCart={(variant) => {
-                  addToCart(product, variant);
-                  setIsCartOpen(true);
-                }}
-                getProductType={getProductType}
-              />
-            ))}
-          </div>
-        )}
 
+          <div className="grid gap-10 md:grid-cols-[220px_1fr]">
+            <aside
+              className={`md:sticky md:top-24 md:self-start ${
+                showMobileFilters ? 'block' : 'hidden md:block'
+              }`}
+            >
+              <p className="mb-3 text-xs font-oswald uppercase tracking-wider text-slate-500">
+                Categories
+              </p>
+              <div className="flex flex-wrap gap-2 md:flex-col md:gap-1">
+                {categoryButtons.map((cat) => {
+                  const active = selectedCategory === cat.name;
+                  return (
+                    <button
+                      key={cat.name}
+                      type="button"
+                      onClick={() => {
+                        setSelectedCategory(cat.name);
+                        setShowMobileFilters(false);
+                      }}
+                      className={`flex w-full items-center justify-between rounded-full px-4 py-2 text-sm transition-colors md:rounded-lg md:px-3 ${
+                        active
+                          ? 'bg-dark-steel text-white'
+                          : 'bg-white text-dark-steel hover:bg-slate-100 md:bg-transparent'
+                      }`}
+                    >
+                      <span className="font-medium">{cat.name}</span>
+                      <span
+                        className={`ml-3 text-xs ${
+                          active ? 'text-ice-blue' : 'text-slate-400'
+                        }`}
+                      >
+                        {cat.count}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </aside>
+
+            <div>
+              {loading ? (
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {[...Array(6)].map((_, i) => (
+                    <ProductCardSkeleton key={i} />
+                  ))}
+                </div>
+              ) : filtered.length === 0 ? (
+                <div className="rounded-2xl border-2 border-dashed border-slate-200 bg-white py-20 text-center">
+                  <p className="font-bebas text-2xl text-dark-steel">
+                    No matches found.
+                  </p>
+                  {(searchQuery || selectedCategory !== 'All') && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSearchQuery('');
+                        setSelectedCategory('All');
+                      }}
+                      className="mt-4 text-sm font-semibold text-steel-blue hover:text-dark-steel"
+                    >
+                      Clear filters
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {filtered.map((product) => (
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      onSelect={() => setSelectedProduct(product)}
+                      onAddToCart={(variant) => handleAddToCart(product, variant)}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <MissionFooterBand />
+
+      {/* Floating cart button */}
+      <button
+        type="button"
+        onClick={() => setIsCartOpen(true)}
+        className="fixed bottom-6 right-6 z-40 flex items-center gap-2 rounded-full bg-dark-steel px-5 py-3 text-sm font-semibold text-white shadow-2xl transition-transform hover:scale-105 hover:bg-steel-blue"
+        aria-label="Open cart"
+      >
+        <ShoppingCart className="h-5 w-5" />
+        <span className="hidden sm:inline">Cart</span>
+        {getTotalItems() > 0 && (
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-ice-blue text-xs font-bold text-dark-steel">
+            {getTotalItems()}
+          </span>
+        )}
+      </button>
+
+      <AnimatePresence>
         {selectedProduct && (
           <ProductModal
             product={selectedProduct}
             onClose={() => setSelectedProduct(null)}
-            getProductType={getProductType}
           />
         )}
-          </>
-        )}
-      </div>
-    </section>
-  );
-}
-
-function ProductCard({ product, onSelect, onAddToCart, getProductType }: {
-  product: PrintifyProduct;
-  onSelect: () => void;
-  onAddToCart: (variant: ProductVariant) => void;
-  getProductType: (product: PrintifyProduct) => string | null;
-}) {
-  const [hoveredColorId, setHoveredColorId] = useState<number | null>(null);
-  const [currentImageSrc, setCurrentImageSrc] = useState(product.images[0]?.src || '');
-  
-  // Find color and size options
-  const colorOption = product.options.find(opt => 
-    opt.type === 'color' || opt.name.toLowerCase().includes('color')
-  );
-  const sizeOption = product.options.find(opt => 
-    opt.type === 'size' || opt.name.toLowerCase().includes('size')
-  );
-  
-  // Check if product has multiple variants that need selection
-  const hasMultipleOptions = product.variants.length > 1 && (colorOption || sizeOption);
-  
-  // Get unique colors with their associated images
-  const colorVariants = useMemo(() => {
-    if (!colorOption) return [];
-    
-    return colorOption.values.map(colorValue => {
-      // Find variants with this color
-      const variantsWithColor = product.variants.filter(v => 
-        v.options.includes(colorValue.id)
-      );
-      
-      // Find the FIRST available variant with this color (preferring default size if available)
-      const representativeVariant = variantsWithColor.find(v => v.is_default && v.is_available) || 
-                                   variantsWithColor.find(v => v.is_available) ||
-                                   variantsWithColor[0];
-      
-      // Find image specifically for this variant
-      let variantImage = null;
-      if (representativeVariant) {
-        variantImage = product.images.find(img => 
-          img.variant_ids.includes(representativeVariant.id)
-        );
-      }
-      
-      // If no specific image found, try to find any image for this color's variants
-      if (!variantImage) {
-        variantImage = product.images.find(img => 
-          variantsWithColor.some(v => img.variant_ids.includes(v.id))
-        );
-      }
-      
-      return {
-        colorId: colorValue.id,
-        title: colorValue.title,
-        hexColors: colorValue.colors || [],
-        image: variantImage?.src || product.images[0]?.src,
-        variants: variantsWithColor,
-        representativeVariantId: representativeVariant?.id
-      };
-    }).filter(cv => cv.variants.length > 0); // Only show colors with available variants
-  }, [product, colorOption]);
-  
-  const handleColorHover = useCallback((colorId: number) => {
-    setHoveredColorId(colorId);
-    const colorVariant = colorVariants.find(cv => cv.colorId === colorId);
-    if (colorVariant?.image) {
-      setCurrentImageSrc(colorVariant.image);
-    }
-  }, [colorVariants]);
-  
-  const handleColorLeave = useCallback(() => {
-    setHoveredColorId(null);
-    setCurrentImageSrc(product.images[0]?.src || '');
-  }, [product.images]);
-  
-  const lowestPrice = Math.min(...product.variants.map(v => v.price));
-  const highestPrice = Math.max(...product.variants.map(v => v.price));
-  const hasMultiplePrices = lowestPrice !== highestPrice;
-  
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      viewport={{ once: true }}
-      className="bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden group flex flex-col h-full"
-    >
-      <div className="relative flex-shrink-0">
-        {currentImageSrc && (
-          <div 
-            className="relative overflow-hidden bg-gray-100 cursor-pointer"
-            onClick={onSelect}
-          >
-            <img
-              src={currentImageSrc}
-              alt={product.title}
-              className="w-full h-80 object-cover group-hover:scale-105 transition-all duration-500"
-            />
-            {/* Favorite button */}
-            <button
-              className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm p-3 rounded-full shadow-md hover:bg-white hover:scale-110 transition-all"
-              onClick={(e) => {
-                e.stopPropagation();
-                // Add to favorites logic here
-              }}
-            >
-              <Heart className="w-5 h-5 text-gray-600 hover:text-red-500 transition-colors" />
-            </button>
-            
-            {/* Product type badge */}
-            {getProductType(product) && (
-              <div className="absolute top-4 left-4">
-                <span className="bg-gray-900/80 backdrop-blur-sm text-white text-xs font-medium px-3 py-1.5 rounded-full">
-                  {getProductType(product)}
-                </span>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-      
-      <div className="p-6 flex flex-col h-full">
-        {/* Title - fixed height */}
-        <h3 
-          className="text-gray-900 font-bold text-xl mb-3 line-clamp-2 cursor-pointer hover:text-steel-blue transition-colors min-h-[3.5rem]"
-          onClick={onSelect}
-        >
-          {product.title}
-        </h3>
-        
-        {/* Color swatches - fixed height container */}
-        <div className="mb-4 min-h-[4rem]">
-          {colorVariants.length > 1 ? (
-            <>
-              <p className="text-sm text-gray-600 mb-2">Available Colors:</p>
-              <div className="flex gap-2 items-center">
-                {colorVariants.slice(0, 5).map((colorVariant) => (
-                  <div
-                    key={colorVariant.colorId}
-                    onMouseEnter={() => handleColorHover(colorVariant.colorId)}
-                    onMouseLeave={handleColorLeave}
-                    className="relative group/color"
-                    title={colorVariant.title}
-                  >
-                    {colorVariant.hexColors.length > 0 ? (
-                      <div className="flex">
-                        {colorVariant.hexColors.length === 1 ? (
-                          <div
-                            className={`w-7 h-7 rounded-full border-2 ${
-                              hoveredColorId === colorVariant.colorId ? 'border-steel-blue shadow-md' : 'border-gray-300'
-                            } transition-all`}
-                            style={{ backgroundColor: colorVariant.hexColors[0] }}
-                          />
-                        ) : (
-                          <div className={`w-7 h-7 rounded-full border-2 ${
-                            hoveredColorId === colorVariant.colorId ? 'border-steel-blue shadow-md' : 'border-gray-300'
-                          } overflow-hidden transition-all`}>
-                            <div className="flex h-full">
-                              {colorVariant.hexColors.slice(0, 2).map((hex, idx) => (
-                                <div
-                                  key={idx}
-                                  className="flex-1"
-                                  style={{ backgroundColor: hex }}
-                                />
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <div className={`w-7 h-7 rounded-full border-2 ${
-                        hoveredColorId === colorVariant.colorId ? 'border-steel-blue shadow-md' : 'border-gray-300'
-                      } bg-gray-200 flex items-center justify-center text-xs font-medium transition-all`}>
-                        {colorVariant.title.substring(0, 2).toUpperCase()}
-                      </div>
-                    )}
-                  </div>
-                ))}
-                {colorVariants.length > 5 && (
-                  <button
-                    onClick={onSelect}
-                    className="text-sm text-steel-blue hover:text-ice-blue font-medium transition-colors"
-                  >
-                    +{colorVariants.length - 5} more
-                  </button>
-                )}
-              </div>
-            </>
-          ) : colorVariants.length === 1 ? (
-            <>
-              <p className="text-sm text-gray-600 mb-2">Color:</p>
-              <p className="text-sm text-gray-800 font-medium">{colorVariants[0].title}</p>
-            </>
-          ) : (
-            <div className="text-sm text-gray-500">Single Option</div>
-          )}
-        </div>
-        
-        {/* Rating - consistent placement */}
-        <div className="flex items-center gap-2 mb-4">
-          <div className="flex gap-0.5">
-            {[...Array(5)].map((_, i) => (
-              <Star key={i} className={`w-4 h-4 ${i < 4 ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`} />
-            ))}
-          </div>
-          <span className="text-gray-500 text-sm">(4.8)</span>
-        </div>
-        
-        {/* Options indicator - fixed height */}
-        <div className="mb-4 min-h-[1.5rem]">
-          {sizeOption && (
-            <p className="text-sm text-gray-500">
-              {sizeOption.values.length} sizes available
-            </p>
-          )}
-          {!sizeOption && hasMultipleOptions && (
-            <p className="text-sm text-gray-500">
-              {product.variants.length} options available
-            </p>
-          )}
-        </div>
-        
-        {/* Spacer to push price and button to bottom */}
-        <div className="flex-grow"></div>
-        
-        {/* Price - consistent placement */}
-        <div className="mb-4">
-          {hasMultiplePrices ? (
-            <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-bold text-gray-900">
-                {printifyService.formatPrice(lowestPrice)}
-              </span>
-              <span className="text-gray-500">-</span>
-              <span className="text-2xl font-bold text-gray-900">
-                {printifyService.formatPrice(highestPrice)}
-              </span>
-            </div>
-          ) : (
-            <span className="text-3xl font-bold text-gray-900">
-              {printifyService.formatPrice(lowestPrice)}
-            </span>
-          )}
-        </div>
-        
-        {/* Add to cart button - consistent placement */}
-        <button
-          onClick={() => {
-            // Always open modal for products with multiple options
-            // Only add directly to cart for single variant products
-            if (hasMultipleOptions || product.variants.length > 1) {
-              onSelect();
-            } else if (product.variants[0] && product.variants[0].is_available) {
-              onAddToCart(product.variants[0]);
-            } else {
-              onSelect();
-            }
-          }}
-          className="w-full bg-gray-900 text-white py-4 rounded-2xl font-medium hover:bg-gray-800 transition-all transform hover:scale-[1.02] flex items-center justify-center gap-2"
-        >
-          {hasMultipleOptions ? (
-            <>
-              <span>Select Options</span>
-            </>
-          ) : (
-            <>
-              <ShoppingCart className="w-5 h-5" />
-              <span>Add to Cart</span>
-            </>
-          )}
-        </button>
-      </div>
-    </motion.div>
-  );
-}
-
-function ProductModal({ product, onClose, getProductType }: {
-  product: PrintifyProduct;
-  onClose: () => void;
-  getProductType: (product: PrintifyProduct) => string | null;
-}) {
-  const [selectedVariant, setSelectedVariant] = useState(
-    product.variants.find(v => v.is_default) || product.variants[0]
-  );
-  const [selectedColorId, setSelectedColorId] = useState<number | null>(null);
-  const [selectedSizeId, setSelectedSizeId] = useState<number | null>(null);
-  const [quantity, setQuantity] = useState(1);
-  const { addToCart, setIsCartOpen } = useCart();
-  
-  // Find color and size options
-  const colorOption = product.options.find(opt => 
-    opt.type === 'color' || opt.name.toLowerCase().includes('color')
-  );
-  const sizeOption = product.options.find(opt => 
-    opt.type === 'size' || opt.name.toLowerCase().includes('size')
-  );
-  
-  // Initialize selected color and size
-  useEffect(() => {
-    if (selectedVariant && colorOption) {
-      const colorId = selectedVariant.options.find(optId => 
-        colorOption.values.some(v => v.id === optId)
-      );
-      if (colorId) setSelectedColorId(colorId);
-    }
-    if (selectedVariant && sizeOption) {
-      const sizeId = selectedVariant.options.find(optId => 
-        sizeOption.values.some(v => v.id === optId)
-      );
-      if (sizeId) setSelectedSizeId(sizeId);
-    }
-  }, [selectedVariant, colorOption, sizeOption]);
-  
-  // Get image for current selection
-  const currentImage = useMemo(() => {
-    if (selectedVariant) {
-      // First try to find an image specifically for this variant
-      const variantImage = product.images.find(img => 
-        img.variant_ids.includes(selectedVariant.id)
-      );
-      if (variantImage) return variantImage.src;
-      
-      // If no specific image, try to find an image for any variant with the same color
-      if (selectedColorId && colorOption) {
-        const variantsWithSameColor = product.variants.filter(v => 
-          v.options.includes(selectedColorId)
-        );
-        const colorImage = product.images.find(img => 
-          variantsWithSameColor.some(v => img.variant_ids.includes(v.id))
-        );
-        if (colorImage) return colorImage.src;
-      }
-    }
-    
-    // Default to first image or default image
-    const defaultImage = product.images.find(img => img.is_default);
-    return defaultImage?.src || product.images[0]?.src || '';
-  }, [selectedVariant, selectedColorId, product.images, product.variants, colorOption]);
-  
-  // Handle color selection
-  const handleColorSelect = (colorId: number) => {
-    setSelectedColorId(colorId);
-    
-    // Find variant with this color and current size (if applicable)
-    const newVariant = product.variants.find(v => {
-      const hasColor = v.options.includes(colorId);
-      const hasSize = !selectedSizeId || v.options.includes(selectedSizeId);
-      return hasColor && hasSize && v.is_available;
-    });
-    
-    if (newVariant) {
-      setSelectedVariant(newVariant);
-    }
-  };
-  
-  // Handle size selection
-  const handleSizeSelect = (sizeId: number) => {
-    setSelectedSizeId(sizeId);
-    
-    // Find variant with this size and current color (if applicable)
-    const newVariant = product.variants.find(v => {
-      const hasSize = v.options.includes(sizeId);
-      const hasColor = !selectedColorId || v.options.includes(selectedColorId);
-      return hasSize && hasColor && v.is_available;
-    });
-    
-    if (newVariant) {
-      setSelectedVariant(newVariant);
-    }
-  };
-
-  const handleAddToCart = () => {
-    if (selectedVariant && selectedVariant.is_available) {
-      for (let i = 0; i < quantity; i++) {
-        addToCart(product, selectedVariant);
-      }
-      setIsCartOpen(true);
-      onClose();
-    }
-  };
-
-  // Parse HTML description safely
-  const parseDescription = (html: string) => {
-    // Remove dangerous tags and attributes but keep basic formatting
-    const cleaned = html
-      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-      .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
-      .replace(/on\w+="[^"]*"/gi, '')
-      .replace(/on\w+='[^']*'/gi, '');
-    
-    // Convert to plain text with line breaks
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = cleaned;
-    return tempDiv.innerText || tempDiv.textContent || '';
-  };
-
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-6 overflow-y-auto"
-      onClick={onClose}
-    >
-      <motion.div
-        initial={{ scale: 0.9 }}
-        animate={{ scale: 1 }}
-        className="bg-gray-900 border border-steel-gray/40 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="sticky top-0 bg-gray-900 border-b border-steel-gray/40 p-4 flex justify-between items-center">
-          <h2 className="text-3xl font-bebas text-white">{product.title}</h2>
-          <button
-            onClick={onClose}
-            className="text-steel-gray hover:text-white transition-colors p-2 hover:bg-steel-gray/20 rounded"
-          >
-            <X className="w-6 h-6" />
-          </button>
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-6 p-6">
-          <div>
-            {currentImage && (
-              <img
-                src={currentImage}
-                alt={product.title}
-                className="w-full rounded-lg mb-4 bg-white"
-              />
-            )}
-            {product.images.length > 1 && (
-              <div className="space-y-2">
-                <p className="text-xs text-gray-400 uppercase">More Views</p>
-                <div className="flex gap-2 overflow-x-auto pb-2">
-                  {product.images.map((image, index) => {
-                    // Find which color this image represents
-                    const imageVariants = product.variants.filter(v => 
-                      image.variant_ids.includes(v.id)
-                    );
-                    
-                    // Get color for this image if applicable
-                    let imageColorName = '';
-                    if (colorOption && imageVariants.length > 0) {
-                      const colorId = imageVariants[0].options.find(optId => 
-                        colorOption.values.some(v => v.id === optId)
-                      );
-                      const color = colorOption.values.find(v => v.id === colorId);
-                      imageColorName = color?.title || '';
-                    }
-                    
-                    return (
-                      <div key={index} className="relative group">
-                        <img
-                          src={image.src}
-                          alt={imageColorName || `View ${index + 1}`}
-                          className={`w-20 h-20 object-cover rounded cursor-pointer bg-white transition-all ${
-                            currentImage === image.src ? 'ring-2 ring-steel-blue scale-105' : 'opacity-70 hover:opacity-100'
-                          }`}
-                          onClick={() => {
-                            // Find first available variant for this image
-                            const variant = product.variants.find(v => 
-                              image.variant_ids.includes(v.id) && v.is_available
-                            ) || product.variants.find(v => 
-                              image.variant_ids.includes(v.id)
-                            );
-                            if (variant) setSelectedVariant(variant);
-                          }}
-                        />
-                        {imageColorName && (
-                          <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs px-1 py-0.5 rounded-b opacity-0 group-hover:opacity-100 transition-opacity truncate">
-                            {imageColorName}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div>
-            <div className="mb-6 p-4 bg-black/30 rounded-lg">
-              <h3 className="text-ice-blue font-oswald text-sm uppercase mb-2">Description</h3>
-              <p className="text-white whitespace-pre-wrap leading-relaxed">
-                {parseDescription(product.description)}
-              </p>
-            </div>
-
-            {getProductType(product) && (
-              <div className="mb-6">
-                <span className="text-ice-blue font-oswald text-sm uppercase">Product Type:</span>
-                <div className="mt-2">
-                  <span className="bg-steel-blue/20 text-ice-blue border border-steel-blue/40 text-sm px-3 py-1 rounded-full">
-                    {getProductType(product)}
-                  </span>
-                </div>
-              </div>
-            )}
-
-            {/* Color Selection */}
-            {colorOption && (
-              <div className="mb-6">
-                <label className="text-ice-blue font-oswald block mb-3 uppercase text-sm">
-                  Select Color
-                </label>
-                <div className="grid grid-cols-4 gap-3">
-                  {colorOption.values.map((colorValue) => {
-                    const isSelected = selectedColorId === colorValue.id;
-                    const hasAvailableVariants = product.variants.some(v => 
-                      v.options.includes(colorValue.id) && v.is_available
-                    );
-                    
-                    return (
-                      <button
-                        key={colorValue.id}
-                        onClick={() => handleColorSelect(colorValue.id)}
-                        disabled={!hasAvailableVariants}
-                        className={`relative group transition-all ${
-                          !hasAvailableVariants ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
-                        }`}
-                        title={colorValue.title}
-                      >
-                        {colorValue.colors && colorValue.colors.length > 0 ? (
-                          <div className={`relative ${isSelected ? 'scale-110' : ''} transition-transform`}>
-                            {colorValue.colors.length === 1 ? (
-                              <div
-                                className={`w-12 h-12 rounded-lg border-2 ${
-                                  isSelected ? 'border-steel-blue shadow-lg' : 'border-gray-600 hover:border-gray-400'
-                                } transition-all`}
-                                style={{ backgroundColor: colorValue.colors[0] }}
-                              />
-                            ) : (
-                              <div className={`w-12 h-12 rounded-lg border-2 ${
-                                isSelected ? 'border-steel-blue shadow-lg' : 'border-gray-600 hover:border-gray-400'
-                              } overflow-hidden transition-all`}>
-                                <div className="flex h-full">
-                                  {colorValue.colors.slice(0, 2).map((hex, idx) => (
-                                    <div
-                                      key={idx}
-                                      className="flex-1"
-                                      style={{ backgroundColor: hex }}
-                                    />
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-                            {isSelected && (
-                              <Check className="absolute -top-1 -right-1 w-5 h-5 text-white bg-steel-blue rounded-full p-0.5" />
-                            )}
-                          </div>
-                        ) : (
-                          <div className={`relative ${isSelected ? 'scale-110' : ''} transition-transform`}>
-                            <div className={`w-12 h-12 rounded-lg border-2 ${
-                              isSelected ? 'border-steel-blue shadow-lg bg-gray-700' : 'border-gray-600 bg-gray-800 hover:border-gray-400'
-                            } flex items-center justify-center text-xs font-medium text-white transition-all`}>
-                              {colorValue.title.substring(0, 3).toUpperCase()}
-                            </div>
-                            {isSelected && (
-                              <Check className="absolute -top-1 -right-1 w-5 h-5 text-white bg-steel-blue rounded-full p-0.5" />
-                            )}
-                          </div>
-                        )}
-                        <p className="text-xs text-gray-400 mt-1 text-center truncate">
-                          {colorValue.title}
-                        </p>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-            
-            {/* Size Selection */}
-            {sizeOption && (
-              <div className="mb-6">
-                <label className="text-ice-blue font-oswald block mb-3 uppercase text-sm">
-                  Select Size
-                </label>
-                <div className="flex gap-2 flex-wrap">
-                  {sizeOption.values.map((sizeValue) => {
-                    const isSelected = selectedSizeId === sizeValue.id;
-                    const hasAvailableVariants = product.variants.some(v => 
-                      v.options.includes(sizeValue.id) && v.is_available
-                    );
-                    
-                    return (
-                      <button
-                        key={sizeValue.id}
-                        onClick={() => handleSizeSelect(sizeValue.id)}
-                        disabled={!hasAvailableVariants}
-                        className={`px-4 py-2 rounded-lg border-2 font-medium transition-all ${
-                          isSelected 
-                            ? 'border-steel-blue bg-steel-blue/20 text-white' 
-                            : 'border-gray-600 text-gray-300 hover:border-gray-400 hover:text-white'
-                        } ${!hasAvailableVariants ? 'opacity-50 cursor-not-allowed line-through' : ''}`}
-                      >
-                        {sizeValue.title}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-            
-            {/* Other options (if any) */}
-            {product.options
-              .filter(opt => 
-                opt !== colorOption && opt !== sizeOption
-              )
-              .map((option) => (
-                <div key={option.name} className="mb-4">
-                  <label className="text-ice-blue font-oswald block mb-2 uppercase text-sm">
-                    {option.name}
-                  </label>
-                  <select
-                    className="w-full bg-black/50 text-white p-3 rounded border border-steel-gray/40 focus:border-steel-blue focus:bg-black/70 outline-none transition-all"
-                    onChange={(e) => {
-                      const valueId = parseInt(e.target.value);
-                      const newVariant = product.variants.find(v => 
-                        v.options.includes(valueId) && v.is_available
-                      );
-                      if (newVariant) setSelectedVariant(newVariant);
-                    }}
-                    value={selectedVariant?.options.find(optId => 
-                      option.values.some(v => v.id === optId)
-                    )}
-                  >
-                    {option.values.map((value) => {
-                      const hasAvailableVariants = product.variants.some(v => 
-                        v.options.includes(value.id) && v.is_available
-                      );
-                      return (
-                        <option 
-                          key={value.id} 
-                          value={value.id}
-                          disabled={!hasAvailableVariants}
-                        >
-                          {value.title} {!hasAvailableVariants && '(Out of Stock)'}
-                        </option>
-                      );
-                    })}
-                  </select>
-                </div>
-              ))}
-
-            <div className="mb-6">
-              <label className="text-ice-blue font-oswald block mb-2 uppercase text-sm">
-                Quantity
-              </label>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="w-10 h-10 rounded bg-black/50 text-white hover:bg-steel-blue/20 border border-steel-gray/40 transition-all font-bold text-lg"
-                >
-                  -
-                </button>
-                <input
-                  type="number"
-                  value={quantity}
-                  onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-                  className="w-20 bg-black/50 text-white text-center p-2 rounded border border-steel-gray/40 focus:border-steel-blue outline-none"
-                />
-                <button
-                  onClick={() => setQuantity(quantity + 1)}
-                  className="w-10 h-10 rounded bg-black/50 text-white hover:bg-steel-blue/20 border border-steel-gray/40 transition-all font-bold text-lg"
-                >
-                  +
-                </button>
-              </div>
-            </div>
-
-            <div className="flex justify-between items-center mb-6 p-4 bg-black/30 rounded-lg">
-              <div>
-                <span className="text-steel-gray text-sm block">Total Price</span>
-                <span className="text-3xl font-bold text-white">
-                  {selectedVariant && printifyService.formatPrice(selectedVariant.price * quantity)}
-                </span>
-              </div>
-              {selectedVariant && !selectedVariant.is_available && (
-                <span className="text-red-400 font-semibold">Out of Stock</span>
-              )}
-            </div>
-
-            <button
-              onClick={handleAddToCart}
-              disabled={!selectedVariant?.is_available}
-              className="w-full bg-steel-blue text-white py-4 rounded-lg font-oswald text-lg hover:bg-ice-blue transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-700 flex items-center justify-center gap-2"
-            >
-              <ShoppingCart className="w-5 h-5" />
-              Add to Cart
-            </button>
-          </div>
-        </div>
-      </motion.div>
-    </motion.div>
+      </AnimatePresence>
+    </div>
   );
 }

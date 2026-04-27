@@ -10,7 +10,7 @@ import 'photoswipe/dist/photoswipe.css'
 const LocalGallery = () => {
   const [selectedFolder, setSelectedFolder] = useState<string>('')
   const [currentPage, setCurrentPage] = useState(1)
-  const [imagesPerPage, setImagesPerPage] = useState(50)
+  const [imagesPerPage, setImagesPerPage] = useState(20)
   const [viewMode, setViewMode] = useState<'folders' | 'images'>('folders')
   
   // Get current folder data
@@ -68,7 +68,7 @@ const LocalGallery = () => {
               {viewMode === 'folders' ? 'Browse Albums' : currentFolder.name}
             </h2>
             <div className="text-steel-gray text-sm">
-              1,191 total photos
+              {galleryFolders[0]?.imageCount.toLocaleString()} total photos
             </div>
           </div>
         </div>
@@ -206,6 +206,9 @@ const LocalGallery = () => {
                     <ImageWithDimensions
                       key={image.id}
                       src={image.src}
+                      thumbnail={image.thumbnail}
+                      width={image.width}
+                      height={image.height}
                       alt={image.alt}
                       index={index}
                     />

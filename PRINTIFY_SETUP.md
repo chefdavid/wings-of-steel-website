@@ -12,12 +12,14 @@
 
 ### 2. Configure Environment Variables
 
-Create a `.env` file in the project root (copy from `.env.example`):
+Set these in Netlify so Printify credentials stay server-side:
 
 ```bash
-VITE_PRINTIFY_API_TOKEN=your_printify_api_token_here
-VITE_PRINTIFY_SHOP_ID=your_shop_id_here
+PRINTIFY_API_TOKEN=your_printify_api_token_here
+PRINTIFY_SHOP_ID=your_shop_id_here
 ```
+
+For local Vite-only development, `VITE_PRINTIFY_SHOP_ID` can be used by the browser to identify the shop. Do not expose `PRINTIFY_API_TOKEN` as a `VITE_` variable in production.
 
 ### 3. Create Products in Printify
 
@@ -43,10 +45,10 @@ The integration uses Printify's REST API to:
 
 ## Testing
 
-1. Start the development server: `npm run dev`
-2. Navigate to any team page (e.g., `/team/youth`)
-3. Click on "Store" in the navigation
-4. Products will load from your Printify account
+1. Add `PRINTIFY_API_TOKEN` and `PRINTIFY_SHOP_ID` to Netlify.
+2. Run `npm run build && npm run preview` to verify the static site.
+3. Use Netlify or `netlify dev` to verify Printify functions, because Vite preview does not execute Netlify functions locally.
+4. Navigate to `/store`; products will load from the Printify account when the function and env vars are available.
 
 ## Deployment
 

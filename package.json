@@ -6,8 +6,11 @@
   "scripts": {
     "dev": "vite",
     "dev:netlify": "netlify dev",
+    "predev": "node scripts/generate-thumbnail-manifest.mjs",
+    "prebuild": "node scripts/generate-thumbnail-manifest.mjs",
     "build": "vite build && node scripts/prerender.mjs",
     "build:no-prerender": "vite build",
+    "gallery:manifest": "node scripts/generate-thumbnail-manifest.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
     "db": "node scripts/db-manager.js",

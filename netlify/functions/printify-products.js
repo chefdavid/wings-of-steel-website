@@ -1,38 +1,49 @@
-import axios from 'axios';
+// Lists Printify products for the storefront. Uses native fetch (Node 18+ on
+// Netlify) so no axios bundling is required.
 
-export const handler = async (event, context) => {
-  // Enable CORS with specific origins for better security
-  const allowedOrigins = [
-    'http://localhost:5173',
-    'http://localhost:3000',
-    'http://127.0.0.1:5173',
-    'http://127.0.0.1:4173',
-    'https://wingsofsteel.org',
-    'https://wingsofsteel.netlify.app'
-  ];
-  
-  const origin = event.headers.origin || event.headers.Origin || '';
-  const headers = {
-    'Access-Control-Allow-Origin': allowedOrigins.includes(origin) ? origin : allowedOrigins[0],
+const ALLOWED_ORIGINS = [
+  'http://localhost:5173',
+  'http://localhost:4173',
+  'http://localhost:4174',
+  'http://localhost:3000',
+  'http://127.0.0.1:5173',
+  'http://127.0.0.1:4173',
+  'http://127.0.0.1:4174',
+  'https://wingsofsteel.org',
+  'https://wingsofsteel.netlify.app',
+];
+
+const corsHeadersFor = (origin) => {
+  const isLocalDev = /^https?:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin);
+  const allowed = ALLOWED_ORIGINS.includes(origin) || isLocalDev;
+  return {
+    'Access-Control-Allow-Origin': allowed ? origin : ALLOWED_ORIGINS[0],
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Credentials': 'true',
   };
+};
 
-  // Handle preflight requests
+export const handler = async (event) => {
+  const origin = event.headers.origin || event.headers.Origin || '';
+  const headers = corsHeadersFor(origin);
+
   if (event.httpMethod === 'OPTIONS') {
-    return {
-      statusCode: 200,
-      headers,
-      body: '',
-    };
+    return { statusCode: 200, headers, body: '' };
   }
 
-  const { shopId, limit = 50, page = 1 } = event.queryStringParameters || {};
-  
-  console.log('Function called with:', { shopId, limit, page });
-  console.log('API Token exists:', !!process.env.VITE_PRINTIFY_API_TOKEN);
-  
+  const {
+    shopId: queryShopId,
+    limit = 50,
+    page = 1,
+  } = event.queryStringParameters || {};
+  const shopId =
+    queryShopId ||
+    process.env.PRINTIFY_SHOP_ID ||
+    process.env.VITE_PRINTIFY_SHOP_ID;
+  const apiToken =
+    process.env.PRINTIFY_API_TOKEN || process.env.VITE_PRINTIFY_API_TOKEN;
+
   if (!shopId) {
     return {
       statusCode: 400,
@@ -40,9 +51,7 @@ export const handler = async (event, context) => {
       body: JSON.stringify({ error: 'Shop ID is required' }),
     };
   }
-
-  if (!process.env.VITE_PRINTIFY_API_TOKEN) {
-    console.error('API Token not found in environment');
+  if (!apiToken) {
     return {
       statusCode: 500,
       headers,
@@ -50,40 +59,47 @@ export const handler = async (event, context) => {
     };
   }
 
-  try {
-    console.log('Calling Printify API...');
-    const response = await axios.get(
-      `https://api.printify.com/v1/shops/${shopId}/products.json`,
-      {
-        params: { limit, page },
-        headers: {
-          'Authorization': `Bearer ${process.env.VITE_PRINTIFY_API_TOKEN}`,
-          'Content-Type': 'application/json',
-        },
-      }
-    );
+  const url = new URL(
+    `https://api.printify.com/v1/shops/${shopId}/products.json`,
+  );
+  url.searchParams.set('limit', String(limit));
+  url.searchParams.set('page', String(page));
 
-    console.log('Printify API response received, status:', response.status);
-    console.log('Response data structure:', Object.keys(response.data));
-    
+  try {
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${apiToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    const text = await response.text();
+    const data = text ? JSON.parse(text) : {};
+
+    if (!response.ok) {
+      console.error('Printify API error', response.status, data);
+      return {
+        statusCode: response.status,
+        headers,
+        body: JSON.stringify({
+          error: data?.message || 'Failed to fetch products',
+          details: data,
+        }),
+      };
+    }
+
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify(response.data),
+      body: JSON.stringify(data),
     };
-  } catch (error) {
-    console.error('Error fetching products:', error.message);
-    if (error.response) {
-      console.error('Printify API error status:', error.response.status);
-      console.error('Printify API error data:', JSON.stringify(error.response.data, null, 2));
-    }
-    
+  } catch (err) {
+    console.error('Printify fetch threw:', err);
     return {
-      statusCode: error.response?.status || 500,
+      statusCode: 500,
       headers,
-      body: JSON.stringify({ 
-        error: error.response?.data || error.message || 'Failed to fetch products',
-        details: error.response?.data
+      body: JSON.stringify({
+        error: err.message || 'Failed to fetch products',
       }),
     };
   }

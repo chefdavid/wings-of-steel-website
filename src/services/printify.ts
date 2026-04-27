@@ -116,27 +116,44 @@ class PrintifyService {
 
   constructor() {
     this.shopId = import.meta.env.VITE_PRINTIFY_SHOP_ID || '';
-    this.functionBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-      ? 'https://wingsofsteel.netlify.app'
-      : '';
+    // Always use relative paths. Locally that hits the Vite dev-server
+    // proxy (which talks to Printify with the server-side token); in
+    // production it hits the deployed Netlify function.
+    this.functionBaseUrl = import.meta.env.VITE_NETLIFY_SITE_URL || '';
 
     if (!this.shopId) {
-      console.warn('Printify Shop ID not configured. Store features will be limited.');
+      console.warn('Printify Shop ID not configured in the browser. Server environment may still provide it.');
     }
   }
 
+  // Module-level memoization. Printify takes ~2s per call; caching keeps
+  // repeat navigations within the session instant.
+  private static productCache = new Map<
+    string,
+    { ts: number; data: PrintifyProduct[] }
+  >();
+  private static CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
   async getProducts(limit = 20, page = 1): Promise<PrintifyProduct[]> {
+    const cacheKey = `${this.shopId || ''}:${limit}:${page}`;
+    const cached = PrintifyService.productCache.get(cacheKey);
+    if (cached && Date.now() - cached.ts < PrintifyService.CACHE_TTL_MS) {
+      return cached.data;
+    }
+
     try {
-      const response = await axios.get(`${this.functionBaseUrl}/.netlify/functions/printify-products`, {
-        params: { shopId: this.shopId, limit, page },
-      });
-      return response.data.data || response.data || [];
-    } catch (error: any) {
+      const response = await axios.get(
+        `${this.functionBaseUrl}/.netlify/functions/printify-products`,
+        { params: { shopId: this.shopId || undefined, limit, page } },
+      );
+      const data: PrintifyProduct[] = response.data.data || response.data || [];
+      PrintifyService.productCache.set(cacheKey, { ts: Date.now(), data });
+      return data;
+    } catch (error: unknown) {
       console.error('Error fetching products:', error);
-      if (error?.response) {
+      if (axios.isAxiosError(error) && error.response) {
         console.error('Response status:', error.response.status);
         console.error('Response data:', error.response.data);
-        console.error('Full error details:', JSON.stringify(error.response.data, null, 2));
       }
       return [];
     }
@@ -155,7 +172,7 @@ class PrintifyService {
   async createOrder(order: Order): Promise<{ id: string; status: string }> {
     try {
       const response = await axios.post(`${this.functionBaseUrl}/.netlify/functions/printify-order`, {
-        shopId: this.shopId,
+        shopId: this.shopId || undefined,
         order,
       });
       return response.data;
