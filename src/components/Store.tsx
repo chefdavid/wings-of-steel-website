@@ -4,10 +4,15 @@ import { printifyService } from '../services/printify';
 import type { PrintifyProduct, ProductVariant } from '../services/printify';
 import { useCart } from '../hooks/useCart';
 import { ShoppingCart, Search, Filter, X, ChevronDown, Heart, Star, Check } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 type SortOption = 'name-asc' | 'name-desc' | 'price-asc' | 'price-desc' | 'newest' | 'oldest';
 
-export function Store() {
+interface StoreProps {
+  onAvailabilityChange?: (available: boolean) => void;
+}
+
+export function Store({ onAvailabilityChange }: StoreProps = {}) {
   const [products, setProducts] = useState<PrintifyProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedProduct, setSelectedProduct] = useState<PrintifyProduct | null>(null);
@@ -20,6 +25,12 @@ export function Store() {
   useEffect(() => {
     loadProducts();
   }, []);
+
+  useEffect(() => {
+    if (!loading) {
+      onAvailabilityChange?.(products.length > 0);
+    }
+  }, [loading, products.length, onAvailabilityChange]);
 
   const loadProducts = async () => {
     setLoading(true);
@@ -179,6 +190,32 @@ export function Store() {
           </p>
         </motion.div>
 
+        {!loading && products.length === 0 ? (
+          <div className="mx-auto max-w-2xl rounded-lg border border-gray-200 bg-white p-8 text-center shadow-sm">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-yellow-400 text-gray-950">
+              <ShoppingCart className="h-7 w-7" aria-hidden="true" />
+            </div>
+            <h3 className="mb-3 text-2xl font-bold text-gray-950">Team Store Refresh In Progress</h3>
+            <p className="mb-6 text-gray-600">
+              We are updating the Wings of Steel merchandise lineup. In the meantime, donations are the best way to support equipment, ice time, travel, and tournament costs.
+            </p>
+            <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+              <Link
+                to="/donate"
+                className="rounded-lg bg-yellow-400 px-6 py-3 font-bold text-black transition-colors hover:bg-yellow-300"
+              >
+                Donate Instead
+              </Link>
+              <Link
+                to="/#contact"
+                className="rounded-lg border border-steel-blue px-6 py-3 font-bold text-steel-blue transition-colors hover:bg-steel-blue hover:text-white"
+              >
+                Ask About Merch
+              </Link>
+            </div>
+          </div>
+        ) : (
+          <>
         {/* Cart Button */}
         <div className="fixed top-24 right-6 z-40">
           <button
@@ -341,6 +378,8 @@ export function Store() {
             onClose={() => setSelectedProduct(null)}
             getProductType={getProductType}
           />
+        )}
+          </>
         )}
       </div>
     </section>

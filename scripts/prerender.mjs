@@ -45,7 +45,6 @@ const ROUTES = [
       <ul>
         <li><a href="/join-team">Join the Team</a> — No experience needed, all abilities welcome</li>
         <li><a href="/donate">Make a Donation</a> — 100% goes to keeping hockey free for kids</li>
-        <li><a href="/store">Team Store</a> — Merchandise supporting the team</li>
         <li><a href="/events">Events</a> — Fundraisers and community events</li>
       </ul>
     `,
@@ -88,13 +87,13 @@ const ROUTES = [
   },
   {
     path: '/store',
-    title: 'Wings of Steel Team Store | Merchandise',
-    description: 'Shop Wings of Steel youth sled hockey merchandise. All proceeds support the team. Jerseys, apparel, and gear.',
-    h1: 'Wings of Steel Team Store',
+    title: 'Wings Store Refresh | Wings of Steel',
+    description: 'The Wings of Steel team store is being refreshed. Donations remain the best way to support equipment, ice time, travel, and tournament costs.',
+    h1: 'Wings Store Refresh',
     content: `
-      <p>Support Wings of Steel by shopping our team merchandise. All proceeds go directly to supporting 
-      the team and ensuring no child pays to play.</p>
-      <p><a href="/">Back to home</a> | <a href="/donate">Make a donation</a></p>
+      <p>The Wings of Steel merchandise lineup is currently being updated.</p>
+      <p>In the meantime, donations are the best way to support equipment, ice time, travel, and tournament costs while ensuring no child pays to play.</p>
+      <p><a href="/donate">Make a donation</a> | <a href="/">Back to home</a></p>
     `,
   },
   {
@@ -333,7 +332,6 @@ function generateRouteHTML(baseHTML, route) {
           <a href="/">Home</a> | 
           <a href="/join-team">Join</a> | 
           <a href="/donate">Donate</a> | 
-          <a href="/store">Store</a> | 
           <a href="/practice-schedule">Schedule</a> | 
           <a href="/events">Events</a> | 
           <a href="/gallery">Gallery</a>

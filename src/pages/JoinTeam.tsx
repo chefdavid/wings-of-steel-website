@@ -146,7 +146,7 @@ const JoinTeam = () => {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={false}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             className="text-center mb-12"
@@ -164,7 +164,7 @@ const JoinTeam = () => {
 
           {/* Info Banner */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={false}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
             className="bg-gradient-to-r from-steel-blue to-blue-600 rounded-xl p-6 mb-8"
@@ -183,11 +183,14 @@ const JoinTeam = () => {
 
           {/* Registration Form */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={false}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
             className="bg-gray-900 border border-steel-blue/40 rounded-2xl p-8"
           >
+            <div className="mb-6 rounded-lg border border-steel-blue/40 bg-steel-blue/10 p-4 text-sm text-ice-blue">
+              We only use this information to follow up with your family and prepare the safest possible first visit. Medical details are optional and can also be discussed privately with a coach.
+            </div>
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Player Information */}
               <div>
@@ -540,7 +543,7 @@ const JoinTeam = () => {
 
           {/* Contact Info */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={false}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
             className="mt-8 text-center"

@@ -230,7 +230,7 @@ const PracticeSchedule = () => {
         <div className="absolute inset-0 bg-black/20"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={false}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             className="text-center"
@@ -249,7 +249,7 @@ const PracticeSchedule = () => {
       <section className="py-8 bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={false}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             className="text-center mb-6"
@@ -261,7 +261,7 @@ const PracticeSchedule = () => {
           </motion.div>
           
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
+            initial={false}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
             className="max-w-4xl mx-auto"
@@ -363,6 +363,9 @@ const PracticeSchedule = () => {
               }
               prevLabel={<FaChevronLeft />}
               nextLabel={<FaChevronRight />}
+              prevAriaLabel="Previous month"
+              nextAriaLabel="Next month"
+              navigationAriaLabel="Practice calendar month"
               prev2Label={null}
               next2Label={null}
             />
@@ -402,7 +405,7 @@ const PracticeSchedule = () => {
 
           {/* Section Header */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={false}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
@@ -440,7 +443,7 @@ const PracticeSchedule = () => {
                   <motion.div
                     key={key}
                     ref={el => practiceRefs.current[key] = el}
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={false}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: groupIndex * 0.1 }}
                     className={`bg-white rounded-xl shadow-lg p-8 border-2 transition-all ${
@@ -510,7 +513,7 @@ const PracticeSchedule = () => {
 
           {/* Location Info */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={false}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
             viewport={{ once: true }}
@@ -535,7 +538,7 @@ const PracticeSchedule = () => {
           
           {/* Call to Action */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
+            initial={false}
             whileInView={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}

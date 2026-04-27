@@ -6,6 +6,7 @@ export const handler = async (event, context) => {
     'http://localhost:5173',
     'http://localhost:3000',
     'http://127.0.0.1:5173',
+    'http://127.0.0.1:4173',
     'https://wingsofsteel.org',
     'https://wingsofsteel.netlify.app'
   ];
