@@ -8,7 +8,11 @@ import { criticalCSS } from './vite-plugin-critical-css'
 // the Vite Node process — never bundled to the browser.
 function netlifyFunctionsDevProxy(env: Record<string, string>): Plugin {
   const shopId = env.PRINTIFY_SHOP_ID || env.VITE_PRINTIFY_SHOP_ID || ''
-  const token = env.PRINTIFY_API_TOKEN || env.VITE_PRINTIFY_API_TOKEN || ''
+  const token =
+    env.PRINTIFY_API_KEY ||
+    env.PRINTIFY_API_TOKEN ||
+    env.VITE_PRINTIFY_API_TOKEN ||
+    ''
 
   return {
     name: 'netlify-functions-dev-proxy',

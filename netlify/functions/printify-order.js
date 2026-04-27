@@ -50,7 +50,9 @@ export const handler = async (event) => {
     process.env.PRINTIFY_SHOP_ID ||
     process.env.VITE_PRINTIFY_SHOP_ID;
   const apiToken =
-    process.env.PRINTIFY_API_TOKEN || process.env.VITE_PRINTIFY_API_TOKEN;
+    process.env.PRINTIFY_API_KEY ||
+    process.env.PRINTIFY_API_TOKEN ||
+    process.env.VITE_PRINTIFY_API_TOKEN;
 
   if (!shopId || !order) {
     return {

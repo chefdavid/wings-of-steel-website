@@ -12,8 +12,12 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
+// PRINTIFY_API_KEY is canonical (matches TSavo MCP); _TOKEN names retained
+// as fallbacks during the rename.
 const PRINTIFY_API_TOKEN =
-  process.env.PRINTIFY_API_TOKEN || process.env.VITE_PRINTIFY_API_TOKEN;
+  process.env.PRINTIFY_API_KEY ||
+  process.env.PRINTIFY_API_TOKEN ||
+  process.env.VITE_PRINTIFY_API_TOKEN;
 const PRINTIFY_SHOP_ID =
   process.env.PRINTIFY_SHOP_ID || process.env.VITE_PRINTIFY_SHOP_ID;
 

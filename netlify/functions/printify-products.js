@@ -41,8 +41,12 @@ export const handler = async (event) => {
     queryShopId ||
     process.env.PRINTIFY_SHOP_ID ||
     process.env.VITE_PRINTIFY_SHOP_ID;
+  // PRINTIFY_API_KEY is the canonical name (matches the TSavo MCP). The
+  // _TOKEN fallbacks keep older deploys working during a rename.
   const apiToken =
-    process.env.PRINTIFY_API_TOKEN || process.env.VITE_PRINTIFY_API_TOKEN;
+    process.env.PRINTIFY_API_KEY ||
+    process.env.PRINTIFY_API_TOKEN ||
+    process.env.VITE_PRINTIFY_API_TOKEN;
 
   if (!shopId) {
     return {
