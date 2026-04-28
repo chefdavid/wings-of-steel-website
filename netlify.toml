@@ -1,9 +1,5 @@
 [build]
-  # --include=optional is required so sharp's platform-specific native binary
-  # (@img/sharp-linux-x64) is installed during the prebuild thumbnail step.
-  # Without it, NODE_ENV=production causes optional deps to be skipped and
-  # the prebuild fails with "Could not load the sharp module".
-  command = "npm ci --include=optional && rm -rf dist node_modules/.vite && npm run build"
+  command = "npm ci && rm -rf dist node_modules/.vite && npm run build"
   publish = "dist"
 
 [build.environment]
@@ -11,8 +7,10 @@
   SECRETS_SCAN_OMIT_KEYS = "VITE_SUPABASE_URL,VITE_SUPABASE_ANON_KEY,SUPABASE_SERVICE_ROLE_KEY"
   # Omit scripts directory from scanning
   SECRETS_SCAN_OMIT_PATHS = "scripts/**,dist/**"
-  # Force clean builds
-  NODE_ENV = "production"
+  # NODE_ENV is intentionally NOT set to "production" here. Netlify's build
+  # wrapper treats that as `--omit=optional`, which strips sharp's native
+  # binary (@img/sharp-linux-x64) and breaks the prebuild thumbnail step.
+  # `vite build` already runs in production mode regardless.
 
 # SPA fallback — serves index.html for routes without prerendered files
 [[redirects]]
