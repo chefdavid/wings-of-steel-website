@@ -1,5 +1,9 @@
 [build]
-  command = "npm ci && rm -rf dist node_modules/.vite && npm run build"
+  # --include=optional is required so sharp's platform-specific native binary
+  # (@img/sharp-linux-x64) is installed during the prebuild thumbnail step.
+  # Without it, NODE_ENV=production causes optional deps to be skipped and
+  # the prebuild fails with "Could not load the sharp module".
+  command = "npm ci --include=optional && rm -rf dist node_modules/.vite && npm run build"
   publish = "dist"
 
 [build.environment]

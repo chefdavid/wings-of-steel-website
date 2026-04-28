@@ -4,6 +4,7 @@ import { URLTeamProvider } from '../contexts/URLTeamContext';
 import { FaExclamationTriangle, FaTimes } from 'react-icons/fa';
 import Navigation from './Navigation';
 import Hero from './Hero';
+import NationalsBanner from './NationalsBanner';
 import Footer from './Footer';
 import Admin from './Admin';
 import type { TeamType } from '../types/team';
@@ -69,6 +70,7 @@ const TeamSite: React.FC = () => {
       <div className="min-h-screen">
         <Navigation />
         <main id="main-content" className="pt-20">
+          <NationalsBanner />
           <Hero />
           <Suspense fallback={<div className="h-32" />}>
             <TodayGameCard />
