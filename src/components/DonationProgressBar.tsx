@@ -40,19 +40,14 @@ const DonationProgressBar = ({
     maximumFractionDigits: 0,
   }).format(current_amount);
 
-  const formattedTarget = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(target_amount);
-
-  const percentage = Math.min(percentage_complete, 100);
+  // Cap the visible bar below 100% so it always invites more giving — even
+  // when actual donations have crossed the goal target. We never show "full"
+  // or "exceeded" states publicly, and we never disclose the raw target so
+  // donors can't compare raised-vs-target and conclude the team is funded.
+  const MAX_DISPLAY_PERCENT = 90;
+  const percentage = Math.min(percentage_complete, MAX_DISPLAY_PERCENT);
   const goalLabel = 'Monthly Goal';
-  const completionLabel = percentage_complete >= 100
-    ? `${goalLabel} exceeded`
-    : `${percentage.toFixed(1)}% complete`;
-  const targetLabel = 'monthly target';
+  const completionLabel = `${percentage.toFixed(1)}% complete`;
 
   // Compact mode (for hero section)
   if (mode === 'compact') {
@@ -79,7 +74,6 @@ const DonationProgressBar = ({
         {showDetails && (
           <div className="flex justify-between items-center mt-1 text-xs text-ice-blue">
             <span className="font-semibold">{completionLabel}</span>
-            <span className="text-yellow-400 font-semibold">{formattedTarget} {targetLabel}</span>
             {days_remaining !== null && days_remaining > 0 && (
               <span className="text-yellow-400 font-semibold">{days_remaining} days remaining</span>
             )}
@@ -100,7 +94,7 @@ const DonationProgressBar = ({
           </div>
           <div className="text-right">
             <div className="text-3xl font-sport text-yellow-400">{percentage.toFixed(1)}%</div>
-            <div className="text-xs text-ice-blue">{percentage_complete >= 100 ? 'Goal exceeded' : 'Complete'}</div>
+            <div className="text-xs text-ice-blue">Complete</div>
           </div>
         </div>
         
@@ -115,12 +109,8 @@ const DonationProgressBar = ({
 
         <div className="flex justify-between items-center text-sm">
           <div>
-            <span className="text-ice-blue">Raised:</span>
+            <span className="text-ice-blue">Raised this month:</span>
             <span className="text-white font-bold ml-2 text-yellow-400">{formattedCurrent}</span>
-          </div>
-          <div>
-            <span className="text-ice-blue">Monthly goal:</span>
-            <span className="text-white font-bold ml-2">{formattedTarget}</span>
           </div>
           {days_remaining !== null && days_remaining > 0 && (
             <div>
