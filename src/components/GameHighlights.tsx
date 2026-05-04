@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaTrophy, FaStar, FaClock, FaTimes, FaPlay, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { FaTrophy, FaStar, FaClock, FaTimes, FaPlay, FaChevronLeft, FaChevronRight, FaHockeyPuck } from 'react-icons/fa';
 import type { GameHighlight, Game } from '../types/database';
+import { supabase } from '../lib/supabaseClient';
 
 interface GameHighlightsProps {
   game: Game;
@@ -11,6 +12,43 @@ interface GameHighlightsProps {
 export default function GameHighlights({ game, highlight }: GameHighlightsProps) {
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(null);
   const [photosToShow, setPhotosToShow] = useState(12);
+  const [playerStats, setPlayerStats] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      if (!highlight.id) return;
+      const { data, error } = await supabase
+        .from('player_game_stats')
+        .select('goals, assists, penalty_minutes, saves, shots_on_goal, player:players(id, first_name, last_name, jersey_number)')
+        .eq('game_highlight_id', highlight.id);
+      if (error) {
+        console.error('Error fetching player game stats:', error);
+        return;
+      }
+      setPlayerStats(data || []);
+    };
+    fetchStats();
+  }, [highlight.id]);
+
+  const scoringRows = playerStats
+    .filter((row) => (row.goals || 0) + (row.assists || 0) > 0)
+    .map((row) => ({
+      ...row,
+      points: (row.goals || 0) + (row.assists || 0),
+    }))
+    .sort((a, b) => {
+      if (b.points !== a.points) return b.points - a.points;
+      if ((b.goals || 0) !== (a.goals || 0)) return (b.goals || 0) - (a.goals || 0);
+      return (b.shots_on_goal || 0) - (a.shots_on_goal || 0);
+    });
+
+  const goalieRows = playerStats.filter((row) => (row.saves || 0) > 0);
+  const teamShotsFor = (highlight as any).team_shots_for;
+  const teamShotsAgainst = (highlight as any).team_shots_against;
+  const hasTeamShots =
+    (teamShotsFor !== null && teamShotsFor !== undefined) ||
+    (teamShotsAgainst !== null && teamShotsAgainst !== undefined);
+  const showScoringSection = scoringRows.length > 0 || hasTeamShots || goalieRows.length > 0;
 
   const openPhotoModal = (index: number) => {
     setSelectedPhotoIndex(index);
@@ -107,6 +145,89 @@ export default function GameHighlights({ game, highlight }: GameHighlightsProps)
             <div className="bg-gray-50 rounded-xl p-6">
               <p className="text-lg text-gray-700 leading-relaxed whitespace-pre-line">{highlight.summary}</p>
             </div>
+          </motion.div>
+        )}
+
+        {/* Wings Scoring */}
+        {showScoringSection && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.35 }}
+            className="mb-12"
+          >
+            <h2 className="text-3xl font-bold text-dark-steel mb-4 flex items-center gap-2">
+              <FaHockeyPuck className="text-steel-blue" />
+              Wings Scoring
+            </h2>
+
+            {hasTeamShots && (
+              <div className="mb-4 grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-md">
+                <div className="bg-steel-blue text-white rounded-xl p-4 text-center shadow-md">
+                  <div className="text-xs uppercase tracking-wide opacity-90 mb-1">Wings Shots</div>
+                  <div className="text-3xl font-bold">
+                    {teamShotsFor ?? '-'}
+                  </div>
+                </div>
+                <div className="bg-dark-steel text-white rounded-xl p-4 text-center shadow-md">
+                  <div className="text-xs uppercase tracking-wide opacity-90 mb-1">Opp Shots</div>
+                  <div className="text-3xl font-bold">
+                    {teamShotsAgainst ?? '-'}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {scoringRows.length > 0 && (
+              <div className="bg-gray-50 rounded-xl p-6 overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="border-b border-gray-300 text-dark-steel">
+                      <th className="py-2 px-3 w-16 text-center">#</th>
+                      <th className="py-2 px-3">Player</th>
+                      <th className="py-2 px-3 w-16 text-center">G</th>
+                      <th className="py-2 px-3 w-16 text-center">A</th>
+                      <th className="py-2 px-3 w-20 text-center">PTS</th>
+                      <th className="py-2 px-3 w-16 text-center">PIM</th>
+                      <th className="py-2 px-3 w-16 text-center">SOG</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {scoringRows.map((row, index) => (
+                      <tr
+                        key={row.player?.id || index}
+                        className="border-b border-gray-200 last:border-b-0 hover:bg-white transition-colors"
+                      >
+                        <td className="py-2 px-3 text-center font-bold text-steel-blue">
+                          {row.player?.jersey_number ?? '-'}
+                        </td>
+                        <td className="py-2 px-3 text-gray-700">
+                          {row.player ? `${row.player.first_name} ${row.player.last_name}` : 'Unknown Player'}
+                        </td>
+                        <td className="py-2 px-3 text-center text-gray-700">{row.goals || 0}</td>
+                        <td className="py-2 px-3 text-center text-gray-700">{row.assists || 0}</td>
+                        <td className="py-2 px-3 text-center font-bold text-dark-steel">{row.points}</td>
+                        <td className="py-2 px-3 text-center text-gray-700">{row.penalty_minutes || 0}</td>
+                        <td className="py-2 px-3 text-center text-gray-700">{row.shots_on_goal || 0}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {goalieRows.length > 0 && (
+              <div className="mt-3 text-sm text-gray-600">
+                <span className="font-semibold text-dark-steel">Goalie saves:</span>{' '}
+                {goalieRows
+                  .map((g) =>
+                    g.player
+                      ? `${g.player.first_name} ${g.player.last_name} (${g.saves})`
+                      : `Unknown (${g.saves})`
+                  )
+                  .join(', ')}
+              </div>
+            )}
           </motion.div>
         )}
 

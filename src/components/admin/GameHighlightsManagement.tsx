@@ -4,6 +4,22 @@ import type { Game, GameHighlight, GamePhoto, KeyMoment, PlayerHighlight, Tourna
 import { compressMultipleImages, formatFileSize, isValidImage, isValidFileSize } from '../../utils/imageCompression';
 import { supabase } from '../../lib/supabaseClient';
 
+interface RosterPlayer {
+  id: string;
+  first_name: string;
+  last_name: string;
+  jersey_number: number;
+  active?: boolean;
+}
+
+interface PlayerStatEntry {
+  goals: number;
+  assists: number;
+  penalty_minutes: number;
+  saves: number;
+  shots_on_goal: number;
+}
+
 type SidebarMode = 'browse' | 'create-tournament' | 'create-standalone';
 
 interface StandaloneFields {
@@ -82,6 +98,8 @@ export default function GameHighlightsManagement() {
   const [featuredPhotoUrl, setFeaturedPhotoUrl] = useState<string>('');
   const [keyMoments, setKeyMoments] = useState<KeyMoment[]>([]);
   const [playerHighlights, setPlayerHighlights] = useState<PlayerHighlight[]>([]);
+  const [teamShotsFor, setTeamShotsFor] = useState<string>('');
+  const [teamShotsAgainst, setTeamShotsAgainst] = useState<string>('');
 
   // Photo upload state
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
@@ -98,11 +116,91 @@ export default function GameHighlightsManagement() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
+  // Player game stats
+  const [rosterPlayers, setRosterPlayers] = useState<RosterPlayer[]>([]);
+  const [playerStats, setPlayerStats] = useState<Record<string, PlayerStatEntry>>({});
+  const [initialStatPlayerIds, setInitialStatPlayerIds] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    const loadRoster = async () => {
+      const { data, error } = await supabase
+        .from('players')
+        .select('id, first_name, last_name, jersey_number, active')
+        .order('jersey_number', { ascending: true });
+      if (error) {
+        console.error('Error loading roster for stats panel:', error);
+        return;
+      }
+      setRosterPlayers((data || []) as RosterPlayer[]);
+    };
+    loadRoster();
+  }, []);
+
   useEffect(() => {
     if (selectedGame) {
       loadHighlightForGame(selectedGame.id);
     }
   }, [selectedGame]);
+
+  // Load existing player stats when an existing highlight is loaded
+  useEffect(() => {
+    const loadStats = async () => {
+      if (!currentHighlight?.id) {
+        setPlayerStats({});
+        setInitialStatPlayerIds(new Set());
+        return;
+      }
+      const { data, error } = await supabase
+        .from('player_game_stats')
+        .select('player_id, goals, assists, penalty_minutes, saves, shots_on_goal')
+        .eq('game_highlight_id', currentHighlight.id);
+      if (error) {
+        console.error('Error loading player stats:', error);
+        return;
+      }
+      const stats: Record<string, PlayerStatEntry> = {};
+      const ids = new Set<string>();
+      (data || []).forEach((row: any) => {
+        stats[row.player_id] = {
+          goals: row.goals || 0,
+          assists: row.assists || 0,
+          penalty_minutes: row.penalty_minutes || 0,
+          saves: row.saves || 0,
+          shots_on_goal: row.shots_on_goal || 0,
+        };
+        ids.add(row.player_id);
+      });
+      setPlayerStats(stats);
+      setInitialStatPlayerIds(ids);
+    };
+    loadStats();
+  }, [currentHighlight?.id]);
+
+  const getStat = (playerId: string): PlayerStatEntry =>
+    playerStats[playerId] || { goals: 0, assists: 0, penalty_minutes: 0, saves: 0, shots_on_goal: 0 };
+
+  const updateStat = (
+    playerId: string,
+    field: 'goals' | 'assists' | 'penalty_minutes' | 'saves' | 'shots_on_goal',
+    value: number
+  ) => {
+    const safe = isNaN(value) || value < 0 ? 0 : Math.floor(value);
+    setPlayerStats(prev => ({
+      ...prev,
+      [playerId]: { ...getStat(playerId), [field]: safe },
+    }));
+  };
+
+  const clearAllStats = () => {
+    setPlayerStats({});
+  };
+
+  // Active players only — admin doesn't enter stats for inactive roster.
+  // Inactive rows already in the DB are still loaded by the stats fetch and
+  // saved correctly; they just don't appear in the input grid.
+  const sortedRoster = rosterPlayers
+    .filter((p) => p.active !== false)
+    .sort((a, b) => (a.jersey_number || 0) - (b.jersey_number || 0));
 
   const loadHighlightForGame = async (gameId: string) => {
     const highlight = await getHighlightByGameId(gameId);
@@ -151,6 +249,10 @@ export default function GameHighlightsManagement() {
     setFeaturedPhotoUrl(highlight.featured_photo_url || '');
     setKeyMoments(highlight.key_moments || []);
     setPlayerHighlights(highlight.player_highlights || []);
+    const tsf = (highlight as any).team_shots_for;
+    const tsa = (highlight as any).team_shots_against;
+    setTeamShotsFor(tsf === null || tsf === undefined ? '' : String(tsf));
+    setTeamShotsAgainst(tsa === null || tsa === undefined ? '' : String(tsa));
   };
 
   const resetForm = () => {
@@ -170,6 +272,10 @@ export default function GameHighlightsManagement() {
     setIsEditing(false);
     setIsStandalone(false);
     setStandaloneFields(emptyStandaloneFields);
+    setPlayerStats({});
+    setInitialStatPlayerIds(new Set());
+    setTeamShotsFor('');
+    setTeamShotsAgainst('');
   };
 
   const startCreateStandalone = (tournamentId?: string) => {
@@ -306,6 +412,10 @@ export default function GameHighlightsManagement() {
         key_moments: keyMoments,
         player_highlights: playerHighlights,
       };
+      (highlightData as any).team_shots_for =
+        teamShotsFor.trim() === '' ? null : parseInt(teamShotsFor, 10);
+      (highlightData as any).team_shots_against =
+        teamShotsAgainst.trim() === '' ? null : parseInt(teamShotsAgainst, 10);
 
       if (isStandalone) {
         highlightData.game_id = null;
@@ -320,12 +430,67 @@ export default function GameHighlightsManagement() {
         highlightData.game_id = selectedGame.id;
       }
 
+      let savedHighlightId: string | null = null;
       if (isEditing && currentHighlight?.id) {
-        await updateHighlight(currentHighlight.id, highlightData);
+        const updated: any = await updateHighlight(currentHighlight.id, highlightData);
+        savedHighlightId = updated?.id || currentHighlight.id;
         setMessage({ type: 'success', text: 'Highlight updated successfully' });
       } else {
-        await createHighlight(highlightData);
+        const created: any = await createHighlight(highlightData);
+        savedHighlightId = created?.id || null;
         setMessage({ type: 'success', text: 'Highlight created successfully' });
+      }
+
+      // Persist player game stats
+      if (savedHighlightId) {
+        try {
+          const rowsToUpsert = Object.entries(playerStats)
+            .filter(
+              ([, s]) =>
+                (s.goals || 0) > 0 ||
+                (s.assists || 0) > 0 ||
+                (s.penalty_minutes || 0) > 0 ||
+                (s.saves || 0) > 0 ||
+                (s.shots_on_goal || 0) > 0
+            )
+            .map(([player_id, s]) => ({
+              player_id,
+              game_highlight_id: savedHighlightId,
+              goals: s.goals || 0,
+              assists: s.assists || 0,
+              penalty_minutes: s.penalty_minutes || 0,
+              saves: s.saves || 0,
+              shots_on_goal: s.shots_on_goal || 0,
+            }));
+
+          // Determine player rows that previously had stats but are now zeroed
+          const upsertedIds = new Set(rowsToUpsert.map(r => r.player_id));
+          const idsToDelete: string[] = [];
+          initialStatPlayerIds.forEach(pid => {
+            if (!upsertedIds.has(pid)) idsToDelete.push(pid);
+          });
+
+          if (rowsToUpsert.length > 0) {
+            const { error: upsertError } = await supabase
+              .from('player_game_stats')
+              .upsert(rowsToUpsert, { onConflict: 'player_id,game_highlight_id' });
+            if (upsertError) throw upsertError;
+          }
+
+          if (idsToDelete.length > 0) {
+            const { error: deleteError } = await supabase
+              .from('player_game_stats')
+              .delete()
+              .eq('game_highlight_id', savedHighlightId)
+              .in('player_id', idsToDelete);
+            if (deleteError) throw deleteError;
+          }
+
+          setInitialStatPlayerIds(new Set(upsertedIds));
+        } catch (statsErr) {
+          console.error('Error saving player stats:', statsErr);
+          setMessage({ type: 'error', text: 'Highlight saved but failed to save player stats' });
+        }
       }
 
       // Update game result in game_schedules if this is a scheduled game
@@ -933,6 +1098,150 @@ export default function GameHighlightsManagement() {
                     <button onClick={addPlayerHighlight}
                       className="px-4 py-2 bg-steel-blue text-white rounded-lg hover:bg-blue-700">Add</button>
                   </div>
+                </div>
+
+                {/* Team Stats */}
+                <div>
+                  <label className="block font-semibold mb-2">Team Stats</label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-sm text-gray-700 mb-1">Wings Shots</label>
+                      <input
+                        type="number"
+                        min={0}
+                        value={teamShotsFor}
+                        onChange={(e) => setTeamShotsFor(e.target.value)}
+                        placeholder="(blank = unknown)"
+                        className="w-full px-3 py-2 border rounded-lg"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm text-gray-700 mb-1">Opponent Shots</label>
+                      <input
+                        type="number"
+                        min={0}
+                        value={teamShotsAgainst}
+                        onChange={(e) => setTeamShotsAgainst(e.target.value)}
+                        placeholder="(blank = unknown)"
+                        className="w-full px-3 py-2 border rounded-lg"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Player Stats */}
+                <div>
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <label className="block font-semibold">Player Stats</label>
+                      <p className="text-xs text-gray-600">Goals, assists, PIM, SOG, and saves per player for this game</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={clearAllStats}
+                      className="px-3 py-1 bg-gray-200 text-gray-700 rounded text-sm hover:bg-gray-300"
+                    >
+                      Clear all
+                    </button>
+                  </div>
+                  {sortedRoster.length === 0 ? (
+                    <p className="text-sm text-gray-500 italic">No players found.</p>
+                  ) : (
+                    <div className="border rounded-lg overflow-hidden">
+                      <div className="hidden md:grid grid-cols-[repeat(14,minmax(0,1fr))] gap-2 px-3 py-2 bg-gray-100 text-xs font-semibold text-gray-700 uppercase tracking-wide">
+                        <div className="col-span-1">#</div>
+                        <div className="col-span-5">Player</div>
+                        <div className="col-span-2">Goals</div>
+                        <div className="col-span-2">Assists</div>
+                        <div className="col-span-2">PIM</div>
+                        <div className="col-span-1">SOG</div>
+                        <div className="col-span-1">Saves</div>
+                      </div>
+                      <div className="divide-y">
+                        {sortedRoster.map((player) => {
+                          const stat = getStat(player.id);
+                          const isInactive = player.active === false;
+                          return (
+                            <div
+                              key={player.id}
+                              className={`grid grid-cols-[repeat(14,minmax(0,1fr))] gap-2 items-center px-3 py-2 ${
+                                isInactive ? 'opacity-50 bg-gray-50' : 'bg-white'
+                              }`}
+                            >
+                              <div className="col-span-1">
+                                <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-steel-blue text-white text-xs font-bold">
+                                  #{player.jersey_number ?? '-'}
+                                </span>
+                              </div>
+                              <div className="col-span-5 text-sm">
+                                <span className="font-medium">
+                                  {player.first_name} {player.last_name}
+                                </span>
+                                {isInactive && (
+                                  <span className="ml-2 text-xs text-gray-500">(inactive)</span>
+                                )}
+                              </div>
+                              <div className="col-span-2">
+                                <input
+                                  type="number"
+                                  min={0}
+                                  value={stat.goals}
+                                  onChange={(e) =>
+                                    updateStat(player.id, 'goals', parseInt(e.target.value, 10))
+                                  }
+                                  className="w-full px-2 py-1 border rounded text-sm"
+                                />
+                              </div>
+                              <div className="col-span-2">
+                                <input
+                                  type="number"
+                                  min={0}
+                                  value={stat.assists}
+                                  onChange={(e) =>
+                                    updateStat(player.id, 'assists', parseInt(e.target.value, 10))
+                                  }
+                                  className="w-full px-2 py-1 border rounded text-sm"
+                                />
+                              </div>
+                              <div className="col-span-2">
+                                <input
+                                  type="number"
+                                  min={0}
+                                  value={stat.penalty_minutes}
+                                  onChange={(e) =>
+                                    updateStat(player.id, 'penalty_minutes', parseInt(e.target.value, 10))
+                                  }
+                                  className="w-full px-2 py-1 border rounded text-sm"
+                                />
+                              </div>
+                              <div className="col-span-1">
+                                <input
+                                  type="number"
+                                  min={0}
+                                  value={stat.shots_on_goal}
+                                  onChange={(e) =>
+                                    updateStat(player.id, 'shots_on_goal', parseInt(e.target.value, 10))
+                                  }
+                                  className="w-full px-2 py-1 border rounded text-sm"
+                                />
+                              </div>
+                              <div className="col-span-1">
+                                <input
+                                  type="number"
+                                  min={0}
+                                  value={stat.saves}
+                                  onChange={(e) =>
+                                    updateStat(player.id, 'saves', parseInt(e.target.value, 10))
+                                  }
+                                  className="w-full px-2 py-1 border rounded text-sm"
+                                />
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Photos */}

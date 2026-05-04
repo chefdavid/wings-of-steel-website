@@ -7,6 +7,7 @@ import { calculateAge, getYearsWithTeamDisplay } from '../utils/dateUtils';
 import { getTeamCoaches } from '../utils/teamQueries';
 import { getAvatarUrl } from '../utils/avatar';
 import type { PlayerWithTeams, CoachWithTeams } from '../types/database';
+import PlayerStatsSection from './PlayerStatsSection';
 
 const Team = () => {
   const [selectedPlayer, setSelectedPlayer] = useState<PlayerWithTeams | null>(null);
@@ -373,8 +374,7 @@ const Team = () => {
                   </div>
                   
                   
-                  <div className="bg-gray-50 p-6 rounded-lg">
-                    <h3 className="text-lg font-bold mb-3">Player Stats</h3>
+                  <div className="bg-gray-50 p-4 rounded-lg mb-6">
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
                         <p className="font-semibold">Jersey Number</p>
@@ -386,6 +386,8 @@ const Team = () => {
                       </div>
                     </div>
                   </div>
+
+                  <PlayerStatsSection playerId={selectedPlayer.id} />
                 </div>
               </div>
             </motion.div>

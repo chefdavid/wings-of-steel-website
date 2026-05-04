@@ -4,6 +4,7 @@ import { FaCalendarAlt, FaClock, FaMapMarkerAlt, FaTrophy, FaBan, FaHockeyPuck, 
 import { Link } from 'react-router-dom';
 import { useGameSchedule, useGameHighlights } from '../hooks';
 import GameHighlightsPreview from './GameHighlightsPreview';
+import SeasonRecordGrid from './SeasonRecordGrid';
 import type { GameHighlight } from '../types/database';
 
 const Schedule = () => {
@@ -431,6 +432,11 @@ const Schedule = () => {
               ))}
             </div>
           </div>
+        )}
+
+        {/* Season Record */}
+        {pastGames.length > 0 && (
+          <SeasonRecordGrid pastGames={pastGames} highlights={highlights} />
         )}
 
         {/* Past Games */}
