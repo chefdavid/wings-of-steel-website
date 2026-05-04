@@ -85,6 +85,39 @@ export const handler = async (event, context) => {
 
     console.log(`Payment ${paymentIntentId} status updated to ${newStatus}`);
 
+    // Mirror onto golf_registrations when this is a golf-outing payment.
+    // Status mapping:
+    //   succeeded -> completed
+    //   failed    -> attempted
+    // We match by metadata.golf_registration_id with a fallback to
+    // stripe_payment_intent_id. We never overwrite a completed row.
+    const regId = paymentIntent.metadata?.golf_registration_id;
+    const isGolf = paymentIntent.metadata?.event_tag === 'golf-outing' || !!regId;
+
+    if (isGolf) {
+      const golfStatus = newStatus === 'succeeded' ? 'completed' : 'attempted';
+      const updates = golfStatus === 'completed'
+        ? { payment_status: 'completed', payment_method: 'stripe', payment_date: new Date().toISOString() }
+        : { payment_status: 'attempted' };
+
+      let golfQuery = supabase
+        .from('golf_registrations')
+        .update(updates)
+        .neq('payment_status', 'completed');
+
+      golfQuery = regId
+        ? golfQuery.eq('id', regId)
+        : golfQuery.eq('stripe_payment_intent_id', paymentIntentId);
+
+      const { error: golfError } = await golfQuery;
+      if (golfError) {
+        console.error('Error syncing golf_registration status:', golfError);
+        // Non-fatal: webhook will retry.
+      } else {
+        console.log(`golf_registration status set to ${golfStatus}`);
+      }
+    }
+
     return {
       statusCode: 200,
       headers,

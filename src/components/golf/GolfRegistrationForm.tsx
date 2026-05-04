@@ -305,15 +305,17 @@ const GolfRegistrationForm: React.FC<GolfRegistrationFormProps> = ({
         registration_date: new Date().toISOString()
       }
 
-      const { error: dbError } = await supabase
+      const { data: insertedRows, error: dbError } = await supabase
         .from('golf_registrations')
         .insert([registrationData])
-        .select()
+        .select('id')
 
       if (dbError) {
         await logFailedAttempt(dbError.message, 'database')
         throw dbError
       }
+
+      const golfRegistrationId = insertedRows?.[0]?.id || null
 
       const response = await fetch(
         '/.netlify/functions/create-donation-payment',
@@ -332,6 +334,7 @@ const GolfRegistrationForm: React.FC<GolfRegistrationFormProps> = ({
             isRecurring: false,
             campaignId: null,
             eventTag: 'golf-outing',
+            golfRegistrationId,
           }),
         }
       )

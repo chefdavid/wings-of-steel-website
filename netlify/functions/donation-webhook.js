@@ -96,6 +96,11 @@ export const handler = async (event, context) => {
 async function handlePaymentIntentSucceeded(paymentIntent) {
   console.log('Payment succeeded:', paymentIntent.id);
 
+  // Mirror paid status onto golf_registrations whenever a golf-outing
+  // payment intent succeeds. We match by golf_registration_id metadata
+  // (set at intent creation) and fall back to stripe_payment_intent_id.
+  await markGolfRegistrationPaid(paymentIntent);
+
   // Check if this is a donation payment
   if (paymentIntent.metadata?.donation_type) {
     try {
@@ -144,6 +149,9 @@ async function handlePaymentIntentSucceeded(paymentIntent) {
 async function handlePaymentIntentFailed(paymentIntent) {
   console.log('Payment failed:', paymentIntent.id);
 
+  // Mark golf_registrations row as 'attempted' (checkout started, never completed).
+  await markGolfRegistrationAttempted(paymentIntent);
+
   if (paymentIntent.metadata?.donation_type) {
     try {
       const { error } = await supabase
@@ -160,6 +168,73 @@ async function handlePaymentIntentFailed(paymentIntent) {
     } catch (dbError) {
       console.error('Database error:', dbError);
     }
+  }
+}
+
+// --- golf_registrations status helpers ----------------------------------
+// Status semantics:
+//   'pending'   = newly created, not yet resolved
+//   'completed' = Stripe payment succeeded
+//   'attempted' = checkout started but never charged (failed / abandoned)
+// We never delete rows here; we only flip payment_status. No data is lost.
+
+async function markGolfRegistrationPaid(paymentIntent) {
+  const regId = paymentIntent.metadata?.golf_registration_id;
+  const piId = paymentIntent.id;
+
+  if (!regId && !piId) return;
+
+  try {
+    // Prefer matching by stored stripe_payment_intent_id; fall back to id.
+    let query = supabase
+      .from('golf_registrations')
+      .update({
+        payment_status: 'completed',
+        payment_method: 'stripe',
+        payment_date: new Date().toISOString()
+      });
+
+    query = regId
+      ? query.eq('id', regId)
+      : query.eq('stripe_payment_intent_id', piId);
+
+    const { error } = await query;
+    if (error) {
+      console.error('Error marking golf_registration paid:', error);
+    } else {
+      console.log(`golf_registration marked paid (regId=${regId || 'n/a'}, pi=${piId})`);
+    }
+  } catch (e) {
+    console.error('markGolfRegistrationPaid exception:', e);
+  }
+}
+
+async function markGolfRegistrationAttempted(paymentIntent) {
+  const regId = paymentIntent.metadata?.golf_registration_id;
+  const piId = paymentIntent.id;
+
+  if (!regId && !piId) return;
+
+  try {
+    // Don't downgrade a completed payment to attempted. Match only rows
+    // that aren't already marked completed.
+    let query = supabase
+      .from('golf_registrations')
+      .update({ payment_status: 'attempted' })
+      .neq('payment_status', 'completed');
+
+    query = regId
+      ? query.eq('id', regId)
+      : query.eq('stripe_payment_intent_id', piId);
+
+    const { error } = await query;
+    if (error) {
+      console.error('Error marking golf_registration attempted:', error);
+    } else {
+      console.log(`golf_registration marked attempted (regId=${regId || 'n/a'}, pi=${piId})`);
+    }
+  } catch (e) {
+    console.error('markGolfRegistrationAttempted exception:', e);
   }
 }
 
