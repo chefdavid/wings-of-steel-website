@@ -506,6 +506,9 @@ export default function GameHighlightsManagement() {
           setMessage({ type: 'error', text: 'Highlight saved but failed to update game result' });
         } else {
           setMessage({ type: 'success', text: 'Highlight and game result saved successfully!' });
+          // Update the cached selectedGame so loadHighlightForGame doesn't
+          // re-read the stale "L 2-0" and clobber the radio back to L.
+          setSelectedGame({ ...selectedGame, result: resultString });
         }
       }
 
