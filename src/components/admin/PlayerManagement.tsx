@@ -155,20 +155,9 @@ const PlayerManagement = () => {
         } else {
           console.log('🎉 Player updated successfully');
 
-          // Also update the team_roster position if it changed
-          if (playerData.position) {
-            console.log('📝 Updating team_roster position to:', playerData.position);
-            const { error: rosterError } = await dbClient
-              .from('team_roster')
-              .update({ team_position: playerData.position })
-              .eq('player_id', editingPlayer.id);
-
-            if (rosterError) {
-              console.error('❌ Error updating team_roster position:', rosterError);
-            } else {
-              console.log('✅ Team roster position updated');
-            }
-          }
+          // (team_roster table was removed; position is read from
+          // players.position via the player_team_details view, no separate
+          // update needed.)
 
           // Verify the update actually worked
           const { data: verifyData, error: verifyError } = await dbClient
