@@ -51,9 +51,12 @@ export function useEventVisibility() {
 
     fetchVisibility();
 
-    // Set up real-time subscription for updates
+    // Unique channel name per hook instance — multiple components use this hook
+    // and supabase reuses channel objects by name, which causes
+    // "cannot add postgres_changes callbacks ... after subscribe()" on the second mount.
+    const channelName = `event_visibility_changes_${Math.random().toString(36).slice(2)}`;
     const channel = supabase
-      .channel('event_visibility_changes')
+      .channel(channelName)
       .on(
         'postgres_changes',
         {
@@ -69,7 +72,7 @@ export function useEventVisibility() {
       .subscribe();
 
     return () => {
-      channel.unsubscribe();
+      supabase.removeChannel(channel);
     };
   }, []);
 
