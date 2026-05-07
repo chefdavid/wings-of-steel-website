@@ -1,5 +1,5 @@
 [build]
-  command = "npm ci && rm -rf dist node_modules/.vite && npm run build"
+  command = "npm ci && rm -rf dist node_modules/.vite && npm run build && npx playwright install chromium && npm run smoke"
   publish = "dist"
 
 [build.environment]
@@ -11,6 +11,9 @@
   # wrapper treats that as `--omit=optional`, which strips sharp's native
   # binary (@img/sharp-linux-x64) and breaks the prebuild thumbnail step.
   # `vite build` already runs in production mode regardless.
+  # Cache Playwright browsers inside node_modules so Netlify's build cache
+  # persists them between builds (avoids redownloading chromium each time).
+  PLAYWRIGHT_BROWSERS_PATH = "0"
 
 # SPA fallback — serves index.html for routes without prerendered files
 [[redirects]]
