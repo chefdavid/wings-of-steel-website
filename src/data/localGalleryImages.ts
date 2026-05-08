@@ -1,54 +1,56 @@
-// Gallery is driven by a build-time manifest (scripts/generate-thumbnail-manifest.mjs).
-// The manifest lists every image with its thumbnail path and real dimensions, so the UI
-// no longer needs to preload full-size images at runtime to discover them.
+// Gallery is driven by src/data/gallery-manifest.json, written by
+// scripts/import-tournament-gallery.mjs after compression + upload to
+// Supabase Storage. The manifest is the source of truth at runtime —
+// the UI never scans the filesystem.
 
 import manifest from './gallery-manifest.json'
 
-export interface GalleryImage {
+export interface GalleryPhoto {
   id: string
   src: string
   thumbnail: string
   alt: string
   width: number
   height: number
-  folder: string
 }
 
-export interface GalleryFolder {
-  name: string
-  path: string
-  imageCount: number
+export interface GalleryGame {
+  slug: string
+  label: string
+  coverPhoto: string | null
+  photos: GalleryPhoto[]
+}
+
+export interface GalleryTournament {
+  slug: string
+  label: string
+  date: string | null
+  description: string | null
+  coverPhoto: string | null
+  photoCount: number
+  games: GalleryGame[]
 }
 
 interface Manifest {
-  folders: GalleryFolder[]
-  images: GalleryImage[]
+  tournaments: GalleryTournament[]
 }
 
-const { folders, images } = manifest as Manifest
+const { tournaments } = manifest as Manifest
 
-const allFolder: GalleryFolder = {
-  name: 'All Images',
-  path: '*',
-  imageCount: images.length,
+export const galleryTournaments: GalleryTournament[] = tournaments
+
+export function getTournament(slug: string): GalleryTournament | undefined {
+  return tournaments.find((t) => t.slug === slug)
 }
 
-export const galleryFolders: GalleryFolder[] = [allFolder, ...folders]
+export function getGame(tournamentSlug: string, gameSlug: string): GalleryGame | undefined {
+  return getTournament(tournamentSlug)?.games.find((g) => g.slug === gameSlug)
+}
 
-export const getLocalImages = (folder: string, page: number = 1, limit: number = 20) => {
-  const filtered =
-    folder === '' || folder === '*'
-      ? images
-      : images.filter((img) => img.folder === folder)
+export function getAllPhotos(): GalleryPhoto[] {
+  return tournaments.flatMap((t) => t.games.flatMap((g) => g.photos))
+}
 
-  const start = (page - 1) * limit
-  const end = start + limit
-
-  return {
-    images: filtered.slice(start, end),
-    total: filtered.length,
-    totalPages: Math.max(1, Math.ceil(filtered.length / limit)),
-    page,
-    limit,
-  }
+export function getTotalPhotoCount(): number {
+  return tournaments.reduce((n, t) => n + t.photoCount, 0)
 }

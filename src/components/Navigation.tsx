@@ -76,10 +76,11 @@ const Navigation = () => {
             ]
           },
           {
-            title: 'News',
+            title: 'Media',
             items: [
               { name: 'The Wings Press', href: '/stories', isHashLink: false, description: 'Stories, recaps & milestones' },
-              { name: 'Game Recaps', href: '/game-highlights', isHashLink: false, description: 'Highlights, photos & box scores' }
+              { name: 'Game Recaps', href: '/game-highlights', isHashLink: false, description: 'Highlights, photos & box scores' },
+              { name: 'Photo Gallery', href: '/gallery', isHashLink: false, description: 'Tournament photos & memories' }
             ]
           }
         ]
@@ -92,21 +93,7 @@ const Navigation = () => {
             title: 'Events',
             items: [
               { name: 'Game Schedule', href: '/#schedule', isHashLink: true, description: '2025-2026 season games' },
-              { name: 'Game Highlights', href: '/game-highlights', isHashLink: false, description: 'Recaps, photos & moments' },
               { name: 'Practice Schedule', href: '/practice-schedule', isHashLink: false, description: 'All practice times' }
-            ]
-          }
-        ]
-      },
-      {
-        name: 'Experience',
-        key: 'experience',
-        sections: [
-          {
-            title: 'Media',
-            items: [
-              { name: 'Photo Gallery', href: '/gallery', isHashLink: false, description: 'Tournament photos & memories' },
-              { name: 'Team Store', href: '/store', isHashLink: false, description: 'Official merch — every purchase funds the team' }
             ]
           },
           {
@@ -117,6 +104,7 @@ const Navigation = () => {
           }
         ]
       },
+      { name: 'Shop', href: '/store', isHashLink: false, standalone: true },
       {
         name: 'Connect',
         key: 'connect',

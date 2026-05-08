@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
-import { FaCalendarAlt, FaTrophy, FaPlayCircle } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
+import { FaCalendarAlt, FaTrophy, FaPlayCircle, FaImages, FaPlayCircle as FaRecap } from 'react-icons/fa';
 
 // Hide the banner once the tournament has wrapped. The cutoff is May 4 2026
 // 00:00 local — the day after the final day of the 2026 nationals. Bump
@@ -26,20 +27,38 @@ const ChampionsBanner = () => (
     aria-label="Wings of Steel 2026 nationals championship"
   >
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4">
-      <div className="flex items-center justify-center gap-4 text-center">
-        <FaTrophy className="text-dark-steel text-3xl sm:text-4xl flex-shrink-0" aria-hidden="true" />
-        <div>
-          <div className="text-dark-steel text-xs sm:text-sm font-display font-bold tracking-widest uppercase">
-            USA Hockey-Honda Sled Nationals · Youth Tier 2
-          </div>
-          <div className="text-dark-steel font-sport text-2xl sm:text-3xl leading-tight mt-1">
-            National Champions — 3 Years Running
-          </div>
-          <div className="text-dark-steel/80 text-xs sm:text-sm mt-1">
-            2024 · 2025 · 2026 — first place at USA Hockey Sled Nationals
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div className="flex items-center gap-4 text-center lg:text-left">
+          <FaTrophy className="text-dark-steel text-3xl sm:text-4xl flex-shrink-0" aria-hidden="true" />
+          <div>
+            <div className="text-dark-steel text-xs sm:text-sm font-display font-bold tracking-widest uppercase">
+              USA Hockey-Honda Sled Nationals · Youth Tier 2
+            </div>
+            <div className="text-dark-steel font-sport text-2xl sm:text-3xl leading-tight mt-1">
+              National Champions — 3 Years Running
+            </div>
+            <div className="text-dark-steel/80 text-xs sm:text-sm mt-1">
+              2024 · 2025 · 2026 — first place at USA Hockey Sled Nationals
+            </div>
           </div>
         </div>
-        <FaTrophy className="text-dark-steel text-3xl sm:text-4xl flex-shrink-0 hidden sm:block" aria-hidden="true" />
+
+        <div className="flex flex-wrap justify-center gap-2 lg:flex-shrink-0">
+          <Link
+            to="/gallery"
+            className="inline-flex items-center gap-2 bg-dark-steel hover:bg-black text-yellow-400 font-semibold text-sm px-4 py-2 rounded-md transition-colors"
+          >
+            <FaImages aria-hidden="true" />
+            Photos
+          </Link>
+          <Link
+            to="/game-highlights"
+            className="inline-flex items-center gap-2 bg-dark-steel hover:bg-black text-yellow-400 font-semibold text-sm px-4 py-2 rounded-md transition-colors"
+          >
+            <FaRecap aria-hidden="true" />
+            Game Recaps
+          </Link>
+        </div>
       </div>
     </div>
   </motion.aside>
