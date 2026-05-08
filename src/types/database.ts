@@ -174,6 +174,23 @@ export interface GameHighlight {
   is_published: boolean;
 }
 
+export interface PressStory {
+  id: string;
+  slug: string;
+  title: string;
+  subtitle?: string;
+  body: string;
+  cover_photo_url?: string;
+  photos: GamePhoto[];
+  author?: string;
+  published_at?: string;
+  is_published: boolean;
+  is_featured: boolean;
+  display_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Tournament {
   id: string;
   name: string;

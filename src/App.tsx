@@ -30,6 +30,8 @@ const SledHockeyNJ = lazy(() => import('./pages/SledHockeyNJ'))
 const SledHockeyTeams = lazy(() => import('./pages/SledHockeyTeams'))
 const FreeYouthHockey = lazy(() => import('./pages/FreeYouthHockey'))
 const SledHockeyEquipment = lazy(() => import('./pages/SledHockeyEquipment'))
+const WingsPressPage = lazy(() => import('./pages/WingsPressPage'))
+const PressStoryPage = lazy(() => import('./pages/PressStoryPage'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 // Temporarily disable FeedbackAdmin until properly configured
 // const FeedbackAdmin = lazy(() => import('./components/FeedbackAdmin'))
@@ -92,6 +94,8 @@ function App() {
               <Route path="/sled-hockey-teams" element={<SledHockeyTeams />} />
               <Route path="/free-youth-hockey" element={<FreeYouthHockey />} />
               <Route path="/sled-hockey-equipment-guide" element={<SledHockeyEquipment />} />
+              <Route path="/stories" element={<WingsPressPage />} />
+              <Route path="/stories/:slug" element={<PressStoryPage />} />
 
               {/* Team-specific routes (for backwards compatibility) */}
               <Route path="/team/:team" element={<TeamSite />} />

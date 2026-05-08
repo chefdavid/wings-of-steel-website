@@ -5,6 +5,9 @@ import { FaCalendarAlt, FaTrophy, FaPlayCircle } from 'react-icons/fa';
 // 00:00 local — the day after the final day of the 2026 nationals. Bump
 // these constants for next year's event.
 const EVENT_END_LOCAL = new Date('2026-05-04T00:00:00');
+// Champions celebration runs from event end until the next season ramps up.
+// Bump this each year — it's the date the 3-peat banner stops showing.
+const CHAMPIONS_END_LOCAL = new Date('2026-10-01T00:00:00');
 // Pre-filtered to Youth Tier 2 (division 77698) so visitors land on Wings of
 // Steel's bracket without having to dig through every division.
 const SCHEDULE_URL =
@@ -14,8 +17,40 @@ const STANDINGS_URL =
 const LIVESTREAM_URL = 'https://usahockeytv.com/';
 const EVENT_INFO_URL = 'https://www.usahockey.com/slednationals';
 
+const ChampionsBanner = () => (
+  <motion.aside
+    initial={{ opacity: 0, y: -12 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.5 }}
+    className="bg-gradient-to-r from-yellow-500 via-yellow-400 to-yellow-500 border-b-2 border-dark-steel"
+    aria-label="Wings of Steel 2026 nationals championship"
+  >
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4">
+      <div className="flex items-center justify-center gap-4 text-center">
+        <FaTrophy className="text-dark-steel text-3xl sm:text-4xl flex-shrink-0" aria-hidden="true" />
+        <div>
+          <div className="text-dark-steel text-xs sm:text-sm font-display font-bold tracking-widest uppercase">
+            USA Hockey-Honda Sled Nationals · Youth Tier 2
+          </div>
+          <div className="text-dark-steel font-sport text-2xl sm:text-3xl leading-tight mt-1">
+            National Champions — 3 Years Running
+          </div>
+          <div className="text-dark-steel/80 text-xs sm:text-sm mt-1">
+            2024 · 2025 · 2026 — first place at USA Hockey Sled Nationals
+          </div>
+        </div>
+        <FaTrophy className="text-dark-steel text-3xl sm:text-4xl flex-shrink-0 hidden sm:block" aria-hidden="true" />
+      </div>
+    </div>
+  </motion.aside>
+);
+
 const NationalsBanner = () => {
-  if (Date.now() >= EVENT_END_LOCAL.getTime()) {
+  const now = Date.now();
+  if (now >= EVENT_END_LOCAL.getTime()) {
+    if (now < CHAMPIONS_END_LOCAL.getTime()) {
+      return <ChampionsBanner />;
+    }
     return null;
   }
 

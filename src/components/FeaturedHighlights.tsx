@@ -94,7 +94,6 @@ export default function FeaturedHighlights() {
                           <FaTrophy className="text-white/20 text-6xl" />
                         </div>
                       )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
                       {/* Featured Badge */}
                       <div className="absolute top-3 left-3 bg-yellow-400 text-black text-xs font-bold px-2 py-1 rounded flex items-center gap-1">
@@ -107,27 +106,25 @@ export default function FeaturedHighlights() {
                           {highlight.final_score}
                         </div>
                       )}
-
-                      {/* Title overlay */}
-                      <div className="absolute bottom-0 left-0 right-0 p-4">
-                        <h3 className="text-white font-bold text-lg leading-tight line-clamp-2">
-                          {highlight.title || `Wings of Steel vs ${info.opponent}`}
-                        </h3>
-                        <p className="text-ice-blue text-xs mt-1">
-                          {info.opponent && `vs ${info.opponent}`}
-                          {info.date && ` · ${formatDate(info.date)}`}
-                        </p>
-                      </div>
                     </div>
 
-                    {/* Bottom bar */}
-                    <div className="px-4 py-3 flex items-center justify-between">
-                      {highlight.summary && (
-                        <p className="text-gray-300 text-xs line-clamp-1 flex-1 mr-2">{highlight.summary}</p>
-                      )}
-                      <span className="text-yellow-400 text-sm font-semibold flex items-center gap-1 flex-shrink-0 group-hover:gap-2 transition-all">
-                        View <FaArrowRight className="text-xs" />
-                      </span>
+                    {/* Info below image */}
+                    <div className="px-4 py-3">
+                      <h3 className="text-white font-bold text-lg leading-tight line-clamp-2">
+                        {highlight.title || `Wings of Steel vs ${info.opponent}`}
+                      </h3>
+                      <p className="text-ice-blue text-xs mt-1">
+                        {info.opponent && `vs ${info.opponent}`}
+                        {info.date && ` · ${formatDate(info.date)}`}
+                      </p>
+                      <div className="flex items-center justify-between mt-2">
+                        {highlight.summary && (
+                          <p className="text-gray-300 text-xs line-clamp-1 flex-1 mr-2">{highlight.summary}</p>
+                        )}
+                        <span className="text-yellow-400 text-sm font-semibold flex items-center gap-1 flex-shrink-0 group-hover:gap-2 transition-all">
+                          View <FaArrowRight className="text-xs" />
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </Link>

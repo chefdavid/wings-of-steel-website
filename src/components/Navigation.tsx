@@ -74,6 +74,13 @@ const Navigation = () => {
               { name: 'Players', href: '/#team-players', isHashLink: true, description: 'Meet our athletes' },
               { name: 'Coaches', href: '/#team-coaches', isHashLink: true, description: 'Our coaching staff' }
             ]
+          },
+          {
+            title: 'News',
+            items: [
+              { name: 'The Wings Press', href: '/stories', isHashLink: false, description: 'Stories, recaps & milestones' },
+              { name: 'Game Recaps', href: '/game-highlights', isHashLink: false, description: 'Highlights, photos & box scores' }
+            ]
           }
         ]
       },
