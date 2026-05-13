@@ -1,14 +1,14 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Gallery as PhotoSwipeGallery } from 'react-photoswipe-gallery'
 import { motion, AnimatePresence } from 'framer-motion'
 import Navigation from '../components/Navigation'
 import ImageWithDimensions from '../components/ImageWithDimensions'
 import {
-  galleryTournaments,
-  getTournament,
-  getGame,
-  getTotalPhotoCount,
+  loadGallery,
+  getTournamentFrom,
+  getGameFrom,
+  getTotalPhotoCountFrom,
   type GalleryTournament,
   type GalleryGame,
 } from '../data/localGalleryImages'
@@ -21,14 +21,37 @@ const LocalGallery = () => {
   const [gameSlug, setGameSlug] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [imagesPerPage, setImagesPerPage] = useState(50)
+  const [galleryTournaments, setGalleryTournaments] = useState<GalleryTournament[]>([])
+  const [loadError, setLoadError] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    let cancelled = false
+    loadGallery()
+      .then((data) => {
+        if (cancelled) return
+        setGalleryTournaments(data.tournaments)
+        setIsLoading(false)
+      })
+      .catch((err) => {
+        if (cancelled) return
+        setLoadError(err instanceof Error ? err.message : 'Failed to load gallery')
+        setIsLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const manifest = useMemo(() => ({ tournaments: galleryTournaments }), [galleryTournaments])
 
   const tournament: GalleryTournament | undefined = tournamentSlug
-    ? getTournament(tournamentSlug)
+    ? getTournamentFrom(manifest, tournamentSlug)
     : undefined
   const game: GalleryGame | undefined =
-    tournamentSlug && gameSlug ? getGame(tournamentSlug, gameSlug) : undefined
+    tournamentSlug && gameSlug ? getGameFrom(manifest, tournamentSlug, gameSlug) : undefined
 
-  const totalPhotos = useMemo(() => getTotalPhotoCount(), [])
+  const totalPhotos = useMemo(() => getTotalPhotoCountFrom(manifest), [manifest])
 
   const view: 'tournaments' | 'games' | 'photos' = game
     ? 'photos'
@@ -145,8 +168,24 @@ const LocalGallery = () => {
           </div>
         )}
 
+        {/* Loading state */}
+        {isLoading && (
+          <div className="text-center py-20">
+            <div className="inline-block w-10 h-10 border-4 border-steel-gray/30 border-t-ice-blue rounded-full animate-spin mb-4" />
+            <p className="text-steel-gray">Loading gallery…</p>
+          </div>
+        )}
+
+        {/* Error state */}
+        {!isLoading && loadError && (
+          <div className="text-center py-20">
+            <h3 className="text-2xl font-oswald text-white mb-2">Gallery unavailable</h3>
+            <p className="text-steel-gray">{loadError}</p>
+          </div>
+        )}
+
         {/* Empty state */}
-        {view === 'tournaments' && galleryTournaments.length === 0 && (
+        {!isLoading && !loadError && view === 'tournaments' && galleryTournaments.length === 0 && (
           <div className="text-center py-20">
             <h3 className="text-2xl font-oswald text-white mb-2">No tournaments yet</h3>
             <p className="text-steel-gray">

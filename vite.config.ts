@@ -77,32 +77,32 @@ export default defineConfig(({ mode }) => {
     rollupOptions: {
       output: {
         manualChunks(id) {
-          // More aggressive code splitting
-          if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom')) {
-              return 'react-vendor';
-            }
-            if (id.includes('react-router')) {
-              return 'router';
-            }
-            if (id.includes('framer-motion')) {
-              return 'animation';
-            }
-            if (id.includes('react-icons') || id.includes('lucide-react')) {
-              return 'icons';
-            }
-            if (id.includes('@supabase')) {
-              return 'supabase';
-            }
-            if (id.includes('axios')) {
-              return 'http';
-            }
-            if (id.includes('@stripe')) {
-              return 'payments';
-            }
-            // Put other vendor code in a general vendor chunk
-            return 'vendor';
+          if (!id.includes('node_modules')) return;
+
+          // Extract the exact installed package name so `react` doesn't
+          // greedily swallow `react-router`, `react-icons`, etc., which
+          // previously produced a circular vendor <-> react-vendor chunk.
+          const normalized = id.replace(/\\/g, '/');
+          const match = normalized.match(/node_modules\/(@[^/]+\/[^/]+|[^/]+)/);
+          if (!match) return;
+          const pkg = match[1];
+
+          if (pkg === 'react' || pkg === 'react-dom' || pkg === 'scheduler') {
+            return 'react-vendor';
           }
+          if (
+            pkg === 'react-router' ||
+            pkg === 'react-router-dom' ||
+            pkg === '@remix-run/router'
+          ) {
+            return 'router';
+          }
+          if (pkg === 'framer-motion') return 'animation';
+          if (pkg === 'react-icons' || pkg === 'lucide-react') return 'icons';
+          if (pkg.startsWith('@supabase')) return 'supabase';
+          if (pkg === 'axios') return 'http';
+          if (pkg.startsWith('@stripe')) return 'payments';
+          return 'vendor';
         }
       }
     },

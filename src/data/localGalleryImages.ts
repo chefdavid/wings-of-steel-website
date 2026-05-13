@@ -2,8 +2,11 @@
 // scripts/import-tournament-gallery.mjs after compression + upload to
 // Supabase Storage. The manifest is the source of truth at runtime —
 // the UI never scans the filesystem.
-
-import manifest from './gallery-manifest.json'
+//
+// The `?url` import makes Vite emit the JSON as a hashed static asset
+// instead of bundling it into the JS chunk. We then fetch it on demand
+// so the gallery route loads quickly and the JSON parses natively.
+import manifestUrl from './gallery-manifest.json?url'
 
 export interface GalleryPhoto {
   id: string
@@ -35,22 +38,46 @@ interface Manifest {
   tournaments: GalleryTournament[]
 }
 
-const { tournaments } = manifest as Manifest
+let cache: Manifest | null = null
+let inflight: Promise<Manifest> | null = null
 
-export const galleryTournaments: GalleryTournament[] = tournaments
-
-export function getTournament(slug: string): GalleryTournament | undefined {
-  return tournaments.find((t) => t.slug === slug)
+export async function loadGallery(): Promise<Manifest> {
+  if (cache) return cache
+  if (!inflight) {
+    inflight = fetch(manifestUrl)
+      .then((res) => {
+        if (!res.ok) throw new Error(`Gallery manifest fetch failed: ${res.status}`)
+        return res.json()
+      })
+      .then((data: Manifest) => {
+        cache = data
+        return data
+      })
+      .catch((err) => {
+        inflight = null
+        throw err
+      })
+  }
+  return inflight
 }
 
-export function getGame(tournamentSlug: string, gameSlug: string): GalleryGame | undefined {
-  return getTournament(tournamentSlug)?.games.find((g) => g.slug === gameSlug)
+export function getTournamentFrom(
+  manifest: Manifest,
+  slug: string
+): GalleryTournament | undefined {
+  return manifest.tournaments.find((t) => t.slug === slug)
 }
 
-export function getAllPhotos(): GalleryPhoto[] {
-  return tournaments.flatMap((t) => t.games.flatMap((g) => g.photos))
+export function getGameFrom(
+  manifest: Manifest,
+  tournamentSlug: string,
+  gameSlug: string
+): GalleryGame | undefined {
+  return getTournamentFrom(manifest, tournamentSlug)?.games.find(
+    (g) => g.slug === gameSlug
+  )
 }
 
-export function getTotalPhotoCount(): number {
-  return tournaments.reduce((n, t) => n + t.photoCount, 0)
+export function getTotalPhotoCountFrom(manifest: Manifest): number {
+  return manifest.tournaments.reduce((n, t) => n + t.photoCount, 0)
 }
