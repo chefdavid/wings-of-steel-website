@@ -3,17 +3,14 @@ import { motion } from 'framer-motion'
 import { Calendar, MapPin, Clock, Users, Trophy, DollarSign, Gift } from 'lucide-react'
 import Navigation from '../components/Navigation'
 import Footer from '../components/Footer'
-import GolfRegistrationForm from '../components/golf/GolfRegistrationForm'
 import SponsorshipOptions from '../components/golf/SponsorshipOptions'
 import ContestSection from '../components/golf/ContestSection'
 import VenueSection from '../components/golf/VenueSection'
 
 const GolfOuting = () => {
-  const [spotsRemaining, setSpotsRemaining] = useState(32) // 32 teams max (128 golfers)
   const [videoError, setVideoError] = useState(false)
   const [videoLoaded, setVideoLoaded] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
-  const eventDate = new Date('2026-05-18')
 
   // Debug video loading
   useEffect(() => {
@@ -150,7 +147,7 @@ const GolfOuting = () => {
               <div className="flex items-center justify-center space-x-1 md:space-x-2">
                 <Users className="text-championship-gold flex-shrink-0" size={16} />
                 <span className="text-championship-gold font-bold text-xs md:text-base">
-                  {spotsRemaining} Teams Left!
+                  SOLD OUT
                 </span>
               </div>
             </div>
@@ -177,12 +174,6 @@ const GolfOuting = () => {
             
             {/* CTA Buttons - Consistent Style */}
             <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center">
-              <a
-                href="#register"
-                className="inline-block bg-steel-blue text-white border-2 border-ice-blue font-bold py-3 px-6 md:py-4 md:px-8 rounded-full text-base md:text-lg shadow-lg hover:bg-dark-steel hover:border-white transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
-              >
-                Register Team
-              </a>
               <a
                 href="#sponsor"
                 className="inline-block bg-steel-blue text-white border-2 border-ice-blue font-bold py-3 px-6 md:py-4 md:px-8 rounded-full text-base md:text-lg shadow-lg hover:bg-dark-steel hover:border-white transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
@@ -306,7 +297,7 @@ const GolfOuting = () => {
       {/* Contest Section */}
       <ContestSection />
 
-      {/* Registration Form */}
+      {/* Sold Out Notice */}
       <section id="register" className="py-8 md:py-16 relative">
         {/* Greens and Balls Background - No Overlay */}
         <div
@@ -317,13 +308,32 @@ const GolfOuting = () => {
         />
 
         <div className="container mx-auto px-4 relative z-10">
-          <h2 className="font-sport text-3xl md:text-5xl text-center text-white mb-6 md:mb-12">
-            REGISTER YOUR TEAM
-          </h2>
-          <GolfRegistrationForm
-            spotsRemaining={spotsRemaining}
-            setSpotsRemaining={setSpotsRemaining}
-          />
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="max-w-3xl mx-auto bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl p-6 md:p-12 text-center border-4 border-championship-gold"
+          >
+            <div className="inline-block bg-championship-gold text-dark-steel font-sport text-2xl md:text-4xl px-6 py-2 md:px-10 md:py-3 rounded-full mb-4 md:mb-6 shadow-lg">
+              SOLD OUT
+            </div>
+            <h2 className="font-sport text-3xl md:text-5xl text-dark-steel mb-4 md:mb-6">
+              THANK YOU FOR YOUR SUPPORT
+            </h2>
+            <p className="text-base md:text-xl text-gray-700 mb-3 md:mb-4">
+              The 2026 Tom Brake Memorial Golf Outing is full. We're overwhelmed by the response from our community.
+            </p>
+            <p className="text-sm md:text-lg text-gray-600 mb-6 md:mb-8">
+              Sponsorship opportunities remain available, and every contribution keeps our kids on the ice.
+            </p>
+            <a
+              href="#sponsor"
+              className="inline-block bg-steel-blue text-white border-2 border-ice-blue font-bold py-3 px-6 md:py-4 md:px-8 rounded-full text-base md:text-lg shadow-lg hover:bg-dark-steel hover:border-white transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+            >
+              View Sponsorship Opportunities
+            </a>
+          </motion.div>
         </div>
       </section>
 
