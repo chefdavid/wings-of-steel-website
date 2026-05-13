@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { Calendar, MapPin, Clock, Users, Trophy, DollarSign, Gift } from 'lucide-react'
+import { Calendar, MapPin, Clock, Trophy, DollarSign, Gift } from 'lucide-react'
 import Navigation from '../components/Navigation'
 import Footer from '../components/Footer'
 import SponsorshipOptions from '../components/golf/SponsorshipOptions'
@@ -117,14 +117,31 @@ const GolfOuting = () => {
             <h2 className="font-sport text-2xl md:text-6xl text-ice-blue mb-3 md:mb-6">
               Tom Brake GOLF OUTING 2026
             </h2>
-            <p className="text-sm md:text-2xl text-white/90 mb-4 md:mb-8 max-w-3xl mx-auto">
-              <span className="font-bold">Golf with Purpose - Sponsor - Keep Kids on the Ice</span>
-              <br className="hidden md:block" />
-              <span className="hidden md:inline"> Your round of golf and your sponsorship make the difference—funding the equipment, ice time, and support that ensures no child is left on the sidelines.</span>
+
+            {/* SOLD OUT Banner */}
+            <motion.div
+              initial={{ scale: 0, rotate: -12 }}
+              animate={{ scale: 1, rotate: -3 }}
+              transition={{ type: 'spring', stiffness: 120, damping: 12, delay: 0.3 }}
+              className="relative inline-block mb-4 md:mb-8"
+            >
+              <div className="absolute inset-0 bg-red-600 blur-2xl opacity-60 animate-pulse" />
+              <div className="relative bg-gradient-to-br from-red-600 to-red-800 border-4 border-championship-gold rounded-xl px-6 py-3 md:px-12 md:py-5 shadow-[0_0_40px_rgba(220,38,38,0.6)]">
+                <div className="font-sport text-4xl md:text-8xl text-white tracking-wider leading-none drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+                  SOLD OUT
+                </div>
+                <div className="font-bold text-xs md:text-base text-championship-gold mt-1 md:mt-2 tracking-widest uppercase">
+                  Thank You For Your Support
+                </div>
+              </div>
+            </motion.div>
+
+            <p className="text-sm md:text-xl text-white/90 mb-4 md:mb-6 max-w-3xl mx-auto">
+              <span className="font-bold">Sponsorship opportunities still available — keep kids on the ice.</span>
             </p>
-            
+
             {/* Event Details Bar */}
-            <div className="bg-white/10 backdrop-blur-md rounded-lg p-3 md:p-6 max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 mb-4 md:mb-8">
+            <div className="bg-white/10 backdrop-blur-md rounded-lg p-3 md:p-6 max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-2 md:gap-4 mb-4 md:mb-8">
               <div className="flex items-center justify-center space-x-1 md:space-x-2">
                 <Calendar className="text-ice-blue flex-shrink-0" size={16} />
                 <span className="text-white font-semibold text-xs md:text-base">May 18, 2026</span>
@@ -143,12 +160,6 @@ const GolfOuting = () => {
               <div className="flex items-center justify-center space-x-1 md:space-x-2">
                 <Clock className="text-ice-blue flex-shrink-0" size={16} />
                 <span className="text-white font-semibold text-xs md:text-base">1:00 PM Tee-Off</span>
-              </div>
-              <div className="flex items-center justify-center space-x-1 md:space-x-2">
-                <Users className="text-championship-gold flex-shrink-0" size={16} />
-                <span className="text-championship-gold font-bold text-xs md:text-base">
-                  SOLD OUT
-                </span>
               </div>
             </div>
             
@@ -313,23 +324,44 @@ const GolfOuting = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="max-w-3xl mx-auto bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl p-6 md:p-12 text-center border-4 border-championship-gold"
+            className="max-w-3xl mx-auto bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl p-6 md:p-12 text-center border-4 border-championship-gold relative overflow-hidden"
           >
-            <div className="inline-block bg-championship-gold text-dark-steel font-sport text-2xl md:text-4xl px-6 py-2 md:px-10 md:py-3 rounded-full mb-4 md:mb-6 shadow-lg">
-              SOLD OUT
-            </div>
-            <h2 className="font-sport text-3xl md:text-5xl text-dark-steel mb-4 md:mb-6">
+            {/* Diagonal stripes background */}
+            <div
+              className="absolute inset-0 opacity-[0.04] pointer-events-none"
+              style={{
+                backgroundImage:
+                  'repeating-linear-gradient(45deg, #dc2626 0, #dc2626 20px, transparent 20px, transparent 40px)',
+              }}
+            />
+
+            <motion.div
+              initial={{ scale: 0.5, rotate: -8 }}
+              whileInView={{ scale: 1, rotate: -3 }}
+              viewport={{ once: true }}
+              transition={{ type: 'spring', stiffness: 120, damping: 12 }}
+              className="relative inline-block mb-6 md:mb-8"
+            >
+              <div className="absolute inset-0 bg-red-600 blur-2xl opacity-50 animate-pulse" />
+              <div className="relative bg-gradient-to-br from-red-600 to-red-800 border-4 border-championship-gold rounded-xl px-8 py-4 md:px-16 md:py-6 shadow-[0_0_40px_rgba(220,38,38,0.5)]">
+                <div className="font-sport text-5xl md:text-8xl text-white tracking-wider leading-none drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+                  SOLD OUT
+                </div>
+              </div>
+            </motion.div>
+
+            <h2 className="font-sport text-3xl md:text-6xl text-dark-steel mb-4 md:mb-6 relative">
               THANK YOU FOR YOUR SUPPORT
             </h2>
-            <p className="text-base md:text-xl text-gray-700 mb-3 md:mb-4">
+            <p className="text-base md:text-xl text-gray-700 mb-3 md:mb-4 relative">
               The 2026 Tom Brake Memorial Golf Outing is full. We're overwhelmed by the response from our community.
             </p>
-            <p className="text-sm md:text-lg text-gray-600 mb-6 md:mb-8">
+            <p className="text-sm md:text-lg text-gray-600 mb-6 md:mb-8 relative">
               Sponsorship opportunities remain available, and every contribution keeps our kids on the ice.
             </p>
             <a
               href="#sponsor"
-              className="inline-block bg-steel-blue text-white border-2 border-ice-blue font-bold py-3 px-6 md:py-4 md:px-8 rounded-full text-base md:text-lg shadow-lg hover:bg-dark-steel hover:border-white transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+              className="relative inline-block bg-steel-blue text-white border-2 border-ice-blue font-bold py-3 px-6 md:py-4 md:px-8 rounded-full text-base md:text-lg shadow-lg hover:bg-dark-steel hover:border-white transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
             >
               View Sponsorship Opportunities
             </a>
