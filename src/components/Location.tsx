@@ -119,7 +119,7 @@ const Location = () => {
     {
       icon: <FaClock className="text-2xl text-steel-blue" />,
       title: "Accessible Hours",
-      description: "Multiple practice times throughout the week"
+      description: "Summer sessions June 18, July 16, and August 13"
     },
     {
       icon: <FaMapMarkerAlt className="text-2xl text-steel-blue" />,

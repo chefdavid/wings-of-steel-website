@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FaCalendarAlt, FaClock, FaMapMarkerAlt, FaUsers, FaArrowLeft, FaHockeyPuck, FaChevronLeft, FaChevronRight, FaExclamationTriangle } from 'react-icons/fa';
+import { FaCalendarAlt, FaClock, FaMapMarkerAlt, FaUsers, FaHockeyPuck, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
@@ -20,14 +20,27 @@ interface PracticeSession {
   effective_from: string;
   effective_to: string;
   day_order: number;
+  description?: string;
+  season?: string;
 }
+
+const toDateString = (date: Date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const isSameDay = (a: Date, b: Date) =>
+  a.getFullYear() === b.getFullYear() &&
+  a.getMonth() === b.getMonth() &&
+  a.getDate() === b.getDate();
 
 const PracticeSchedule = () => {
   const [practices, setPractices] = useState<PracticeSession[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [calendarDate, setCalendarDate] = useState(new Date());
-  const practiceRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
   useEffect(() => {
     fetchPractices();
@@ -36,7 +49,7 @@ const PracticeSchedule = () => {
   const fetchPractices = async () => {
     try {
       const today = new Date().toISOString().split('T')[0];
-      
+
       const { data, error } = await supabase
         .from('practice_schedules')
         .select('*')
@@ -57,12 +70,21 @@ const PracticeSchedule = () => {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString + 'T00:00:00');
-    return date.toLocaleDateString('en-US', { 
+    return date.toLocaleDateString('en-US', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
     });
+  };
+
+  const formatDateShort = (dateString: string) => {
+    const date = new Date(dateString + 'T00:00:00');
+    return {
+      month: date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase(),
+      day: date.getDate(),
+      weekday: date.toLocaleDateString('en-US', { weekday: 'short' }),
+    };
   };
 
   const formatTime = (time: string) => {
@@ -73,38 +95,18 @@ const PracticeSchedule = () => {
     return `${displayHour}:${minutes} ${ampm}`;
   };
 
-  const groupPracticesByPeriod = () => {
-    const grouped: { [key: string]: PracticeSession[] } = {};
-    
-    practices.forEach(practice => {
-      const key = `${practice.effective_from}_${practice.effective_to}`;
-      if (!grouped[key]) {
-        grouped[key] = [];
-      }
-      grouped[key].push(practice);
-    });
-
-    return Object.entries(grouped).map(([key, sessions]) => {
-      const [from, to] = key.split('_');
-      return { from, to, sessions };
-    });
-  };
-
-  // Get all practice dates for calendar marking
   const getPracticeDates = () => {
     const dates: Date[] = [];
-    practices.forEach(practice => {
+    practices.forEach((practice) => {
       const startDate = new Date(practice.effective_from + 'T00:00:00');
       const endDate = new Date(practice.effective_to + 'T00:00:00');
-      
-      // Get day of week number (0 = Sunday, 6 = Saturday)
+
       const dayMap: { [key: string]: number } = {
-        'Sunday': 0, 'Monday': 1, 'Tuesday': 2, 'Wednesday': 3,
-        'Thursday': 4, 'Friday': 5, 'Saturday': 6
+        Sunday: 0, Monday: 1, Tuesday: 2, Wednesday: 3,
+        Thursday: 4, Friday: 5, Saturday: 6,
       };
       const targetDay = dayMap[practice.day_of_week] || 0;
-      
-      // Generate all dates for this practice's day of week within the period
+
       const current = new Date(startDate);
       while (current <= endDate) {
         if (current.getDay() === targetDay) {
@@ -118,42 +120,35 @@ const PracticeSchedule = () => {
 
   const practiceDates = getPracticeDates();
 
-  // Check if a date has practice
-  const hasPractice = (date: Date) => {
-    return practiceDates.some(pd => 
-      pd.getDate() === date.getDate() &&
-      pd.getMonth() === date.getMonth() &&
-      pd.getFullYear() === date.getFullYear()
-    );
-  };
+  const hasPractice = (date: Date) =>
+    practiceDates.some((pd) => isSameDay(pd, date));
 
-  // Get practice for a specific date (first match, used for click handling)
   const getPracticeForDate = (date: Date) => {
     const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const dayOfWeek = dayNames[date.getDay()];
-    const dateStr = date.toISOString().split('T')[0];
+    const dateStr = toDateString(date);
 
-    return practices.find(p =>
-      p.day_of_week === dayOfWeek &&
-      dateStr >= p.effective_from &&
-      dateStr <= p.effective_to
+    return practices.find(
+      (p) =>
+        p.day_of_week === dayOfWeek &&
+        dateStr >= p.effective_from &&
+        dateStr <= p.effective_to
     );
   };
 
-  // Get all practices for a specific date
   const getAllPracticesForDate = (date: Date) => {
     const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const dayOfWeek = dayNames[date.getDay()];
-    const dateStr = date.toISOString().split('T')[0];
+    const dateStr = toDateString(date);
 
-    return practices.filter(p =>
-      p.day_of_week === dayOfWeek &&
-      dateStr >= p.effective_from &&
-      dateStr <= p.effective_to
+    return practices.filter(
+      (p) =>
+        p.day_of_week === dayOfWeek &&
+        dateStr >= p.effective_from &&
+        dateStr <= p.effective_to
     );
   };
 
-  // Short time format for calendar tiles (e.g. "7:10p")
   const formatTimeShort = (time: string) => {
     const [hours, minutes] = time.split(':');
     const hour = parseInt(hours);
@@ -162,36 +157,20 @@ const PracticeSchedule = () => {
     return `${displayHour}:${minutes}${suffix}`;
   };
 
-  // Handle date click from calendar
-  const handleDateClick = (date: Date) => {
-    const practice = getPracticeForDate(date);
-    if (practice) {
-      setSelectedDate(date);
-      // Scroll to the practice card
-      const key = `${practice.effective_from}_${practice.effective_to}`;
-      if (practiceRefs.current[key]) {
-        practiceRefs.current[key]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-    }
+  const handleDateSelect = (date: Date) => {
+    if (!getPracticeForDate(date)) return;
+    setSelectedDate(date);
+    setCalendarDate(date);
   };
 
-  // Check if a date has a schedule change
-  const hasScheduleChange = (date: Date) => {
-    return date.getFullYear() === 2026 && date.getMonth() === 3 && date.getDate() === 23;
-  };
+  const sortedPractices = [...practices].sort((a, b) =>
+    a.effective_from.localeCompare(b.effective_from)
+  );
 
-  // Custom tile content for calendar
+  const selectedPractice = selectedDate ? getPracticeForDate(selectedDate) : null;
+
   const tileContent = ({ date, view }: { date: Date; view: string }) => {
     if (view !== 'month') return null;
-
-    if (hasScheduleChange(date)) {
-      return (
-        <div className="flex flex-col items-center mt-0.5 leading-tight">
-          <span className="text-[10px] md:text-xs font-bold text-amber-700">7:10p</span>
-          <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse mt-0.5"></div>
-        </div>
-      );
-    }
 
     const datePractices = getAllPracticesForDate(date);
     if (datePractices.length > 0) {
@@ -208,26 +187,21 @@ const PracticeSchedule = () => {
     return null;
   };
 
-  // Custom tile class for calendar
   const tileClassName = ({ date, view }: { date: Date; view: string }) => {
-    if (view === 'month' && hasScheduleChange(date)) {
-      return 'has-practice hover:bg-amber-100 !bg-amber-50 !font-bold !text-amber-800';
-    }
-    if (view === 'month' && hasPractice(date)) {
-      return 'has-practice hover:bg-ice-blue/20';
-    }
-    return '';
+    if (view !== 'month') return '';
+    const classes = [];
+    if (hasPractice(date)) classes.push('has-practice hover:bg-ice-blue/20');
+    if (selectedDate && isSameDay(date, selectedDate)) classes.push('is-selected-practice');
+    return classes.join(' ');
   };
-
-  const practiceGroups = groupPracticesByPeriod();
 
   return (
     <div className="min-h-screen bg-white">
       <Navigation />
-      
+
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-dark-steel to-steel-blue pt-32 pb-20">
-        <div className="absolute inset-0 bg-black/20"></div>
+      <section className="relative bg-gradient-to-br from-dark-steel to-steel-blue pt-32 pb-16">
+        <div className="absolute inset-0 bg-black/20" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={false}
@@ -244,271 +218,285 @@ const PracticeSchedule = () => {
           </motion.div>
         </div>
       </section>
-      
-      {/* Calendar Section */}
-      <section className="py-8 bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={false}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-6"
-          >
-            <h2 className="text-2xl font-sport text-dark-steel mb-2">
-              Practice Calendar
-            </h2>
-            <p className="text-gray-600">Click on marked dates to view practice details</p>
-          </motion.div>
-          
-          <motion.div
-            initial={false}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="max-w-4xl mx-auto"
-          >
-            <style>{`
-              .react-calendar {
-                width: 100%;
-                background: white;
-                border: 1px solid #e5e7eb;
-                border-radius: 12px;
-                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-                font-family: inherit;
-                padding: 20px;
-              }
-              .react-calendar__navigation {
-                margin-bottom: 1em;
-                height: 60px;
-                display: flex;
-                align-items: center;
-              }
-              .react-calendar__navigation button {
-                background: none;
-                font-size: 18px;
-                font-weight: 600;
-                color: #1f2937;
-              }
-              .react-calendar__navigation button:hover {
-                background-color: #f3f4f6;
-              }
-              .react-calendar__navigation button:disabled {
-                background-color: transparent;
-                color: #9ca3af;
-              }
-              .react-calendar__month-view__weekdays {
-                text-transform: uppercase;
-                font-weight: bold;
-                font-size: 14px;
-                color: #6b7280;
-                border-bottom: 2px solid #e5e7eb;
-                padding-bottom: 8px;
-                margin-bottom: 8px;
-              }
-              .react-calendar__tile {
-                height: 80px;
-                display: flex;
-                flex-direction: column;
-                justify-content: flex-start;
-                align-items: center;
-                padding: 10px 6px;
-                font-size: 16px;
-                position: relative;
-              }
-              .react-calendar__tile:hover {
-                background-color: #f3f4f6;
-                border-radius: 8px;
-              }
-              .react-calendar__tile--active {
-                background: #2563eb;
-                color: white;
-                border-radius: 8px;
-              }
-              .react-calendar__tile--active:hover {
-                background: #1d4ed8;
-              }
-              .react-calendar__tile--now {
-                background: #dbeafe;
-                border-radius: 8px;
-                font-weight: bold;
-              }
-              .react-calendar__tile.has-practice {
-                cursor: pointer;
-                font-weight: 600;
-                color: #1e40af;
-              }
-              .react-calendar__tile.has-practice:hover {
-                background-color: #dbeafe;
-              }
-              @media (max-width: 768px) {
-                .react-calendar__tile {
-                  height: 60px;
-                  font-size: 14px;
-                }
-              }
-            `}</style>
-            <Calendar
-              onChange={(value) => {
-                if (value instanceof Date) {
-                  handleDateClick(value);
-                }
-              }}
-              value={calendarDate}
-              onActiveStartDateChange={({ activeStartDate }) => 
-                activeStartDate && setCalendarDate(activeStartDate)
-              }
-              tileContent={tileContent}
-              tileClassName={tileClassName}
-              navigationLabel={({ date }) => 
-                date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
-              }
-              prevLabel={<FaChevronLeft />}
-              nextLabel={<FaChevronRight />}
-              prevAriaLabel="Previous month"
-              nextAriaLabel="Next month"
-              navigationAriaLabel="Practice calendar month"
-              prev2Label={null}
-              next2Label={null}
-            />
-          </motion.div>
-        </div>
-      </section>
-      
-      {/* Main Content */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Schedule Change Alert */}
-          {new Date() <= new Date('2026-04-23T23:59:59') && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="mb-8 bg-amber-50 border-2 border-amber-400 rounded-xl p-6 shadow-lg"
-            >
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 bg-amber-400 rounded-full p-3">
-                  <FaExclamationTriangle className="text-white text-2xl" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-amber-800 mb-1">
-                    Schedule Change — Thursday, April 23rd
-                  </h3>
-                  <p className="text-lg text-amber-700 font-semibold">
-                    Practice will start at <span className="text-amber-900 underline decoration-2">7:10 PM</span> instead of the regular time.
-                  </p>
-                  <p className="text-amber-600 mt-1">
-                    Please plan to arrive accordingly.
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-          )}
 
-          {/* Section Header */}
-          <motion.div
-            initial={false}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-3xl md:text-4xl font-sport text-dark-steel mb-3">
-              Practice Details
-            </h2>
-            <div className="w-24 h-1 bg-steel-blue mx-auto mb-4"></div>
-            <p className="text-lg text-gray-600">
-              All practice times and locations for the current season
-            </p>
-          </motion.div>
-
-          {/* Practice Schedule */}
+      {/* Calendar + List Split */}
+      <section className="py-12 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {loading ? (
-            <div className="text-center py-12">
-              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-steel-blue"></div>
+            <div className="text-center py-16">
+              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-steel-blue" />
               <p className="text-gray-600 mt-4">Loading practice schedule...</p>
             </div>
-          ) : practiceGroups.length === 0 ? (
-            <div className="text-center py-12 bg-white rounded-xl shadow-lg">
+          ) : practices.length === 0 ? (
+            <div className="text-center py-16 bg-white rounded-xl shadow-lg">
               <FaHockeyPuck className="text-6xl text-gray-300 mx-auto mb-4" />
               <p className="text-xl text-gray-500 font-medium">No practices currently scheduled</p>
               <p className="text-gray-400 mt-2">Please check back later for updates</p>
             </div>
           ) : (
-            <div className="space-y-12">
-              {practiceGroups.map((group, groupIndex) => {
-                const key = `${group.from}_${group.to}`;
-                const isSelected = selectedDate && 
-                  getPracticeForDate(selectedDate)?.effective_from === group.from;
-                
-                return (
-                  <motion.div
-                    key={key}
-                    ref={el => practiceRefs.current[key] = el}
-                    initial={false}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: groupIndex * 0.1 }}
-                    className={`bg-white rounded-xl shadow-lg p-8 border-2 transition-all ${
-                      isSelected ? 'border-steel-blue ring-4 ring-steel-blue/20' : 'border-gray-200'
-                    }`}
-                  >
-                    {/* Period Header */}
-                    <div className="mb-6 pb-4 border-b border-gray-200">
-                      <h3 className="text-3xl font-sport text-steel-blue mb-2">
-                        Practice Period
+            <>
+              <div className="grid lg:grid-cols-2 gap-8 items-start">
+                {/* Calendar — left half */}
+                <motion.div
+                  initial={false}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="bg-white rounded-xl shadow-lg p-6 border border-gray-200"
+                >
+                  <div className="mb-4">
+                    <h2 className="text-2xl font-sport text-dark-steel flex items-center gap-2">
+                      <FaCalendarAlt className="text-steel-blue" />
+                      Practice Calendar
+                    </h2>
+                    <p className="text-gray-600 text-sm mt-1">
+                      Click a highlighted date to view details
+                    </p>
+                  </div>
+
+                  <style>{`
+                    .react-calendar {
+                      width: 100%;
+                      background: white;
+                      border: none;
+                      font-family: inherit;
+                    }
+                    .react-calendar__navigation {
+                      margin-bottom: 1em;
+                      height: 48px;
+                      display: flex;
+                      align-items: center;
+                    }
+                    .react-calendar__navigation button {
+                      background: none;
+                      font-size: 16px;
+                      font-weight: 600;
+                      color: #1f2937;
+                      border-radius: 8px;
+                      min-width: 40px;
+                    }
+                    .react-calendar__navigation button:hover {
+                      background-color: #f3f4f6;
+                    }
+                    .react-calendar__month-view__weekdays {
+                      text-transform: uppercase;
+                      font-weight: bold;
+                      font-size: 12px;
+                      color: #6b7280;
+                      border-bottom: 2px solid #e5e7eb;
+                      padding-bottom: 8px;
+                      margin-bottom: 8px;
+                    }
+                    .react-calendar__tile {
+                      height: 72px;
+                      display: flex;
+                      flex-direction: column;
+                      justify-content: flex-start;
+                      align-items: center;
+                      padding: 8px 4px;
+                      font-size: 15px;
+                      border-radius: 8px;
+                    }
+                    .react-calendar__tile:hover {
+                      background-color: #f3f4f6;
+                    }
+                    .react-calendar__tile--now {
+                      background: #dbeafe;
+                      font-weight: bold;
+                    }
+                    .react-calendar__tile.has-practice {
+                      cursor: pointer;
+                      font-weight: 600;
+                      color: #1e40af;
+                    }
+                    .react-calendar__tile.has-practice:hover {
+                      background-color: #dbeafe;
+                    }
+                    .react-calendar__tile.is-selected-practice {
+                      background: #2563eb !important;
+                      color: white !important;
+                    }
+                    .react-calendar__tile.is-selected-practice span {
+                      color: white !important;
+                    }
+                    @media (max-width: 768px) {
+                      .react-calendar__tile {
+                        height: 56px;
+                        font-size: 13px;
+                      }
+                    }
+                  `}</style>
+                  <Calendar
+                    onChange={(value) => {
+                      if (value instanceof Date) {
+                        handleDateSelect(value);
+                      }
+                    }}
+                    value={selectedDate ?? calendarDate}
+                    onActiveStartDateChange={({ activeStartDate }) =>
+                      activeStartDate && setCalendarDate(activeStartDate)
+                    }
+                    tileContent={tileContent}
+                    tileClassName={tileClassName}
+                    navigationLabel={({ date }) =>
+                      date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+                    }
+                    prevLabel={<FaChevronLeft />}
+                    nextLabel={<FaChevronRight />}
+                    prevAriaLabel="Previous month"
+                    nextAriaLabel="Next month"
+                    navigationAriaLabel="Practice calendar month"
+                    prev2Label={null}
+                    next2Label={null}
+                  />
+                </motion.div>
+
+                {/* Practice list — right half */}
+                <motion.div
+                  initial={false}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.1 }}
+                  className="bg-white rounded-xl shadow-lg p-6 border border-gray-200 flex flex-col"
+                >
+                  <div className="mb-4">
+                    <h2 className="text-2xl font-sport text-dark-steel flex items-center gap-2">
+                      <FaHockeyPuck className="text-steel-blue" />
+                      Upcoming Practices
+                    </h2>
+                    <p className="text-gray-600 text-sm mt-1">
+                      Select a date to see full session details
+                    </p>
+                  </div>
+
+                  <div className="space-y-3 flex-1">
+                    {sortedPractices.map((practice, index) => {
+                      const practiceDate = new Date(practice.effective_from + 'T00:00:00');
+                      const dateInfo = formatDateShort(practice.effective_from);
+                      const isSelected =
+                        selectedDate && isSameDay(practiceDate, selectedDate);
+
+                      return (
+                        <button
+                          key={practice.id}
+                          type="button"
+                          onClick={() => handleDateSelect(practiceDate)}
+                          className={`w-full text-left rounded-xl border-2 transition-all duration-200 overflow-hidden group ${
+                            isSelected
+                              ? 'border-steel-blue ring-4 ring-steel-blue/20 shadow-md'
+                              : 'border-gray-200 hover:border-steel-blue/50 hover:shadow-sm'
+                          }`}
+                        >
+                          <div className="flex items-stretch">
+                            <div
+                              className={`p-4 text-center w-20 flex-shrink-0 ${
+                                isSelected
+                                  ? 'bg-steel-blue text-white'
+                                  : 'bg-gradient-to-br from-ice-blue to-steel-blue text-white'
+                              }`}
+                            >
+                              <div className="text-2xl font-bold leading-none">{dateInfo.day}</div>
+                              <div className="text-xs font-semibold uppercase mt-1">{dateInfo.month}</div>
+                            </div>
+                            <div className="flex-1 p-4">
+                              <p className="font-bold text-dark-steel group-hover:text-steel-blue transition-colors">
+                                {practice.description || 'Team Practice'}
+                              </p>
+                              <p className="text-sm text-gray-500 mt-0.5">{dateInfo.weekday}</p>
+                              <div className="flex flex-wrap items-center gap-3 mt-2 text-sm text-gray-600">
+                                <span className="flex items-center gap-1.5">
+                                  <FaClock className="text-steel-blue text-xs" />
+                                  {formatTime(practice.start_time)} – {formatTime(practice.end_time)}
+                                </span>
+                                {practice.location && (
+                                  <span className="flex items-center gap-1.5">
+                                    <FaMapMarkerAlt className="text-steel-blue text-xs" />
+                                    {practice.location}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {practices[0]?.season && (
+                    <div className="mt-4 pt-4 border-t border-gray-200">
+                      <span className="inline-block px-3 py-1 bg-steel-blue/10 text-steel-blue text-sm font-semibold rounded-full">
+                        {practices[0].season}
+                      </span>
+                    </div>
+                  )}
+                </motion.div>
+              </div>
+
+              {/* Selected practice details */}
+              {selectedPractice && selectedDate && (
+                <motion.div
+                  key={selectedPractice.id}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="mt-8 bg-white rounded-xl shadow-lg p-8 border-2 border-steel-blue"
+                >
+                  <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6 pb-6 border-b border-gray-200">
+                    <div>
+                      <h3 className="text-3xl font-sport text-steel-blue mb-1">
+                        {selectedPractice.description || 'Practice Session'}
                       </h3>
-                      <p className="text-xl font-semibold text-gray-700">
-                        {formatDate(group.from)} - {formatDate(group.to)}
+                      <p className="text-xl text-gray-700 font-semibold">
+                        {formatDate(selectedPractice.effective_from)}
                       </p>
                     </div>
+                    <span className="self-start px-4 py-2 bg-steel-blue text-white rounded-full text-sm font-bold uppercase">
+                      {selectedPractice.team_type}
+                    </span>
+                  </div>
 
-                    {/* Practice Sessions */}
-                    <div className="grid md:grid-cols-2 gap-6">
-                      {group.sessions.map((practice) => (
-                        <div
-                          key={practice.id}
-                          className="bg-gray-50 rounded-lg p-6 border-2 border-gray-200 hover:border-steel-blue hover:shadow-md transition-all"
-                        >
-                          <div className="flex items-start justify-between mb-4">
-                            <h4 className="text-2xl font-bold text-dark-steel">
-                              {practice.day_of_week}
-                            </h4>
-                            <span className="px-4 py-2 bg-steel-blue text-white rounded-full text-base font-bold">
-                              {practice.team_type}
-                            </span>
-                          </div>
-
-                          <div className="space-y-4 text-gray-700">
-                            <div className="flex items-center gap-3">
-                              <FaClock className="text-steel-blue text-xl" />
-                              <span className="text-lg font-semibold">
-                                {formatTime(practice.start_time)} - {formatTime(practice.end_time)}
-                              </span>
-                            </div>
-
-                            {practice.location && (
-                              <div className="flex items-center gap-3">
-                                <FaMapMarkerAlt className="text-steel-blue text-xl" />
-                                <span className="text-lg font-semibold">{practice.location}</span>
-                              </div>
-                            )}
-
-                            <div className="flex items-center gap-3">
-                              <FaUsers className="text-steel-blue text-xl" />
-                              <span className="text-lg font-semibold">Team: {practice.team_type}</span>
-                            </div>
-
-                            {practice.notes && (
-                              <div className="mt-4 pt-4 border-t border-gray-300">
-                                <p className="text-base italic text-gray-600 font-medium">{practice.notes}</p>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      ))}
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="flex items-center gap-3">
+                      <div className="p-3 bg-ice-blue/30 rounded-lg">
+                        <FaClock className="text-steel-blue text-xl" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500">Time</p>
+                        <p className="font-semibold text-dark-steel">
+                          {formatTime(selectedPractice.start_time)} – {formatTime(selectedPractice.end_time)}
+                        </p>
+                      </div>
                     </div>
-                  </motion.div>
-                );
-              })}
-            </div>
+
+                    {selectedPractice.location && (
+                      <div className="flex items-center gap-3">
+                        <div className="p-3 bg-ice-blue/30 rounded-lg">
+                          <FaMapMarkerAlt className="text-steel-blue text-xl" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Location</p>
+                          <p className="font-semibold text-dark-steel">{selectedPractice.location}</p>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="flex items-center gap-3">
+                      <div className="p-3 bg-ice-blue/30 rounded-lg">
+                        <FaUsers className="text-steel-blue text-xl" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500">Team</p>
+                        <p className="font-semibold text-dark-steel capitalize">{selectedPractice.team_type}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {selectedPractice.notes && (
+                    <p className="mt-6 pt-6 border-t border-gray-200 text-gray-600 italic">
+                      {selectedPractice.notes}
+                    </p>
+                  )}
+                </motion.div>
+              )}
+            </>
           )}
 
           {/* Location Info */}
@@ -517,14 +505,11 @@ const PracticeSchedule = () => {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
             viewport={{ once: true }}
-            className="mt-12 bg-gradient-to-r from-steel-blue to-dark-steel rounded-xl p-8 text-center shadow-xl">
-            <h3 className="text-2xl font-sport text-white mb-4">
-              Practice Location
-            </h3>
+            className="mt-12 bg-gradient-to-r from-steel-blue to-dark-steel rounded-xl p-8 text-center shadow-xl"
+          >
+            <h3 className="text-2xl font-sport text-white mb-4">Practice Location</h3>
             <p className="text-xl text-white mb-2 font-semibold">Flyers Skate Zone</p>
-            <p className="text-ice-blue mb-6">
-              601 Laurel Oak Rd, Voorhees, NJ 08043
-            </p>
+            <p className="text-ice-blue mb-6">601 Laurel Oak Rd, Voorhees, NJ 08043</p>
             <a
               href="https://www.google.com/maps/dir/?api=1&destination=Flyers+Skate+Zone+601+Laurel+Oak+Rd+Voorhees+NJ+08043"
               target="_blank"
@@ -535,7 +520,7 @@ const PracticeSchedule = () => {
               Get Directions
             </a>
           </motion.div>
-          
+
           {/* Call to Action */}
           <motion.div
             initial={false}
@@ -544,11 +529,9 @@ const PracticeSchedule = () => {
             viewport={{ once: true }}
             className="mt-12 text-center bg-white rounded-xl p-8 shadow-lg"
           >
-            <h3 className="text-2xl font-bold text-dark-steel mb-4">
-              Ready to Join?
-            </h3>
+            <h3 className="text-2xl font-bold text-dark-steel mb-4">Ready to Join?</h3>
             <p className="text-lg text-gray-600 mb-6 max-w-2xl mx-auto">
-              New players are always welcome! Contact us to schedule a trial session 
+              New players are always welcome! Contact us to schedule a trial session
               and experience the excitement of sled hockey.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -568,7 +551,7 @@ const PracticeSchedule = () => {
           </motion.div>
         </div>
       </section>
-      
+
       <Footer />
     </div>
   );
