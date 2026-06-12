@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { FaCalendarAlt, FaClock, FaMapMarkerAlt, FaUsers, FaArrowLeft, FaHockeyPuck, FaChevronLeft, FaChevronRight, FaExclamationTriangle } from 'react-icons/fa';
+import { FaCalendarAlt, FaClock, FaMapMarkerAlt, FaUsers, FaArrowLeft, FaHockeyPuck, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
@@ -20,6 +20,8 @@ interface PracticeSession {
   effective_from: string;
   effective_to: string;
   day_order: number;
+  description?: string;
+  season?: string;
 }
 
 const PracticeSchedule = () => {
@@ -77,7 +79,10 @@ const PracticeSchedule = () => {
     const grouped: { [key: string]: PracticeSession[] } = {};
     
     practices.forEach(practice => {
-      const key = `${practice.effective_from}_${practice.effective_to}`;
+      const isSummer = practice.season?.toLowerCase().includes('summer');
+      const key = isSummer
+        ? `summer_${practice.season}`
+        : `${practice.effective_from}_${practice.effective_to}`;
       if (!grouped[key]) {
         grouped[key] = [];
       }
@@ -85,8 +90,14 @@ const PracticeSchedule = () => {
     });
 
     return Object.entries(grouped).map(([key, sessions]) => {
-      const [from, to] = key.split('_');
-      return { from, to, sessions };
+      const isSummer = key.startsWith('summer_');
+      const from = isSummer
+        ? sessions.map(s => s.effective_from).sort()[0]
+        : key.split('_')[0];
+      const to = isSummer
+        ? sessions.map(s => s.effective_to).sort().reverse()[0]
+        : key.split('_').slice(1).join('_');
+      return { from, to, sessions, isSummer };
     });
   };
 
@@ -175,23 +186,9 @@ const PracticeSchedule = () => {
     }
   };
 
-  // Check if a date has a schedule change
-  const hasScheduleChange = (date: Date) => {
-    return date.getFullYear() === 2026 && date.getMonth() === 3 && date.getDate() === 23;
-  };
-
   // Custom tile content for calendar
   const tileContent = ({ date, view }: { date: Date; view: string }) => {
     if (view !== 'month') return null;
-
-    if (hasScheduleChange(date)) {
-      return (
-        <div className="flex flex-col items-center mt-0.5 leading-tight">
-          <span className="text-[10px] md:text-xs font-bold text-amber-700">7:10p</span>
-          <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse mt-0.5"></div>
-        </div>
-      );
-    }
 
     const datePractices = getAllPracticesForDate(date);
     if (datePractices.length > 0) {
@@ -210,9 +207,6 @@ const PracticeSchedule = () => {
 
   // Custom tile class for calendar
   const tileClassName = ({ date, view }: { date: Date; view: string }) => {
-    if (view === 'month' && hasScheduleChange(date)) {
-      return 'has-practice hover:bg-amber-100 !bg-amber-50 !font-bold !text-amber-800';
-    }
     if (view === 'month' && hasPractice(date)) {
       return 'has-practice hover:bg-ice-blue/20';
     }
@@ -376,33 +370,6 @@ const PracticeSchedule = () => {
       {/* Main Content */}
       <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Schedule Change Alert */}
-          {new Date() <= new Date('2026-04-23T23:59:59') && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="mb-8 bg-amber-50 border-2 border-amber-400 rounded-xl p-6 shadow-lg"
-            >
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 bg-amber-400 rounded-full p-3">
-                  <FaExclamationTriangle className="text-white text-2xl" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-amber-800 mb-1">
-                    Schedule Change — Thursday, April 23rd
-                  </h3>
-                  <p className="text-lg text-amber-700 font-semibold">
-                    Practice will start at <span className="text-amber-900 underline decoration-2">7:10 PM</span> instead of the regular time.
-                  </p>
-                  <p className="text-amber-600 mt-1">
-                    Please plan to arrive accordingly.
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-          )}
-
           {/* Section Header */}
           <motion.div
             initial={false}
@@ -416,7 +383,7 @@ const PracticeSchedule = () => {
             </h2>
             <div className="w-24 h-1 bg-steel-blue mx-auto mb-4"></div>
             <p className="text-lg text-gray-600">
-              All practice times and locations for the current season
+              Summer practice sessions on June 18, July 16, and August 13 at 6:00 PM
             </p>
           </motion.div>
 
@@ -453,10 +420,12 @@ const PracticeSchedule = () => {
                     {/* Period Header */}
                     <div className="mb-6 pb-4 border-b border-gray-200">
                       <h3 className="text-3xl font-sport text-steel-blue mb-2">
-                        Practice Period
+                        {group.isSummer ? 'Summer Practice Sessions' : 'Practice Period'}
                       </h3>
                       <p className="text-xl font-semibold text-gray-700">
-                        {formatDate(group.from)} - {formatDate(group.to)}
+                        {group.isSummer
+                          ? 'June 18, July 16, and August 13, 2026'
+                          : `${formatDate(group.from)} - ${formatDate(group.to)}`}
                       </p>
                     </div>
 
@@ -468,9 +437,14 @@ const PracticeSchedule = () => {
                           className="bg-gray-50 rounded-lg p-6 border-2 border-gray-200 hover:border-steel-blue hover:shadow-md transition-all"
                         >
                           <div className="flex items-start justify-between mb-4">
-                            <h4 className="text-2xl font-bold text-dark-steel">
-                              {practice.day_of_week}
-                            </h4>
+                            <div>
+                              <h4 className="text-2xl font-bold text-dark-steel">
+                                {practice.description || practice.day_of_week}
+                              </h4>
+                              <p className="text-sm text-gray-500 mt-1">
+                                {formatDate(practice.effective_from)}
+                              </p>
+                            </div>
                             <span className="px-4 py-2 bg-steel-blue text-white rounded-full text-base font-bold">
                               {practice.team_type}
                             </span>

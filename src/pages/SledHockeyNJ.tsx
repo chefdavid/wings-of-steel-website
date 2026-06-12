@@ -13,13 +13,13 @@ const SledHockeyNJ = () => {
     if (metaDescription) {
       metaDescription.setAttribute(
         'content',
-        'Join Wings of Steel for sled hockey in New Jersey. Practices at Flyers Skate Zone in Voorhees, NJ every Thursday 6:10-7:10 PM. All equipment provided. No child pays to play.'
+        'Join Wings of Steel for sled hockey in New Jersey. Summer practice sessions at Flyers Skate Zone in Voorhees, NJ on June 18, July 16, and August 13 at 6:00 PM. All equipment provided. No child pays to play.'
       );
     } else {
       const meta = document.createElement('meta');
       meta.name = 'description';
       meta.content =
-        'Join Wings of Steel for sled hockey in New Jersey. Practices at Flyers Skate Zone in Voorhees, NJ every Thursday 6:10-7:10 PM. All equipment provided. No child pays to play.';
+        'Join Wings of Steel for sled hockey in New Jersey. Summer practice sessions at Flyers Skate Zone in Voorhees, NJ on June 18, July 16, and August 13 at 6:00 PM. All equipment provided. No child pays to play.';
       document.head.appendChild(meta);
     }
   }, []);
@@ -103,9 +103,9 @@ const SledHockeyNJ = () => {
                   className="bg-gray-50 rounded-xl p-8 text-center border-2 border-gray-200 hover:border-steel-blue transition-colors"
                 >
                   <FaClock className="text-4xl text-steel-blue mx-auto mb-4" />
-                  <h3 className="text-xl font-bold text-dark-steel mb-2">Practice Time</h3>
-                  <p className="text-lg font-semibold text-gray-700">Every Thursday</p>
-                  <p className="text-gray-600">6:10 PM - 7:10 PM</p>
+                  <h3 className="text-xl font-bold text-dark-steel mb-2">Summer Practice Sessions</h3>
+                  <p className="text-lg font-semibold text-gray-700">June 18, July 16, August 13</p>
+                  <p className="text-gray-600">6:00 PM - 7:00 PM</p>
                 </motion.div>
 
                 <motion.div
@@ -425,8 +425,9 @@ const SledHockeyNJ = () => {
                   Ready to Try Sled Hockey in New Jersey?
                 </h2>
                 <p className="text-xl text-ice-blue max-w-2xl mx-auto mb-8">
-                  Join us at Flyers Skate Zone any Thursday at 6:10 PM. No registration required for
-                  your first visit — just show up and we will take care of the rest.
+                  Join us at Flyers Skate Zone for our summer practice sessions on June 18, July 16,
+                  or August 13 at 6:00 PM. No registration required for your first visit — just show
+                  up and we will take care of the rest.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center mb-10">
                   <Link

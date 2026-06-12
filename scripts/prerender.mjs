@@ -40,7 +40,7 @@ const ROUTES = [
       disabilities. Players sit in specially designed sleds and use two short sticks to propel themselves and 
       handle the puck.</p>
       <h2>Practice Schedule</h2>
-      <p>Thursdays 6:10-7:10 PM at Flyers Skate Zone, 601 Laurel Oak Rd, Voorhees Township, NJ 08043.</p>
+      <p>Summer practice sessions June 18, July 16, and August 13 at 6:00 PM at Flyers Skate Zone, 601 Laurel Oak Rd, Voorhees Township, NJ 08043.</p>
       <h2>Get Involved</h2>
       <ul>
         <li><a href="/join-team">Join the Team</a> — No experience needed, all abilities welcome</li>
@@ -80,7 +80,7 @@ const ROUTES = [
         <li><strong>Experience:</strong> None required. We teach everything from scratch.</li>
         <li><strong>Equipment:</strong> Provided by the team.</li>
         <li><strong>Location:</strong> Flyers Skate Zone, 601 Laurel Oak Rd, Voorhees, NJ 08043</li>
-        <li><strong>Practice:</strong> Thursdays 6:10-7:10 PM</li>
+        <li><strong>Practice:</strong> Summer sessions June 18, July 16, August 13 at 6:00 PM</li>
       </ul>
       <p><a href="/practice-schedule">View full practice schedule</a> | <a href="/">Back to home</a></p>
     `,
@@ -99,13 +99,13 @@ const ROUTES = [
   {
     path: '/practice-schedule',
     title: 'Practice Schedule | Wings of Steel Sled Hockey',
-    description: 'Wings of Steel practice schedule at Flyers Skate Zone, Voorhees, NJ. Thursdays 6:10-7:10 PM. Open to all youth players.',
+    description: 'Wings of Steel summer practice sessions at Flyers Skate Zone, Voorhees, NJ. June 18, July 16, and August 13 at 6:00 PM. Open to all youth players.',
     h1: 'Practice Schedule',
     content: `
       <p>Wings of Steel practices at Flyers Skate Zone in Voorhees, NJ.</p>
-      <h2>Regular Practice</h2>
-      <p><strong>Day:</strong> Thursday<br>
-      <strong>Time:</strong> 6:10 PM - 7:10 PM<br>
+      <h2>Summer Practice Sessions</h2>
+      <p><strong>Dates:</strong> June 18, July 16, August 13, 2026<br>
+      <strong>Time:</strong> 6:00 PM - 7:00 PM<br>
       <strong>Location:</strong> Flyers Skate Zone, 601 Laurel Oak Rd, Voorhees Township, NJ 08043</p>
       <p>All equipment is provided. New players are welcome at any practice.</p>
       <p><a href="/join-team">Join the team</a> | <a href="/">Back to home</a></p>
@@ -190,14 +190,14 @@ const ROUTES = [
   {
     path: '/sled-hockey-nj',
     title: 'Sled Hockey in New Jersey | Wings of Steel - Voorhees, NJ',
-    description: 'Play sled hockey in New Jersey with Wings of Steel at Flyers Skate Zone in Voorhees, NJ. Free youth sled hockey — Thursdays 6:10-7:10 PM. All equipment provided.',
+    description: 'Play sled hockey in New Jersey with Wings of Steel at Flyers Skate Zone in Voorhees, NJ. Summer practice sessions June 18, July 16, and August 13 at 6:00 PM. All equipment provided.',
     h1: 'Sled Hockey in New Jersey',
     content: `
       <p>Wings of Steel is New Jersey's premier youth sled hockey team, based at Flyers Skate Zone
       in Voorhees, NJ. We are the 2025 and 2026 USA Sled Hockey Champions.</p>
       <h2>Practice Location & Schedule</h2>
       <p><strong>Location:</strong> Flyers Skate Zone, 601 Laurel Oak Rd, Voorhees, NJ 08043</p>
-      <p><strong>Schedule:</strong> Thursdays 6:10-7:10 PM</p>
+      <p><strong>Schedule:</strong> Summer sessions June 18, July 16, August 13 at 6:00 PM</p>
       <h2>What to Expect</h2>
       <p>All equipment is provided free of charge. No experience needed. Show up 15 minutes early
       for your first practice.</p>

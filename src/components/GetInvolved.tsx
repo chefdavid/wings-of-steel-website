@@ -209,8 +209,8 @@ const GetInvolved = () => {
               <div className="bg-black/50 border border-steel-blue/50 rounded-lg p-6">
                 <h4 className="text-xl font-bold mb-4 text-white">Practice Information</h4>
                 <p className="mb-4 text-gray-200">
-                  Join us at our home rink in Voorhees, NJ. Contact us to schedule your 
-                  first visit and meet our amazing team!
+                  Summer practice sessions on June 18, July 16, and August 13 at 6:00 PM.
+                  Join us at our home rink in Voorhees, NJ!
                 </p>
                 <div className="space-y-3 text-gray-200">
                   <div className="flex items-center gap-2">
