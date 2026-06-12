@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Download, Search, Eye, X, RefreshCw, CheckCircle, Clock, XCircle, Phone, Mail, MapPin, AlertTriangle } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
+import { insertAdminPlayer } from '../../services/adminPlayersService';
 
 interface Registration {
   id: string;
@@ -82,67 +83,54 @@ const RegistrationManagement = () => {
     const m = now.getMonth() - birth.getMonth();
     if (m < 0 || (m === 0 && now.getDate() < birth.getDate())) age--;
 
-    // Create the player record — match all NOT NULL fields from PlayerManagement
-    const { data: player, error: playerError } = await supabase
-      .from('players')
-      .insert({
-        first_name: firstName,
-        last_name: lastName,
-        name: reg.player_name,
-        age,
-        birthdate: reg.date_of_birth,
-        start_date: new Date().toISOString().split('T')[0],
-        position: 'TBD',
-        bio: '',
-        image_url: '',
-        jersey_number: 0,
-        tags: [],
-        active: true,
-        contacts: [{
-          type: 'parent',
-          name: reg.parent_name,
-          phone: reg.phone,
-          email: reg.email,
-          address: {
-            street: reg.address,
-            city: reg.city,
-            state: reg.state,
-            zip: reg.zip_code,
-          },
-          relationship: 'Parent/Guardian',
-          primary: true,
-        }],
-        emergency_contact: {
-          name: reg.emergency_contact,
-          phone: reg.emergency_phone,
-          relationship: 'Emergency Contact',
+    const playerPayload = {
+      first_name: firstName,
+      last_name: lastName,
+      name: reg.player_name,
+      age,
+      birthdate: reg.date_of_birth,
+      start_date: new Date().toISOString().split('T')[0],
+      position: 'TBD',
+      bio: '',
+      image_url: '',
+      jersey_number: 0,
+      tags: [],
+      active: true,
+      contacts: [{
+        type: 'parent',
+        name: reg.parent_name,
+        phone: reg.phone,
+        email: reg.email,
+        address: {
+          street: reg.address,
+          city: reg.city,
+          state: reg.state,
+          zip: reg.zip_code,
         },
-        player_notes: [
-          reg.diagnosis ? `Diagnosis: ${reg.diagnosis}` : '',
-          `Experience: ${experienceLabelMap[reg.experience_level] || reg.experience_level}`,
-          reg.additional_info ? `Notes: ${reg.additional_info}` : '',
-          reg.how_heard ? `How heard: ${reg.how_heard}` : '',
-        ].filter(Boolean).join('\n'),
-      })
-      .select()
-      .single();
+        relationship: 'Parent/Guardian',
+        primary: true,
+      }],
+      emergency_contact: {
+        name: reg.emergency_contact,
+        phone: reg.emergency_phone,
+        relationship: 'Emergency Contact',
+      },
+      player_notes: [
+        reg.diagnosis ? `Diagnosis: ${reg.diagnosis}` : '',
+        `Experience: ${experienceLabelMap[reg.experience_level] || reg.experience_level}`,
+        reg.additional_info ? `Notes: ${reg.additional_info}` : '',
+        reg.how_heard ? `How heard: ${reg.how_heard}` : '',
+      ].filter(Boolean).join('\n'),
+    };
 
-    if (playerError) throw playerError;
+    const { player, warning } = await insertAdminPlayer(playerPayload, {
+      jersey_number: 0,
+      position: 'TBD',
+      tags: [],
+    });
 
-    // Add to youth team
-    const { error: teamError } = await supabase
-      .from('player_teams')
-      .insert({
-        player_id: player.id,
-        team_type: 'youth',
-        jersey_number: 0,
-        position: 'TBD',
-        is_captain: false,
-      });
-
-    if (teamError) {
-      console.error('Error adding to player_teams:', teamError);
-      // Player was created, just team assignment failed — not fatal
+    if (warning) {
+      console.warn('Registration roster warning:', warning);
     }
 
     return player;

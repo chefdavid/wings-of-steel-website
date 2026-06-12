@@ -4,6 +4,15 @@ type TeamAssignmentPayload = {
   jersey_number: number;
   position: string;
   tags: string[];
+  team_type?: 'youth' | 'adult';
+};
+
+type AdminTeamAssignmentPayload = {
+  player_id: string;
+  team_type: 'youth' | 'adult';
+  jersey_number?: number;
+  position?: string;
+  is_captain?: boolean;
 };
 
 async function callAdminPlayers(body: Record<string, unknown>) {
@@ -37,4 +46,17 @@ export async function insertAdminPlayer(
 
 export async function deleteAdminPlayer(id: string) {
   await callAdminPlayers({ action: 'delete', id });
+}
+
+export async function assignAdminPlayerTeam(teamAssignment: AdminTeamAssignmentPayload) {
+  const result = await callAdminPlayers({ action: 'assign-team', teamAssignment });
+  return result.assignment;
+}
+
+export async function removeAdminPlayerTeam(playerId: string, teamType: 'youth' | 'adult') {
+  await callAdminPlayers({
+    action: 'remove-team',
+    id: playerId,
+    teamAssignment: { team_type: teamType },
+  });
 }

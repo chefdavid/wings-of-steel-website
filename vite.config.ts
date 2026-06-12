@@ -51,83 +51,15 @@ function netlifyFunctionsDevProxy(env: Record<string, string>): Plugin {
             for await (const chunk of req) chunks.push(chunk as Buffer)
             const body = Buffer.concat(chunks).toString('utf8')
             const { createClient } = await import('@supabase/supabase-js')
+            const { handleAdminPlayers } = await import('./netlify/lib/adminPlayersCore.js')
             const supabase = createClient(supabaseUrl, supabaseServiceKey, {
               auth: { autoRefreshToken: false, persistSession: false },
             })
             const payload = JSON.parse(body || '{}')
-            const { action, id, playerData, teamAssignment } = payload
-
-            const isMissingActiveColumn = (error: { message?: string; code?: string }) =>
-              error?.message?.includes('active') || error?.code === 'PGRST204'
-
-            if (action === 'update') {
-              let { data, error } = await supabase
-                .from('players')
-                .update(playerData)
-                .eq('id', id)
-                .select()
-              if (error && isMissingActiveColumn(error)) {
-                const { active: _active, ...withoutActive } = playerData
-                void _active
-                ;({ data, error } = await supabase
-                  .from('players')
-                  .update(withoutActive)
-                  .eq('id', id)
-                  .select())
-              }
-              if (error) throw error
-              if (!data?.length) throw new Error('Player update returned no rows.')
-              res.statusCode = 200
-              res.setHeader('content-type', 'application/json')
-              res.end(JSON.stringify({ player: data[0] }))
-              return
-            }
-
-            if (action === 'insert') {
-              let { data, error } = await supabase.from('players').insert([playerData]).select()
-              if (error && isMissingActiveColumn(error)) {
-                const { active: _active, ...withoutActive } = playerData
-                void _active
-                ;({ data, error } = await supabase.from('players').insert([withoutActive]).select())
-              }
-              if (error) throw error
-              if (!data?.length) throw new Error('Player insert returned no rows.')
-              let warning: string | undefined
-              if (teamAssignment) {
-                const { error: teamError } = await supabase.from('player_teams').insert([
-                  {
-                    player_id: data[0].id,
-                    team_type: 'youth',
-                    jersey_number: teamAssignment.jersey_number,
-                    position: teamAssignment.position,
-                    is_captain: teamAssignment.tags?.some((tag: string) =>
-                      tag.toLowerCase().includes('captain')
-                    ),
-                  },
-                ])
-                if (teamError) {
-                  warning = 'Player was saved but could not be assigned to the youth team.'
-                }
-              }
-              res.statusCode = 200
-              res.setHeader('content-type', 'application/json')
-              res.end(JSON.stringify({ player: data[0], warning }))
-              return
-            }
-
-            if (action === 'delete') {
-              const { data, error } = await supabase.from('players').delete().eq('id', id).select('id')
-              if (error) throw error
-              if (!data?.length) throw new Error('Player delete returned no rows.')
-              res.statusCode = 200
-              res.setHeader('content-type', 'application/json')
-              res.end(JSON.stringify({ ok: true }))
-              return
-            }
-
-            res.statusCode = 400
+            const result = await handleAdminPlayers(supabase, payload)
+            res.statusCode = result.statusCode
             res.setHeader('content-type', 'application/json')
-            res.end(JSON.stringify({ error: `Unknown action: ${action}` }))
+            res.end(JSON.stringify(result.body))
           } catch (err) {
             res.statusCode = 500
             res.setHeader('content-type', 'application/json')

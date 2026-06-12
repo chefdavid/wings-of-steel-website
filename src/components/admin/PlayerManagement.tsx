@@ -171,6 +171,7 @@ const PlayerManagement = () => {
         await fetchPlayers();
       } catch (error) {
         console.error('Error deleting player:', error);
+        alert(`Error deleting player: ${(error as Error).message}`);
       }
     }
   };
