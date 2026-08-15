@@ -158,3 +158,15 @@ GRANT SELECT ON public.player_career_totals  TO anon, authenticated;
 GRANT SELECT ON public.goalie_season_totals  TO anon, authenticated;
 GRANT SELECT ON public.team_season_record    TO anon, authenticated;
 GRANT SELECT ON public.head_to_head_records  TO anon, authenticated;
+
+-- ======================================================= security invoker ===
+-- Views default to SECURITY DEFINER, which bypasses RLS on the underlying
+-- tables. That is invisible today (RLS is disabled on those tables) but would
+-- become a hole the moment RLS is turned on — see docs/RLS_DECISION.md. Every
+-- pre-existing view in this database has the same problem; these are the ones
+-- we own.
+ALTER VIEW public.player_season_totals SET (security_invoker = true);
+ALTER VIEW public.player_career_totals SET (security_invoker = true);
+ALTER VIEW public.goalie_season_totals SET (security_invoker = true);
+ALTER VIEW public.team_season_record   SET (security_invoker = true);
+ALTER VIEW public.head_to_head_records SET (security_invoker = true);

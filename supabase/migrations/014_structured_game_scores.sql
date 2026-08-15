@@ -104,3 +104,8 @@ CREATE TRIGGER trg_sync_game_result
 
 CREATE INDEX IF NOT EXISTS idx_game_schedules_season_id ON public.game_schedules (season_id);
 CREATE INDEX IF NOT EXISTS idx_game_schedules_game_date ON public.game_schedules (game_date);
+
+-- Pin the search_path so the trigger function cannot be hijacked by a mutable
+-- role search_path (flagged by the Supabase linter on every other function in
+-- this database too).
+ALTER FUNCTION public.sync_game_result() SET search_path = public, pg_temp;
