@@ -34,7 +34,11 @@
     <link rel="dns-prefetch" href="https://js.stripe.com">
     
     <!-- Preload critical assets - removed font preloads to prevent errors -->
-    
+    <!-- Hero background (LCP element on "/"). Must match the URL used in
+         src/components/Hero.tsx — previously this preloaded
+         /assets/hockey-sticks.webp, which the hero never renders. -->
+    <link rel="preload" as="image" href="/images/hockey-sticks2.webp" fetchpriority="high">
+
     <!-- Add font fallbacks to prevent layout shift -->
     <style>
       @font-face {

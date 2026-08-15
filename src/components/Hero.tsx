@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FaHockeyPuck, FaTrophy, FaUsers, FaHeart } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
@@ -7,7 +6,7 @@ import { useTeam } from '../hooks/useTeam';
 import DonationProgressBar from './DonationProgressBar';
 
 const Hero = () => {
-  const { sections, loading } = useSiteSections();
+  const { sections } = useSiteSections();
   const { teamConfig } = useTeam();
   const heroData = sections['hero']?.content as {
     title?: string;
@@ -22,27 +21,13 @@ const Hero = () => {
     heading1?: string;
     heading2?: string;
   } | undefined;
-  // Removed debug log
-
-  // Preload hero background image
-  useEffect(() => {
-    const link = document.createElement('link');
-    link.rel = 'preload';
-    link.as = 'image';
-    link.href = '/assets/hockey-sticks.webp';
-    document.head.appendChild(link);
-  }, []);
-
-  if (loading) {
-    return (
-      <section className="min-h-screen flex items-center justify-center bg-dark-steel">
-        <div className="animate-pulse text-ice-blue">Loading...</div>
-      </section>
-    );
-  }
+  // NOTE: this section deliberately renders immediately rather than gating on
+  // `loading`. Every field below has a hardcoded fallback, so blocking the LCP
+  // element on a Supabase round-trip bought a full-screen spinner and nothing
+  // else. The hero background image is preloaded from index.html.
 
   return (
-    <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden" role="banner" aria-label="Hero section">
+    <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden" aria-label="Hero section">
       <div 
         className="absolute inset-0 bg-dark-steel"
       >
@@ -89,11 +74,14 @@ const Hero = () => {
           </motion.div>
 
           <div className="mb-4 md:mb-6">
-            <h1 className="text-3xl sm:text-4xl md:text-6xl font-sport text-white tracking-wide mb-1">
-              {heroData?.heading1 || 'BREAKING BARRIERS &'}
-            </h1>
-            <h1 className="text-3xl sm:text-4xl md:text-6xl font-sport text-yellow-400 tracking-wide">
-              {heroData?.heading2 || 'BUILDING CHAMPIONS'}
+            {/* One h1 per page. The two visual lines are spans inside it. */}
+            <h1 className="text-3xl sm:text-4xl md:text-6xl font-sport tracking-wide">
+              <span className="block text-white mb-1">
+                {heroData?.heading1 || 'BREAKING BARRIERS &'}
+              </span>
+              <span className="block text-championship-gold">
+                {heroData?.heading2 || 'BUILDING CHAMPIONS'}
+              </span>
             </h1>
           </div>
           

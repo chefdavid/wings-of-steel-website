@@ -82,8 +82,9 @@ const TeamSite: React.FC = () => {
             <GetInvolved />
             <Contact />
           </Suspense>
-          <Footer />
         </main>
+        {/* Footer is a sibling of <main>, not a child of it */}
+        <Footer />
         <Suspense fallback={null}>
           <DonationSlideOut />
         </Suspense>

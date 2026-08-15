@@ -65,7 +65,7 @@ const ContestSection = () => {
                 </div>
                 <div className="p-4 md:p-6">
                   <h3 className="font-bold text-lg md:text-xl mb-1 md:mb-2">{contest.title}</h3>
-                  <p className="text-championship-gold font-semibold mb-2">
+                  <p className="text-gold-700 font-semibold mb-2">
                     {contest.description}
                   </p>
                   <p className="text-gray-600 text-sm">{contest.details}</p>
