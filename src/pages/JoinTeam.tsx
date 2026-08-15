@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { FaHockeyPuck, FaUser, FaEnvelope, FaPhone, FaBirthdayCake, FaMapMarkerAlt, FaCheckCircle, FaExclamationTriangle, FaHome, FaInfoCircle } from 'react-icons/fa';
+import NoChildPaysBanner from '../components/NoChildPaysBanner';
+import { FaHockeyPuck, FaUser, FaEnvelope, FaPhone, FaBirthdayCake, FaMapMarkerAlt, FaCheckCircle, FaExclamationTriangle, FaHome } from 'react-icons/fa';
 import { supabase } from '../lib/supabaseClient';
 import { Link } from 'react-router-dom';
 
@@ -158,24 +159,9 @@ const JoinTeam = () => {
             </p>
           </motion.div>
 
-          {/* Info Banner */}
-          <motion.div
-            initial={false}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="bg-gradient-to-r from-steel-blue to-blue-600 rounded-xl p-6 mb-8"
-          >
-            <div className="flex items-start gap-4">
-              <FaInfoCircle className="text-3xl text-white flex-shrink-0 mt-1" />
-              <div className="text-white">
-                <h3 className="text-xl font-bold mb-2">NO CHILD PAYS TO PLAY</h3>
-                <p className="text-sm">
-                  All equipment, ice time, coaching, and tournament fees are provided at NO COST to families. 
-                  We believe every child deserves the opportunity to play, regardless of financial circumstances.
-                </p>
-              </div>
-            </div>
-          </motion.div>
+          {/* The mission statement now renders from one component site-wide,
+              and always carries the donation ask with it. */}
+          <NoChildPaysBanner className="mb-8" />
 
           {/* Registration Form */}
           <motion.div

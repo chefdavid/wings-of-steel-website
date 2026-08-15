@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import NoChildPaysBanner from '../components/NoChildPaysBanner';
 
 const equipmentSections = [
   {
@@ -190,6 +191,9 @@ const SledHockeyEquipment = () => {
               <p className="text-ice-blue/70 mt-2 text-lg">
                 No child pays to play. Every piece of equipment is provided at no cost to families.
               </p>
+            </div>
+            <div className="px-6 pt-6 md:px-8">
+              <NoChildPaysBanner variant="panel" />
             </div>
             <div className="p-6 md:p-8">
               <div className="grid md:grid-cols-2 gap-6">

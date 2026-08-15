@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import NoChildPaysBanner from '../components/NoChildPaysBanner';
 import { FaHeart, FaCheck, FaDollarSign, FaUsers, FaTrophy, FaHandHoldingHeart, FaChild, FaShieldAlt } from 'react-icons/fa';
 
 const FreeYouthHockey = () => {
@@ -130,6 +131,8 @@ const FreeYouthHockey = () => {
               Our program is 100% free for every player. Families never pay a penny — not for equipment, not for ice time, not for travel, not for anything. Here's what we cover:
             </p>
           </motion.div>
+
+          <NoChildPaysBanner className="mb-10 max-w-4xl mx-auto" />
 
           <div className="grid md:grid-cols-2 gap-4 mb-12">
             {coveredItems.map((item, index) => (
