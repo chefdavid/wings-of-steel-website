@@ -251,3 +251,47 @@ database — same render path, stubbed transport.
   `team_season_record`
 - Per-game box score on `/game/:gameId`
 - Admin box-score entry screen, decoupled from the highlights editor
+
+---
+
+## 2026-08-15 — Phase 3 (part 2): the two components that were lying, and box scores
+
+**`PlayerStatsSection` is season-aware.** It was titled "Season Stats" while
+querying `player_game_stats` by `player_id` with no season or date filter — it
+was career totals. It only looked right because the bulk importer DELETED the
+previous season's rows before importing, so the table never held more than one
+season; isolation was enforced by destroying history. It now reads the
+season-aware views, offers an explicit season / Career selector, shows games
+played, and resolves opponent and date from `game_id` in one hop instead of
+going through the highlight and, failing that, splitting the highlight's title
+on punctuation. Goalie rows appear when the player is flagged a goalie or has
+goalie data — not when `saves > 0`.
+
+**`SeasonRecordGrid` is season-aware.** It counted W/L/T across every past game
+the site had ever stored, by reading `result.trim()[0]`. The headline record now
+comes from `team_season_record` (integer scores, migration 014) and the tiles are
+scoped to a selected season, with goals for/against and shutouts alongside. It
+falls back to showing all supplied games if none carry a `season_id`, rather
+than rendering an empty grid.
+
+**New `BoxScoreManagement` admin screen** (`/admin` → Box Scores). This is the
+screen that makes migration 015 usable:
+
+- **A box score no longer requires a highlight.** Stats were previously a
+  sub-panel of the photo/recap editor, so a game either got the full treatment
+  or no stats at all.
+- **"Dressed" is an explicit checkbox.** The old save dropped any all-zero row,
+  which is why games played was uncomputable. A zero line is now a real row;
+  unticking Dressed deletes the line rather than storing zeros.
+- **One transactional-ish save**: score first (the migration-014 trigger derives
+  `result`, so W/L/T is never typed by hand), then a single upsert on the
+  `(player_id, game_id)` unique index, then removal of undressed lines. Errors
+  surface as one message instead of four.
+- **Goalie fields are only editable for players flagged as goalies**, and the
+  screen says plainly that 0 goals against is a shutout and should not be left
+  blank.
+- It warns — without blocking — when entered goals do not sum to the final
+  score, since own goals and unrecorded scorers are legitimate.
+
+`Game` in `src/types/database.ts` gained `wings_score`, `opponent_score` and
+`season_id` to match the live schema.

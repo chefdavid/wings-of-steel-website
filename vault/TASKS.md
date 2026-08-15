@@ -43,10 +43,12 @@ branches off the same line.
 - [x] `/stats` route: season selector, scoring leaders, record, goalies, H2H
 - [x] Nav entry under Schedule → Competition; prerender + smoke route added
 - [x] Fix the hero's "UNDEFEATED" claim (regular season 12-0; overall 20-1)
-- [ ] Per-game box score on `/game/:gameId`, decoupled from highlights
-- [ ] Honest "This Season / Career" toggle on the player card
-- [ ] Admin box-score entry screen, single transactional save
-- [ ] `result` field in the schedule admin (today it requires writing a recap)
+- [x] Honest season / Career selector on the player card (`PlayerStatsSection`)
+- [x] `SeasonRecordGrid` reads `team_season_record` and scopes to a season
+- [x] Admin Box Scores screen — decoupled from highlights, dressed checkbox,
+      single save, goalie fields, score-mismatch warning
+- [x] Score entry no longer requires writing a recap (it lives in Box Scores)
+- [ ] Per-game box score display on `/game/:gameId`
 
 ### Phase 4 — Visual overhaul
 - [ ] Restyle all surfaces on the token system

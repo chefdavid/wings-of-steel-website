@@ -122,8 +122,14 @@ export interface Game {
   home_away?: 'home' | 'away';
   game_type?: string;
   result?: string;
+  /** Integer scores (migration 014). `result` is derived from these by trigger. */
+  wings_score?: number | null;
+  opponent_score?: number | null;
   notes?: string;
+  /** Free-text season label. Prefer season_id. */
   season?: string;
+  /** FK to public.seasons. Backfilled on every row. */
+  season_id?: string | null;
   is_active?: boolean;
   // Legacy fields for backwards compatibility
   date?: string;
