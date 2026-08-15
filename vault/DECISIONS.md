@@ -194,3 +194,60 @@ contradicted by the site's own schedule.
 **Also note:** `shots_on_goal` is 0 for every player and no goalie stat row
 exists at all. The columns are there; nobody has ever entered the data. The
 Phase 3 admin screen should make that easy rather than optional.
+
+---
+
+## 2026-08-15 — Phase 3 (part 1): the /stats hub
+
+**Hero copy corrected.** "2025 / 2026 Season — UNDEFEATED" was contradicted by
+the site's own schedule: the season record is 20-1, the loss coming in round
+robin at Nationals on 2026-05-02 (they still won the title). The REGULAR season
+genuinely was undefeated — 12-0 — so the claim is now scoped to what the data
+supports: "2025 / 2026 REGULAR SEASON — UNDEFEATED". `site_sections.hero.content
+.undefeated` is NULL in the database, so the hardcoded fallback in `Hero.tsx` is
+what actually renders; only that needed changing.
+
+**New route `/stats`**, plus `src/types/stats.ts` and `src/hooks/useStats.ts`.
+Everything reads the season-aware views from migration 016 rather than
+refetching raw rows and reducing them in the component — which is how "Season
+Stats" ended up being career totals without anyone noticing.
+
+Design decisions, following the dataviz guidance:
+
+- **The headline numbers are stat tiles, not charts.** A record and a goal total
+  are single values; plotting them adds nothing.
+- **The leaderboard's magnitude bar is a sequential single hue**, not
+  categorical color. I ran the palette validator on a steel/gold categorical
+  pair: it fails the lightness band and, on a light surface, gold is 1.6:1 —
+  unusable as a fill. On the dark surface the pair passes CVD separation and
+  contrast, but the honest form here is a table plus one sequential magnitude
+  cue, so no categorical palette is needed at all. **Gold is reserved for the
+  single headline accent** (6.7:1 as text on dark-steel).
+- **Win/loss badges carry the record as text**, so status is never color alone.
+
+Two things the real data forced:
+
+- **The default season is not `is_current`.** `is_current` is 2026-27, which in
+  August has zero played games — landing on an empty leaderboard is a worse
+  answer than showing the season that just finished. `useSeasons` now defaults
+  to the current season *if it has games*, else the most recent season that does.
+- **Head-to-head hides opponents with zero games played.** `DC Sled Sharks` and
+  `Family Game` are scheduled, not results; rendering "Family Game 0-0" is noise.
+
+**Shots on goal are hidden when the season has none recorded**, with a one-line
+note saying so, rather than a column of zeros. Confirmed with David: shots and
+goalie stats were not tracked last season, so there is no historical data to
+recover — the columns exist for going forward.
+
+**Verification note:** this container's egress blocks `*.supabase.co`, so the
+page cannot load live data here. The visual check was done by intercepting the
+PostgREST calls in Playwright and serving fixtures pulled from the real
+database — same render path, stubbed transport.
+
+### Still open in Phase 3
+
+- `PlayerStatsSection` still labels career totals as "Season Stats"
+- `SeasonRecordGrid` still counts every past game ever instead of reading
+  `team_season_record`
+- Per-game box score on `/game/:gameId`
+- Admin box-score entry screen, decoupled from the highlights editor

@@ -115,7 +115,14 @@ const Hero = () => {
               <div className="flex items-center justify-center gap-3">
                 <FaTrophy className="text-yellow-400 text-lg md:text-2xl" aria-hidden="true" />
                 <span className="text-base md:text-xl font-sport text-yellow-400 tracking-wider">
-                  {heroData?.undefeated || '2025 / 2026 Season — UNDEFEATED'}
+                  {/*
+                    "Season — UNDEFEATED" was contradicted by the site's own
+                    schedule: the 2025-26 record is 20-1, the loss coming in
+                    round-robin play at Nationals on 2026-05-02. The REGULAR
+                    season really was undefeated — 12-0 — so the claim is now
+                    scoped to what the data supports.
+                  */}
+                  {heroData?.undefeated || '2025 / 2026 REGULAR SEASON — UNDEFEATED'}
                 </span>
                 <FaTrophy className="text-yellow-400 text-lg md:text-2xl" aria-hidden="true" />
               </div>

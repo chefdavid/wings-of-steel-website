@@ -155,6 +155,17 @@ const ROUTES = [
     `,
   },
   {
+    path: '/stats',
+    title: 'Team Stats | Wings of Steel Youth Sled Hockey',
+    description: 'Season-by-season stats for Wings of Steel youth sled hockey: team record, scoring leaders, goaltending and head-to-head results.',
+    h1: 'Team Stats',
+    content: `
+      <p>Season stats for Wings of Steel youth sled hockey — team record, scoring
+      leaders, goaltending numbers and head-to-head results against every opponent.</p>
+      <p><a href="/game-highlights">Game highlights</a> · <a href="/">Back to home</a></p>
+    `,
+  },
+  {
     path: '/accessibility',
     title: 'Accessibility Statement | Wings of Steel',
     description: 'Wings of Steel website accessibility statement. Committed to making our site accessible to all users.',

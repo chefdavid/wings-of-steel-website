@@ -38,9 +38,11 @@ branches off the same line.
       `team_season_record`, `head_to_head_records`
 - [ ] `player_game_stats.game_id` so stats stop hanging off highlights
 
-### Phase 3 — Stats UI
-- [ ] `useSeasons` / `useCurrentSeason` / `usePlayerStats` / `useLeaderboard`
-- [ ] `/stats` route: season selector, scoring leaders, record, goalies, H2H
+### Phase 3 — Stats UI (in progress)
+- [x] `src/types/stats.ts` + `src/hooks/useStats.ts` reading the season views
+- [x] `/stats` route: season selector, scoring leaders, record, goalies, H2H
+- [x] Nav entry under Schedule → Competition; prerender + smoke route added
+- [x] Fix the hero's "UNDEFEATED" claim (regular season 12-0; overall 20-1)
 - [ ] Per-game box score on `/game/:gameId`, decoupled from highlights
 - [ ] Honest "This Season / Career" toggle on the player card
 - [ ] Admin box-score entry screen, single transactional save

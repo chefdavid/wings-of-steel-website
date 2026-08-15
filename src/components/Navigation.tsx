@@ -99,6 +99,7 @@ const Navigation = () => {
           {
             title: 'Competition',
             items: [
+              { name: 'Team Stats', href: '/stats', isHashLink: false, description: 'Record, scoring leaders & goaltending' },
               { name: 'Opponents', href: '/opponents', isHashLink: false, description: 'Teams we compete against' }
             ]
           }

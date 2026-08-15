@@ -31,6 +31,7 @@ const ROUTES = [
   '/events',
   '/accessibility',
   '/game-highlights',
+  '/stats',
   '/donate',
   '/what-is-sled-hockey',
   '/sled-hockey-nj',
