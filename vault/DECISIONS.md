@@ -142,3 +142,55 @@ duration and easing from the tokens.
 - **Icon library consolidation** (react-icons in 58 files, lucide in 33). Same
   reasoning: every `Fa*` → lucide swap is a judgment call about the closest
   equivalent, and doing it blind ahead of the restyle invites regressions.
+
+---
+
+## 2026-08-15 — Phase 2: stats data layer (APPLIED to production Supabase)
+
+Four migrations, `supabase/migrations/013`–`016`, applied to the live
+`SledHockey.org` project after a dry-run validation showed 0 duplicate
+player/game pairs, 0 unparseable `result` strings and a clean score backfill.
+
+**013 — legacy `game_schedule` renamed to `deprecated_game_schedule`.** Two
+similarly named tables was a live footgun: a `from('game_schedule')` typo
+returned an empty, stale schedule instead of an error. Reversible with a rename.
+
+**014 — structured scores.** `game_schedules` gains `wings_score` /
+`opponent_score` integers, backfilled from the `result` strings (all 21 parsed;
+the migration raises if any row's W/L/T letter disagrees with its own parsed
+score). `result` stays a text column because ~15 call sites read it, but it is
+now maintained by a database trigger instead of string concatenation in the
+admin UI — set the scores and `result` follows; write `result` the legacy way
+and the scores follow. This ends the era of computing the team record by
+reading `result.trim()[0]`.
+
+**015 — goalies, games played, and a real spine.** `players.is_goalie`
+(seeded from `position ILIKE 'goal%'`) replaces inferring goalie-ness from
+`saves > 0`. `player_game_stats` gains `goals_against`, `shots_faced`,
+`minutes_played` (nullable — NULL means skater, 0 means shutout) and `dressed`
+so an all-zero row can exist and count toward games played. Critically it also
+gains `game_id`, backfilled from the highlight it hung off, and
+`game_highlight_id` is now NULLABLE. **A box score no longer requires a
+highlight to exist.** New unique index on `(player_id, game_id)`.
+
+**016 — season-aware views.** `player_season_totals` rebuilt WITH a season
+dimension (the old view of that name had none, despite the name, and was read
+by zero application code). Adds `player_career_totals`, `goalie_season_totals`
+(save %, GAA, shutouts — none previously computable), `team_season_record` and
+`head_to_head_records`. All granted SELECT to anon; they expose nothing that
+was not already publicly readable.
+
+### What the data actually says now
+
+2025-26: **20-1-0**, 89 GF / 21 GA, 10 shutouts, 21 games played.
+Leaders: AJ Gonzales 32-11-43 in 20 GP, Colten Haas 26-8-34 in 17,
+Colin Wiederholt 18-3-21 in 13.
+
+**Flag for David:** the hero currently reads "2025 / 2026 Season — UNDEFEATED",
+but the database has one loss (L 4-5 on 2026-05-02, during Nationals week). If
+"undefeated" means the regular season, the copy should say so; otherwise it is
+contradicted by the site's own schedule.
+
+**Also note:** `shots_on_goal` is 0 for every player and no goalie stat row
+exists at all. The columns are there; nobody has ever entered the data. The
+Phase 3 admin screen should make that easy rather than optional.
