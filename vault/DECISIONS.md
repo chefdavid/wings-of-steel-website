@@ -368,3 +368,35 @@ edge on a dark surface.
 
 Nav is deliberately still hardcoded dark — it reads as chrome in both themes.
 Revisit if the light theme becomes the common case.
+
+---
+
+## 2026-08-15 — One place to enter stats: Game Highlights
+
+Reversing part of Phase 3. The Box Scores screen worked, but it created a
+second place to enter stats, and David enters them weekly under Game
+Highlights. Two write paths that can disagree is worse than one imperfect one.
+
+- **`BoxScoreManagement` deleted**, and its sidebar entry with it.
+- **The Game Highlights stats panel rebuilt** as a real `<table>` (it was a
+  14-column CSS grid with unlabelled inputs), with a **Played** checkbox as the
+  first column, a jersey badge, a goalie tag, and per-cell `aria-label`s.
+- **Numeric inputs are disabled until Played is ticked**, so an untouched row
+  reads as "not in the lineup" rather than "played and scored nothing".
+- **Typing a number ticks Played automatically** — nobody should have to tick a
+  box to record a goal.
+- **"Mark all played"** for the common case, and a live "N of M players marked
+  as played" count.
+- **The save no longer drops all-zero rows.** Every player marked as played
+  gets a row, including a zero one, and the row now carries `game_id` and
+  `dressed`. That zero row is the entire point: it is what makes games played
+  countable. Unticking Played deletes that player's line.
+
+Related, on the public side: the player card no longer shows a games-played
+figure at all, and lists every game of the season with a dash where no line was
+recorded. Autumn Donzuso — a newer player who did not score — previously showed
+"No game stats recorded", which read as though she had never played.
+
+Once a season has been entered through this panel with Played ticked properly,
+a real games-played number can come back. It is not being shown until the data
+can support it.
