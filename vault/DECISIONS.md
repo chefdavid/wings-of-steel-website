@@ -295,3 +295,32 @@ screen that makes migration 015 usable:
 
 `Game` in `src/types/database.ts` gained `wings_score`, `opponent_score` and
 `season_id` to match the live schema.
+
+---
+
+## 2026-08-15 — Fix: /stats defaulted to an empty season (found on Deploy Preview #4)
+
+The first deploy preview landed on **2026-27**, which has zero played games, so
+every panel rendered an empty state. Local verification had missed it because
+the fixtures resolved instantly.
+
+Cause was a race, not the selection logic. `useSeasons` runs two queries: the
+season list, and `team_season_record` to learn which seasons actually have
+games. `defaultSeason` was computed from whatever had arrived so far. The
+seasons list answered first, the "has games" set was still empty, so it fell
+through to `is_current` — 2026-27. Consumers commit the default to state the
+first time it is non-null (`if (!seasonId && defaultSeason)`), so that early
+guess was locked in permanently and never corrected when the second query
+landed.
+
+Fix: `defaultSeason` stays NULL until both queries resolve, and `useSeasons`
+reports `loading` as the OR of the two. Consumers already guard on a truthy
+`defaultSeason`, so nothing else changed.
+
+Regression check reproduces the original timing — the stub delays
+`team_season_record` by 1500ms while `seasons` answers instantly — and asserts
+the page still lands on 2025-26 with the 20-1 record showing.
+
+**Process note:** this class of bug is invisible in this container because
+egress to `*.supabase.co` is blocked, so every local check runs against stubs
+that answer instantly. Stubs for stats work should deliberately vary latency.

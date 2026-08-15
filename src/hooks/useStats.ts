@@ -87,7 +87,9 @@ export function useSeasons() {
 
   // Which seasons actually have played games. Needed to choose a sensible
   // default — see below.
-  const { data: records } = useSupabaseQuery<Pick<TeamSeasonRecord, 'season_id' | 'games_played'>[]>(
+  const { data: records, loading: recordsLoading } = useSupabaseQuery<
+    Pick<TeamSeasonRecord, 'season_id' | 'games_played'>[]
+  >(
     () => supabase.from('team_season_record').select('season_id, games_played'),
     [],
     [] as Pick<TeamSeasonRecord, 'season_id' | 'games_played'>[]
@@ -105,17 +107,31 @@ export function useSeasons() {
    * August contains zero played games — landing on an empty leaderboard is a
    * worse answer than showing the season that just finished. So: the current
    * season if it has games, otherwise the most recent season that does.
+   *
+   * Stays NULL until BOTH queries have resolved. Consumers commit the default
+   * to state the first time it is non-null, so returning an early guess based
+   * on a half-loaded picture would lock in the wrong season permanently — which
+   * is exactly what happened on the first deploy: seasons resolved first, the
+   * "which seasons have games" set was still empty, so it fell through to
+   * `is_current` (2026-27, zero games) and never corrected itself.
    */
   const defaultSeason = useMemo(() => {
+    if (loading || recordsLoading) return null;
     if (!data.length) return null;
     const played = new Set(
       records.filter((r) => r.games_played > 0).map((r) => r.season_id)
     );
     if (currentSeason && played.has(currentSeason.id)) return currentSeason;
     return data.find((s) => played.has(s.id)) ?? currentSeason ?? data[0];
-  }, [data, records, currentSeason]);
+  }, [data, records, currentSeason, loading, recordsLoading]);
 
-  return { seasons: data, currentSeason, defaultSeason, loading, error };
+  return {
+    seasons: data,
+    currentSeason,
+    defaultSeason,
+    loading: loading || recordsLoading,
+    error,
+  };
 }
 
 /* -------------------------------------------------------- player leaderboard */
