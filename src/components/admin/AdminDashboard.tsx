@@ -18,9 +18,8 @@ import DonationGoalManagement from './DonationGoalManagement';
 import TopgolfAdmin from './TopgolfAdmin';
 import RegistrationManagement from './RegistrationManagement';
 import PressStoriesManagement from './PressStoriesManagement';
-import BoxScoreManagement from './BoxScoreManagement';
 
-type AdminSection = 'players' | 'coaches' | 'site-sections' | 'schedule' | 'box-scores' | 'game-highlights' | 'press-stories' | 'practice' | 'opponents' | 'settings' | 'batch-images' | 'golf-outing' | 'pizza-pins' | 'topgolf' | 'event-visibility' | 'donations' | 'donation-goals' | 'registrations';
+type AdminSection = 'players' | 'coaches' | 'site-sections' | 'schedule' | 'game-highlights' | 'press-stories' | 'practice' | 'opponents' | 'settings' | 'batch-images' | 'golf-outing' | 'pizza-pins' | 'topgolf' | 'event-visibility' | 'donations' | 'donation-goals' | 'registrations';
 
 interface AdminDashboardProps {
   onLogout: () => void;
@@ -47,7 +46,6 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
     { id: 'opponents' as AdminSection, label: 'Opponent Teams', icon: Users },
     { id: 'practice' as AdminSection, label: 'Practice Schedule', icon: FaClock },
     { id: 'schedule' as AdminSection, label: 'Game Schedule', icon: FaCalendarAlt },
-    { id: 'box-scores' as AdminSection, label: 'Box Scores', icon: FaHockeyPuck },
     { id: 'game-highlights' as AdminSection, label: 'Game Highlights', icon: FaTrophy },
     { id: 'press-stories' as AdminSection, label: 'The Wings Press', icon: FaNewspaper },
     { id: 'site-sections' as AdminSection, label: 'Site Content', icon: FaCog },
@@ -85,8 +83,6 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
         return <HeroSectionEditor />;
       case 'schedule':
         return <GameScheduleManagement />;
-      case 'box-scores':
-        return <BoxScoreManagement />;
       case 'game-highlights':
         return <GameHighlightsManagement />;
       case 'press-stories':

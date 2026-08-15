@@ -13,12 +13,27 @@ interface RosterPlayer {
 }
 
 interface PlayerStatEntry {
+  /**
+   * Was this player in the lineup? Separate from their numbers on purpose.
+   * The old save discarded any all-zero row, so a player who dressed and did
+   * not score left no trace and could not be counted as having played.
+   */
+  played: boolean;
   goals: number;
   assists: number;
   penalty_minutes: number;
   saves: number;
   shots_on_goal: number;
 }
+
+const EMPTY_STAT: PlayerStatEntry = {
+  played: false,
+  goals: 0,
+  assists: 0,
+  penalty_minutes: 0,
+  saves: 0,
+  shots_on_goal: 0,
+};
 
 type SidebarMode = 'browse' | 'create-tournament' | 'create-standalone';
 
@@ -125,7 +140,7 @@ export default function GameHighlightsManagement() {
     const loadRoster = async () => {
       const { data, error } = await supabase
         .from('players')
-        .select('id, first_name, last_name, jersey_number, active')
+        .select('id, first_name, last_name, jersey_number, active, is_goalie')
         .order('jersey_number', { ascending: true });
       if (error) {
         console.error('Error loading roster for stats panel:', error);
@@ -152,7 +167,7 @@ export default function GameHighlightsManagement() {
       }
       const { data, error } = await supabase
         .from('player_game_stats')
-        .select('player_id, goals, assists, penalty_minutes, saves, shots_on_goal')
+        .select('player_id, goals, assists, penalty_minutes, saves, shots_on_goal, dressed')
         .eq('game_highlight_id', currentHighlight.id);
       if (error) {
         console.error('Error loading player stats:', error);
@@ -162,6 +177,7 @@ export default function GameHighlightsManagement() {
       const ids = new Set<string>();
       (data || []).forEach((row: any) => {
         stats[row.player_id] = {
+          played: row.dressed !== false,
           goals: row.goals || 0,
           assists: row.assists || 0,
           penalty_minutes: row.penalty_minutes || 0,
@@ -176,8 +192,20 @@ export default function GameHighlightsManagement() {
     loadStats();
   }, [currentHighlight?.id]);
 
-  const getStat = (playerId: string): PlayerStatEntry =>
-    playerStats[playerId] || { goals: 0, assists: 0, penalty_minutes: 0, saves: 0, shots_on_goal: 0 };
+  const getStat = (playerId: string): PlayerStatEntry => playerStats[playerId] || EMPTY_STAT;
+
+  const setPlayed = (playerId: string, played: boolean) =>
+    setPlayerStats(prev => ({ ...prev, [playerId]: { ...getStat(playerId), played } }));
+
+  /** Tick everyone on the active roster — the common case for a home game. */
+  const markAllPlayed = () =>
+    setPlayerStats(prev => {
+      const next = { ...prev };
+      sortedRoster.forEach(p => {
+        next[p.id] = { ...(next[p.id] || EMPTY_STAT), played: true };
+      });
+      return next;
+    });
 
   const updateStat = (
     playerId: string,
@@ -185,10 +213,15 @@ export default function GameHighlightsManagement() {
     value: number
   ) => {
     const safe = isNaN(value) || value < 0 ? 0 : Math.floor(value);
-    setPlayerStats(prev => ({
-      ...prev,
-      [playerId]: { ...getStat(playerId), [field]: safe },
-    }));
+    setPlayerStats(prev => {
+      const current = getStat(playerId);
+      return {
+        ...prev,
+        // Typing a number implies they were in the lineup. Nobody should have
+        // to tick a box to record a goal.
+        [playerId]: { ...current, [field]: safe, played: safe > 0 ? true : current.played },
+      };
+    });
   };
 
   const clearAllStats = () => {
@@ -201,6 +234,8 @@ export default function GameHighlightsManagement() {
   const sortedRoster = rosterPlayers
     .filter((p) => p.active !== false)
     .sort((a, b) => (a.jersey_number || 0) - (b.jersey_number || 0));
+
+  const playedCount = sortedRoster.filter((p) => getStat(p.id).played).length;
 
   const loadHighlightForGame = async (gameId: string) => {
     const highlight = await getHighlightByGameId(gameId);
@@ -444,18 +479,17 @@ export default function GameHighlightsManagement() {
       // Persist player game stats
       if (savedHighlightId) {
         try {
+          // Every player marked as having played gets a row — INCLUDING an
+          // all-zero one. That zero row is what makes games played countable;
+          // the previous filter dropped it and is why the site could never say
+          // how many games anyone appeared in.
           const rowsToUpsert = Object.entries(playerStats)
-            .filter(
-              ([, s]) =>
-                (s.goals || 0) > 0 ||
-                (s.assists || 0) > 0 ||
-                (s.penalty_minutes || 0) > 0 ||
-                (s.saves || 0) > 0 ||
-                (s.shots_on_goal || 0) > 0
-            )
+            .filter(([, s]) => s.played)
             .map(([player_id, s]) => ({
               player_id,
               game_highlight_id: savedHighlightId,
+              game_id: selectedGame?.id ?? null,
+              dressed: true,
               goals: s.goals || 0,
               assists: s.assists || 0,
               penalty_minutes: s.penalty_minutes || 0,
@@ -1134,116 +1168,114 @@ export default function GameHighlightsManagement() {
 
                 {/* Player Stats */}
                 <div>
-                  <div className="flex justify-between items-start mb-2">
+                  <div className="flex flex-wrap justify-between items-start gap-3 mb-3">
                     <div>
-                      <label className="block font-semibold">Player Stats</label>
-                      <p className="text-xs text-gray-600">Goals, assists, PIM, SOG, and saves per player for this game</p>
+                      <label className="block font-semibold text-lg">Who played &amp; what they did</label>
+                      <p className="text-sm text-gray-600 mt-0.5">
+                        Tick <strong>Played</strong> for everyone in the lineup — even if they did not score.
+                        That is what lets the site count games played. Typing a number ticks it for you.
+                      </p>
                     </div>
-                    <button
-                      type="button"
-                      onClick={clearAllStats}
-                      className="px-3 py-1 bg-gray-200 text-gray-700 rounded text-sm hover:bg-gray-300"
-                    >
-                      Clear all
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={markAllPlayed}
+                        className="px-3 py-1.5 bg-steel-blue text-white rounded text-sm font-semibold hover:bg-dark-steel"
+                      >
+                        Mark all played
+                      </button>
+                      <button
+                        type="button"
+                        onClick={clearAllStats}
+                        className="px-3 py-1.5 bg-gray-200 text-gray-700 rounded text-sm hover:bg-gray-300"
+                      >
+                        Clear all
+                      </button>
+                    </div>
                   </div>
+
                   {sortedRoster.length === 0 ? (
                     <p className="text-sm text-gray-500 italic">No players found.</p>
                   ) : (
-                    <div className="border rounded-lg overflow-hidden">
-                      <div className="hidden md:grid grid-cols-[repeat(14,minmax(0,1fr))] gap-2 px-3 py-2 bg-gray-100 text-xs font-semibold text-gray-700 uppercase tracking-wide">
-                        <div className="col-span-1">#</div>
-                        <div className="col-span-5">Player</div>
-                        <div className="col-span-2">Goals</div>
-                        <div className="col-span-2">Assists</div>
-                        <div className="col-span-2">PIM</div>
-                        <div className="col-span-1">SOG</div>
-                        <div className="col-span-1">Saves</div>
+                    <>
+                      <p className="text-sm text-gray-700 mb-2">
+                        <strong>{playedCount}</strong> of {sortedRoster.length} players marked as played
+                      </p>
+                      <div className="border rounded-lg overflow-x-auto">
+                        <table className="w-full text-sm">
+                          <caption className="sr-only">Lineup and per-player stats for this game</caption>
+                          <thead className="bg-gray-100 text-xs uppercase tracking-wide text-gray-700">
+                            <tr>
+                              <th scope="col" className="px-3 py-2.5 text-left w-20">Played</th>
+                              <th scope="col" className="px-3 py-2.5 text-left">Player</th>
+                              <th scope="col" className="px-2 py-2.5 text-center w-20">Goals</th>
+                              <th scope="col" className="px-2 py-2.5 text-center w-20">Assists</th>
+                              <th scope="col" className="px-2 py-2.5 text-center w-20">Shots</th>
+                              <th scope="col" className="px-2 py-2.5 text-center w-20">PIM</th>
+                              <th scope="col" className="px-2 py-2.5 text-center w-20">Saves</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-gray-200">
+                            {sortedRoster.map((player) => {
+                              const stat = getStat(player.id);
+                              const isInactive = player.active === false;
+                              const name = `${player.first_name ?? ''} ${player.last_name ?? ''}`.trim();
+                              return (
+                                <tr
+                                  key={player.id}
+                                  className={
+                                    isInactive
+                                      ? 'opacity-50 bg-gray-50'
+                                      : stat.played
+                                      ? 'bg-white'
+                                      : 'bg-gray-50/60'
+                                  }
+                                >
+                                  <td className="px-3 py-2.5">
+                                    <input
+                                      type="checkbox"
+                                      checked={stat.played}
+                                      onChange={(e) => setPlayed(player.id, e.target.checked)}
+                                      aria-label={`${name} played this game`}
+                                      className="w-5 h-5 accent-steel-blue cursor-pointer"
+                                    />
+                                  </td>
+                                  <th scope="row" className="px-3 py-2.5 text-left font-normal">
+                                    <span className="inline-flex items-center justify-center min-w-[2rem] h-7 px-1.5 rounded-full bg-steel-blue text-white text-xs font-bold mr-2">
+                                      {player.jersey_number ?? '—'}
+                                    </span>
+                                    <span className={stat.played ? 'font-medium text-gray-900' : 'text-gray-500'}>
+                                      {name}
+                                    </span>
+                                    {player.is_goalie && (
+                                      <span className="ml-2 text-[10px] uppercase tracking-wide bg-steel-blue/10 text-steel-blue px-1.5 py-0.5 rounded">
+                                        Goalie
+                                      </span>
+                                    )}
+                                    {isInactive && <span className="ml-2 text-xs text-gray-500">(inactive)</span>}
+                                  </th>
+                                  <StatInput label={`${name} goals`} value={stat.goals} disabled={!stat.played}
+                                    onChange={(v) => updateStat(player.id, 'goals', v)} />
+                                  <StatInput label={`${name} assists`} value={stat.assists} disabled={!stat.played}
+                                    onChange={(v) => updateStat(player.id, 'assists', v)} />
+                                  <StatInput label={`${name} shots on goal`} value={stat.shots_on_goal} disabled={!stat.played}
+                                    onChange={(v) => updateStat(player.id, 'shots_on_goal', v)} />
+                                  <StatInput label={`${name} penalty minutes`} value={stat.penalty_minutes} disabled={!stat.played}
+                                    onChange={(v) => updateStat(player.id, 'penalty_minutes', v)} />
+                                  <StatInput label={`${name} saves`} value={stat.saves}
+                                    disabled={!stat.played || !player.is_goalie}
+                                    onChange={(v) => updateStat(player.id, 'saves', v)} />
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
                       </div>
-                      <div className="divide-y">
-                        {sortedRoster.map((player) => {
-                          const stat = getStat(player.id);
-                          const isInactive = player.active === false;
-                          return (
-                            <div
-                              key={player.id}
-                              className={`grid grid-cols-[repeat(14,minmax(0,1fr))] gap-2 items-center px-3 py-2 ${
-                                isInactive ? 'opacity-50 bg-gray-50' : 'bg-white'
-                              }`}
-                            >
-                              <div className="col-span-1">
-                                <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-steel-blue text-white text-xs font-bold">
-                                  #{player.jersey_number ?? '-'}
-                                </span>
-                              </div>
-                              <div className="col-span-5 text-sm">
-                                <span className="font-medium">
-                                  {player.first_name} {player.last_name}
-                                </span>
-                                {isInactive && (
-                                  <span className="ml-2 text-xs text-gray-500">(inactive)</span>
-                                )}
-                              </div>
-                              <div className="col-span-2">
-                                <input
-                                  type="number"
-                                  min={0}
-                                  value={stat.goals}
-                                  onChange={(e) =>
-                                    updateStat(player.id, 'goals', parseInt(e.target.value, 10))
-                                  }
-                                  className="w-full px-2 py-1 border rounded text-sm"
-                                />
-                              </div>
-                              <div className="col-span-2">
-                                <input
-                                  type="number"
-                                  min={0}
-                                  value={stat.assists}
-                                  onChange={(e) =>
-                                    updateStat(player.id, 'assists', parseInt(e.target.value, 10))
-                                  }
-                                  className="w-full px-2 py-1 border rounded text-sm"
-                                />
-                              </div>
-                              <div className="col-span-2">
-                                <input
-                                  type="number"
-                                  min={0}
-                                  value={stat.penalty_minutes}
-                                  onChange={(e) =>
-                                    updateStat(player.id, 'penalty_minutes', parseInt(e.target.value, 10))
-                                  }
-                                  className="w-full px-2 py-1 border rounded text-sm"
-                                />
-                              </div>
-                              <div className="col-span-1">
-                                <input
-                                  type="number"
-                                  min={0}
-                                  value={stat.shots_on_goal}
-                                  onChange={(e) =>
-                                    updateStat(player.id, 'shots_on_goal', parseInt(e.target.value, 10))
-                                  }
-                                  className="w-full px-2 py-1 border rounded text-sm"
-                                />
-                              </div>
-                              <div className="col-span-1">
-                                <input
-                                  type="number"
-                                  min={0}
-                                  value={stat.saves}
-                                  onChange={(e) =>
-                                    updateStat(player.id, 'saves', parseInt(e.target.value, 10))
-                                  }
-                                  className="w-full px-2 py-1 border rounded text-sm"
-                                />
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
+                      <p className="mt-2 text-xs text-gray-500">
+                        Saves are only editable for players marked as a goalie on the roster.
+                        Unticking Played removes that player&rsquo;s line for this game.
+                      </p>
+                    </>
                   )}
                 </div>
 
@@ -1386,5 +1418,36 @@ export default function GameHighlightsManagement() {
         </div>
       </div>
     </div>
+  );
+}
+
+/**
+ * One numeric cell in the lineup table. Disabled until the player is marked as
+ * having played, so the row reads as "not in the lineup" rather than "played
+ * and scored nothing".
+ */
+function StatInput({
+  value,
+  onChange,
+  disabled,
+  label,
+}: {
+  value: number;
+  onChange: (v: number) => void;
+  disabled?: boolean;
+  label: string;
+}) {
+  return (
+    <td className="px-2 py-2.5 text-center">
+      <input
+        type="number"
+        min={0}
+        aria-label={label}
+        disabled={disabled}
+        value={value}
+        onChange={(e) => onChange(parseInt(e.target.value, 10))}
+        className="w-16 px-2 py-1.5 border border-gray-300 rounded text-center disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+      />
+    </td>
   );
 }
