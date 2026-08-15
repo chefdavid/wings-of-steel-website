@@ -1,11 +1,8 @@
 import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { URLTeamProvider } from '../contexts/URLTeamContext';
 import { FaExclamationTriangle, FaTimes } from 'react-icons/fa';
-import Navigation from './Navigation';
 import Hero from './Hero';
 import NationalsBanner from './NationalsBanner';
-import Footer from './Footer';
 import Admin from './Admin';
 import type { TeamType } from '../types/team';
 
@@ -66,27 +63,22 @@ const TeamSite: React.FC = () => {
   }
 
   return (
-    <URLTeamProvider>
-      <div className="min-h-screen">
-        <Navigation />
-        <main id="main-content" className="pt-20">
-          <NationalsBanner />
-          <Hero />
-          <Suspense fallback={<div className="h-32" />}>
-            <TodayGameCard />
-            <WingsPress />
-            <About />
-            <Team />
-            <Schedule />
-            <Location />
-            <GetInvolved />
-            <Contact />
-          </Suspense>
-          <Footer />
-        </main>
-        <Suspense fallback={null}>
-          <DonationSlideOut />
-        </Suspense>
+    <>
+      <NationalsBanner />
+      <Hero />
+      <Suspense fallback={<div className="h-32" />}>
+        <TodayGameCard />
+        <WingsPress />
+        <About />
+        <Team />
+        <Schedule />
+        <Location />
+        <GetInvolved />
+        <Contact />
+      </Suspense>
+      <Suspense fallback={null}>
+        <DonationSlideOut />
+      </Suspense>
 
         {/* Practice Schedule Change Popup */}
         {showPracticeAlert && (
@@ -141,8 +133,7 @@ const TeamSite: React.FC = () => {
             </div>
           </div>
         )}
-      </div>
-    </URLTeamProvider>
+    </>
   );
 };
 

@@ -2,7 +2,6 @@ import { useState, useMemo, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Gallery as PhotoSwipeGallery } from 'react-photoswipe-gallery'
 import { motion, AnimatePresence } from 'framer-motion'
-import Navigation from '../components/Navigation'
 import ImageWithDimensions from '../components/ImageWithDimensions'
 import {
   loadGallery,
@@ -102,8 +101,6 @@ const LocalGallery = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-dark-steel to-black">
-      <Navigation />
-
       <div className="bg-gradient-to-r from-steel-blue to-ice-blue py-8">
         <div className="container mx-auto px-4">
           <h1 className="text-4xl md:text-5xl font-bold text-white font-sport tracking-wider text-center">
@@ -112,7 +109,7 @@ const LocalGallery = () => {
         </div>
       </div>
 
-      <header className="bg-black/50 backdrop-blur-sm sticky top-16 z-30 border-b border-steel-blue/20">
+      <header className="bg-black/50 backdrop-blur-sm sticky top-nav z-30 border-b border-steel-blue/20">
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between gap-4">
             <Link

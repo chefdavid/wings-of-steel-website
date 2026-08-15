@@ -2,8 +2,6 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { FaArrowLeft, FaNewspaper } from 'react-icons/fa';
 import { Link, useParams } from 'react-router-dom';
-import Navigation from '../components/Navigation';
-import Footer from '../components/Footer';
 import LoadingSpinner from '../components/LoadingSpinner';
 import NotFound from './NotFound';
 import { usePressStories } from '../hooks/usePressStories';
@@ -53,9 +51,7 @@ export default function PressStoryPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Navigation />
-
-      <article className="pt-24 pb-16">
+      <article className="pb-16">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <Link
             to="/stories"
@@ -133,8 +129,6 @@ export default function PressStoryPage() {
           )}
         </div>
       </article>
-
-      <Footer />
     </div>
   );
 }

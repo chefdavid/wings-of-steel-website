@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FaBars, FaTimes, FaChevronDown, FaFacebook } from 'react-icons/fa';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useEventVisibility } from '../hooks/useEventVisibility';
+import ThemeToggle from './ThemeToggle';
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -99,6 +100,7 @@ const Navigation = () => {
           {
             title: 'Competition',
             items: [
+              { name: 'Team Stats', href: '/stats', isHashLink: false, description: 'Record, scoring leaders & goaltending' },
               { name: 'Opponents', href: '/opponents', isHashLink: false, description: 'Teams we compete against' }
             ]
           }
@@ -208,13 +210,9 @@ const Navigation = () => {
 
   return (
     <>
-      <a 
-        href="#main-content" 
-        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-steel-blue text-white px-4 py-2 rounded-md z-50"
-      >
-        Skip to main content
-      </a>
-      
+      {/* Skip link lives in index.html so it works before hydration.
+          Duplicating it here put two "Skip to main content" targets in the
+          tab order. */}
       <nav className="fixed top-0 w-full bg-dark-steel/95 backdrop-blur-sm z-50 shadow-lg" role="navigation" aria-label="Main navigation">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
@@ -370,6 +368,7 @@ const Navigation = () => {
                 >
                   <FaFacebook className="text-2xl" />
                 </a>
+                <ThemeToggle />
                 {/* Shop button temporarily hidden while store is disabled */}
               </div>
             </div>

@@ -1,7 +1,10 @@
+import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { FaTrophy } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import type { GameHighlight } from '../types/database';
+import { useSeasons, useTeamSeasonRecord } from '../hooks/useStats';
+import { formatRecord } from '../types/stats';
 
 type GameLike = {
   id: string;
@@ -9,12 +12,23 @@ type GameLike = {
   result?: string | null;
   game_date?: string | null;
   date?: string | null;
+  season_id?: string | null;
 };
 
 interface SeasonRecordGridProps {
   pastGames: GameLike[];
   highlights: GameHighlight[];
 }
+
+/**
+ * Season record + a tile per game.
+ *
+ * This used to be titled "Season Record" while counting W/L/T across EVERY past
+ * game the site had ever stored, by reading the first character of the `result`
+ * string. Two fixes: the games are scoped to a season, and the headline record
+ * comes from the team_season_record view, which counts from integer scores
+ * (migration 014) rather than parsing display text.
+ */
 
 const abbreviateOpponent = (opponent: string): string => {
   if (!opponent) return '';
@@ -53,25 +67,34 @@ const getResultLetter = (result?: string | null): 'W' | 'L' | 'T' | null => {
 };
 
 const SeasonRecordGrid = ({ pastGames, highlights }: SeasonRecordGridProps) => {
-  // Compute record
-  let wins = 0;
-  let losses = 0;
-  let ties = 0;
-  pastGames.forEach(g => {
-    const letter = getResultLetter(g.result);
-    if (letter === 'W') wins += 1;
-    else if (letter === 'L') losses += 1;
-    else if (letter === 'T') ties += 1;
-  });
+  const { seasons, defaultSeason } = useSeasons();
+  const [selectedSeasonId, setSelectedSeasonId] = useState<string | null>(null);
+  const seasonId = selectedSeasonId ?? defaultSeason?.id ?? null;
+
+  const { record } = useTeamSeasonRecord(seasonId);
+  const activeSeason = seasons.find(s => s.id === seasonId) ?? null;
+
+  // Scope the tiles to the selected season. If no game carries a season_id
+  // (older cached data), fall back to showing what we were given rather than
+  // rendering an empty grid.
+  const seasonGames = useMemo(() => {
+    if (!seasonId) return pastGames;
+    const scoped = pastGames.filter(g => g.season_id === seasonId);
+    return scoped.length > 0 || pastGames.some(g => g.season_id) ? scoped : pastGames;
+  }, [pastGames, seasonId]);
 
   // Sort oldest -> newest
-  const sortedGames = [...pastGames].sort((a, b) => {
-    const dateA = a.game_date || a.date || '';
-    const dateB = b.game_date || b.date || '';
-    return dateA.localeCompare(dateB);
-  });
+  const sortedGames = useMemo(
+    () =>
+      [...seasonGames].sort((a, b) => {
+        const dateA = a.game_date || a.date || '';
+        const dateB = b.game_date || b.date || '';
+        return dateA.localeCompare(dateB);
+      }),
+    [seasonGames]
+  );
 
-  const hasAnyResult = wins + losses + ties > 0;
+  const hasAnyResult = !!record && record.games_played > 0;
 
   return (
     <motion.div
@@ -81,22 +104,41 @@ const SeasonRecordGrid = ({ pastGames, highlights }: SeasonRecordGridProps) => {
       viewport={{ once: true }}
       className="mb-12"
     >
-      <h3 className="text-3xl font-bold text-dark-steel mb-8 flex items-center gap-3">
-        <FaTrophy className="text-yellow-500" />
-        Season Record
-      </h3>
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
+        <h3 className="text-3xl font-bold text-dark-steel flex items-center gap-3">
+          <FaTrophy className="text-championship-gold" />
+          {activeSeason ? `${activeSeason.label} Record` : 'Season Record'}
+        </h3>
+        {seasons.length > 1 && (
+          <>
+            <label className="sr-only" htmlFor="season-record-select">Season</label>
+            <select
+              id="season-record-select"
+              value={seasonId ?? ''}
+              onChange={e => setSelectedSeasonId(e.target.value)}
+              className="text-sm border border-gray-300 rounded px-3 py-1.5 bg-white text-gray-700"
+            >
+              {seasons.map(s => (
+                <option key={s.id} value={s.id}>{s.label} season</option>
+              ))}
+            </select>
+          </>
+        )}
+      </div>
 
       <div className="bg-white rounded-2xl shadow-xl p-6">
         {hasAnyResult ? (
           <div className="text-2xl font-bold text-dark-steel mb-6">
-            {wins}-{losses}-{ties}
+            {formatRecord(record!)}
             <span className="text-sm font-normal text-gray-500 ml-3">
-              (W-L-T)
+              ({record!.ties > 0 ? 'W-L-T' : 'W-L'}) · {record!.goals_for}–{record!.goals_against} goals
+              {record!.shutouts_for > 0 && ` · ${record!.shutouts_for} shutouts`}
             </span>
           </div>
         ) : (
           <div className="text-base text-gray-500 mb-6">
-            No completed games yet this season.
+            No completed games yet
+            {activeSeason ? ` in the ${activeSeason.label} season.` : ' this season.'}
           </div>
         )}
 

@@ -1,9 +1,7 @@
 import React, { useCallback, useState } from 'react';
-import Navigation from './Navigation';
 import { Store } from './Store';
 import { Cart } from './Cart';
 import { Checkout } from './Checkout';
-import Footer from './Footer';
 import { useCart } from '../hooks/useCart';
 
 const StorePage: React.FC = () => {
@@ -24,11 +22,9 @@ const StorePage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-white text-dark-steel">
-      <Navigation />
       {storeAvailable && <Cart />}
       <Store onAvailabilityChange={handleStoreAvailabilityChange} />
       {storeAvailable && <Checkout />}
-      <Footer />
     </div>
   );
 };

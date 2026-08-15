@@ -1,9 +1,6 @@
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { URLTeamProvider } from '../contexts/URLTeamContext';
-import Navigation from '../components/Navigation';
-import Footer from '../components/Footer';
 
 interface Team {
   name: string;
@@ -119,112 +116,104 @@ const SledHockeyTeams = () => {
   }, []);
 
   return (
-    <URLTeamProvider>
-      <div className="min-h-screen bg-dark-steel">
-        <Navigation />
-        <main className="pt-20">
-          {/* Hero / Intro Section */}
-          <section className="py-16 px-4">
-            <div className="max-w-6xl mx-auto">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-center mb-12"
+    <div className="min-h-screen bg-dark-steel">
+      {/* Hero / Intro Section */}
+      <section className="py-16 px-4">
+        <div className="max-w-6xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center mb-12"
+          >
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-sport text-white mb-6">
+              Sled Hockey Teams in the USA
+            </h1>
+            <p className="text-ice-blue text-lg md:text-xl max-w-3xl mx-auto mb-6">
+              Sled hockey (also called sledge hockey) is one of the fastest-growing adaptive
+              sports in the United States. USA Hockey oversees sled hockey programs nationwide,
+              and many NHL franchises sponsor local sled hockey teams to make the sport
+              accessible in their communities.
+            </p>
+            <p className="text-ice-blue text-lg max-w-3xl mx-auto mb-8">
+              Whether you are looking for a sled hockey team near you or exploring the sport
+              for the first time, this directory will help you find a program in your region.
+              Many teams welcome players of all ages and experience levels, and most provide
+              equipment at no cost.
+            </p>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Link
+                to="/what-is-sled-hockey"
+                className="bg-steel-blue text-white font-bold px-6 py-3 rounded-lg hover:bg-steel-blue/80 transition-colors"
               >
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-sport text-white mb-6">
-                  Sled Hockey Teams in the USA
-                </h1>
-                <p className="text-ice-blue text-lg md:text-xl max-w-3xl mx-auto mb-6">
-                  Sled hockey (also called sledge hockey) is one of the fastest-growing adaptive
-                  sports in the United States. USA Hockey oversees sled hockey programs nationwide,
-                  and many NHL franchises sponsor local sled hockey teams to make the sport
-                  accessible in their communities.
-                </p>
-                <p className="text-ice-blue text-lg max-w-3xl mx-auto mb-8">
-                  Whether you are looking for a sled hockey team near you or exploring the sport
-                  for the first time, this directory will help you find a program in your region.
-                  Many teams welcome players of all ages and experience levels, and most provide
-                  equipment at no cost.
-                </p>
-                <div className="flex flex-wrap justify-center gap-4">
-                  <Link
-                    to="/what-is-sled-hockey"
-                    className="bg-steel-blue text-white font-bold px-6 py-3 rounded-lg hover:bg-steel-blue/80 transition-colors"
-                  >
-                    What Is Sled Hockey?
-                  </Link>
-                  <Link
-                    to="/join-team"
-                    className="bg-yellow-400 text-dark-steel font-bold px-6 py-3 rounded-lg hover:bg-yellow-300 transition-colors"
-                  >
-                    Join Wings of Steel
-                  </Link>
-                </div>
-              </motion.div>
-            </div>
-          </section>
-
-          {/* Teams by Region */}
-          {regions.map((region, regionIndex) => (
-            <section key={region.name} className="py-12 px-4">
-              <div className="max-w-6xl mx-auto">
-                <motion.h2
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: regionIndex * 0.1 }}
-                  className="text-3xl md:text-4xl font-sport text-steel-blue mb-8 border-b border-steel-blue/30 pb-3"
-                >
-                  {region.name}
-                </motion.h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {region.teams.map((team, index) => (
-                    <TeamCard key={team.name} team={team} index={index} />
-                  ))}
-                </div>
-              </div>
-            </section>
-          ))}
-
-          {/* CTA / Info Section */}
-          <section className="py-16 px-4">
-            <div className="max-w-4xl mx-auto">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="bg-steel-gray/30 rounded-2xl p-8 md:p-12 border border-steel-blue/30 text-center"
+                What Is Sled Hockey?
+              </Link>
+              <Link
+                to="/join-team"
+                className="bg-yellow-400 text-dark-steel font-bold px-6 py-3 rounded-lg hover:bg-yellow-300 transition-colors"
               >
-                <h2 className="text-3xl md:text-4xl font-sport text-white mb-4">
-                  Don't See a Team Near You?
-                </h2>
-                <p className="text-ice-blue text-lg mb-6 max-w-2xl mx-auto">
-                  New sled hockey programs are forming all the time. USA Hockey's disabled hockey
-                  section can help you find or start a team in your area. If you are in the
-                  New Jersey, Pennsylvania, or Delaware region, Wings of Steel welcomes you —
-                  and no child ever pays to play.
-                </p>
-                <div className="flex flex-wrap justify-center gap-4">
-                  <Link
-                    to="/join-team"
-                    className="bg-yellow-400 text-dark-steel font-bold px-6 py-3 rounded-lg hover:bg-yellow-300 transition-colors"
-                  >
-                    Join Wings of Steel
-                  </Link>
-                  <Link
-                    to="/donate"
-                    className="bg-steel-blue text-white font-bold px-6 py-3 rounded-lg hover:bg-steel-blue/80 transition-colors"
-                  >
-                    Support Our Mission
-                  </Link>
-                </div>
-              </motion.div>
+                Join Wings of Steel
+              </Link>
             </div>
-          </section>
-        </main>
-        <Footer />
-      </div>
-    </URLTeamProvider>
+          </motion.div>
+        </div>
+      </section>
+      {/* Teams by Region */}
+      {regions.map((region, regionIndex) => (
+        <section key={region.name} className="py-12 px-4">
+          <div className="max-w-6xl mx-auto">
+            <motion.h2
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: regionIndex * 0.1 }}
+              className="text-3xl md:text-4xl font-sport text-steel-blue mb-8 border-b border-steel-blue/30 pb-3"
+            >
+              {region.name}
+            </motion.h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {region.teams.map((team, index) => (
+                <TeamCard key={team.name} team={team} index={index} />
+              ))}
+            </div>
+          </div>
+        </section>
+      ))}
+      {/* CTA / Info Section */}
+      <section className="py-16 px-4">
+        <div className="max-w-4xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="bg-steel-gray/30 rounded-2xl p-8 md:p-12 border border-steel-blue/30 text-center"
+          >
+            <h2 className="text-3xl md:text-4xl font-sport text-white mb-4">
+              Don't See a Team Near You?
+            </h2>
+            <p className="text-ice-blue text-lg mb-6 max-w-2xl mx-auto">
+              New sled hockey programs are forming all the time. USA Hockey's disabled hockey
+              section can help you find or start a team in your area. If you are in the
+              New Jersey, Pennsylvania, or Delaware region, Wings of Steel welcomes you —
+              and no child ever pays to play.
+            </p>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Link
+                to="/join-team"
+                className="bg-yellow-400 text-dark-steel font-bold px-6 py-3 rounded-lg hover:bg-yellow-300 transition-colors"
+              >
+                Join Wings of Steel
+              </Link>
+              <Link
+                to="/donate"
+                className="bg-steel-blue text-white font-bold px-6 py-3 rounded-lg hover:bg-steel-blue/80 transition-colors"
+              >
+                Support Our Mission
+              </Link>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+    </div>
   );
 };
 

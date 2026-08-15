@@ -1,33 +1,50 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaExternalLinkAlt, FaHockeyPuck } from 'react-icons/fa';
 import { supabase } from '../lib/supabaseClient';
+import { useSeasons, usePlayerStats } from '../hooks/useStats';
+import { formatSavePct } from '../types/stats';
 
 interface PlayerStatsSectionProps {
   playerId: string;
 }
 
+/**
+ * Per-player stats on the roster card.
+ *
+ * This panel was previously titled "Season Stats" while querying
+ * player_game_stats by player_id with NO season or date filter — it was career
+ * totals. It only looked right because the bulk importer DELETED the previous
+ * season's rows before importing, so there was never more than one season in
+ * the table. Season isolation was enforced by destroying history.
+ *
+ * Now the totals come from the season-aware views and the scope is explicit and
+ * switchable, so "this season" and "career" are both available and both honest.
+ */
+
 interface GameStatRow {
+  id: string;
   goals: number;
   assists: number;
-  penalty_minutes: number;
-  saves: number;
-  shots_on_goal: number;
+  penalty_minutes: number | null;
+  saves: number | null;
+  shots_on_goal: number | null;
+  goals_against: number | null;
+  shots_faced: number | null;
+  season_id: string | null;
+  game: {
+    id: string;
+    opponent: string | null;
+    game_date: string | null;
+    result: string | null;
+  } | null;
   game_highlight: {
     id: string;
     title: string | null;
     opponent: string | null;
     game_date: string | null;
     final_score: string | null;
-    game_id: string | null;
   } | null;
-}
-
-interface GameSchedule {
-  id: string;
-  opponent: string | null;
-  game_date: string | null;
-  result: string | null;
 }
 
 // Shared query string for both team-stats and per-player gamesheetstats URLs.
@@ -35,6 +52,8 @@ interface GameSchedule {
 const GAMESHEET_QS =
   'configuration%5Bcompact-view%5D=true&configuration%5Bprimary-colour%5D=E92823&configuration%5Bsecondary-colour%5D=142C5D&filter%5Bdivision%5D=77698&filter%5Bstart_time_from%5D=cleared';
 const GAMESHEET_TEAM_URL = `https://gamesheetstats.com/seasons/14654/teams/508480/team-stats?${GAMESHEET_QS}`;
+
+const CAREER = 'career';
 
 const formatDate = (dateStr: string | null) => {
   if (!dateStr) return '—';
@@ -45,8 +64,21 @@ const formatDate = (dateStr: string | null) => {
 
 export default function PlayerStatsSection({ playerId }: PlayerStatsSectionProps) {
   const navigate = useNavigate();
+  const { seasons, defaultSeason } = useSeasons();
+
+  /** Either a season id, or CAREER. Never ambiguous. */
+  const [scope, setScope] = useState<string | null>(null);
+  useEffect(() => {
+    if (!scope && defaultSeason) setScope(defaultSeason.id);
+  }, [defaultSeason, scope]);
+
+  const isCareer = scope === CAREER;
+  const seasonId = isCareer ? null : scope;
+
+  const { season: seasonTotals, career: careerTotals, loading: totalsLoading } =
+    usePlayerStats(playerId, seasonId);
+
   const [rows, setRows] = useState<GameStatRow[]>([]);
-  const [scheduleById, setScheduleById] = useState<Record<string, GameSchedule>>({});
   const [gamesheetPlayerId, setGamesheetPlayerId] = useState<string | null>(null);
   const [gamesheetSeasonId, setGamesheetSeasonId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -56,8 +88,6 @@ export default function PlayerStatsSection({ playerId }: PlayerStatsSectionProps
     setLoading(true);
 
     (async () => {
-      // Fetch gamesheetstats IDs from the players table directly (the
-      // player_team_details view doesn't expose these new columns).
       const { data: playerRow } = await supabase
         .from('players')
         .select('gamesheet_player_id, gamesheet_season_id')
@@ -68,47 +98,27 @@ export default function PlayerStatsSection({ playerId }: PlayerStatsSectionProps
         setGamesheetSeasonId(playerRow?.gamesheet_season_id || null);
       }
 
+      // game_id is the spine now (migration 015), so opponent and date come
+      // from the game in one hop instead of being resolved through the
+      // highlight and, failing that, split out of the highlight's title.
       const { data, error } = await supabase
         .from('player_game_stats')
-        .select('goals, assists, penalty_minutes, saves, shots_on_goal, game_highlight:game_highlights(id, title, opponent, game_date, final_score, game_id)')
+        .select(
+          'id, goals, assists, penalty_minutes, saves, shots_on_goal, goals_against, shots_faced, season_id,' +
+            'game:game_schedules(id, opponent, game_date, result),' +
+            'game_highlight:game_highlights(id, title, opponent, game_date, final_score)'
+        )
         .eq('player_id', playerId);
 
       if (cancelled) return;
       if (error) {
         console.error('Error loading player stats:', error);
         setRows([]);
-        setScheduleById({});
         setLoading(false);
         return;
       }
 
-      const statRows = (data || []) as unknown as GameStatRow[];
-
-      // Fetch matching game_schedules rows in one query so we can resolve
-      // opponent + date for highlights linked to a game (the highlight row
-      // itself only has these fields populated for *standalone* entries).
-      const gameIds = Array.from(
-        new Set(statRows.map((r) => r.game_highlight?.game_id).filter((id): id is string => !!id))
-      );
-      let lookup: Record<string, GameSchedule> = {};
-      if (gameIds.length > 0) {
-        const { data: schedules } = await supabase
-          .from('game_schedules')
-          .select('id, opponent, game_date, result')
-          .in('id', gameIds);
-        for (const s of (schedules as GameSchedule[] | null) || []) {
-          lookup[s.id] = s;
-        }
-      }
-      if (cancelled) return;
-
-      const sorted = statRows.slice().sort((a, b) => {
-        const da = lookup[a.game_highlight?.game_id || '']?.game_date || a.game_highlight?.game_date || '';
-        const db = lookup[b.game_highlight?.game_id || '']?.game_date || b.game_highlight?.game_date || '';
-        return db.localeCompare(da);
-      });
-      setRows(sorted);
-      setScheduleById(lookup);
+      setRows((data || []) as unknown as GameStatRow[]);
       setLoading(false);
     })();
 
@@ -117,98 +127,162 @@ export default function PlayerStatsSection({ playerId }: PlayerStatsSectionProps
     };
   }, [playerId]);
 
-  const totals = rows.reduce(
-    (acc, r) => {
-      acc.goals += r.goals;
-      acc.assists += r.assists;
-      acc.pim += r.penalty_minutes || 0;
-      acc.sog += r.shots_on_goal || 0;
-      acc.sv += r.saves || 0;
-      return acc;
-    },
-    { goals: 0, assists: 0, pim: 0, sog: 0, sv: 0 }
-  );
-  const points = totals.goals + totals.assists;
-  const showSaves = totals.sv > 0;
+  const visibleRows = useMemo(() => {
+    const scoped = isCareer ? rows : rows.filter((r) => r.season_id === seasonId);
+    return scoped.slice().sort((a, b) => {
+      const da = a.game?.game_date || a.game_highlight?.game_date || '';
+      const db = b.game?.game_date || b.game_highlight?.game_date || '';
+      return db.localeCompare(da);
+    });
+  }, [rows, isCareer, seasonId]);
 
-  const seasonId = gamesheetSeasonId || '14654';
+  const totals = isCareer ? careerTotals : seasonTotals;
+  const goals = totals?.goals ?? 0;
+  const assists = totals?.assists ?? 0;
+  const points = totals?.points ?? 0;
+  const gamesPlayed = totals?.games_played ?? 0;
+
+  // Goalie columns appear only when goalie data actually exists — a skater with
+  // a stray save should not turn this into a goalie table, and a shutout goalie
+  // credited zero saves should not disappear.
+  const isGoalie = (seasonTotals?.is_goalie ?? careerTotals?.is_goalie) === true;
+  const hasGoalieData = visibleRows.some(
+    (r) => r.goals_against != null || r.shots_faced != null || (r.saves ?? 0) > 0
+  );
+  const showGoalie = isGoalie || hasGoalieData;
+
+  const goalieSummary = useMemo(() => {
+    if (!showGoalie) return null;
+    const saves = visibleRows.reduce((n, r) => n + (r.saves ?? 0), 0);
+    const shots = visibleRows.reduce((n, r) => n + (r.shots_faced ?? 0), 0);
+    const ga = visibleRows.reduce((n, r) => n + (r.goals_against ?? 0), 0);
+    return {
+      saves,
+      goalsAgainst: ga,
+      // NULL rather than 0.000 when no shots have been recorded — the site has
+      // never tracked shots faced, and a fake .000 would read as a real number.
+      savePct: shots > 0 ? saves / shots : null,
+    };
+  }, [visibleRows, showGoalie]);
+
+  const gsSeasonId = gamesheetSeasonId || '14654';
   const externalUrl = gamesheetPlayerId
-    ? `https://gamesheetstats.com/seasons/${seasonId}/players/${gamesheetPlayerId}?${GAMESHEET_QS}`
+    ? `https://gamesheetstats.com/seasons/${gsSeasonId}/players/${gamesheetPlayerId}?${GAMESHEET_QS}`
     : GAMESHEET_TEAM_URL;
+
+  const scopeLabel = isCareer
+    ? 'Career'
+    : seasons.find((s) => s.id === scope)?.label ?? 'Season';
 
   return (
     <div className="bg-gray-50 p-6 rounded-lg">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <h3 className="text-lg font-bold flex items-center gap-2">
           <FaHockeyPuck className="text-steel-blue" />
-          Season Stats
+          {scopeLabel} Stats
+          <span className="text-steel-blue" aria-hidden="true">*</span>
         </h3>
-        <a
-          href={externalUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 text-xs text-steel-blue hover:text-dark-steel font-semibold"
-        >
-          USA Hockey GameSheet
-          <FaExternalLinkAlt className="text-[10px]" />
-        </a>
+        <div className="flex items-center gap-3">
+          <label className="sr-only" htmlFor={`stats-scope-${playerId}`}>
+            Stats period
+          </label>
+          <select
+            id={`stats-scope-${playerId}`}
+            value={scope ?? ''}
+            onChange={(e) => setScope(e.target.value)}
+            className="text-xs border border-gray-300 rounded px-2 py-1 bg-white text-gray-700"
+          >
+            {seasons.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.label} season
+              </option>
+            ))}
+            <option value={CAREER}>Career</option>
+          </select>
+          {/*
+            The official record. It was a small text link losing to the season
+            dropdown next to it; as a filled pill it reads as the primary
+            action in this header, which matches how often people want it.
+          */}
+          <a
+            href={externalUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-pill bg-steel-blue px-4 py-2 text-xs font-bold uppercase tracking-wide text-white shadow-card transition-colors duration-fast hover:bg-dark-steel focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-steel-blue"
+          >
+            USA Hockey GameSheet
+            <FaExternalLinkAlt className="text-[10px]" aria-hidden="true" />
+            <span className="sr-only">(opens in a new tab)</span>
+          </a>
+        </div>
       </div>
 
-      {/* Season totals */}
-      <div className="grid grid-cols-3 gap-3 mb-4">
-        <StatTile label="Goals" value={totals.goals} />
-        <StatTile label="Assists" value={totals.assists} />
+      <div className="grid grid-cols-4 gap-3 mb-4">
+        <StatTile label="GP" value={gamesPlayed} />
+        <StatTile label="Goals" value={goals} />
+        <StatTile label="Assists" value={assists} />
         <StatTile label="Points" value={points} highlight />
       </div>
 
-      {/* Per-game breakdown */}
-      {loading ? (
+      {showGoalie && goalieSummary && (
+        <div className="grid grid-cols-3 gap-3 mb-4">
+          <StatTile label="Saves" value={goalieSummary.saves} />
+          <StatTile label="GA" value={goalieSummary.goalsAgainst} />
+          <TextTile label="SV%" value={formatSavePct(goalieSummary.savePct)} />
+        </div>
+      )}
+
+      {loading || totalsLoading ? (
         <p className="text-sm text-gray-500 text-center py-4">Loading stats…</p>
-      ) : rows.length === 0 ? (
-        <p className="text-sm text-gray-500 text-center py-4">No game stats recorded yet.</p>
+      ) : visibleRows.length === 0 ? (
+        <p className="text-sm text-gray-500 text-center py-4">
+          {isCareer
+            ? 'No game stats recorded yet.'
+            : `No game stats recorded for the ${scopeLabel} season.`}
+        </p>
       ) : (
         <div className="bg-white rounded border border-gray-200 overflow-hidden">
           <table className="w-full text-sm">
+            <caption className="sr-only">
+              Game-by-game stats — {scopeLabel}
+            </caption>
             <thead className="bg-gray-100 text-xs uppercase text-gray-600">
               <tr>
-                <th className="px-2 py-2 text-left">Date</th>
-                <th className="px-2 py-2 text-left">Opponent</th>
-                <th className="px-2 py-2 text-center">G</th>
-                <th className="px-2 py-2 text-center">A</th>
-                <th className="px-2 py-2 text-center">PTS</th>
-                <th className="px-2 py-2 text-center">PIM</th>
-                {showSaves && <th className="px-2 py-2 text-center">SV</th>}
+                <th scope="col" className="px-2 py-2 text-left">Date</th>
+                <th scope="col" className="px-2 py-2 text-left">Opponent</th>
+                <th scope="col" className="px-2 py-2 text-center">G</th>
+                <th scope="col" className="px-2 py-2 text-center">A</th>
+                <th scope="col" className="px-2 py-2 text-center">PTS</th>
+                <th scope="col" className="px-2 py-2 text-center">PIM</th>
+                {showGoalie && <th scope="col" className="px-2 py-2 text-center">SV</th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {rows.map((row, idx) => {
+              {visibleRows.map((row) => {
+                const g = row.game;
                 const h = row.game_highlight;
-                const sched = h?.game_id ? scheduleById[h.game_id] : undefined;
-                const opp = sched?.opponent || h?.opponent || (h?.title ? h.title.split(/[—,–-]/)[0]?.trim() : '—');
-                const date = sched?.game_date || h?.game_date || null;
-                // Prefer a game_schedules-based result string (e.g. "W 5-0") if present.
-                const score = sched?.result || h?.final_score || null;
+                const opp = g?.opponent || h?.opponent || '—';
+                const date = g?.game_date || h?.game_date || null;
+                const score = g?.result || h?.final_score || null;
                 const pts = row.goals + row.assists;
-                const linkTarget = h?.game_id || h?.id;
+                const linkTarget = g?.id || h?.id;
                 return (
                   <tr
-                    key={idx}
+                    key={row.id}
                     onClick={() => linkTarget && navigate(`/game/${linkTarget}`)}
                     className={linkTarget ? 'cursor-pointer hover:bg-ice-blue/30' : 'hover:bg-gray-50'}
                   >
                     <td className="px-2 py-2 text-gray-700 whitespace-nowrap">{formatDate(date)}</td>
                     <td className="px-2 py-2 text-gray-700">
                       <div className="line-clamp-1">{opp}</div>
-                      {score && (
-                        <div className="text-xs text-gray-500">{score}</div>
-                      )}
+                      {score && <div className="text-xs text-gray-500">{score}</div>}
                     </td>
                     <td className="px-2 py-2 text-center font-semibold text-gray-900">{row.goals}</td>
                     <td className="px-2 py-2 text-center font-semibold text-gray-900">{row.assists}</td>
                     <td className="px-2 py-2 text-center font-bold text-steel-blue">{pts}</td>
                     <td className="px-2 py-2 text-center text-gray-700">{row.penalty_minutes || 0}</td>
-                    {showSaves && (
-                      <td className="px-2 py-2 text-center text-gray-700">{row.saves || 0}</td>
+                    {showGoalie && (
+                      <td className="px-2 py-2 text-center text-gray-700">{row.saves ?? 0}</td>
                     )}
                   </tr>
                 );
@@ -217,15 +291,38 @@ export default function PlayerStatsSection({ playerId }: PlayerStatsSectionProps
           </table>
         </div>
       )}
+
+      {/*
+        Explains the empty older seasons in the dropdown. Individual stats
+        simply were not kept before 2025 — without this note a blank 2024-25
+        reads as a bug or as a player who did not score.
+      */}
+      <p className="mt-4 text-[11px] leading-relaxed text-gray-500">
+        <span aria-hidden="true">*</span> Individual player stats were not
+        tracked before the 2025&ndash;26 season. Earlier seasons will show no
+        results.
+      </p>
     </div>
   );
 }
 
 function StatTile({ label, value, highlight }: { label: string; value: number; highlight?: boolean }) {
+  return <TextTile label={label} value={String(value)} highlight={highlight} />;
+}
+
+function TextTile({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
   return (
-    <div className={`rounded-lg p-3 text-center ${highlight ? 'bg-steel-blue text-white' : 'bg-white border border-gray-200'}`}>
+    <div
+      className={`rounded-lg p-3 text-center ${
+        highlight ? 'bg-steel-blue text-white' : 'bg-white border border-gray-200'
+      }`}
+    >
       <div className={`text-2xl font-bold ${highlight ? '' : 'text-dark-steel'}`}>{value}</div>
-      <div className={`text-xs uppercase tracking-wide ${highlight ? 'text-ice-blue' : 'text-gray-500'}`}>{label}</div>
+      <div
+        className={`text-xs uppercase tracking-wide ${highlight ? 'text-ice-blue' : 'text-gray-500'}`}
+      >
+        {label}
+      </div>
     </div>
   );
 }

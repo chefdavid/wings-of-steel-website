@@ -34,8 +34,15 @@
     <link rel="dns-prefetch" href="https://js.stripe.com">
     
     <!-- Preload critical assets - removed font preloads to prevent errors -->
-    
-    <!-- Add font fallbacks to prevent layout shift -->
+    <!-- Hero background (LCP element on "/"). Must match the URL used in
+         src/components/Hero.tsx — previously this preloaded
+         /assets/hockey-sticks.webp, which the hero never renders. -->
+    <link rel="preload" as="image" href="/images/hockey-sticks2.webp" fetchpriority="high">
+
+    <!-- Metric-matched fallback so swapping in Bebas Neue does not shift layout.
+         The .font-sport rule that used to live here was removed: the Tailwind
+         `font-sport` token in src/design/tokens.js now includes this fallback
+         in its stack, so defining it twice only invited drift. -->
     <style>
       @font-face {
         font-family: 'Bebas Neue Fallback';
@@ -43,9 +50,6 @@
         ascent-override: 95%;
         descent-override: 10%;
         line-gap-override: 0%;
-      }
-      .font-sport {
-        font-family: 'Bebas Neue', 'Bebas Neue Fallback', sans-serif;
       }
     </style>
     
