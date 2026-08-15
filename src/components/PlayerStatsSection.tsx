@@ -217,8 +217,15 @@ export default function PlayerStatsSection({ playerId }: PlayerStatsSectionProps
         </div>
       </div>
 
+      {/*
+        This is NOT games played. A stat row only exists for a game where the
+        player recorded something, so this counts games with a stat line. Until
+        every game's lineup is entered via the admin Box Scores screen (the
+        "dressed" checkbox), it undercounts. Labelling it "Games Played" would
+        be a lie, so it says what it actually is.
+      */}
       <div className="grid grid-cols-4 gap-3 mb-4">
-        <StatTile label="GP" value={gamesPlayed} />
+        <StatTile label="Games Scored" value={gamesPlayed} />
         <StatTile label="Goals" value={goals} />
         <StatTile label="Assists" value={assists} />
         <StatTile label="Points" value={points} highlight />
@@ -250,11 +257,11 @@ export default function PlayerStatsSection({ playerId }: PlayerStatsSectionProps
               <tr>
                 <th scope="col" className="px-2 py-2 text-left">Date</th>
                 <th scope="col" className="px-2 py-2 text-left">Opponent</th>
-                <th scope="col" className="px-2 py-2 text-center">G</th>
-                <th scope="col" className="px-2 py-2 text-center">A</th>
-                <th scope="col" className="px-2 py-2 text-center">PTS</th>
-                <th scope="col" className="px-2 py-2 text-center">PIM</th>
-                {showGoalie && <th scope="col" className="px-2 py-2 text-center">SV</th>}
+                <th scope="col" className="px-2 py-2 text-center"><abbr title="Goals" className="no-underline">G</abbr></th>
+                <th scope="col" className="px-2 py-2 text-center"><abbr title="Assists" className="no-underline">A</abbr></th>
+                <th scope="col" className="px-2 py-2 text-center"><abbr title="Points (goals + assists)" className="no-underline">PTS</abbr></th>
+                <th scope="col" className="px-2 py-2 text-center"><abbr title="Penalty minutes" className="no-underline">PIM</abbr></th>
+                {showGoalie && <th scope="col" className="px-2 py-2 text-center"><abbr title="Saves" className="no-underline">SV</abbr></th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -299,8 +306,9 @@ export default function PlayerStatsSection({ playerId }: PlayerStatsSectionProps
       */}
       <p className="mt-4 text-[11px] leading-relaxed text-gray-500">
         <span aria-hidden="true">*</span> Individual player stats were not
-        tracked before the 2025&ndash;26 season. Earlier seasons will show no
-        results.
+        tracked before the 2025&ndash;26 season, so earlier seasons show no
+        results. &ldquo;Games Scored&rdquo; counts games where a stat was
+        recorded &mdash; a player may have appeared in more games than this.
       </p>
     </div>
   );

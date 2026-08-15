@@ -185,7 +185,7 @@ export default function Stats() {
         {/* ----------------------------------------------------- leaderboard */}
         <section className="mt-12" aria-labelledby="leaders-heading">
           <div id="leaders-heading">
-            <SectionHeading sub="Sorted by points. Games played counts every game a player dressed for.">
+            <SectionHeading sub="Sorted by points. GP counts games with a recorded stat line, so it undercounts until every game\u2019s lineup is entered.">
               Scoring Leaders
             </SectionHeading>
           </div>
@@ -203,10 +203,10 @@ export default function Stats() {
                 <thead>
                   <tr className="bg-white/5 text-ice-200/70 text-xs uppercase tracking-wider">
                     <th scope="col" className="text-left px-4 py-3 font-display">Player</th>
-                    <th scope="col" className="text-right px-3 py-3 font-display">GP</th>
-                    <th scope="col" className="text-right px-3 py-3 font-display">G</th>
-                    <th scope="col" className="text-right px-3 py-3 font-display">A</th>
-                    <th scope="col" className="text-right px-4 py-3 font-display">PTS</th>
+                    <th scope="col" className="text-right px-3 py-3 font-display"><abbr title="Games with a recorded stat line" className="no-underline">GP</abbr></th>
+                    <th scope="col" className="text-right px-3 py-3 font-display"><abbr title="Goals" className="no-underline">G</abbr></th>
+                    <th scope="col" className="text-right px-3 py-3 font-display"><abbr title="Assists" className="no-underline">A</abbr></th>
+                    <th scope="col" className="text-right px-4 py-3 font-display"><abbr title="Points (goals + assists)" className="no-underline">PTS</abbr></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -264,7 +264,7 @@ export default function Stats() {
                 <thead>
                   <tr className="bg-white/5 text-ice-200/70 text-xs uppercase tracking-wider">
                     <th scope="col" className="text-left px-4 py-3 font-display">Goalie</th>
-                    <th scope="col" className="text-right px-3 py-3 font-display">GP</th>
+                    <th scope="col" className="text-right px-3 py-3 font-display"><abbr title="Games with a recorded stat line" className="no-underline">GP</abbr></th>
                     <th scope="col" className="text-right px-3 py-3 font-display">SV</th>
                     <th scope="col" className="text-right px-3 py-3 font-display">GA</th>
                     <th scope="col" className="text-right px-3 py-3 font-display">SV%</th>
