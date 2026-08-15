@@ -180,6 +180,7 @@ export default function PlayerStatsSection({ playerId }: PlayerStatsSectionProps
         <h3 className="text-lg font-bold flex items-center gap-2">
           <FaHockeyPuck className="text-steel-blue" />
           {scopeLabel} Stats
+          <span className="text-steel-blue" aria-hidden="true">*</span>
         </h3>
         <div className="flex items-center gap-3">
           <label className="sr-only" htmlFor={`stats-scope-${playerId}`}>
@@ -198,14 +199,20 @@ export default function PlayerStatsSection({ playerId }: PlayerStatsSectionProps
             ))}
             <option value={CAREER}>Career</option>
           </select>
+          {/*
+            The official record. It was a small text link losing to the season
+            dropdown next to it; as a filled pill it reads as the primary
+            action in this header, which matches how often people want it.
+          */}
           <a
             href={externalUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-xs text-steel-blue hover:text-dark-steel font-semibold"
+            className="inline-flex items-center gap-2 rounded-pill bg-steel-blue px-4 py-2 text-xs font-bold uppercase tracking-wide text-white shadow-card transition-colors duration-fast hover:bg-dark-steel focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-steel-blue"
           >
             USA Hockey GameSheet
-            <FaExternalLinkAlt className="text-[10px]" />
+            <FaExternalLinkAlt className="text-[10px]" aria-hidden="true" />
+            <span className="sr-only">(opens in a new tab)</span>
           </a>
         </div>
       </div>
@@ -284,6 +291,17 @@ export default function PlayerStatsSection({ playerId }: PlayerStatsSectionProps
           </table>
         </div>
       )}
+
+      {/*
+        Explains the empty older seasons in the dropdown. Individual stats
+        simply were not kept before 2025 — without this note a blank 2024-25
+        reads as a bug or as a player who did not score.
+      */}
+      <p className="mt-4 text-[11px] leading-relaxed text-gray-500">
+        <span aria-hidden="true">*</span> Individual player stats were not
+        tracked before the 2025&ndash;26 season. Earlier seasons will show no
+        results.
+      </p>
     </div>
   );
 }
