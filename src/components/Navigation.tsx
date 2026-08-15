@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FaBars, FaTimes, FaChevronDown, FaFacebook } from 'react-icons/fa';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useEventVisibility } from '../hooks/useEventVisibility';
+import ThemeToggle from './ThemeToggle';
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -367,6 +368,7 @@ const Navigation = () => {
                 >
                   <FaFacebook className="text-2xl" />
                 </a>
+                <ThemeToggle />
                 {/* Shop button temporarily hidden while store is disabled */}
               </div>
             </div>

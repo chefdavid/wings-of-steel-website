@@ -3,6 +3,47 @@
 @tailwind utilities;
 
 /*
+ * Theme variables.
+ *
+ * Dark is the default — this is a dark-arena identity, and the stats page set
+ * that direction. `[data-theme="light"]` is the opt-in alternate. Values come
+ * from `themes` in src/design/tokens.js; keep the two in sync.
+ */
+:root,
+[data-theme='dark'] {
+  --wos-surface-base: #1E2B38;
+  --wos-surface-raised: #2C3E50;
+  --wos-surface-sunken: #131C25;
+  --wos-surface-muted: rgba(255, 255, 255, 0.05);
+  --wos-border-subtle: rgba(255, 255, 255, 0.10);
+  --wos-border-strong: rgba(255, 255, 255, 0.20);
+  --wos-ink: #FFFFFF;
+  --wos-ink-muted: #C0E8FD;
+  --wos-ink-subtle: rgba(224, 244, 255, 0.62);
+  --wos-ink-inverse: #1E2B38;
+  --wos-accent: #F5C518;
+  --wos-accent-ink: #1E2B38;
+  color-scheme: dark;
+}
+
+[data-theme='light'] {
+  --wos-surface-base: #FFFFFF;
+  --wos-surface-raised: #F8F9FA;
+  --wos-surface-sunken: #F1F3F4;
+  --wos-surface-muted: #F1F3F4;
+  --wos-border-subtle: #E3E6E8;
+  --wos-border-strong: #CBD1D4;
+  --wos-ink: #1E2B38;
+  --wos-ink-muted: #474C50;
+  --wos-ink-subtle: #5B6266;
+  --wos-ink-inverse: #FFFFFF;
+  /* gold-500 is 1.6:1 on white — the light theme uses gold-700 for meaning. */
+  --wos-accent: #7A5500;
+  --wos-accent-ink: #FFFFFF;
+  color-scheme: light;
+}
+
+/*
  * Global styles.
  *
  * Brand values are pulled from the Tailwind theme via theme(), which is fed by
@@ -21,6 +62,8 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  background-color: var(--wos-surface-base);
+  color: var(--wos-ink);
 }
 
 * {

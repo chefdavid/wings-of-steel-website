@@ -324,3 +324,47 @@ the page still lands on 2025-26 with the 20-1 record showing.
 **Process note:** this class of bug is invisible in this container because
 egress to `*.supabase.co` is blocked, so every local check runs against stubs
 that answer instantly. Stubs for stats work should deliberately vary latency.
+
+---
+
+## 2026-08-15 — Phase 4 proof: dark-first theme, hero + roster restyled
+
+David picked "like the stats page", "hero + one section first", and "dark mode
+yes". Those last two pull against each other — if the whole site goes dark, a
+"dark mode" toggle is nearly a no-op. Resolution: **dark is the default look**
+and `light` is the opt-in alternate. That is the inverse of the usual
+convention, so it is spelled out in the token file and the hook.
+
+**Theme architecture.** `themes` in `src/design/tokens.js` defines semantic
+roles — `surface-base/raised/sunken/muted`, `ink/ink-muted/ink-subtle`,
+`border-subtle/strong`, `accent` — for each theme. They resolve through CSS
+custom properties (`--wos-*`) set on `[data-theme]` in `index.css`, and Tailwind
+maps them to utilities (`bg-surface`, `text-ink-muted`, `border-subtle`).
+Components reference the ROLE, so a theme switch is a variable swap rather than
+a `dark:` variant on every element — which matters given there are ~100
+components still to convert.
+
+Note the accent differs per theme by necessity: gold-500 is 6.7:1 on dark but
+only 1.6:1 on white, so the light theme resolves `accent` to gold-700.
+
+`useTheme` writes `data-theme` on `<html>`, persists to localStorage, and
+honours `prefers-color-scheme` on first visit only. `ThemeToggle` sits in the
+nav; its accessible name says which theme it switches TO, which is what a
+screen-reader user needs, and `aria-pressed` carries state.
+
+**Hero.** Two-layer scrim (vertical + radial) so the photograph is actually
+visible instead of flattened to grey, while type keeps contrast. Headline moved
+to the display scale. Killed the spinning puck in favour of a text eyebrow.
+The three award placards were solid yellow slabs competing with the headline —
+they are outlined cards now, so the gold points at the words instead of
+shouting over them. CTAs had three solid fills, two of them the same yellow, so
+nothing read as primary; now one gold pill (Donate) and two ghost buttons.
+Motion comes from the shared variants in `src/lib/motion.ts` — the first real
+consumer of that module.
+
+**Roster.** Section surfaces, headings and card chrome moved to semantic tokens
+and the token radius/shadow scale. Cards gained a subtle ring so they hold an
+edge on a dark surface.
+
+Nav is deliberately still hardcoded dark — it reads as chrome in both themes.
+Revisit if the light theme becomes the common case.

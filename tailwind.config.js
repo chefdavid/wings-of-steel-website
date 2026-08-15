@@ -15,6 +15,8 @@ import {
  */
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  // Dark is the DEFAULT look; `light` is opt-in via a class on <html>.
+  darkMode: ['selector', '[data-theme="dark"]'],
   future: {
     removeDeprecatedGapUtilities: true,
     purgeLayersByDefault: true,
@@ -23,6 +25,18 @@ export default {
     extend: {
       colors: {
         ...legacyColors,
+        // Semantic roles — resolve through CSS variables set per theme in
+        // index.css. Prefer these in new/restyled code over raw scale steps.
+        surface: 'var(--wos-surface-base)',
+        'surface-raised': 'var(--wos-surface-raised)',
+        'surface-sunken': 'var(--wos-surface-sunken)',
+        'surface-muted': 'var(--wos-surface-muted)',
+        ink: 'var(--wos-ink)',
+        'ink-muted': 'var(--wos-ink-muted)',
+        'ink-subtle': 'var(--wos-ink-subtle)',
+        'ink-inverse': 'var(--wos-ink-inverse)',
+        accent: 'var(--wos-accent)',
+        'accent-ink': 'var(--wos-accent-ink)',
         steel: colors.steel,
         ice: colors.ice,
         gold: colors.gold,
@@ -35,6 +49,10 @@ export default {
         'team-secondary': `var(--team-secondary, ${colors.steel[800]})`,
         'team-accent': `var(--team-accent, ${colors.ice[100]})`,
         'team-background': `var(--team-background, ${colors.slate[500]})`,
+      },
+      borderColor: {
+        subtle: 'var(--wos-border-subtle)',
+        strong: 'var(--wos-border-strong)',
       },
       fontFamily: {
         sport: fonts.sport,

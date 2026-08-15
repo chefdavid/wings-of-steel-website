@@ -166,3 +166,59 @@ export const duration = {
 
 /** Shared easing curve. Matches what the existing Framer usage feels like. */
 export const easing = [0.22, 1, 0.36, 1];
+
+/* ------------------------------------------------------------------ themes */
+
+/**
+ * Semantic surface / ink roles, resolved per theme.
+ *
+ * Components should reference these (`bg-surface`, `text-ink-muted`) rather
+ * than raw scale steps, so a theme switch is a variable swap instead of a
+ * `dark:` variant on every element.
+ *
+ * Dark is the DEFAULT look — the site's identity is a dark arena, and the
+ * stats page set that direction. Light is the alternate for people who prefer
+ * it. That is the opposite of the usual convention, which is why it is spelled
+ * out here.
+ */
+export const themes = {
+  dark: {
+    'surface-base': colors.steel[900],
+    'surface-raised': colors.steel[800],
+    'surface-sunken': colors.steel[950],
+    'surface-muted': 'rgba(255,255,255,0.05)',
+    'border-subtle': 'rgba(255,255,255,0.10)',
+    'border-strong': 'rgba(255,255,255,0.20)',
+    ink: '#FFFFFF',
+    'ink-muted': colors.ice[200],
+    'ink-subtle': 'rgba(224,244,255,0.62)',
+    'ink-inverse': colors.steel[900],
+    accent: colors.gold[500],
+    'accent-ink': colors.steel[900],
+  },
+  light: {
+    'surface-base': '#FFFFFF',
+    'surface-raised': colors.slate[50],
+    'surface-sunken': colors.slate[100],
+    'surface-muted': colors.slate[100],
+    'border-subtle': colors.slate[200],
+    'border-strong': colors.slate[300],
+    ink: colors.steel[900],
+    'ink-muted': colors.slate[700],
+    'ink-subtle': colors.slate[600],
+    'ink-inverse': '#FFFFFF',
+    // gold-500 is only 1.6:1 on white, so light theme uses the dark step for
+    // anything that carries meaning as text.
+    accent: colors.gold[700],
+    'accent-ink': '#FFFFFF',
+  },
+};
+
+/** CSS custom-property names for the semantic roles. */
+export const themeVarNames = Object.keys(themes.dark).map((k) => `--wos-${k}`);
+
+/** Emit a theme as a CSS declaration block body. */
+export const themeToCss = (name) =>
+  Object.entries(themes[name])
+    .map(([k, v]) => `--wos-${k}: ${v};`)
+    .join('\n  ');
