@@ -36,3 +36,6 @@ nul
 
 # Gallery photos now live in Supabase Storage; manifest is the source of
 # truth and must be committed (written by scripts/import-tournament-gallery.mjs).
+
+# Transfer bundles used to move branches between environments
+*.bundle
