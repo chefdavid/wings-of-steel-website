@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { FaHockeyPuck, FaUser, FaEnvelope, FaPhone, FaBirthdayCake, FaMapMarkerAlt, FaCheckCircle, FaExclamationTriangle, FaHome, FaInfoCircle } from 'react-icons/fa';
-import Navigation from '../components/Navigation';
-import Footer from '../components/Footer';
 import { supabase } from '../lib/supabaseClient';
 import { Link } from 'react-router-dom';
 
@@ -140,9 +138,7 @@ const JoinTeam = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-dark-steel to-black">
-      <Navigation />
-      
-      <main className="pt-24 pb-20">
+      <div className="pb-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <motion.div
@@ -555,9 +551,7 @@ const JoinTeam = () => {
             </a>
           </motion.div>
         </div>
-      </main>
-      
-      <Footer />
+      </div>
     </div>
   );
 };

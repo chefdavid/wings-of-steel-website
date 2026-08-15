@@ -28,9 +28,9 @@ const Hero = () => {
 
   return (
     <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden" aria-label="Hero section">
-      <div 
-        className="absolute inset-0 bg-dark-steel"
-      >
+      {/* .hero-backdrop replaces the old `#home > div:first-child` selector in
+          index.css, which broke if this element was ever reordered. */}
+      <div className="hero-backdrop bg-dark-steel">
         <div
           className="hero-bg-image absolute inset-0 bg-contain md:bg-cover bg-top md:bg-center bg-no-repeat"
           style={{

@@ -79,3 +79,66 @@ dashboard writes with the anon key after a browser-side password check, so
 enabling RLS without first moving admin writes server-side would lock the team
 out of their own admin. Options are written up in `docs/RLS_DECISION.md`;
 recommendation is Option A (service-role Netlify functions).
+
+---
+
+## 2026-08-15 — Phase 1: design foundation
+
+**`src/design/tokens.js` is now the single source of truth for brand values.**
+Plain dependency-free JS so node (tailwind config, the critical-CSS plugin) and
+the browser can both import it. Adds real scales — `steel`, `ice`, `gold`,
+`steel-neutral` — plus a display type scale, section spacing, `borderRadius`,
+`boxShadow`, and motion durations. The legacy class names (`steel-blue`,
+`dark-steel`, `ice-blue`, `steel-gray`, `championship-gold`) are kept as aliases
+deliberately: renaming them across 100+ components would be one unreviewable
+diff, and the visual pass in Phase 4 is a better moment.
+
+Theme values previously lived in six places. Now: `tailwind.config.js` imports
+tokens, `vite-plugin-critical-css.ts` imports tokens, `index.css` uses Tailwind's
+`theme()` function, and the `.font-sport` override was deleted from `index.html`
+(the `sport` font token carries the metric-matched fallback in its stack).
+
+**`Layout` is a React Router layout route** — `src/components/layout/Layout.tsx`.
+Nav, the `<main id="main-content">` landmark and the footer are rendered in
+exactly one place. 21 page components previously imported `Navigation` and
+`Footer` themselves and each applied its own `pt-20` to clear the fixed nav; the
+offset is now the `nav` spacing token, so nav height is a one-line change.
+`URLTeamProvider` moved into Layout — it had been mounted inside `TeamSite`
+only, so `useTeam()` fell back on every other route. `/admin` is deliberately
+outside Layout (it renders its own chrome); `/gallery` uses
+`<Layout withFooter={false} />`.
+
+**Removed the `fixed inset-0 z-[9999]` overlay wrapper from five pages**
+(`Events`, `GolfOuting`, `HockeyForACause`, `TopGolf`, `NotFound`). These pages
+were rendering as full-viewport overlays that escaped normal document flow —
+inside Layout they would have painted over the fixed nav and made the footer
+unreachable. Their background gradients were preserved on the inner div. As a
+side effect the 404 page now has navigation, which it never did before.
+
+**Suspense moved inside the shell.** The only boundary was in `App.tsx` wrapping
+`<Routes>`, so loading a lazy page chunk replaced the whole page — nav
+included — with a full-screen spinner. Nav and footer now stay painted while
+only the content area swaps. This also makes the unwired `InitialShell`
+skeleton unnecessary; it and `AppWrapper` stay in the tree for now and will be
+deleted in Phase 4 unless a use appears.
+
+**`.hero-backdrop` replaces `#home > div:first-child`** in `index.css`, so
+reordering the hero's children no longer silently breaks the background.
+
+**`.sr-only` / `.sr-only:focus` overrides deleted from `index.css`.** They
+shadowed Tailwind's built-in, and the `:focus` rule made *any* screen-reader-only
+element visible on focus — including the global aria-live regions. The skip link
+uses Tailwind's `focus:not-sr-only`.
+
+**`src/lib/motion.ts` added** — shared `fadeUp` / `fadeUpLg` / `fade` /
+`scaleIn` / `stagger` variants plus `inView` / `onMount` spreads, reading
+duration and easing from the tokens.
+
+### Deferred from Phase 1 to Phase 4, on purpose
+
+- **Migrating the 76 files that inline their own Framer variants.** The module
+  exists and new code uses it, but rewriting 76 files before the visual redesign
+  is risk without visible benefit — Phase 4 touches those files anyway.
+- **Icon library consolidation** (react-icons in 58 files, lucide in 33). Same
+  reasoning: every `Fa*` → lucide swap is a judgment call about the closest
+  equivalent, and doing it blind ahead of the restyle invites regressions.

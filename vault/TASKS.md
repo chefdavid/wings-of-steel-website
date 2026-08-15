@@ -14,16 +14,19 @@ branches off the same line.
 - [x] Seed the vault + write `docs/RLS_DECISION.md`
 - [ ] **David: pick an RLS option** (A / B / C in `docs/RLS_DECISION.md`)
 
-### Phase 1 — Design foundation
-- [ ] Real token set: color scales, type scale, spacing, radius, shadow, motion
-- [ ] Collapse the six competing theme definitions into one
-- [ ] Generate critical CSS from tokens instead of a hardcoded string
-- [ ] `<Layout>` route element — kills 21 duplicate Nav/Footer imports and the
+### ✅ Phase 1 — Design foundation
+- [x] Real token set in `src/design/tokens.js`
+- [x] Collapse the six competing theme definitions into one
+- [x] Generate critical CSS from tokens instead of a hardcoded string
+- [x] `<Layout>` route element — killed 21 duplicate Nav/Footer imports and the
       per-page `pt-20`
-- [ ] `src/lib/motion.ts` shared Framer variants; migrate the 76 files
-- [ ] Standardize on one icon library (react-icons 58 files vs lucide 33)
-- [ ] Collapse the `--team-*` CSS variable indirection (only `youth` exists)
-- [ ] Wire up `InitialShell` or drop it
+- [x] Remove the `fixed inset-0 z-[9999]` overlay wrapper from 5 pages
+- [x] Move Suspense inside the shell so nav/footer survive chunk loads
+- [x] `src/lib/motion.ts` shared Framer variants
+- [ ] ~~Migrate the 76 inline-variant files~~ → moved to Phase 4
+- [ ] ~~Icon library consolidation~~ → moved to Phase 4
+- [x] `--team-*` kept but now resolves through tokens (only `youth` exists)
+- [x] `InitialShell` superseded by in-shell Suspense; delete in Phase 4
 
 ### Phase 2 — Stats data layer
 - [ ] Bring the live schema under migration control
@@ -48,6 +51,9 @@ branches off the same line.
 - [ ] Replace `ModalEscapeHandler` DOM hacks with a real dialog primitive
 - [ ] Keyboard-accessible mega menu
 - [ ] Adopt `OptimizedImage` across the site
+- [ ] Migrate the 76 files that inline Framer variants to `src/lib/motion.ts`
+- [ ] Consolidate react-icons (58 files) and lucide (33) onto one library
+- [ ] Delete `AppWrapper` / `InitialShell` unless a use appears
 - [ ] Decide on dark mode
 
 ### Phase 5 — Verify and ship

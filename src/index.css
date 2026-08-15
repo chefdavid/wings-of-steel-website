@@ -2,39 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Font loading optimization */
-.font-sport {
-  font-display: swap;
-}
-
-/* Hero animation without framer-motion */
-.hero-content {
-  animation: fadeInUp 0.6s ease-out;
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Prevent layout shift on hero section */
-#home {
-  min-height: 100vh;
-  position: relative;
-  contain: layout style paint;
-}
-
-#home > div:first-child {
-  position: absolute;
-  inset: 0;
-  will-change: transform;
-}
+/*
+ * Global styles.
+ *
+ * Brand values are pulled from the Tailwind theme via theme(), which is fed by
+ * src/design/tokens.js. Do not hardcode hex values in this file.
+ */
 
 :root {
   font-synthesis: none;
@@ -42,11 +15,6 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
-}
-
-/* Hero background image scaling for mobile visibility */
-.hero-bg-image {
-  transition: transform 0.3s ease-out;
 }
 
 body {
@@ -59,12 +27,45 @@ body {
   box-sizing: border-box;
 }
 
+/* ------------------------------------------------------------------ hero */
+
+/*
+ * Prevent layout shift on the hero.
+ *
+ * These used to be keyed on `#home > div:first-child`, which meant reordering
+ * the hero's children silently broke the background. They are classes now;
+ * Hero.tsx applies them explicitly.
+ */
+#home {
+  min-height: 100vh;
+  position: relative;
+  contain: layout style paint;
+}
+
+.hero-backdrop {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+
+.hero-bg-image {
+  transition: transform 0.3s ease-out;
+}
+
+/* ----------------------------------------------------------------- text */
+
 .gradient-text {
-  background: linear-gradient(135deg, #4682B4 0%, #71797E 100%);
+  background: linear-gradient(
+    135deg,
+    theme('colors.steel.500') 0%,
+    theme('colors.steel-neutral.500') 100%
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
+/* ---------------------------------------------------- player card flip */
 
 .preserve-3d {
   transform-style: preserve-3d !important;
@@ -75,7 +76,6 @@ body {
   backface-visibility: hidden !important;
 }
 
-/* Card flip animation */
 .flip-card {
   background-color: transparent;
   perspective: 1000px;
@@ -111,7 +111,8 @@ body {
   transform: rotateY(180deg);
 }
 
-.flip-card-front, .flip-card-back {
+.flip-card-front,
+.flip-card-back {
   position: absolute;
   top: 0;
   left: 0;
@@ -125,34 +126,17 @@ body {
   transform: rotateY(180deg);
 }
 
-/* Accessibility improvements */
-/* Screen reader only content */
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border-width: 0;
-}
+/* -------------------------------------------------------- accessibility */
 
-.sr-only:focus {
-  position: absolute;
-  width: auto;
-  height: auto;
-  padding: 0.5rem 1rem;
-  margin: 0;
-  overflow: visible;
-  clip: auto;
-  white-space: normal;
-}
+/*
+ * `.sr-only` is provided by Tailwind and was previously redefined here, along
+ * with an `.sr-only:focus` rule that made ANY screen-reader-only element visible
+ * on focus — including the aria-live regions. Removed; the skip link uses
+ * Tailwind's `focus:not-sr-only` instead.
+ */
 
-/* Focus indicators */
 :focus-visible {
-  outline: 2px solid #87CEEB;
+  outline: 2px solid theme('colors.ice.400');
   outline-offset: 2px;
 }
 
@@ -161,12 +145,11 @@ a:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid #87CEEB;
+  outline: 2px solid theme('colors.ice.400');
   outline-offset: 2px;
   border-radius: 4px;
 }
 
-/* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -177,16 +160,12 @@ textarea:focus-visible {
     scroll-behavior: auto !important;
   }
 
-  .animate-pulse {
-    animation: none !important;
-  }
-
+  .animate-pulse,
   .animate-bounce {
     animation: none !important;
   }
 }
 
-/* High contrast mode support */
 @media (prefers-contrast: high) {
   button,
   a,
@@ -195,7 +174,7 @@ textarea:focus-visible {
   }
 
   .bg-steel-blue {
-    background-color: #4682B4;
+    background-color: theme('colors.steel.500');
     border: 1px solid white;
   }
 }

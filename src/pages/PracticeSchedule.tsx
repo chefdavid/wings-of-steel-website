@@ -5,8 +5,6 @@ import { Link } from 'react-router-dom';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import { supabase } from '../lib/supabaseClient';
-import Navigation from '../components/Navigation';
-import Footer from '../components/Footer';
 
 interface PracticeSession {
   id: string;
@@ -223,10 +221,8 @@ const PracticeSchedule = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      <Navigation />
-      
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-dark-steel to-steel-blue pt-32 pb-20">
+      <section className="relative bg-gradient-to-br from-dark-steel to-steel-blue pt-12 pb-20">
         <div className="absolute inset-0 bg-black/20"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -568,8 +564,6 @@ const PracticeSchedule = () => {
           </motion.div>
         </div>
       </section>
-      
-      <Footer />
     </div>
   );
 };

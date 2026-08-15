@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { Calendar, MapPin, Clock, Trophy, DollarSign, Gift } from 'lucide-react'
-import Navigation from '../components/Navigation'
-import Footer from '../components/Footer'
 import SponsorshipOptions from '../components/golf/SponsorshipOptions'
 import ContestSection from '../components/golf/ContestSection'
 import VenueSection from '../components/golf/VenueSection'
@@ -20,12 +18,9 @@ const GolfOuting = () => {
   }, [videoLoaded, videoError])
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-white overflow-y-auto overflow-x-hidden">
-      <div className="min-h-screen bg-gradient-to-b from-dark-steel to-steel-gray">
-        <Navigation />
-        
-        {/* Hero Section with Video Background */}
-        <section className="relative min-h-[60vh] md:min-h-screen flex items-center justify-center overflow-hidden pt-16 md:pt-20">
+    <div className="min-h-screen overflow-x-hidden bg-gradient-to-b from-dark-steel to-steel-gray">
+      {/* Hero Section with Video Background */}
+      <section className="relative min-h-[60vh] md:min-h-screen flex items-center justify-center overflow-hidden">
         {/* TB Logo in Top Right */}
         <div className="absolute top-20 right-3 md:top-24 md:right-8 z-30 group">
           <div className="relative">
@@ -379,8 +374,6 @@ const GolfOuting = () => {
         </div>
       </section>
 
-      <Footer />
-      </div>
     </div>
   )
 }

@@ -33,38 +33,68 @@ that precaches the manifest and three webp assets.
 Provider stack: `ErrorBoundary` → `CartProvider` → `DonationModalProvider` →
 `GlobalAriaLive` + `ModalEscapeHandler` + `Suspense` → `Routes`.
 
-**There is no shared layout component and no React Router layout route.**
-Every page imports `Navigation` and `Footer` itself — 21 files do this — and
-each applies its own `pt-20` to clear the fixed `h-20` nav. Changing nav height
-is therefore a 21-file edit. Introducing a `<Layout>` route element is Phase 1
-and is a prerequisite for any restyling.
+`src/components/layout/Layout.tsx` is a **React Router layout route** and is the
+only place nav, the `<main>` landmark, and the footer are rendered:
 
-`URLTeamProvider` is mounted **inside `TeamSite`**, not at the app root, so
-`useTeam()` only works within the homepage tree.
+```tsx
+<URLTeamProvider>
+  <div className="min-h-screen flex flex-col">
+    <Navigation />
+    <main id="main-content" className="pt-nav flex-1">
+      <Suspense><Outlet /></Suspense>
+    </main>
+    {withFooter && <Footer />}
+  </div>
+</URLTeamProvider>
+```
 
-## Theming — currently defined in six places
+Pages render **only their own content**. They must not import `Navigation`,
+`Footer` or `URLTeamProvider`, and must not add a `<main>` element or top
+padding to clear the nav.
 
-1. `tailwind.config.js` — the intended source of truth
-2. `src/index.css` — `.gradient-text`, `:focus-visible`, `#home` layout rules
-3. `index.html` inline `<style>` — overrides `.font-sport`
-4. `vite-plugin-critical-css.ts` — hardcoded hex duplicates
-5. `src/hooks/useTeamFromURL.ts` — sets `--team-*` CSS variables imperatively
-6. `public/sw.js` / manifest `theme-color`
+- The nav offset is the `nav` spacing token (`pt-nav`, `top-nav`, `h-nav`).
+  Change `spacing.nav` in `src/design/tokens.js` and every page follows.
+- `/admin` sits **outside** Layout — it renders its own chrome.
+- `/gallery` uses `<Layout withFooter={false} />`.
+- `Suspense` is inside the shell, so loading a lazy page chunk swaps only the
+  content area; nav and footer stay painted.
 
-Four of these hardcode `#2C3E50` / `#4682B4` independently. Consolidating them
-is Phase 1.
+`URLTeamProvider` now lives in Layout. It used to be mounted inside `TeamSite`
+only, so `useTeam()` fell back on every other route.
 
-The `--team-*` CSS variable layer exists for multi-team support, but
+## Theming — one source of truth
+
+**`src/design/tokens.js` is the source of truth for every brand value.** It is
+plain, dependency-free JS so it can be imported by node at build time and by the
+browser at runtime. Consumers:
+
+- `tailwind.config.js` — colors, fonts, type scale, spacing, radius, shadow,
+  transition durations
+- `vite-plugin-critical-css.ts` — reads tokens instead of carrying its own hex
+  copies
+- `src/index.css` — uses Tailwind's `theme()` function, no literal hex
+- `src/lib/motion.ts` — duration and easing
+
+Do not hardcode a hex value anywhere else. Theme values previously lived in six
+places, four of which hardcoded `#2C3E50` / `#4682B4` independently.
+
+Color scales are `steel`, `ice`, `gold`, `steel-neutral`. The historical class
+names (`steel-blue`, `dark-steel`, `ice-blue`, `steel-gray`,
+`championship-gold`) are kept as aliases so the redesign can proceed
+incrementally rather than as one unreviewable rename.
+
+The `--team-*` CSS variable layer remains for multi-team support, but
 `src/config/teams.ts` defines only `youth` (the adult config was removed), so it
-always resolves to the same four values already in the Tailwind config.
+always resolves to the same values already in the token file.
 
 ## CSS coupling to watch
 
-- `index.css` targets `#home` and `#home > div:first-child`. Rewriting the
-  Hero's first child div breaks the background layout.
 - The mega menu hard-links to literal section ids: `#about`, `#location`,
   `#team-players`, `#team-coaches`, `#schedule`, `#get-involved`, `#contact`.
   Renaming a section id silently breaks navigation.
+- `index.css` still keys the hero container off `#home`. The child selector
+  (`#home > div:first-child`) was replaced by an explicit `.hero-backdrop`
+  class, so reordering the hero's children is now safe.
 
 ## Data model — stats
 

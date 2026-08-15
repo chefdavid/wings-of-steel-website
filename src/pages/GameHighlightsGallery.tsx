@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FaTrophy, FaStar } from 'react-icons/fa';
-import Navigation from '../components/Navigation';
-import Footer from '../components/Footer';
 import GameHighlightsPreview from '../components/GameHighlightsPreview';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { useGameHighlights } from '../hooks/useGameHighlights';
@@ -78,10 +76,8 @@ export default function GameHighlightsGallery() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      <Navigation />
-
       {/* Hero Section */}
-      <div className="bg-gradient-to-br from-steel-blue via-dark-steel to-steel-blue text-white pt-32 pb-16">
+      <div className="bg-gradient-to-br from-steel-blue via-dark-steel to-steel-blue text-white pt-12 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -181,8 +177,6 @@ export default function GameHighlightsGallery() {
           </>
         )}
       </div>
-
-      <Footer />
     </div>
   );
 }
