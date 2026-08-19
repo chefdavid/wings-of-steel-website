@@ -1,4 +1,8 @@
 import { supabase } from '../lib/supabaseClient';
+import {
+  assignAdminPlayerTeam,
+  removeAdminPlayerTeam,
+} from '../services/adminPlayersService';
 import type { TeamType } from '../types/team';
 import type { Player, Coach, PlayerWithTeams, CoachWithTeams } from '../types/database';
 
@@ -250,20 +254,13 @@ export const addPlayerToTeam = async (playerId: string, teamType: TeamType, assi
   is_captain?: boolean;
 }) => {
   try {
-    const { data, error } = await supabase
-      .from('player_teams')
-      .insert({
-        player_id: playerId,
-        team_type: teamType,
-        jersey_number: assignment.jersey_number,
-        position: assignment.position,
-        is_captain: assignment.is_captain || false
-      })
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
+    return await assignAdminPlayerTeam({
+      player_id: playerId,
+      team_type: teamType,
+      jersey_number: assignment.jersey_number,
+      position: assignment.position,
+      is_captain: assignment.is_captain || false,
+    });
   } catch (error) {
     console.error('Error adding player to team:', error);
     throw error;
@@ -272,13 +269,7 @@ export const addPlayerToTeam = async (playerId: string, teamType: TeamType, assi
 
 export const removePlayerFromTeam = async (playerId: string, teamType: TeamType) => {
   try {
-    const { error } = await supabase
-      .from('player_teams')
-      .delete()
-      .eq('player_id', playerId)
-      .eq('team_type', teamType);
-
-    if (error) throw error;
+    await removeAdminPlayerTeam(playerId, teamType);
     return true;
   } catch (error) {
     console.error('Error removing player from team:', error);

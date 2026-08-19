@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FaCalendarAlt, FaClock, FaMapMarkerAlt, FaTrophy, FaBan, FaHockeyPuck, FaHome, FaTimes, FaPhone, FaGlobe, FaDirections, FaEye } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { useGameSchedule, useGameHighlights } from '../hooks';
-import GameHighlightsPreview from './GameHighlightsPreview';
+import SeasonRecordGrid from './SeasonRecordGrid';
 import type { GameHighlight } from '../types/database';
 import { SEASON_LABEL, tournaments2026_2027 } from '../data/schedule-2026-2027';
 
@@ -278,7 +278,7 @@ const Schedule = () => {
           className="text-center text-sm text-gray-500 -mt-8 mb-12"
         >
           Record shown is for the {currentSeason?.label || SEASON_LABEL} season.
-          {archivedHighlightCount > 0 && ' Earlier seasons live on in the recaps below.'}
+          {archivedHighlightCount > 0 && ' Earlier seasons live on in the game recaps.'}
         </motion.p>
 
         {/* Upcoming Games */}
@@ -368,6 +368,9 @@ const Schedule = () => {
                           <div className="relative z-10">
                             <div className="text-3xl md:text-4xl font-bold mb-1">{dateInfo.day}</div>
                             <div className="text-base md:text-lg font-semibold uppercase tracking-wide">{dateInfo.month}</div>
+                            {/* A season straddles two calendar years, so a bare
+                                "27 SEP" is genuinely ambiguous. */}
+                            <div className="text-xs md:text-sm font-semibold opacity-80">{dateInfo.year}</div>
                             <div className="text-xs md:text-sm opacity-90 mt-1">{dateInfo.weekday}</div>
                           </div>
                           {isHome && (
@@ -457,37 +460,14 @@ const Schedule = () => {
           </div>
         )}
 
-        {/* Game Highlights */}
-        {gamesWithHighlights.length > 0 && (
-          <div className="mb-16">
-            <motion.h3
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-              className="text-3xl font-bold text-dark-steel mb-8 flex items-center gap-3"
-            >
-              <FaTrophy className="text-yellow-500" />
-              Game Recaps
-            </motion.h3>
+        {/* Recaps are rendered by the dedicated Game Recaps section that
+            lives outside this component - it reads game_highlights directly and
+            shows opponent and full date. Duplicating it here put two "Game
+            Recaps" headings on the home page. */}
 
-            {archivedHighlightCount > 0 && (
-              <p className="text-gray-600 -mt-4 mb-6">
-                Including {archivedHighlightCount} recap{archivedHighlightCount === 1 ? '' : 's'} from previous seasons.
-              </p>
-            )}
-
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {gamesWithHighlights.slice(0, 6).map(({ game, highlight }, index) => (
-                <GameHighlightsPreview
-                  key={game.id}
-                  game={game}
-                  highlight={highlight}
-                  index={index}
-                />
-              ))}
-            </div>
-          </div>
+        {/* Season Record */}
+        {pastGames.length > 0 && (
+          <SeasonRecordGrid pastGames={pastGames} highlights={highlights} />
         )}
 
         {/* Past Games */}
@@ -524,6 +504,7 @@ const Schedule = () => {
                         <div className="text-center">
                           <div className="text-2xl font-bold text-steel-blue">{dateInfo.day}</div>
                           <div className="text-xs text-gray-500">{dateInfo.month}</div>
+                          <div className="text-[10px] text-gray-400 leading-none">{dateInfo.year}</div>
                         </div>
                         <div className="flex-1">
                           <div className="font-semibold text-dark-steel flex items-center gap-2">

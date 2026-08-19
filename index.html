@@ -10,6 +10,8 @@
     <meta name="keywords" content="sled hockey, youth sled hockey, disabled sports, Wings of Steel, New Jersey, adaptive sports, Paralympic sports, Voorhees, Flyers Skate Zone">
     <title>Wings of Steel - Youth Sled Hockey | No Child Pays to Play</title>
     
+    <link rel="canonical" href="https://wingsofsteel.org/" />
+    
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://wingsofsteel.org/">
@@ -32,8 +34,15 @@
     <link rel="dns-prefetch" href="https://js.stripe.com">
     
     <!-- Preload critical assets - removed font preloads to prevent errors -->
-    
-    <!-- Add font fallbacks to prevent layout shift -->
+    <!-- Hero background (LCP element on "/"). Must match the URL used in
+         src/components/Hero.tsx — previously this preloaded
+         /assets/hockey-sticks.webp, which the hero never renders. -->
+    <link rel="preload" as="image" href="/images/hockey-sticks2.webp" fetchpriority="high">
+
+    <!-- Metric-matched fallback so swapping in Bebas Neue does not shift layout.
+         The .font-sport rule that used to live here was removed: the Tailwind
+         `font-sport` token in src/design/tokens.js now includes this fallback
+         in its stack, so defining it twice only invited drift. -->
     <style>
       @font-face {
         font-family: 'Bebas Neue Fallback';
@@ -41,9 +50,6 @@
         ascent-override: 95%;
         descent-override: 10%;
         line-gap-override: 0%;
-      }
-      .font-sport {
-        font-family: 'Bebas Neue', 'Bebas Neue Fallback', sans-serif;
       }
     </style>
     
@@ -104,6 +110,56 @@
     }
     </script>
     
+    <!-- FAQ Schema for Sled Hockey -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is sled hockey?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Sled hockey (also called sledge hockey) is an adaptive form of ice hockey designed for players with physical disabilities. Players sit in specially designed sleds mounted on two hockey skate blades and use two short sticks — one end has a blade for shooting and passing, the other has metal picks for propelling across the ice."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How much does it cost to play sled hockey with Wings of Steel?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Wings of Steel is completely free for all players. As a 501(c)(3) nonprofit, we provide all equipment including sleds, sticks, helmets, pads, and jerseys at no cost to families. No child pays to play."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Where does Wings of Steel practice?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Wings of Steel practices at Flyers Skate Zone, 601 Laurel Oak Rd, Voorhees Township, NJ 08043. Practices are held on Thursdays from 6:10 PM to 7:10 PM."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do I need experience to join a sled hockey team?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No experience is needed to join Wings of Steel. We welcome players of all abilities and experience levels. Our coaches teach everything from basic sled movement to advanced game skills."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is sled hockey a Paralympic sport?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, sled hockey (known internationally as para ice hockey) has been a Paralympic sport since the 1994 Winter Paralympics in Lillehammer, Norway. It is one of the most popular and fast-paced events at the Winter Paralympics."
+          }
+        }
+      ]
+    }
+    </script>
+
     <!-- Local Business Schema -->
     <script type="application/ld+json">
     {

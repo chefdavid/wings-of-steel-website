@@ -1,35 +1,26 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
 import { Item } from 'react-photoswipe-gallery'
 import { motion } from 'framer-motion'
 
 interface ImageWithDimensionsProps {
   src: string
+  thumbnail: string
+  width: number
+  height: number
   alt: string
   index: number
 }
 
-const ImageWithDimensions: React.FC<ImageWithDimensionsProps> = ({ src, alt, index }) => {
-  const [dimensions, setDimensions] = useState({ width: 1600, height: 1200 })
+const ImageWithDimensions: React.FC<ImageWithDimensionsProps> = ({
+  src,
+  thumbnail,
+  width,
+  height,
+  alt,
+  index,
+}) => {
   const [imageLoaded, setImageLoaded] = useState(false)
   const [imageError, setImageError] = useState(false)
-  const imgRef = useRef<HTMLImageElement>(null)
-
-  useEffect(() => {
-    // Preload image to get actual dimensions
-    const img = new Image()
-    img.onload = () => {
-      setDimensions({
-        width: img.naturalWidth || 1600,
-        height: img.naturalHeight || 1200
-      })
-      setImageLoaded(true)
-    }
-    img.onerror = () => {
-      setImageError(true)
-      setImageLoaded(true)
-    }
-    img.src = src
-  }, [src])
 
   if (imageError) {
     return (
@@ -62,35 +53,30 @@ const ImageWithDimensions: React.FC<ImageWithDimensionsProps> = ({ src, alt, ind
     >
       <Item
         original={src}
-        thumbnail={src}
-        width={dimensions.width}
-        height={dimensions.height}
+        thumbnail={thumbnail}
+        width={width}
+        height={height}
         alt={alt}
       >
         {({ ref, open }) => (
           <div className="relative aspect-[4/3] cursor-pointer" onClick={open}>
-            {/* Loading placeholder */}
             {!imageLoaded && (
               <div className="absolute inset-0 bg-steel-gray/20 animate-pulse" />
             )}
-            
-            {/* Actual image */}
-            <img 
-              ref={(el) => {
-                imgRef.current = el
-                if (ref && typeof ref === 'function') ref(el)
-              }}
-              src={src} 
+            <img
+              ref={ref as React.Ref<HTMLImageElement>}
+              src={thumbnail}
               alt={alt}
+              width={width}
+              height={height}
               className={`w-full h-full object-cover transition-all duration-500 group-hover:scale-110 ${
                 imageLoaded ? 'opacity-100' : 'opacity-0'
               }`}
               loading="lazy"
+              decoding="async"
               onLoad={() => setImageLoaded(true)}
               onError={() => setImageError(true)}
             />
-            
-            {/* Hover overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               <div className="absolute bottom-0 left-0 right-0 p-2">
                 <p className="text-white text-xs font-oswald line-clamp-1">{alt}</p>

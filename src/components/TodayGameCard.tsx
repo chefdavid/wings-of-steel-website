@@ -172,6 +172,7 @@ const TodayGameCard = () => {
                   <div className="relative z-10">
                     <div className="text-3xl md:text-4xl font-bold mb-1">{dateInfo.day}</div>
                     <div className="text-base md:text-lg font-semibold uppercase tracking-wide">{dateInfo.month}</div>
+                    <div className="text-xs md:text-sm font-semibold opacity-80">{dateInfo.year}</div>
                     <div className="text-xs md:text-sm opacity-90 mt-1">{dateInfo.weekday}</div>
                   </div>
                   {isHome && (

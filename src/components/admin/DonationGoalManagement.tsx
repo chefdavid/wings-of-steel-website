@@ -2,7 +2,18 @@ import { useState, useEffect } from 'react';
 import { useDonationGoals } from '../../hooks/useDonationGoals';
 import { Plus, Edit, Trash2, X, Save, Calendar } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
-import { supabaseAdmin } from '../../lib/supabaseAdmin';
+
+const dbClient = supabase;
+
+const getMonthBoundaries = () => {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), now.getMonth(), 1);
+  const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  return {
+    start_date: start.toISOString().split('T')[0],
+    end_date: end.toISOString().split('T')[0],
+  };
+};
 
 const DonationGoalManagement = () => {
   const { goals, progress, loading, refetch } = useDonationGoals();
@@ -20,10 +31,6 @@ const DonationGoalManagement = () => {
 
   const handleCreate = async () => {
     try {
-      // Use admin client for admin operations (bypasses RLS)
-      // If admin client is not available, fall back to regular client
-      const dbClient = supabaseAdmin || supabase;
-      console.log('🔐 Using client:', supabaseAdmin ? 'Admin (service role)' : 'Regular (anon key)');
       const { error } = await dbClient
         .from('donation_goals')
         .insert({
@@ -56,8 +63,6 @@ const DonationGoalManagement = () => {
 
   const handleUpdate = async (id: string) => {
     try {
-      // Use admin client for admin operations (bypasses RLS)
-      const dbClient = supabaseAdmin || supabase;
       const { error } = await dbClient
         .from('donation_goals')
         .update({
@@ -95,8 +100,6 @@ const DonationGoalManagement = () => {
     }
 
     try {
-      // Use admin client for admin operations (bypasses RLS)
-      const dbClient = supabaseAdmin || supabase;
       const { error } = await dbClient
         .from('donation_goals')
         .delete()
@@ -151,7 +154,16 @@ const DonationGoalManagement = () => {
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-dark-steel">Donation Goal Management</h1>
           <button
-            onClick={() => setIsCreating(true)}
+            onClick={() => {
+              const { start_date, end_date } = getMonthBoundaries();
+              setFormData(prev => ({
+                ...prev,
+                goal_type: 'monthly',
+                start_date,
+                end_date,
+              }));
+              setIsCreating(true);
+            }}
             className="flex items-center gap-2 bg-steel-blue text-white px-4 py-2 rounded-lg hover:bg-dark-steel transition-colors"
           >
             <Plus size={20} />
@@ -191,7 +203,16 @@ const DonationGoalManagement = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">Goal Type</label>
                 <select
                   value={formData.goal_type}
-                  onChange={(e) => setFormData({ ...formData, goal_type: e.target.value as any })}
+                  onChange={(e) => {
+                    const goalType = e.target.value as 'monthly' | 'annual' | 'campaign';
+                    const updates: Partial<typeof formData> = { goal_type: goalType };
+                    if (goalType === 'monthly' && !editingGoal) {
+                      const { start_date, end_date } = getMonthBoundaries();
+                      updates.start_date = start_date;
+                      updates.end_date = end_date;
+                    }
+                    setFormData({ ...formData, ...updates });
+                  }}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-steel-blue focus:border-transparent"
                 >
                   <option value="monthly">Monthly</option>
@@ -415,4 +436,3 @@ const DonationGoalManagement = () => {
 };
 
 export default DonationGoalManagement;
-

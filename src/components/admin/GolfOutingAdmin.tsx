@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabaseClient'
-import { Download, DollarSign, Users, Clock, CheckCircle, AlertCircle, Trash2 } from 'lucide-react'
+import { Download, Users, Clock, CheckCircle, AlertCircle, Trash2, RefreshCw } from 'lucide-react'
 
 interface Registration {
   id: string
@@ -41,12 +41,13 @@ const GolfOutingAdmin = () => {
   const [stats, setStats] = useState({
     totalRegistrations: 0,
     totalPlayers: 0,
-    totalRevenue: 0,
     paidAmount: 0,
-    pendingAmount: 0
+    pendingAmount: 0,
+    attemptedAmount: 0
   })
-  const [filter, setFilter] = useState<'all' | 'paid' | 'pending'>('all')
+  const [filter, setFilter] = useState<'all' | 'paid' | 'pending' | 'attempted'>('all')
   const [selectedRegistration, setSelectedRegistration] = useState<Registration | null>(null)
+  const [syncing, setSyncing] = useState(false)
 
   useEffect(() => {
     fetchRegistrations()
@@ -73,27 +74,58 @@ const GolfOutingAdmin = () => {
   }
 
   const calculateStats = (data: Registration[]) => {
+    // "Total" cards reflect actual paid registrations only — attempted /
+    // pending rows are unconfirmed and shouldn't inflate team or player counts.
     const stats = data.reduce((acc, reg) => {
-      acc.totalRegistrations++
-      acc.totalPlayers += reg.players.length
-      acc.totalRevenue += Number(reg.total_amount)
-      
+      const amount = Number(reg.total_amount)
+
       if (reg.payment_status === 'completed') {
-        acc.paidAmount += Number(reg.total_amount)
+        acc.totalRegistrations++
+        acc.totalPlayers += reg.players.length
+        acc.paidAmount += amount
+      } else if (reg.payment_status === 'attempted') {
+        acc.attemptedAmount += amount
       } else {
-        acc.pendingAmount += Number(reg.total_amount)
+        acc.pendingAmount += amount
       }
-      
+
       return acc
     }, {
       totalRegistrations: 0,
       totalPlayers: 0,
-      totalRevenue: 0,
       paidAmount: 0,
-      pendingAmount: 0
+      pendingAmount: 0,
+      attemptedAmount: 0
     })
-    
+
     setStats(stats)
+  }
+
+  const syncFromStripe = async () => {
+    setSyncing(true)
+    try {
+      const response = await fetch('/.netlify/functions/sync-golf-registrations')
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || result.details || 'Sync failed')
+      }
+
+      alert(
+        `Sync complete:\n\n` +
+        `${result.markedCompleted} marked as Paid\n` +
+        `${result.markedAttempted} marked as Attempted Checkout\n` +
+        `${result.leftPending} left as Pending (still in flight)\n` +
+        `${result.linkedPaymentIntent} payment intent IDs backfilled\n` +
+        `${result.errors?.length || 0} errors`
+      )
+      await fetchRegistrations()
+    } catch (err: any) {
+      console.error('Sync error:', err)
+      alert('Sync failed: ' + (err.message || 'Unknown error'))
+    } finally {
+      setSyncing(false)
+    }
   }
 
   const updatePaymentStatus = async (id: string, status: string) => {
@@ -194,8 +226,13 @@ const GolfOutingAdmin = () => {
     if (filter === 'all') return true
     if (filter === 'paid') return reg.payment_status === 'completed'
     if (filter === 'pending') return reg.payment_status === 'pending'
+    if (filter === 'attempted') return reg.payment_status === 'attempted'
     return true
   })
+
+  const paidCount = registrations.filter(r => r.payment_status === 'completed').length
+  const pendingCount = registrations.filter(r => r.payment_status === 'pending').length
+  const attemptedCount = registrations.filter(r => r.payment_status === 'attempted').length
 
   if (loading) {
     return (
@@ -210,13 +247,24 @@ const GolfOutingAdmin = () => {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-dark-steel">Golf Outing Registrations</h1>
-          <button
-            onClick={exportToCSV}
-            className="flex items-center space-x-2 bg-steel-blue text-white px-4 py-2 rounded-lg hover:bg-dark-steel transition"
-          >
-            <Download size={20} />
-            <span>Export CSV</span>
-          </button>
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={syncFromStripe}
+              disabled={syncing}
+              className="flex items-center space-x-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition disabled:opacity-50"
+              title="Reconcile pending rows against Stripe"
+            >
+              <RefreshCw size={20} className={syncing ? 'animate-spin' : ''} />
+              <span>{syncing ? 'Syncing…' : 'Sync from Stripe'}</span>
+            </button>
+            <button
+              onClick={exportToCSV}
+              className="flex items-center space-x-2 bg-steel-blue text-white px-4 py-2 rounded-lg hover:bg-dark-steel transition"
+            >
+              <Download size={20} />
+              <span>Export CSV</span>
+            </button>
+          </div>
         </div>
 
         {/* Stats Cards */}
@@ -230,7 +278,7 @@ const GolfOutingAdmin = () => {
               <Users className="text-steel-blue" size={32} />
             </div>
           </div>
-          
+
           <div className="bg-white rounded-lg shadow p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -240,17 +288,7 @@ const GolfOutingAdmin = () => {
               <Users className="text-ice-blue" size={32} />
             </div>
           </div>
-          
-          <div className="bg-white rounded-lg shadow p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-500 text-sm">Total Revenue</p>
-                <p className="text-2xl font-bold text-dark-steel">${stats.totalRevenue.toFixed(2)}</p>
-              </div>
-              <DollarSign className="text-championship-gold" size={32} />
-            </div>
-          </div>
-          
+
           <div className="bg-white rounded-lg shadow p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -270,15 +308,25 @@ const GolfOutingAdmin = () => {
               <Clock className="text-orange-600" size={32} />
             </div>
           </div>
+
+          <div className="bg-white rounded-lg shadow p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-500 text-sm">Attempted</p>
+                <p className="text-2xl font-bold text-yellow-600">${stats.attemptedAmount.toFixed(2)}</p>
+              </div>
+              <AlertCircle className="text-yellow-600" size={32} />
+            </div>
+          </div>
         </div>
 
         {/* Filter Tabs */}
-        <div className="flex space-x-4 mb-6">
+        <div className="flex space-x-4 mb-6 flex-wrap gap-y-2">
           <button
             onClick={() => setFilter('all')}
             className={`px-4 py-2 rounded-lg font-semibold transition ${
-              filter === 'all' 
-                ? 'bg-steel-blue text-white' 
+              filter === 'all'
+                ? 'bg-steel-blue text-white'
                 : 'bg-white text-gray-700 hover:bg-gray-100'
             }`}
           >
@@ -287,22 +335,32 @@ const GolfOutingAdmin = () => {
           <button
             onClick={() => setFilter('paid')}
             className={`px-4 py-2 rounded-lg font-semibold transition ${
-              filter === 'paid' 
-                ? 'bg-green-600 text-white' 
+              filter === 'paid'
+                ? 'bg-green-600 text-white'
                 : 'bg-white text-gray-700 hover:bg-gray-100'
             }`}
           >
-            Paid ({registrations.filter(r => r.payment_status === 'completed').length})
+            Paid ({paidCount})
           </button>
           <button
             onClick={() => setFilter('pending')}
             className={`px-4 py-2 rounded-lg font-semibold transition ${
-              filter === 'pending' 
-                ? 'bg-orange-600 text-white' 
+              filter === 'pending'
+                ? 'bg-orange-600 text-white'
                 : 'bg-white text-gray-700 hover:bg-gray-100'
             }`}
           >
-            Pending ({registrations.filter(r => r.payment_status === 'pending').length})
+            Pending ({pendingCount})
+          </button>
+          <button
+            onClick={() => setFilter('attempted')}
+            className={`px-4 py-2 rounded-lg font-semibold transition ${
+              filter === 'attempted'
+                ? 'bg-yellow-600 text-white'
+                : 'bg-white text-gray-700 hover:bg-gray-100'
+            }`}
+          >
+            Attempted Checkout ({attemptedCount})
           </button>
         </div>
 
@@ -361,9 +419,15 @@ const GolfOutingAdmin = () => {
                     <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
                       reg.payment_status === 'completed'
                         ? 'bg-green-100 text-green-800'
+                        : reg.payment_status === 'attempted'
+                        ? 'bg-yellow-100 text-yellow-800'
                         : 'bg-orange-100 text-orange-800'
                     }`}>
-                      {reg.payment_status === 'completed' ? 'Paid' : 'Pending'}
+                      {reg.payment_status === 'completed'
+                        ? 'Paid'
+                        : reg.payment_status === 'attempted'
+                        ? 'Attempted Checkout'
+                        : 'Pending'}
                     </span>
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap text-sm">
@@ -373,7 +437,7 @@ const GolfOutingAdmin = () => {
                     >
                       View
                     </button>
-                    {reg.payment_status === 'pending' && (
+                    {reg.payment_status !== 'completed' && (
                       <button
                         onClick={() => updatePaymentStatus(reg.id, 'completed')}
                         className="text-green-600 hover:text-green-800 mr-3"
@@ -502,7 +566,7 @@ const GolfOutingAdmin = () => {
                 {deleting ? 'Deleting...' : 'Delete'}
               </button>
               <div className="flex space-x-3">
-                {selectedRegistration.payment_status === 'pending' && (
+                {selectedRegistration.payment_status !== 'completed' && (
                   <button
                     onClick={() => {
                       updatePaymentStatus(selectedRegistration.id, 'completed')

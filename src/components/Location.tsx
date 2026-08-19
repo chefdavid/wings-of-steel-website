@@ -248,6 +248,7 @@ const Location = () => {
                       const dateInfo = {
                         day: practiceDate.getDate(),
                         month: practiceDate.toLocaleDateString('en-US', { month: 'short' }).toUpperCase(),
+                        year: practiceDate.getFullYear(),
                         weekday: session.day_of_week || practiceDate.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase()
                       };
                       
@@ -270,6 +271,9 @@ const Location = () => {
                               <div className="bg-gradient-to-br from-ice-blue to-steel-blue p-4 md:p-5 text-white text-center w-20 md:w-24 rounded-l-xl">
                                 <div className="text-2xl md:text-3xl font-bold">{dateInfo.day}</div>
                                 <div className="text-xs md:text-sm font-semibold uppercase tracking-wide">{dateInfo.month}</div>
+                                {/* Practices run Sept through the following
+                                    August, so the year disambiguates. */}
+                                <div className="text-[10px] md:text-xs font-semibold opacity-80">{dateInfo.year}</div>
                                 <div className="text-xs opacity-90 mt-1">{dateInfo.weekday}</div>
                               </div>
                               

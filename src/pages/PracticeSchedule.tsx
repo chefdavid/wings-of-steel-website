@@ -5,8 +5,6 @@ import { Link } from 'react-router-dom';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import { supabase } from '../lib/supabaseClient';
-import Navigation from '../components/Navigation';
-import Footer from '../components/Footer';
 import { useCurrentSeason } from '../hooks';
 
 interface ScheduledGame {
@@ -301,8 +299,6 @@ const PracticeSchedule = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      <Navigation />
-      
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-dark-steel to-steel-blue pt-32 pb-20">
         <div className="absolute inset-0 bg-black/20"></div>
@@ -803,8 +799,6 @@ const PracticeSchedule = () => {
           </motion.div>
         </div>
       </section>
-      
-      <Footer />
     </div>
   );
 };

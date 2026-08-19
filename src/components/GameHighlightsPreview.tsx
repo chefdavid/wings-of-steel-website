@@ -15,6 +15,7 @@ export default function GameHighlightsPreview({ game, highlight, index = 0 }: Ga
     return {
       month: date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase(),
       day: date.getDate(),
+      year: date.getFullYear(),
     };
   };
 
@@ -48,6 +49,9 @@ export default function GameHighlightsPreview({ game, highlight, index = 0 }: Ga
             <div className="absolute top-4 left-4 bg-white rounded-lg shadow-lg p-2 text-center">
               <div className="text-2xl font-bold text-steel-blue">{dateInfo.day}</div>
               <div className="text-xs font-semibold text-gray-600">{dateInfo.month}</div>
+              {/* The recap archive spans several seasons, so the year is not
+                  optional context here - it is what tells them apart. */}
+              <div className="text-[10px] font-medium text-gray-400 leading-none">{dateInfo.year}</div>
             </div>
 
             {/* Score Badge */}

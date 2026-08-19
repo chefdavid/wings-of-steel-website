@@ -1,11 +1,19 @@
 [build]
+  # Smoke test (npx playwright install + npm run smoke) was removed from the
+  # build command on 2026-05-08 — it pushed total build time past Netlify's
+  # 18-minute timeout. Run it locally before pushing instead, or move it to a
+  # GitHub Actions workflow if we want it gated in CI.
   command = "npm ci && rm -rf dist node_modules/.vite && npm run build"
   publish = "dist"
 
 [build.environment]
   # Disable secrets scanning for expected environment variables
-  SECRETS_SCAN_OMIT_KEYS = "VITE_SUPABASE_URL,VITE_SUPABASE_ANON_KEY,VITE_SUPABASE_SERVICE_ROLE_KEY,SUPABASE_SERVICE_ROLE_KEY"
+  SECRETS_SCAN_OMIT_KEYS = "VITE_SUPABASE_URL,VITE_SUPABASE_ANON_KEY,SUPABASE_SERVICE_ROLE_KEY"
   # Omit scripts directory from scanning
   SECRETS_SCAN_OMIT_PATHS = "scripts/**,dist/**"
-  # Force clean builds
-  NODE_ENV = "production"
+
+# SPA fallback — serves index.html for routes without prerendered files
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

@@ -112,46 +112,48 @@ export interface LineItem {
 
 class PrintifyService {
   private shopId: string;
-  private useNetlifyFunctions: boolean;
+  private functionBaseUrl: string;
 
   constructor() {
     this.shopId = import.meta.env.VITE_PRINTIFY_SHOP_ID || '';
-    // Use Netlify functions in production only
-    this.useNetlifyFunctions = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+    // Always use relative paths. Locally that hits the Vite dev-server
+    // proxy (which talks to Printify with the server-side token); in
+    // production it hits the deployed Netlify function.
+    this.functionBaseUrl = import.meta.env.VITE_NETLIFY_SITE_URL || '';
 
     if (!this.shopId) {
-      console.warn('Printify Shop ID not configured. Store features will be limited.');
+      console.warn('Printify Shop ID not configured in the browser. Server environment may still provide it.');
     }
   }
 
+  // Module-level memoization. Printify takes ~2s per call; caching keeps
+  // repeat navigations within the session instant.
+  private static productCache = new Map<
+    string,
+    { ts: number; data: PrintifyProduct[] }
+  >();
+  private static CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
   async getProducts(limit = 20, page = 1): Promise<PrintifyProduct[]> {
+    const cacheKey = `${this.shopId || ''}:${limit}:${page}`;
+    const cached = PrintifyService.productCache.get(cacheKey);
+    if (cached && Date.now() - cached.ts < PrintifyService.CACHE_TTL_MS) {
+      return cached.data;
+    }
+
     try {
-      console.log('Fetching products from shop:', this.shopId);
-      
-      if (this.useNetlifyFunctions) {
-        // Use Netlify function to avoid CORS
-        const response = await axios.get('/.netlify/functions/printify-products', {
-          params: { shopId: this.shopId, limit, page },
-        });
-        console.log('Products response:', response.data);
-        return response.data.data || response.data || [];
-      } else {
-        // Use proxy in development to avoid CORS
-        const response = await axios.get(
-          `/api/printify/v1/shops/${this.shopId}/products.json`,
-          {
-            params: { limit, page }
-          }
-        );
-        console.log('Products response:', response.data);
-        return response.data.data || response.data || [];
-      }
-    } catch (error: any) {
+      const response = await axios.get(
+        `${this.functionBaseUrl}/.netlify/functions/printify-products`,
+        { params: { shopId: this.shopId || undefined, limit, page } },
+      );
+      const data: PrintifyProduct[] = response.data.data || response.data || [];
+      PrintifyService.productCache.set(cacheKey, { ts: Date.now(), data });
+      return data;
+    } catch (error: unknown) {
       console.error('Error fetching products:', error);
-      if (error?.response) {
+      if (axios.isAxiosError(error) && error.response) {
         console.error('Response status:', error.response.status);
         console.error('Response data:', error.response.data);
-        console.error('Full error details:', JSON.stringify(error.response.data, null, 2));
       }
       return [];
     }
@@ -159,24 +161,8 @@ class PrintifyService {
 
   async getProduct(productId: string): Promise<PrintifyProduct | null> {
     try {
-      if (this.useNetlifyFunctions) {
-        // For simplicity, we'll fetch all products and filter
-        // In production, you'd create a separate function for single product
-        const products = await this.getProducts(50);
-        return products.find(p => p.id === productId) || null;
-      } else {
-        const apiToken = import.meta.env.VITE_PRINTIFY_API_TOKEN;
-        const response = await axios.get(
-          `https://api.printify.com/v1/shops/${this.shopId}/products/${productId}.json`,
-          {
-            headers: {
-              'Authorization': `Bearer ${apiToken}`,
-              'Content-Type': 'application/json',
-            },
-          }
-        );
-        return response.data;
-      }
+      const products = await this.getProducts(50);
+      return products.find(p => p.id === productId) || null;
     } catch (error) {
       console.error('Error fetching product:', error);
       return null;
@@ -185,29 +171,11 @@ class PrintifyService {
 
   async createOrder(order: Order): Promise<{ id: string; status: string }> {
     try {
-      if (this.useNetlifyFunctions) {
-        const baseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-          ? 'https://wingsofsteel.netlify.app'
-          : '';
-        const response = await axios.post(`${baseUrl}/.netlify/functions/printify-order`, {
-          shopId: this.shopId,
-          order,
-        });
-        return response.data;
-      } else {
-        const apiToken = import.meta.env.VITE_PRINTIFY_API_TOKEN;
-        const response = await axios.post(
-          `https://api.printify.com/v1/shops/${this.shopId}/orders.json`,
-          order,
-          {
-            headers: {
-              'Authorization': `Bearer ${apiToken}`,
-              'Content-Type': 'application/json',
-            },
-          }
-        );
-        return response.data;
-      }
+      const response = await axios.post(`${this.functionBaseUrl}/.netlify/functions/printify-order`, {
+        shopId: this.shopId || undefined,
+        order,
+      });
+      return response.data;
     } catch (error) {
       console.error('Error creating order:', error);
       throw error;

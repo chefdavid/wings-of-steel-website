@@ -4,3 +4,5 @@ export { useGameSchedule } from './useGameSchedule';
 export { useTeam } from './useTeam';
 export { useGameHighlights } from './useGameHighlights';
 export { useCurrentSeason } from './useCurrentSeason';
+export { useTournaments } from './useTournaments';
+export { usePressStories } from './usePressStories';

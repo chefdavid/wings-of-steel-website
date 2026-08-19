@@ -1,5 +1,5 @@
 // Service Worker for Wings of Steel
-const CACHE_NAME = 'wings-of-steel-v6'; // Increment version to force update
+const CACHE_NAME = 'wings-of-steel-v7'; // Increment version to force update
 const urlsToCache = [
   // Only cache essential static assets
   '/manifest.json',

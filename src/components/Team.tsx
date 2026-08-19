@@ -7,6 +7,7 @@ import { calculateAge, getYearsWithTeamDisplay } from '../utils/dateUtils';
 import { getTeamCoaches } from '../utils/teamQueries';
 import { getAvatarUrl } from '../utils/avatar';
 import type { PlayerWithTeams, CoachWithTeams } from '../types/database';
+import PlayerStatsSection from './PlayerStatsSection';
 
 const Team = () => {
   const [selectedPlayer, setSelectedPlayer] = useState<PlayerWithTeams | null>(null);
@@ -66,9 +67,9 @@ const Team = () => {
 
   if (loading || coachesLoading) {
     return (
-      <section className="py-12 md:py-20 bg-gray-50">
+      <section className="py-section-sm md:py-section bg-surface">
         <div className="max-w-7xl mx-auto px-4 text-center">
-          <div className="animate-pulse text-steel-blue">Loading team roster...</div>
+          <div className="animate-pulse text-ink-subtle">Loading team roster…</div>
         </div>
       </section>
     );
@@ -76,9 +77,9 @@ const Team = () => {
 
   if (error) {
     return (
-      <section className="py-12 md:py-20 bg-gray-50">
+      <section className="py-section-sm md:py-section bg-surface">
         <div className="max-w-7xl mx-auto px-4 text-center">
-          <p className="text-red-600">Error loading team roster</p>
+          <p className="text-rose-400">Error loading team roster</p>
         </div>
       </section>
     );
@@ -86,7 +87,7 @@ const Team = () => {
 
   return (
     <>
-      <section id="team" className="py-20 bg-gray-50">
+      <section id="team" className="py-section-sm md:py-section bg-surface">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -95,22 +96,25 @@ const Team = () => {
             viewport={{ once: true }}
             className="text-center mb-8 md:mb-16"
           >
-            <h2 className="text-4xl md:text-5xl font-bold text-black mb-4">
+            <p className="font-display tracking-[0.3em] text-[11px] uppercase text-accent mb-3">
+              The Roster
+            </p>
+            <h2 className="font-sport text-display-sm md:text-display-md text-ink mb-4">
               The Championship Pedigree in this area, The Best Players on the ICE
             </h2>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+            <p className="text-base md:text-lg text-ink-muted max-w-3xl mx-auto">
               These young players, each with their own unique challenges and abilities, exemplify the
               spirit of sled hockey. Their prowess on the ice is measured by their ability to inspire,
               lead, and uplift their teammates.
             </p>
-            <p className="text-base text-steel-blue mt-4 font-semibold">
+            <p className="text-base text-accent mt-4 font-semibold">
               Click on a player or coach to learn more
             </p>
           </motion.div>
 
           <div id="team-players" className="mb-16">
             <div className="flex justify-center items-center gap-4 mb-8">
-              <h3 className="text-2xl md:text-3xl font-bold text-black text-center">Players</h3>
+              <h3 className="font-sport text-2xl md:text-display-sm text-ink text-center tracking-wide">Players</h3>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6 lg:gap-8 max-w-6xl mx-auto">
             {players.map((player, index) => (
@@ -145,7 +149,7 @@ const Team = () => {
                   <div className="flip-card-inner">
 
                   {/* Front — Photo trading card */}
-                  <div className="flip-card-front rounded-xl shadow-xl overflow-hidden relative">
+                  <div className="flip-card-front rounded-card shadow-card overflow-hidden relative ring-1 ring-subtle">
                     <img
                       src={getAvatarUrl(player.image_url, player.first_name, player.last_name, '#4682B4', 320)}
                       alt={`${player.first_name} ${player.last_name}`}
@@ -238,7 +242,7 @@ const Team = () => {
                 >
                   <div className="flip-card-inner">
                     {/* Front — Photo trading card */}
-                    <div className="flip-card-front rounded-xl shadow-xl overflow-hidden relative">
+                    <div className="flip-card-front rounded-card shadow-card overflow-hidden relative ring-1 ring-subtle">
                       <img
                         src={getAvatarUrl(coach.image_url, coach.first_name, coach.last_name, '#2C3E50', 320)}
                         alt={`${coach.first_name} ${coach.last_name}`}
@@ -373,8 +377,7 @@ const Team = () => {
                   </div>
                   
                   
-                  <div className="bg-gray-50 p-6 rounded-lg">
-                    <h3 className="text-lg font-bold mb-3">Player Stats</h3>
+                  <div className="bg-gray-50 p-4 rounded-lg mb-6">
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
                         <p className="font-semibold">Jersey Number</p>
@@ -386,6 +389,8 @@ const Team = () => {
                       </div>
                     </div>
                   </div>
+
+                  <PlayerStatsSection playerId={selectedPlayer.id} />
                 </div>
               </div>
             </motion.div>

@@ -25,11 +25,16 @@ Wings of Steel is a championship sled hockey team website built with React, Type
 
 ```bash
 # Development
-npm run dev        # Start development server (http://localhost:5173)
+npm run dev        # Start Vite dev server (http://localhost:5173)
+netlify dev        # Run full stack incl. Netlify functions (http://localhost:8888)
 npm run build      # Build for production (TEST BEFORE PUSHING!)
 npm run preview    # Preview production build locally (MUST WORK BEFORE DEPLOY!)
 npm run lint       # Run ESLint for code quality
 ```
+
+**When to use which dev command:**
+- `npm run dev` — frontend only. A small Vite middleware proxies `/.netlify/functions/printify-products` so the storefront listing renders, but every other Netlify function (`create-store-payment`, `stripe-webhook`, donation/payment flows, etc.) returns 404.
+- `netlify dev` — required to test checkout, donations, Stripe payment intents, or any function-backed feature end-to-end.
 
 ## ⚠️ CRITICAL: THERE IS ONLY ONE HERO COMPONENT
 

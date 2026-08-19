@@ -1,0 +1,3 @@
+-- Manual apply script for Supabase SQL editor.
+-- Canonical version: supabase/migrations/012_players_admin_policies.sql
+-- Copy/paste the contents of that migration file here if needed.

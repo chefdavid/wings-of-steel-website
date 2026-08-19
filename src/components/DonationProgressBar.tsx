@@ -30,9 +30,7 @@ const DonationProgressBar = ({
     current_amount,
     target_amount,
     percentage_complete,
-    days_remaining,
-    goal_name,
-    goal_type
+    days_remaining
   } = activeGoal;
 
   const formattedCurrent = new Intl.NumberFormat('en-US', {
@@ -42,14 +40,14 @@ const DonationProgressBar = ({
     maximumFractionDigits: 0,
   }).format(current_amount);
 
-  const formattedTarget = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(target_amount);
-
-  const percentage = Math.min(percentage_complete, 100);
+  // Cap the visible bar below 100% so it always invites more giving — even
+  // when actual donations have crossed the goal target. We never show "full"
+  // or "exceeded" states publicly, and we never disclose the raw target so
+  // donors can't compare raised-vs-target and conclude the team is funded.
+  const MAX_DISPLAY_PERCENT = 90;
+  const percentage = Math.min(percentage_complete, MAX_DISPLAY_PERCENT);
+  const goalLabel = 'Monthly Goal';
+  const completionLabel = `${percentage.toFixed(1)}% complete`;
 
   // Compact mode (for hero section)
   if (mode === 'compact') {
@@ -57,11 +55,11 @@ const DonationProgressBar = ({
       <div className={`${className}`}>
         {showDetails && (
           <div className="flex justify-between items-center mb-2 text-sm">
-            <span className="text-gray-200 capitalize">
-              {goal_type} Goal
+            <span className="text-gray-200">
+              {goalLabel}
             </span>
             <span className="text-yellow-400 font-semibold">
-              {formattedCurrent} of {formattedTarget}
+              {formattedCurrent} raised
             </span>
           </div>
         )}
@@ -75,7 +73,7 @@ const DonationProgressBar = ({
         </div>
         {showDetails && (
           <div className="flex justify-between items-center mt-1 text-xs text-ice-blue">
-            <span className="font-semibold">{percentage.toFixed(1)}% complete</span>
+            <span className="font-semibold">{completionLabel}</span>
             {days_remaining !== null && days_remaining > 0 && (
               <span className="text-yellow-400 font-semibold">{days_remaining} days remaining</span>
             )}
@@ -91,7 +89,8 @@ const DonationProgressBar = ({
       <div className={`bg-dark-steel backdrop-blur-sm rounded-lg p-6 border-2 border-steel-blue ${className}`}>
         <div className="flex justify-between items-center mb-4">
           <div>
-            <h3 className="text-xl font-sport text-white capitalize">{goal_type} Goal</h3>
+            <h3 className="text-xl font-sport text-white">{goalLabel}</h3>
+            <p className="text-sm text-ice-blue mt-1">Tracked month by month to keep every player on the ice.</p>
           </div>
           <div className="text-right">
             <div className="text-3xl font-sport text-yellow-400">{percentage.toFixed(1)}%</div>
@@ -110,12 +109,8 @@ const DonationProgressBar = ({
 
         <div className="flex justify-between items-center text-sm">
           <div>
-            <span className="text-ice-blue">Raised:</span>
+            <span className="text-ice-blue">Raised this month:</span>
             <span className="text-white font-bold ml-2 text-yellow-400">{formattedCurrent}</span>
-          </div>
-          <div>
-            <span className="text-ice-blue">Goal:</span>
-            <span className="text-white font-bold ml-2">{formattedTarget}</span>
           </div>
           {days_remaining !== null && days_remaining > 0 && (
             <div>
@@ -150,4 +145,3 @@ const DonationProgressBar = ({
 };
 
 export default DonationProgressBar;
-

@@ -44,7 +44,9 @@ export const handler = async (event, context) => {
       donationType, // 'one-time' or 'recurring'
       campaignId,
       isRecurring = false,
-      eventTag = null
+      eventTag = null,
+      itemName = null,
+      golfRegistrationId = null
     } = JSON.parse(event.body);
 
     // Validate required fields
@@ -133,7 +135,9 @@ export const handler = async (event, context) => {
         const team = eventTag.includes('youth') ? 'Youth' : eventTag.includes('adult') ? 'Adult' : '';
         description = `TopGolf Fundraiser Registration${team ? ` - ${team} Team` : ''} - Wings of Steel`;
       } else if (eventTag === 'golf-outing') {
-        description = `Tom Brake Memorial Golf Outing Registration - Wings of Steel`;
+        description = itemName
+          ? `Golf Outing Sponsorship: ${itemName} - Wings of Steel`
+          : `Tom Brake Memorial Golf Outing Registration - Wings of Steel`;
       } else if (eventTag === 'hockey-for-a-cause') {
         description = `Hockey for a Cause - Entry Donation - Wings of Steel`;
       } else {
@@ -158,7 +162,9 @@ export const handler = async (event, context) => {
           message: donorInfo.message || '',
           campaign_id: campaignId || '',
           event_tag: eventTag || '',
-          is_anonymous: donorInfo.isAnonymous ? 'true' : 'false'
+          item_name: itemName || '',
+          is_anonymous: donorInfo.isAnonymous ? 'true' : 'false',
+          golf_registration_id: golfRegistrationId || ''
         },
         receipt_email: donorInfo.email,
       });
@@ -193,6 +199,20 @@ export const handler = async (event, context) => {
     if (insertError) {
       console.error('Error inserting donation:', insertError);
       throw insertError;
+    }
+
+    // Link the Stripe payment intent back to the golf_registrations row
+    // so the webhook can find it later by stripe_payment_intent_id.
+    if (golfRegistrationId) {
+      const { error: linkError } = await supabase
+        .from('golf_registrations')
+        .update({ stripe_payment_intent_id: paymentIntent.id })
+        .eq('id', golfRegistrationId);
+
+      if (linkError) {
+        console.error('Error linking payment intent to golf_registration:', linkError);
+        // Non-fatal: webhook can still match by metadata.golf_registration_id
+      }
     }
 
     // If recurring, also create subscription record

@@ -1,7 +1,14 @@
-// Local image gallery configuration
-// Images are stored in public/images/gallery/{game}/
+// Gallery is driven by src/data/gallery-manifest.json, written by
+// scripts/import-tournament-gallery.mjs after compression + upload to
+// Supabase Storage. The manifest is the source of truth at runtime —
+// the UI never scans the filesystem.
+//
+// The `?url` import makes Vite emit the JSON as a hashed static asset
+// instead of bundling it into the JS chunk. We then fetch it on demand
+// so the gallery route loads quickly and the JSON parses natively.
+import manifestUrl from './gallery-manifest.json?url'
 
-export interface GalleryImage {
+export interface GalleryPhoto {
   id: string
   src: string
   thumbnail: string
@@ -10,74 +17,67 @@ export interface GalleryImage {
   height: number
 }
 
-export interface GalleryFolder {
-  name: string
-  path: string
-  imageCount: number
+export interface GalleryGame {
+  slug: string
+  label: string
+  coverPhoto: string | null
+  photos: GalleryPhoto[]
 }
 
-// Generate image paths based on the actual file structure
-export const generateLocalImagePaths = (gameNumber: string, count: number): GalleryImage[] => {
-  const images: GalleryImage[] = []
-  
-  for (let i = 1; i <= count; i++) {
-    const paddedNum = String(i).padStart(3, '0')
-    // Your images are named like "2-001.jpg" in folders like "G2" (uppercase)
-    const filename = `${gameNumber}-${paddedNum}.jpg`
-    const path = `/images/gallery/G${gameNumber}/${filename}`
-    
-    images.push({
-      id: `${gameNumber}-${paddedNum}`,
-      src: path,
-      thumbnail: path, // We'll use the same image for both (browser will cache)
-      alt: `Game ${gameNumber} - Photo ${i}`,
-      width: 1920,
-      height: 1080
-    })
-  }
-  
-  return images
+export interface GalleryTournament {
+  slug: string
+  label: string
+  date: string | null
+  description: string | null
+  coverPhoto: string | null
+  photoCount: number
+  games: GalleryGame[]
 }
 
-// Gallery folder configuration
-export const galleryFolders: GalleryFolder[] = [
-  { name: 'All Images', path: '*', imageCount: 1191 },
-  { name: 'Game 2', path: 'G2', imageCount: 297 },
-  { name: 'Game 14', path: 'G14', imageCount: 298 },
-  { name: 'Game 27', path: 'G27', imageCount: 298 },
-  { name: 'Game 68', path: 'G68', imageCount: 298 }
-]
+interface Manifest {
+  tournaments: GalleryTournament[]
+}
 
-// Get images for a specific folder with pagination
-export const getLocalImages = (folder: string, page: number = 1, limit: number = 50) => {
-  let allImages: GalleryImage[] = []
-  
-  if (folder === '' || folder === '*') {
-    // Get all images from all games
-    allImages = [
-      ...generateLocalImagePaths('2', 297),
-      ...generateLocalImagePaths('14', 298),
-      ...generateLocalImagePaths('27', 298),
-      ...generateLocalImagePaths('68', 298)
-    ]
-  } else {
-    // Get images for specific game (folder is like "G2", "G14", etc.)
-    const gameNum = folder.replace('G', '')
-    const folderConfig = galleryFolders.find(f => f.path === folder)
-    const count = folderConfig?.imageCount || 298
-    allImages = generateLocalImagePaths(gameNum, count)
+let cache: Manifest | null = null
+let inflight: Promise<Manifest> | null = null
+
+export async function loadGallery(): Promise<Manifest> {
+  if (cache) return cache
+  if (!inflight) {
+    inflight = fetch(manifestUrl)
+      .then((res) => {
+        if (!res.ok) throw new Error(`Gallery manifest fetch failed: ${res.status}`)
+        return res.json()
+      })
+      .then((data: Manifest) => {
+        cache = data
+        return data
+      })
+      .catch((err) => {
+        inflight = null
+        throw err
+      })
   }
-  
-  // Apply pagination
-  const start = (page - 1) * limit
-  const end = start + limit
-  const paginatedImages = allImages.slice(start, end)
-  
-  return {
-    images: paginatedImages,
-    total: allImages.length,
-    totalPages: Math.ceil(allImages.length / limit),
-    page,
-    limit
-  }
+  return inflight
+}
+
+export function getTournamentFrom(
+  manifest: Manifest,
+  slug: string
+): GalleryTournament | undefined {
+  return manifest.tournaments.find((t) => t.slug === slug)
+}
+
+export function getGameFrom(
+  manifest: Manifest,
+  tournamentSlug: string,
+  gameSlug: string
+): GalleryGame | undefined {
+  return getTournamentFrom(manifest, tournamentSlug)?.games.find(
+    (g) => g.slug === gameSlug
+  )
+}
+
+export function getTotalPhotoCountFrom(manifest: Manifest): number {
+  return manifest.tournaments.reduce((n, t) => n + t.photoCount, 0)
 }

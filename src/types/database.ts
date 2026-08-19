@@ -122,8 +122,14 @@ export interface Game {
   home_away?: 'home' | 'away';
   game_type?: string;
   result?: string;
+  /** Integer scores (migration 014). `result` is derived from these by trigger. */
+  wings_score?: number | null;
+  opponent_score?: number | null;
   notes?: string;
+  /** Free-text season label. Prefer season_id. */
   season?: string;
+  /** FK to public.seasons. Backfilled on every row. */
+  season_id?: string | null;
   is_active?: boolean;
   // Legacy fields for backwards compatibility
   date?: string;
@@ -149,7 +155,17 @@ export interface PlayerHighlight {
 
 export interface GameHighlight {
   id: string;
-  game_id: string;
+  game_id: string | null;
+  tournament_id?: string | null;
+  is_featured: boolean;
+  // Standalone game metadata (used when game_id is null)
+  opponent?: string;
+  game_date?: string;
+  game_time?: string;
+  game_location?: string;
+  home_away?: 'home' | 'away';
+  game_type?: string; // 'tournament' | 'exhibition' | 'scrimmage' | 'regular'
+  // Content
   title?: string;
   summary?: string;
   final_score?: string;
@@ -157,11 +173,44 @@ export interface GameHighlight {
   player_highlights: PlayerHighlight[];
   photos: GamePhoto[];
   video_url?: string;
-  featured_photo_url?: string; // URL of the photo to display on the card
+  featured_photo_url?: string;
   created_at: string;
   updated_at: string;
   created_by?: string;
   is_published: boolean;
+}
+
+export interface PressStory {
+  id: string;
+  slug: string;
+  title: string;
+  subtitle?: string;
+  body: string;
+  cover_photo_url?: string;
+  photos: GamePhoto[];
+  author?: string;
+  published_at?: string;
+  is_published: boolean;
+  is_featured: boolean;
+  display_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Tournament {
+  id: string;
+  name: string;
+  start_date?: string;
+  end_date?: string;
+  location?: string;
+  description?: string;
+  season?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TournamentWithHighlights extends Tournament {
+  highlights: GameHighlight[];
 }
 
 export interface GameWithHighlights extends Game {

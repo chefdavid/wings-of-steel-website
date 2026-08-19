@@ -226,7 +226,7 @@ function DonationFormInner({ onSuccess, initialAmount, eventTag, embedded }: Don
     playerName: '',
     isAnonymous: false,
     message: '',
-    isRecurring: true,
+    isRecurring: false,
   });
   const [playerSearch, setPlayerSearch] = useState('');
   const [showPlayerDropdown, setShowPlayerDropdown] = useState(false);
@@ -458,6 +458,9 @@ function DonationFormInner({ onSuccess, initialAmount, eventTag, embedded }: Don
               Monthly
             </label>
           </div>
+          <p className={`${subtextColor} text-xs -mt-2`}>
+            One-time donations are selected by default. Choose monthly to support the team every month.
+          </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>

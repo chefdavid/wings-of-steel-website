@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import NoChildPaysBanner from './NoChildPaysBanner';
 import { FaHeart, FaUsers, FaHandsHelping, FaStar } from 'react-icons/fa';
 
 const About = () => {
@@ -94,6 +95,16 @@ const About = () => {
             </motion.a>
           </div>
         </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+          className="mt-12 md:mt-16 max-w-4xl mx-auto"
+        >
+          <NoChildPaysBanner />
+        </motion.div>
+
       </div>
     </section>
   );

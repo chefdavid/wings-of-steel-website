@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { FaUsers, FaHockeyPuck, FaCalendarAlt, FaCog, FaSignOutAlt, FaBars, FaTimes, FaClock, FaImage, FaGolfBall, FaPizzaSlice, FaTrophy, FaEye, FaHeart, FaChartLine, FaChevronDown, FaChevronRight, FaClipboardList } from 'react-icons/fa';
+import { FaUsers, FaHockeyPuck, FaCalendarAlt, FaCog, FaSignOutAlt, FaBars, FaTimes, FaClock, FaImage, FaGolfBall, FaPizzaSlice, FaTrophy, FaEye, FaHeart, FaChartLine, FaChevronDown, FaChevronRight, FaClipboardList, FaNewspaper } from 'react-icons/fa';
 import { Users } from 'lucide-react';
 import PlayerManagement from './PlayerManagement';
 import CoachManagement from './CoachManagement';
@@ -17,8 +17,9 @@ import DonationManagement from './DonationManagement';
 import DonationGoalManagement from './DonationGoalManagement';
 import TopgolfAdmin from './TopgolfAdmin';
 import RegistrationManagement from './RegistrationManagement';
+import PressStoriesManagement from './PressStoriesManagement';
 
-type AdminSection = 'players' | 'coaches' | 'site-sections' | 'schedule' | 'game-highlights' | 'practice' | 'opponents' | 'settings' | 'batch-images' | 'golf-outing' | 'pizza-pins' | 'topgolf' | 'event-visibility' | 'donations' | 'donation-goals' | 'registrations';
+type AdminSection = 'players' | 'coaches' | 'site-sections' | 'schedule' | 'game-highlights' | 'press-stories' | 'practice' | 'opponents' | 'settings' | 'batch-images' | 'golf-outing' | 'pizza-pins' | 'topgolf' | 'event-visibility' | 'donations' | 'donation-goals' | 'registrations';
 
 interface AdminDashboardProps {
   onLogout: () => void;
@@ -46,6 +47,7 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
     { id: 'practice' as AdminSection, label: 'Practice Schedule', icon: FaClock },
     { id: 'schedule' as AdminSection, label: 'Game Schedule', icon: FaCalendarAlt },
     { id: 'game-highlights' as AdminSection, label: 'Game Highlights', icon: FaTrophy },
+    { id: 'press-stories' as AdminSection, label: 'The Wings Press', icon: FaNewspaper },
     { id: 'site-sections' as AdminSection, label: 'Site Content', icon: FaCog },
     { id: 'batch-images' as AdminSection, label: 'Batch Update Images', icon: FaImage },
   ];
@@ -83,6 +85,8 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
         return <GameScheduleManagement />;
       case 'game-highlights':
         return <GameHighlightsManagement />;
+      case 'press-stories':
+        return <PressStoriesManagement />;
       case 'batch-images':
         return <ImageBatchUpdate />;
       default:

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FaBars, FaTimes, FaChevronDown, FaFacebook } from 'react-icons/fa';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useEventVisibility } from '../hooks/useEventVisibility';
+import ThemeToggle from './ThemeToggle';
 import { SEASON_LABEL } from '../data/schedule-2026-2027';
 
 const Navigation = () => {
@@ -75,6 +76,14 @@ const Navigation = () => {
               { name: 'Players', href: '/#team-players', isHashLink: true, description: 'Meet our athletes' },
               { name: 'Coaches', href: '/#team-coaches', isHashLink: true, description: 'Our coaching staff' }
             ]
+          },
+          {
+            title: 'Media',
+            items: [
+              { name: 'The Wings Press', href: '/stories', isHashLink: false, description: 'Stories, recaps & milestones' },
+              { name: 'Game Recaps', href: '/game-highlights', isHashLink: false, description: 'Highlights, photos & box scores' },
+              { name: 'Photo Gallery', href: '/gallery', isHashLink: false, description: 'Tournament photos & memories' }
+            ]
           }
         ]
       },
@@ -86,31 +95,19 @@ const Navigation = () => {
             title: 'Events',
             items: [
               { name: 'Game Schedule', href: '/#schedule', isHashLink: true, description: `${SEASON_LABEL} season games` },
-              { name: 'Game Highlights', href: '/game-highlights', isHashLink: false, description: 'Recaps, photos & moments' },
               { name: 'Practice Schedule', href: '/practice-schedule', isHashLink: false, description: 'All practice times' }
-            ]
-          }
-        ]
-      },
-      {
-        name: 'Experience',
-        key: 'experience',
-        sections: [
-          {
-            title: 'Media',
-            items: [
-              { name: 'Photo Gallery', href: '/gallery', isHashLink: false, description: 'Tournament photos & memories' },
-              // { name: 'Team Store', href: '/store', isHashLink: false, description: 'Official merchandise' } // Temporarily hidden while store is disabled
             ]
           },
           {
             title: 'Competition',
             items: [
+              { name: 'Team Stats', href: '/stats', isHashLink: false, description: 'Record, scoring leaders & goaltending' },
               { name: 'Opponents', href: '/opponents', isHashLink: false, description: 'Teams we compete against' }
             ]
           }
         ]
       },
+      { name: 'Shop', href: '/store', isHashLink: false, standalone: true },
       {
         name: 'Connect',
         key: 'connect',
@@ -214,13 +211,9 @@ const Navigation = () => {
 
   return (
     <>
-      <a 
-        href="#main-content" 
-        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-steel-blue text-white px-4 py-2 rounded-md z-50"
-      >
-        Skip to main content
-      </a>
-      
+      {/* Skip link lives in index.html so it works before hydration.
+          Duplicating it here put two "Skip to main content" targets in the
+          tab order. */}
       <nav className="fixed top-0 w-full bg-dark-steel/95 backdrop-blur-sm z-50 shadow-lg" role="navigation" aria-label="Main navigation">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
@@ -376,6 +369,7 @@ const Navigation = () => {
                 >
                   <FaFacebook className="text-2xl" />
                 </a>
+                <ThemeToggle />
                 {/* Shop button temporarily hidden while store is disabled */}
               </div>
             </div>
