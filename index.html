@@ -76,12 +76,32 @@
         "postalCode": "08043",
         "addressCountry": "US"
       },
-      "url": "https://wingsofsteel.org",
+      "url": "https://wingsofsteel.org/",
       "logo": "https://wingsofsteel.org/assets/wings-logo.webp",
       "description": "Championship youth sled hockey team making the sport accessible to all children regardless of financial ability. No child pays to play.",
+      "alternateName": "Wings of Steel Sled Hockey",
       "foundingDate": "2020",
       "slogan": "No child pays to play",
       "award": ["2025 USA Sled Hockey Champions", "2026 USA Sled Hockey Champions"],
+      "nonprofitStatus": "Nonprofit501c3",
+      "knowsAbout": [
+        "Sled hockey",
+        "Para ice hockey",
+        "Adaptive sports",
+        "Youth sports for children with disabilities"
+      ],
+      "areaServed": [
+        { "@type": "AdministrativeArea", "name": "Camden County, New Jersey" },
+        { "@type": "AdministrativeArea", "name": "Gloucester County, New Jersey" },
+        { "@type": "AdministrativeArea", "name": "Burlington County, New Jersey" },
+        { "@type": "AdministrativeArea", "name": "South Jersey" },
+        { "@type": "City", "name": "Philadelphia, Pennsylvania" }
+      ],
+      "potentialAction": {
+        "@type": "DonateAction",
+        "target": "https://wingsofsteel.org/donate/",
+        "name": "Donate to Wings of Steel"
+      },
       "contactPoint": {
         "@type": "ContactPoint",
         "contactType": "General Inquiries",
@@ -110,67 +130,50 @@
     }
     </script>
     
-    <!-- FAQ Schema for Sled Hockey -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "mainEntity": [
-        {
-          "@type": "Question",
-          "name": "What is sled hockey?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Sled hockey (also called sledge hockey) is an adaptive form of ice hockey designed for players with physical disabilities. Players sit in specially designed sleds mounted on two hockey skate blades and use two short sticks — one end has a blade for shooting and passing, the other has metal picks for propelling across the ice."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "How much does it cost to play sled hockey with Wings of Steel?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Wings of Steel is completely free for all players. As a 501(c)(3) nonprofit, we provide all equipment including sleds, sticks, helmets, pads, and jerseys at no cost to families. No child pays to play."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Where does Wings of Steel practice?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Wings of Steel practices at Flyers Skate Zone, 601 Laurel Oak Rd, Voorhees Township, NJ 08043. Practices are held on Thursdays from 6:10 PM to 7:10 PM."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Do I need experience to join a sled hockey team?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "No experience is needed to join Wings of Steel. We welcome players of all abilities and experience levels. Our coaches teach everything from basic sled movement to advanced game skills."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Is sled hockey a Paralympic sport?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Yes, sled hockey (known internationally as para ice hockey) has been a Paralympic sport since the 1994 Winter Paralympics in Lillehammer, Norway. It is one of the most popular and fast-paced events at the Winter Paralympics."
-          }
-        }
-      ]
-    }
-    </script>
+    <!--
+      FAQ schema is injected PER ROUTE by scripts/prerender.mjs, at the marker
+      below.
 
-    <!-- Local Business Schema -->
+      It used to be hard-coded here, which meant the prerenderer copied the
+      same five questions onto all sixteen pages. Repeating one FAQ set across
+      a whole site tells Google the pages are interchangeable, and it's the
+      pattern that gets FAQ rich results withdrawn. Each route now declares its
+      own `faq` array, matching the questions that route actually answers, and
+      routes with no `faq` emit no FAQPage at all.
+    -->
+    <!--FAQ_SCHEMA_SLOT-->
+
+    <!--
+      Local Business Schema
+
+      TODO(team) — three fields are deliberately absent rather than guessed,
+      because wrong structured data is worse than missing structured data.
+      All three matter to grant reviewers and corporate giving teams:
+
+        1. "taxID"      — the EIN. Add it here and on /sponsors.
+        2. "telephone"  — previously present but empty, which is worse than
+                          omitted; removed until there's a real number.
+        3. "geo"        — GeoCoordinates for 601 Laurel Oak Rd. Take the exact
+                          lat/long from the Google Business Profile listing
+                          once it's claimed; an approximate pin is worse than
+                          none, since Google already geocodes the postal
+                          address below.
+
+      Also verify "foundingDate": "2020" in the SportsTeam block above. Given
+      the program's history that looks wrong, and founding year shows in
+      knowledge panels and reads as a credibility signal to funders.
+    -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "LocalBusiness",
+      "@type": ["LocalBusiness", "SportsActivityLocation"],
       "name": "Wings of Steel Youth Sled Hockey",
       "image": "https://wingsofsteel.org/assets/hockey-sticks.webp",
-      "@id": "https://wingsofsteel.org",
-      "url": "https://wingsofsteel.org",
-      "telephone": "",
+      "@id": "https://wingsofsteel.org/",
+      "url": "https://wingsofsteel.org/",
       "priceRange": "Free",
+      "isAccessibleForFree": true,
+      "nonprofitStatus": "Nonprofit501c3",
       "address": {
         "@type": "PostalAddress",
         "streetAddress": "601 Laurel Oak Rd",

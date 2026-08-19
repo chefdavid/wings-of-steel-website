@@ -13,13 +13,43 @@ Wings of Steel is a championship sled hockey team website built with React, Type
 1. **NEVER commit the `dist` folder** - It's in .gitignore. Netlify must build it fresh.
 2. **Asset hash mismatches will cause blank pages** - Different environments generate different hashes
 3. **The `netlify.toml` clears caches** with `rm -rf dist node_modules/.vite` before building
-4. **SPA Routing requires** the `public/_redirects` file with `/*    /index.html   200`
+4. **NEVER re-create `public/_redirects`** - routing lives in `netlify.toml` now. See "Routing & SEO" below.
 5. **ALWAYS test production build** with `npm run build && npm run preview` before pushing
 
 ### Common Netlify Issues:
 - **Blank page**: Asset hash mismatch - Netlify's build has different hashes than local
 - **MIME type errors**: Files don't exist (wrong hash) so HTML 404 is returned
 - **Build failures**: Secrets scanning - public env vars are excluded in netlify.toml
+
+## Routing & SEO
+
+`npm run build` runs `vite build` and then `scripts/prerender.mjs`. That script is the single
+source of truth for public pages: for each entry in its `ROUTES` table it writes
+`dist/<route>/index.html` with a route-specific title, description, canonical, OG/Twitter tags,
+optional per-route FAQ schema, and crawler-visible `<noscript>`-style content. It also generates
+`dist/sitemap.xml` from the same table.
+
+**Adding a public page** means doing three things, or it will half-work:
+1. Add a `ROUTES` entry in `scripts/prerender.mjs` (gets it prerendered + into the sitemap).
+2. Add the `<Route>` in `src/App.tsx` (otherwise React mounts NotFound over the prerendered HTML).
+3. If the route is client-only (DB-driven or gated) and therefore *not* prerendered, add a
+   `status = 200` rule in `netlify.toml` - otherwise it will 404.
+
+**Never re-create `public/_redirects`.** It used to contain `/*  /index.html  200`, which
+answered every unknown URL with HTTP 200 and a copy of the homepage. Google reports that as a
+soft 404 and it suppresses crawling of real pages. `_redirects` takes precedence over
+`netlify.toml`, so re-adding it silently reverts the fix. Unmatched paths must fall through to
+`dist/404.html`, which Netlify serves with a real 404 status.
+
+**Canonical URLs carry a trailing slash** (`/donate/`, not `/donate`), because that is the form
+Netlify settles on when serving `dist/donate/index.html`. The prerender script and the generated
+sitemap derive both from one expression - don't hand-edit one without the other.
+
+Verify routing changes locally against Netlify's own redirect engine, not `vite preview`:
+
+```bash
+npm run build && npx netlify dev --dir dist --offline --port 8901
+```
 
 ## Common Commands
 

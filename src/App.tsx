@@ -31,6 +31,9 @@ const SledHockeyNJ = lazy(() => import('./pages/SledHockeyNJ'))
 const SledHockeyTeams = lazy(() => import('./pages/SledHockeyTeams'))
 const FreeYouthHockey = lazy(() => import('./pages/FreeYouthHockey'))
 const SledHockeyEquipment = lazy(() => import('./pages/SledHockeyEquipment'))
+const TrySledHockey = lazy(() => import('./pages/TrySledHockey'))
+const AdaptiveSportsSouthJersey = lazy(() => import('./pages/AdaptiveSportsSouthJersey'))
+const Sponsors = lazy(() => import('./pages/Sponsors'))
 const WingsPressPage = lazy(() => import('./pages/WingsPressPage'))
 const Stats = lazy(() => import('./pages/Stats'))
 const PressStoryPage = lazy(() => import('./pages/PressStoryPage'))
@@ -100,6 +103,9 @@ function App() {
                 <Route path="/sled-hockey-teams" element={<SledHockeyTeams />} />
                 <Route path="/free-youth-hockey" element={<FreeYouthHockey />} />
                 <Route path="/sled-hockey-equipment-guide" element={<SledHockeyEquipment />} />
+                <Route path="/try-sled-hockey" element={<TrySledHockey />} />
+                <Route path="/adaptive-sports-south-jersey" element={<AdaptiveSportsSouthJersey />} />
+                <Route path="/sponsors" element={<Sponsors />} />
                 <Route path="/stories" element={<WingsPressPage />} />
                 <Route path="/stories/:slug" element={<PressStoryPage />} />
 

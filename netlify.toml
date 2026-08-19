@@ -12,8 +12,74 @@
   # Omit scripts directory from scanning
   SECRETS_SCAN_OMIT_PATHS = "scripts/**,dist/**"
 
-# SPA fallback — serves index.html for routes without prerendered files
+# ---------------------------------------------------------------------------
+# SPA fallback, scoped deliberately.
+#
+# This used to be a single blanket rule:
+#
+#   from = "/*"  to = "/index.html"  status = 200
+#
+# which answered EVERY unmatched path — typos, stale links, scraped junk — with
+# HTTP 200 and a copy of the homepage. Google reports that as a soft 404 and it
+# suppresses crawling of the real pages, because any bad URL looks like another
+# duplicate of the front page.
+#
+# Netlify serves existing files (the prerendered dist/<route>/index.html pages
+# and all hashed assets) before consulting these rules, so the rules below only
+# ever catch client-rendered routes that have no file of their own. Anything
+# that matches nothing here falls through to dist/404.html with a real 404
+# status, which is what we want.
+#
+# Adding a new client-only route to src/App.tsx means adding it here too —
+# otherwise it will 404. Routes listed in scripts/prerender.mjs need no entry.
+# ---------------------------------------------------------------------------
+
+# Admin (also disallowed in robots.txt)
 [[redirects]]
-  from = "/*"
+  from = "/admin"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin/*"
+  to = "/index.html"
+  status = 200
+
+# Gated fundraiser/event routes
+[[redirects]]
+  from = "/golf-outing"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/hockey-for-a-cause"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/topgolf"
+  to = "/index.html"
+  status = 200
+
+# Database-driven routes — content varies per record, so they can't be
+# prerendered from a static route table.
+[[redirects]]
+  from = "/game/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/stories/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/stories"
+  to = "/index.html"
+  status = 200
+
+# Legacy per-team URLs kept for backwards compatibility
+[[redirects]]
+  from = "/team/*"
   to = "/index.html"
   status = 200
