@@ -17,7 +17,9 @@
     "db:test": "node scripts/db-manager.js test",
     "db:stats": "node scripts/db-manager.js stats",
     "debug:frontend": "node scripts/debug-frontend.js",
-    "verify:stripe": "node scripts/verify-stripe-setup.js"
+    "verify:stripe": "node scripts/verify-stripe-setup.js",
+    "verify:schedule": "npx tsx src/scripts/verify-schedule-2026-2027.ts",
+    "check:schedule-db": "npx tsx src/scripts/check-schedule-db.ts"
   },
   "dependencies": {
     "@netlify/functions": "^4.2.5",

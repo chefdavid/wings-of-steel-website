@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FaBars, FaTimes, FaChevronDown, FaFacebook } from 'react-icons/fa';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useEventVisibility } from '../hooks/useEventVisibility';
+import { SEASON_LABEL } from '../data/schedule-2026-2027';
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -84,7 +85,7 @@ const Navigation = () => {
           {
             title: 'Events',
             items: [
-              { name: 'Game Schedule', href: '/#schedule', isHashLink: true, description: '2025-2026 season games' },
+              { name: 'Game Schedule', href: '/#schedule', isHashLink: true, description: `${SEASON_LABEL} season games` },
               { name: 'Game Highlights', href: '/game-highlights', isHashLink: false, description: 'Recaps, photos & moments' },
               { name: 'Practice Schedule', href: '/practice-schedule', isHashLink: false, description: 'All practice times' }
             ]

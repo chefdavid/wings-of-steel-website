@@ -4,13 +4,17 @@ import { FaPlus, FaEdit, FaTrash, FaTimes, FaSave, FaHome, FaPlane, FaSort, FaSo
 import { supabase } from '../../lib/supabaseClient';
 import type { Game } from '../../types/database';
 import ScheduleBulkImport from './ScheduleBulkImport';
+import { SEASON_LABEL } from '../../data/schedule-2026-2027';
+import { useCurrentSeason } from '../../hooks';
 
 const GameScheduleManagement = () => {
+  const { season: currentSeason } = useCurrentSeason();
   const [games, setGames] = useState<Game[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingGame, setEditingGame] = useState<Game | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [showBulkImport, setShowBulkImport] = useState(false);
+  const [seasonFilter, setSeasonFilter] = useState<string>('current');
   const [sortBy, setSortBy] = useState<'date' | 'opponent' | 'location'>('date');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [formData, setFormData] = useState({
@@ -93,9 +97,25 @@ const GameScheduleManagement = () => {
         console.log('✅ Game updated successfully');
       } else {
         console.log('🚀 Inserting new game');
+
+        // Stamp the season on new games. Without it they land with a null
+        // season and season_id, which detaches them from the seasons table and
+        // from every season-filtered report.
+        const { data: seasonRow } = await supabase
+          .from('seasons')
+          .select('id')
+          .eq('label', SEASON_LABEL)
+          .maybeSingle();
+
         const { data, error } = await supabase
           .from('game_schedules')
-          .insert([gameData])
+          .insert([{
+            ...gameData,
+            season: SEASON_LABEL,
+            season_id: seasonRow?.id ?? null,
+            status: 'Scheduled',
+            is_active: true
+          }])
           .select();
 
         console.log('✅ Insert result:', { data, error });
@@ -219,7 +239,24 @@ const GameScheduleManagement = () => {
     }
   };
 
-  const sortedGames = [...games].sort((a, b) => {
+  // Every season present in the data, newest first, for the filter dropdown.
+  const seasonLabels = Array.from(
+    new Set(games.map(g => g.season).filter((label): label is string => !!label))
+  ).sort().reverse();
+
+  // Default to the season being played. Past seasons are never hidden from the
+  // data, only from this list, and are one dropdown away.
+  const visibleGames = games.filter(game => {
+    if (seasonFilter === 'all') return true;
+    if (seasonFilter === 'current') {
+      if (!currentSeason) return true;
+      const date = game.game_date || game.date || '';
+      return date >= currentSeason.start_date && date <= currentSeason.end_date;
+    }
+    return game.season === seasonFilter;
+  });
+
+  const sortedGames = [...visibleGames].sort((a, b) => {
     let comparison = 0;
     
     if (sortBy === 'date') {
@@ -278,8 +315,27 @@ const GameScheduleManagement = () => {
         </motion.div>
       )}
 
-      {/* Sorting Controls */}
+      {/* Season filter + sorting controls */}
       <div className="bg-white rounded-lg shadow-md p-4">
+        <div className="flex gap-2 flex-wrap items-center mb-3 pb-3 border-b border-gray-100">
+          <span className="text-sm font-medium text-gray-700">Season:</span>
+          <select
+            value={seasonFilter}
+            onChange={(e) => setSeasonFilter(e.target.value)}
+            className="px-3 py-1.5 border rounded-lg text-sm focus:ring-2 focus:ring-steel-blue"
+          >
+            <option value="current">
+              Current season{currentSeason ? ` (${currentSeason.label})` : ''}
+            </option>
+            <option value="all">All seasons</option>
+            {seasonLabels.map(label => (
+              <option key={label} value={label}>{label}</option>
+            ))}
+          </select>
+          <span className="text-sm text-gray-500">
+            Showing {sortedGames.length} of {games.length} games
+          </span>
+        </div>
         <div className="flex gap-2 flex-wrap items-center">
           <span className="text-sm text-gray-600 mr-2">Sort by:</span>
           <button

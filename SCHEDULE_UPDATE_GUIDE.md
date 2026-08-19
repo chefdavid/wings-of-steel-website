@@ -1,84 +1,123 @@
-# Schedule Update Guide - 2025-2026 Season
+# Schedule Update Guide — 2026-2027 Season
 
-## Issue Resolved
-The error "Could not find the 'date' column" was because the database uses separate `game_date` and `game_time` columns, not a combined `date` column.
+For how the data actually fits together — and why deleting a game destroys its
+recap — read **[SCHEDULE_DATA_MODEL.md](SCHEDULE_DATA_MODEL.md)** first.
 
-## Database Schema (ACTUAL from Supabase)
-The `game_schedules` table has these columns:
-- `id` - Unique identifier
-- `game_date` - Date in YYYY-MM-DD format
-- `game_time` - Start time in HH:MM format (24-hour)
-- `end_time` - End time (optional)
-- `opponent` - Opponent team name
-- `location` - Venue location
-- `home_away` - Either 'home' or 'away'
-- `game_type` - Type of game (optional)
-- `result` - Game result (optional, used after game is complete)
-- `notes` - Additional notes (optional)
-- `season` - Season identifier (e.g., '2025-2026')
-- `is_active` - Whether game is active
-- `created_at` - Timestamp
-- `updated_at` - Timestamp
+## Where the season lives
 
-Note: The database does NOT have `date`, `home_game`, or `status` columns.
+`src/data/schedule-2026-2027.ts` is the single source of truth in code:
 
-## How to Import the Schedule
+- `SEASON_LABEL` — `2026-27`, matching the `seasons` table. The home page badge
+  and the nav description both read it, so bumping it updates the site.
+- `schedule2026_2027` — 14 games
+- `practices2026_2027` — 34 practices, every one a Thursday
+- `tournaments2026_2027` — empty; the home page tournaments section hides itself
+  until entries are added
+- `rinkAddresses` — reference addresses
 
-### Option 1: Admin Interface (Recommended)
-1. Navigate to `/admin` and log in
-2. Go to "Game Schedule" section
-3. Click the green "Bulk Import" button
-4. Review the 16 games in the preview table
-5. Click "Import 2025-2026 Schedule"
-6. The system will:
-   - Delete existing 2025-2026 games
-   - Import all 16 new games
-   - Show success message with count
+## Importing
 
-### Option 2: Manual Entry
-Use the "Add Game" button in the admin interface to add games one by one.
+**Admin → Game Schedule → Bulk Import**, and
+**Admin → Practice Schedule → Bulk Import Season**.
 
-### Option 3: Database Script (Advanced)
-If you have direct database access:
+Both importers are **upserts**:
+
+- Existing rows are matched (games on date + time, practices on date) and
+  updated in place, so the row keeps its `id`.
+- New rows are inserted.
+- **Nothing is ever deleted.** Game recaps, uploaded photos and player stats stay
+  attached, because they all hang off `game_schedules.id`.
+- Rows found in the date range but not in the data file are reported as warnings
+  for a human to review, not removed.
+
+Both are safe to re-run as often as you like.
+
+### The one thing to do by hand
+
+If a game's **date or time changes**, the importer treats it as a new game and
+leaves the old row behind. Edit that game in **Admin → Game Schedule** instead,
+so its recap stays attached.
+
+## Verifying
+
 ```bash
-npx tsx src/scripts/import-schedule.ts
+npm run verify:schedule
 ```
 
-## Schedule Data Location
-The complete 2025-2026 schedule is stored in:
-- `src/data/schedule-2025-2026.ts`
+Checks every date in the data file against the weekday printed on the source
+document, computing it three ways (UTC arithmetic, local midnight, local noon).
+It fails if any two disagree — that disagreement is the day-drift bug that has
+bitten past imports.
 
-## Schedule Summary
-- **Total Games**: 16
-- **Home Games**: 11 (at Flyers Skate Zone)
-- **Away Games**: 5
-- **Season**: October 2025 - March 2026
-- **Special Events**: 
-  - Family Game/Holiday Party on 12/21/2025
-  - Multiple TBD opponents to be determined
-
-## Verification
-All dates have been verified to have the correct day of the week. Run verification:
 ```bash
-npx tsx src/scripts/verify-schedule-dates.ts
+npm run check:schedule-db
 ```
+
+Reads the database back and diffs it against the data file: dates, times,
+opponents, locations, rinks, and the `effective_from` / `effective_to` columns
+that decide whether a practice is visible on the public site.
+
+Run the first before importing and the second after. Both currently pass:
+14 games, 34 practices, zero mismatches.
+
+## Database schema (verified against Supabase)
+
+`game_schedules`: `id`, `game_date` (date), `game_time` (time, NOT NULL),
+`end_time`, `opponent`, `location` (NOT NULL), `home_away`, `game_type`,
+`result`, `status`, `notes`, `season`, `season_id` → `seasons.id`,
+`wings_score`, `opponent_score`, `is_active`, `created_at`, `updated_at`.
+
+There is no `date`, `home_game` column.
+
+`practice_schedules`: `id`, `practice_date`, `effective_from`, `effective_to`,
+`day_of_week`, `day_order`, `start_time`, `end_time`, `team_type`, `location`,
+`rink`, `description`, `notes`, `season`, `season_id`, `is_active`.
+
+**Write `practice_date`, `effective_from` and `effective_to` to the same day.**
+Different screens read different ones; a row with only `practice_date` set is
+invisible on the public site.
+
+## Seasons run September to August
+
+Not January to December. A game in February 2027 belongs to the **2026-27**
+season. The boundaries live in the `seasons` table (`2026-27` =
+2026-09-01 → 2027-08-31) and everything on the site keys off that row, matching
+rows to a season **by date** rather than by the `season` text column.
+
+The public site and both admin lists show the **current season** by default.
+Past seasons are never deleted — the admin screens have an *All seasons*
+dropdown, and the home page game-recap archive deliberately spans every season
+so the championship recaps stay visible.
+
+## 2026-2027 summary
+
+- **Games**: 14 — 11 home, 3 away. September 27, 2026 → March 21, 2027.
+- **Practices**: 34 Thursdays. September 3, 2026 → August 12, 2027.
+- **Home ice**: Flyers Skate Zone, 601 Laurel Oak Rd, Voorhees NJ. Surfaces used:
+  Flyers Ice Rink, Rink #3, Phantoms Ice.
+- **Away rinks**: Skate Zone NE (Hammerheads), Hollydell Ice Arena (Vineland
+  Sled Stars).
+- **Preserved from 2025-26**: 23 games and 32 practices, plus 21 published game
+  recaps. Nothing was deleted.
+
+### Still to confirm with the league
+
+- **1/30/2027 at Hollydell vs Vineland Sled Stars** — the spreadsheet says 2026,
+  which is a Friday in the previous season. Imported as 2027-01-30 (a Saturday,
+  matching the sheet's own Day column and its position in the sequence).
+- Opponents for 11/28/26, 2/14/27, 2/20/27 and 2/28/27, all currently `TBD`.
+- The New York opponent for the 2/27/27 doubleheader.
 
 ## Troubleshooting
 
-### If import fails:
-1. Check that your Supabase database has the correct schema
-2. Ensure the `game_schedules` table exists (not `game_schedule`)
-3. Verify the columns match the schema above
-4. Check Supabase connection in `.env` file
+**A practice does not show on the site.** Its `effective_from` / `effective_to`
+are probably null. Re-run the practice bulk import, or run
+`npm run check:schedule-db`, which reports exactly this.
 
-### If games don't display:
-1. Check browser console for errors
-2. Verify Supabase anon key is correct
-3. Ensure RLS policies allow reading game_schedules
+**A game recap vanished after an import.** Its game row was recreated with a new
+`id`. The recap is still in `game_highlights` pointing at the dead UUID — repoint
+`game_highlights.game_id` at the new game row.
 
-## Files Modified
-- `src/components/admin/ScheduleBulkImport.tsx` - New bulk import component
-- `src/components/admin/GameScheduleManagement.tsx` - Updated to use correct fields
-- `src/data/schedule-2025-2026.ts` - Complete schedule data
-- `src/scripts/import-schedule.ts` - Command-line import script
-- `src/scripts/verify-schedule-dates.ts` - Date verification script
+**An away game sends people to the wrong rink.** `awayRinks` in
+`src/components/Schedule.tsx` is keyed on the exact opponent string; a miss falls
+back to the home rink. Add the opponent there.

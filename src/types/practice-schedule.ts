@@ -1,6 +1,13 @@
 export interface PracticeSchedule {
   id: string;
   practice_date?: string;  // Single date field for the practice
+  // Legacy date range from an earlier recurring-schedule design. Both are now
+  // written equal to practice_date, because the public pages still read them:
+  // /practice-schedule filters on effective_to and the home page Location
+  // section filters and renders effective_from. A row missing these is
+  // invisible on the site. See SCHEDULE_DATA_MODEL.md.
+  effective_from?: string;
+  effective_to?: string;
   day_of_week: string;
   day_order: number;
   start_time: string;

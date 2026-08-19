@@ -5,9 +5,10 @@ import { Link } from 'react-router-dom';
 import { useGameSchedule, useGameHighlights } from '../hooks';
 import GameHighlightsPreview from './GameHighlightsPreview';
 import type { GameHighlight } from '../types/database';
+import { SEASON_LABEL, tournaments2026_2027 } from '../data/schedule-2026-2027';
 
 const Schedule = () => {
-  const { upcomingGames, pastGames, loading, error } = useGameSchedule();
+  const { games, currentSeason, upcomingGames, pastGames, loading, error } = useGameSchedule();
   const { highlights } = useGameHighlights();
   const [showRinkModal, setShowRinkModal] = useState(false);
   const [selectedRink, setSelectedRink] = useState<{
@@ -19,13 +20,25 @@ const Schedule = () => {
     website?: string;
   } | null>(null);
 
-  // Filter published highlights and match with past games
-  const gamesWithHighlights = pastGames
+  // Published recaps from EVERY season, newest first. The schedule above is
+  // scoped to the current season, but the recap archive deliberately is not -
+  // the 2024 and 2025 championship runs are the best content on the site and
+  // should not vanish each September.
+  const gamesWithHighlights = games
     .map(game => {
       const highlight = highlights.find(h => h.game_id === game.id && h.is_published);
       return highlight ? { game, highlight } : null;
     })
-    .filter((item): item is { game: typeof pastGames[0]; highlight: GameHighlight } => item !== null);
+    .filter((item): item is { game: typeof games[0]; highlight: GameHighlight } => item !== null)
+    .sort((a, b) => (b.game.game_date || '').localeCompare(a.game.game_date || ''));
+
+  // Recaps from a season other than the one currently being played.
+  const archivedHighlightCount = currentSeason
+    ? gamesWithHighlights.filter(({ game }) => {
+        const date = game.game_date || game.date || '';
+        return date < currentSeason.start_date || date > currentSeason.end_date;
+      }).length
+    : 0;
 
   // Mapping of opponents to their rink information
   const awayRinks: { [key: string]: { name: string; address: string; phone?: string; website?: string } } = {
@@ -36,6 +49,15 @@ const Schedule = () => {
       website: 'https://www.oiceskatezonenortheast.com/'
     },
     'Sled Stars': {
+      name: 'Hollydell Ice Arena',
+      address: '601 Holly Dell Dr, Sewell, NJ 08080',
+      phone: '(856) 589-4799',
+      website: 'https://www.hollydellicearena.com/'
+    },
+    // The league sheet writes the full club name. Both keys point at the same
+    // rink so older games keep resolving too - this object is looked up by the
+    // exact opponent string, and a miss silently sends families to Voorhees.
+    'Vineland Sled Stars': {
       name: 'Hollydell Ice Arena',
       address: '601 Holly Dell Dr, Sewell, NJ 08080',
       phone: '(856) 589-4799',
@@ -61,6 +83,22 @@ const Schedule = () => {
     phone: '(856) 751-9161',
     website: 'https://flyersskatezone.com/'
   };
+
+  // The rinks the team still has to travel to, in schedule order and
+  // de-duplicated. Built from upcoming games only - listing every away opponent
+  // in team history would advertise rinks nobody is visiting this season.
+  // An away opponent with no entry in awayRinks is skipped rather than rendered
+  // without an address, and that omission is the cue to add the key above.
+  const awayVenues = upcomingGames
+    .filter(game => game.home_away === 'away' && game.opponent)
+    .reduce<Array<{ opponent: string; name: string; address: string }>>((acc, game) => {
+      const opponent = game.opponent as string;
+      const rink = awayRinks[opponent];
+      if (rink && !acc.some(v => v.opponent === opponent)) {
+        acc.push({ opponent, name: rink.name, address: rink.address });
+      }
+      return acc;
+    }, []);
 
   if (loading) {
     return (
@@ -188,7 +226,7 @@ const Schedule = () => {
             className="inline-block mb-4"
           >
             <div className="bg-yellow-400 text-black px-6 py-2 rounded-full font-bold text-sm uppercase tracking-wider">
-              2025-2026 Season
+              {currentSeason?.label || SEASON_LABEL} Season
             </div>
           </motion.div>
           <h2 className="text-5xl md:text-6xl font-sport text-dark-steel mb-4">
@@ -229,6 +267,19 @@ const Schedule = () => {
             <div className="text-sm text-gray-600 mt-1">Home Games</div>
           </div>
         </motion.div>
+
+        {/* The tiles above count the current season only, so they reset each
+            September. Say so, and point at the archive that does keep history. */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          viewport={{ once: true }}
+          className="text-center text-sm text-gray-500 -mt-8 mb-12"
+        >
+          Record shown is for the {currentSeason?.label || SEASON_LABEL} season.
+          {archivedHighlightCount > 0 && ' Earlier seasons live on in the recaps below.'}
+        </motion.p>
 
         {/* Upcoming Games */}
         {upcomingGames.length > 0 && (
@@ -417,8 +468,14 @@ const Schedule = () => {
               className="text-3xl font-bold text-dark-steel mb-8 flex items-center gap-3"
             >
               <FaTrophy className="text-yellow-500" />
-              Game Highlights
+              Game Recaps
             </motion.h3>
+
+            {archivedHighlightCount > 0 && (
+              <p className="text-gray-600 -mt-4 mb-6">
+                Including {archivedHighlightCount} recap{archivedHighlightCount === 1 ? '' : 's'} from previous seasons.
+              </p>
+            )}
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {gamesWithHighlights.slice(0, 6).map(({ game, highlight }, index) => (
@@ -443,7 +500,7 @@ const Schedule = () => {
           >
             <h3 className="text-3xl font-bold text-dark-steel mb-8 flex items-center gap-3">
               <FaTrophy className="text-yellow-500" />
-              Previous Games
+              {currentSeason?.label || SEASON_LABEL} Results
             </h3>
             
             <div className="bg-white rounded-2xl shadow-xl p-6">
@@ -513,99 +570,72 @@ const Schedule = () => {
           </motion.div>
         )}
 
-        {/* Tournaments Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.35 }}
-          viewport={{ once: true }}
-          className="mt-16"
-        >
-          <div className="bg-gradient-to-br from-yellow-50 via-white to-yellow-50 rounded-2xl shadow-xl p-8 border-2 border-yellow-200">
-            <h3 className="text-3xl font-bold text-dark-steel mb-8 flex items-center gap-3 justify-center">
-              <FaTrophy className="text-yellow-500" />
-              Tournaments
-            </h3>
-            
-            <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-              {/* Amelia Park Tournament */}
-              <motion.div 
-                whileHover={{ scale: 1.02 }}
-                className="bg-white rounded-xl p-6 shadow-lg border-l-4 border-yellow-400"
-              >
-                <div className="flex items-start gap-4">
-                  <div className="bg-yellow-100 p-3 rounded-lg">
-                    <FaTrophy className="text-2xl text-yellow-600" />
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-bold text-xl text-dark-steel mb-2">Amelia Park Tournament</h4>
-                    <div className="space-y-2 text-gray-700">
-                      <p className="flex items-center gap-2">
-                        <FaCalendarAlt className="text-steel-blue" />
-                        <span className="font-medium">March 27-29, 2026</span>
-                      </p>
-                      <p className="text-sm text-gray-600">Thursday - Sunday</p>
-                      <p className="flex items-center gap-2 mt-3">
-                        <FaMapMarkerAlt className="text-steel-blue" />
-                        <span>Westfield, MA</span>
-                      </p>
-                      <div className="mt-4 pt-4 border-t">
-                        <a
-                          href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent('Amelia Park Ice Arena, Westfield, MA')}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 bg-steel-blue text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm"
-                        >
-                          <FaDirections />
-                          Get Directions
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
+        {/* Tournaments Section - driven by src/data/schedule-2026-2027.ts.
+            Hidden entirely when the season has no tournaments confirmed yet, so
+            last season's dates can never linger here. */}
+        {tournaments2026_2027.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.35 }}
+            viewport={{ once: true }}
+            className="mt-16"
+          >
+            <div className="bg-gradient-to-br from-yellow-50 via-white to-yellow-50 rounded-2xl shadow-xl p-8 border-2 border-yellow-200">
+              <h3 className="text-3xl font-bold text-dark-steel mb-8 flex items-center gap-3 justify-center">
+                <FaTrophy className="text-yellow-500" />
+                Tournaments
+              </h3>
 
-              {/* USA Hockey Tournament */}
-              <motion.div 
-                whileHover={{ scale: 1.02 }}
-                className="bg-white rounded-xl p-6 shadow-lg border-l-4 border-red-500"
-              >
-                <div className="flex items-start gap-4">
-                  <div className="bg-red-100 p-3 rounded-lg">
-                    <FaTrophy className="text-2xl text-red-600" />
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-bold text-xl text-dark-steel mb-2">USA Hockey Tournament</h4>
-                    <div className="space-y-2 text-gray-700">
-                      <p className="flex items-center gap-2">
-                        <FaCalendarAlt className="text-steel-blue" />
-                        <span className="font-medium">April 30 - May 3, 2026</span>
-                      </p>
-                      <p className="text-sm text-gray-600">Thursday - Sunday</p>
-                      <p className="flex items-center gap-2 mt-3">
-                        <FaMapMarkerAlt className="text-steel-blue" />
-                        <span>Dallas, TX</span>
-                      </p>
-                      <div className="mt-4 pt-4 border-t">
-                        <a
-                          href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent('Dallas, TX')}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 bg-steel-blue text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm"
-                        >
-                          <FaDirections />
-                          Get Directions
-                        </a>
+              <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                {tournaments2026_2027.map((tournament) => (
+                  <motion.div
+                    key={tournament.name}
+                    whileHover={{ scale: 1.02 }}
+                    className="bg-white rounded-xl p-6 shadow-lg border-l-4 border-yellow-400"
+                  >
+                    <div className="flex items-start gap-4">
+                      <div className="bg-yellow-100 p-3 rounded-lg">
+                        <FaTrophy className="text-2xl text-yellow-600" />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-bold text-xl text-dark-steel mb-2">{tournament.name}</h4>
+                        <div className="space-y-2 text-gray-700">
+                          <p className="flex items-center gap-2">
+                            <FaCalendarAlt className="text-steel-blue" />
+                            <span className="font-medium">{tournament.dates}</span>
+                          </p>
+                          <p className="text-sm text-gray-600">{tournament.days}</p>
+                          <p className="flex items-center gap-2 mt-3">
+                            <FaMapMarkerAlt className="text-steel-blue" />
+                            <span>{tournament.location}</span>
+                          </p>
+                          {tournament.notes && (
+                            <p className="text-sm text-gray-600 italic">{tournament.notes}</p>
+                          )}
+                          <div className="mt-4 pt-4 border-t">
+                            <a
+                              href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(tournament.destination)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-2 bg-steel-blue text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                            >
+                              <FaDirections />
+                              Get Directions
+                            </a>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              </motion.div>
+                  </motion.div>
+                ))}
+              </div>
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        )}
 
         {/* Away Rink Locations */}
+        {awayVenues.length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -619,70 +649,28 @@ const Schedule = () => {
               Away Game Locations
             </h3>
             
+            {/* Derived from the away games actually on the schedule, so this
+                never advertises a rink the team is not visiting this season. */}
             <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
-              {/* Hammerheads */}
-              <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl p-6 border border-gray-200 hover:shadow-lg transition-shadow">
-                <h4 className="font-bold text-lg text-dark-steel mb-2">Hammerheads</h4>
-                <p className="text-gray-600 mb-3">Skate Zone NE</p>
-                <p className="text-sm text-gray-600 mb-4">10990 Decatur Rd, Philadelphia, PA 19154</p>
-                <a
-                  href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent('10990 Decatur Rd, Philadelphia, PA 19154')}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 bg-steel-blue text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+              {awayVenues.map((venue) => (
+                <div
+                  key={venue.opponent}
+                  className="bg-gradient-to-br from-gray-50 to-white rounded-xl p-6 border border-gray-200 hover:shadow-lg transition-shadow"
                 >
-                  <FaDirections className="text-lg" />
-                  Get Directions
-                </a>
-              </div>
-
-              {/* Sled Stars */}
-              <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl p-6 border border-gray-200 hover:shadow-lg transition-shadow">
-                <h4 className="font-bold text-lg text-dark-steel mb-2">Sled Stars</h4>
-                <p className="text-gray-600 mb-3">Hollydell Ice Arena</p>
-                <p className="text-sm text-gray-600 mb-4">601 Holly Dell Dr, Sewell, NJ 08080</p>
-                <a
-                  href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent('601 Holly Dell Dr, Sewell, NJ 08080')}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 bg-steel-blue text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  <FaDirections className="text-lg" />
-                  Get Directions
-                </a>
-              </div>
-
-              {/* Bennett Blazers */}
-              <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl p-6 border border-gray-200 hover:shadow-lg transition-shadow">
-                <h4 className="font-bold text-lg text-dark-steel mb-2">Bennett Blazers</h4>
-                <p className="text-gray-600 mb-3">Ice World</p>
-                <p className="text-sm text-gray-600 mb-4">1300 Governor Court, Abingdon, MD 21009</p>
-                <a
-                  href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent('1300 Governor Court, Abingdon, MD 21009')}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 bg-steel-blue text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  <FaDirections className="text-lg" />
-                  Get Directions
-                </a>
-              </div>
-
-              {/* DC Sharks */}
-              <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl p-6 border border-gray-200 hover:shadow-lg transition-shadow">
-                <h4 className="font-bold text-lg text-dark-steel mb-2">DC Sled Sharks</h4>
-                <p className="text-gray-600 mb-3">Kettler Capitals Ice Plex</p>
-                <p className="text-sm text-gray-600 mb-4">627 N. Glebe Rd, Suite 800, Arlington, VA 22203</p>
-                <a
-                  href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent('627 N. Glebe Rd, Suite 800, Arlington, VA 22203')}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 bg-steel-blue text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  <FaDirections className="text-lg" />
-                  Get Directions
-                </a>
-              </div>
+                  <h4 className="font-bold text-lg text-dark-steel mb-2">{venue.opponent}</h4>
+                  <p className="text-gray-600 mb-3">{venue.name}</p>
+                  <p className="text-sm text-gray-600 mb-4">{venue.address}</p>
+                  <a
+                    href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(venue.address)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 bg-steel-blue text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    <FaDirections className="text-lg" />
+                    Get Directions
+                  </a>
+                </div>
+              ))}
             </div>
 
             {/* Home Rink Info */}
@@ -706,6 +694,7 @@ const Schedule = () => {
             </div>
           </div>
         </motion.div>
+        )}
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}

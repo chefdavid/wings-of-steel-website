@@ -5,8 +5,10 @@ import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import { formatPhoneDisplay } from '../utils/phoneUtils';
 import type { PracticeSchedule } from '../types/practice-schedule';
+import { useCurrentSeason } from '../hooks';
 
 const Location = () => {
+  const { season, loading: seasonLoading } = useCurrentSeason();
   const [locationData, setLocationData] = useState<any>(null);
   const [practiceSchedules, setPracticeSchedules] = useState<PracticeSchedule[]>([]);
   const [loadingSchedule, setLoadingSchedule] = useState(true);
@@ -14,8 +16,14 @@ const Location = () => {
 
   useEffect(() => {
     fetchLocationData();
-    fetchPracticeSchedule();
   }, []);
+
+  useEffect(() => {
+    // Hold the practice query until the season is known, so the preview cannot
+    // briefly show practices from a season that has already finished.
+    if (seasonLoading) return;
+    fetchPracticeSchedule();
+  }, [seasonLoading, season]);
 
   const fetchLocationData = async () => {
     try {
@@ -41,14 +49,25 @@ const Location = () => {
 
   const fetchPracticeSchedule = async () => {
     try {
-      const today = new Date().toISOString().split('T')[0];
+      // Local date, not toISOString() - the UTC form rolls over to tomorrow
+      // during the evening in America/New_York and hides that night's practice.
+      const now = new Date();
+      const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
       
-      // Get upcoming practices (effective_from >= today) - only get 6 for preview
-      const { data, error } = await supabase
+      // Upcoming practices, current season only - only 6 for the preview.
+      // Seasons run September -> August, so the upper bound matters: without it
+      // the preview would spill into the next season each August.
+      let query = supabase
         .from('practice_schedules')
         .select('*')
         .eq('is_active', true)
-        .gte('effective_from', today)
+        .gte('effective_from', today);
+
+      if (season) {
+        query = query.lte('effective_from', season.end_date);
+      }
+
+      const { data, error } = await query
         .order('effective_from')
         .order('start_time')
         .limit(6);

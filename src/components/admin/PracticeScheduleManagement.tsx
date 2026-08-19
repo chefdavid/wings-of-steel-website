@@ -1,23 +1,51 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Edit2, Trash2, Clock, MapPin, Calendar, X, Copy, Check, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { Plus, Edit2, Trash2, Clock, MapPin, Calendar, X, Copy, Check, ArrowUpDown, ArrowUp, ArrowDown, Upload } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
 import type { PracticeSchedule } from '../../types/practice-schedule';
 import { DAYS_OF_WEEK, TEAM_TYPES } from '../../types/practice-schedule';
+import PracticeScheduleBulkImport from './PracticeScheduleBulkImport';
+import { SEASON_LABEL } from '../../data/schedule-2026-2027';
+import { useCurrentSeason } from '../../hooks';
+
+const WEEKDAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+/**
+ * Today in the browser's own timezone as YYYY-MM-DD.
+ *
+ * `new Date().toISOString().split('T')[0]` is the obvious thing to write and it
+ * is wrong: it converts to UTC first, so any evening in the US lands on
+ * tomorrow's date.
+ */
+const localToday = () => {
+  const now = new Date();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${now.getFullYear()}-${month}-${day}`;
+};
+
+/** Weekday name for a YYYY-MM-DD string, computed without any timezone shift. */
+const weekdayFor = (dateStr: string) => {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  return WEEKDAY_NAMES[new Date(Date.UTC(y, m - 1, d)).getUTCDay()];
+};
 
 const PracticeScheduleManagement = () => {
+  const { season: currentSeason } = useCurrentSeason();
   const [schedules, setSchedules] = useState<PracticeSchedule[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingSchedule, setEditingSchedule] = useState<PracticeSchedule | null>(null);
   const [selectedDay, setSelectedDay] = useState<string>('all');
+  const [seasonFilter, setSeasonFilter] = useState<string>('current');
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [showBulkImport, setShowBulkImport] = useState(false);
   const [sortBy, setSortBy] = useState<'date' | 'time' | 'team' | 'location'>('date');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [formData, setFormData] = useState<Partial<PracticeSchedule>>({
-    practice_date: new Date().toISOString().split('T')[0],
-    day_of_week: 'Monday',
-    day_order: 1,
+    practice_date: localToday(),
+    day_of_week: weekdayFor(localToday()),
+    day_order: DAYS_OF_WEEK.find(d => d.name === weekdayFor(localToday()))?.order || 1,
     start_time: '18:00',
     end_time: '19:00',
     team_type: 'youth',
@@ -25,7 +53,7 @@ const PracticeScheduleManagement = () => {
     rink: 'Main Rink',
     description: '',
     is_active: true,
-    season: 'Spring 2025',
+    season: SEASON_LABEL,
     notes: ''
   });
 
@@ -84,7 +112,7 @@ const PracticeScheduleManagement = () => {
     setEditingSchedule(null);
     setFormData({
       ...scheduleData,
-      practice_date: new Date().toISOString().split('T')[0], // Set today's date for duplicate
+      practice_date: localToday(), // Set today's date for duplicate
       start_time: schedule.start_time.substring(0, 5),
       end_time: schedule.end_time.substring(0, 5),
       description: `${schedule.description} (Copy)`
@@ -118,11 +146,26 @@ const PracticeScheduleManagement = () => {
     e.preventDefault();
 
     try {
+      const practiceDate = formData.practice_date || localToday();
+
+      // Derive the weekday from the date rather than trusting the dropdown -
+      // /practice-schedule paints its calendar dots from day_of_week, so a
+      // mismatch puts the dot on the wrong day.
+      const dayOfWeek = weekdayFor(practiceDate);
+
       const dataToSave = {
         ...formData,
+        practice_date: practiceDate,
+        // effective_from / effective_to must mirror practice_date. The home page
+        // filters and renders on effective_from and /practice-schedule filters
+        // on effective_to, so a row with only practice_date set never appears
+        // anywhere on the public site.
+        effective_from: practiceDate,
+        effective_to: practiceDate,
+        day_of_week: dayOfWeek,
         start_time: `${formData.start_time}:00`, // Convert HH:MM to HH:MM:SS
         end_time: `${formData.end_time}:00`,
-        day_order: DAYS_OF_WEEK.find(d => d.name === formData.day_of_week)?.order || 1,
+        day_order: DAYS_OF_WEEK.find(d => d.name === dayOfWeek)?.order || 1,
         updated_at: new Date().toISOString()
       };
 
@@ -154,18 +197,19 @@ const PracticeScheduleManagement = () => {
   };
 
   const resetForm = () => {
+    const today = localToday();
     setFormData({
-      practice_date: new Date().toISOString().split('T')[0],
-      day_of_week: 'Monday',
-      day_order: 1,
+      practice_date: today,
+      day_of_week: weekdayFor(today),
+      day_order: DAYS_OF_WEEK.find(d => d.name === weekdayFor(today))?.order || 1,
       start_time: '18:00',
       end_time: '19:00',
       team_type: 'youth',
       location: 'Flyers Skate Zone',
-      rink: 'Main Rink',
+      rink: 'Rink #3',
       description: '',
       is_active: true,
-      season: 'Spring 2025',
+      season: SEASON_LABEL,
       notes: ''
     });
   };
@@ -197,9 +241,26 @@ const PracticeScheduleManagement = () => {
     return sortDirection === 'asc' ? comparison : -comparison;
   });
 
-  const filteredSchedules = selectedDay === 'all' 
-    ? sortedSchedules 
-    : sortedSchedules.filter(s => s.day_of_week === selectedDay);
+  // Every season present in the data, newest first, for the filter dropdown.
+  const seasonLabels = Array.from(
+    new Set(schedules.map(s => s.season).filter((label): label is string => !!label))
+  ).sort().reverse();
+
+  // Default to the season being played. Past seasons stay in the database and
+  // are one dropdown away.
+  const seasonFiltered = sortedSchedules.filter(schedule => {
+    if (seasonFilter === 'all') return true;
+    if (seasonFilter === 'current') {
+      if (!currentSeason) return true;
+      const date = schedule.practice_date || schedule.effective_from || '';
+      return date >= currentSeason.start_date && date <= currentSeason.end_date;
+    }
+    return schedule.season === seasonFilter;
+  });
+
+  const filteredSchedules = selectedDay === 'all'
+    ? seasonFiltered
+    : seasonFiltered.filter(s => s.day_of_week === selectedDay);
 
   const groupedSchedules = filteredSchedules.reduce((acc, schedule) => {
     if (!acc[schedule.day_of_week]) {
@@ -235,6 +296,21 @@ const PracticeScheduleManagement = () => {
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
               <select
+                value={seasonFilter}
+                onChange={(e) => setSeasonFilter(e.target.value)}
+                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-steel-blue"
+              >
+                <option value="current">
+                  Current season{currentSeason ? ` (${currentSeason.label})` : ''}
+                </option>
+                <option value="all">All seasons</option>
+                {seasonLabels.map(label => (
+                  <option key={label} value={label}>{label}</option>
+                ))}
+              </select>
+            </div>
+            <div className="flex-1">
+              <select
                 value={selectedDay}
                 onChange={(e) => setSelectedDay(e.target.value)}
                 className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-steel-blue"
@@ -256,9 +332,22 @@ const PracticeScheduleManagement = () => {
               <Plus className="w-5 h-5" />
               Add Practice Session
             </button>
+            <button
+              onClick={() => setShowBulkImport(!showBulkImport)}
+              className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+            >
+              <Upload className="w-5 h-5" />
+              {showBulkImport ? 'Hide Bulk Import' : 'Bulk Import Season'}
+            </button>
           </div>
         </div>
       </div>
+
+      {showBulkImport && (
+        <div className="mb-6">
+          <PracticeScheduleBulkImport onImported={fetchSchedules} />
+        </div>
+      )}
 
       {loading ? (
         <div className="text-center py-12">

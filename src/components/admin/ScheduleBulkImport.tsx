@@ -1,83 +1,124 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { FaUpload, FaCheck, FaTimes, FaCalendarAlt, FaExclamationTriangle } from 'react-icons/fa';
+import { FaUpload, FaCheck, FaTimes, FaCalendarAlt, FaExclamationTriangle, FaShieldAlt } from 'react-icons/fa';
 import { supabase } from '../../lib/supabaseClient';
-import { schedule2025_2026 } from '../../data/schedule-2025-2026';
+import { schedule2026_2027, SEASON_LABEL } from '../../data/schedule-2026-2027';
 
 interface ImportStatus {
   type: 'idle' | 'loading' | 'success' | 'error';
   message?: string;
   details?: string[];
+  warnings?: string[];
 }
+
+// Natural key for a game. Two games can share a date (2/27/27 is a
+// doubleheader), so the time has to be part of it.
+const gameKey = (date: string, time: string) => `${date}|${time.slice(0, 5)}`;
+
+const seasonWindow = () => {
+  const dates = schedule2026_2027.map(g => g.game_date).sort();
+  return { first: dates[0], last: dates[dates.length - 1] };
+};
 
 const ScheduleBulkImport = () => {
   const [status, setStatus] = useState<ImportStatus>({ type: 'idle' });
   const [previewGames, setPreviewGames] = useState(false);
 
-  const clearExistingSeason = async () => {
-    const { error } = await supabase
-      .from('game_schedules')
-      .delete()
-      .gte('game_date', '2025-10-01')
-      .lte('game_date', '2026-05-31');
-    
-    if (error) {
-      throw new Error(`Failed to clear existing schedule: ${error.message}`);
-    }
-  };
-
   const importSchedule = async () => {
     setStatus({ type: 'loading', message: 'Importing schedule...' });
-    
+
     try {
-      // Clear existing 2025-2026 season games
-      await clearExistingSeason();
-      
-      // Prepare games for insertion - matching actual database schema
-      const gamesToInsert = schedule2025_2026.map(game => ({
-        game_date: game.game_date,
-        game_time: game.game_time,
-        opponent: game.opponent,
-        location: game.location,
-        home_away: game.home_away,
-        notes: game.notes || null,
-        season: game.season,
-        is_active: true
-        // Note: database doesn't have 'status' column - use 'result' for game outcomes
-      }));
-      
-      // Insert in batches
-      const batchSize = 5;
-      const results = [];
-      
-      for (let i = 0; i < gamesToInsert.length; i += batchSize) {
-        const batch = gamesToInsert.slice(i, i + batchSize);
-        
-        const { data, error } = await supabase
-          .from('game_schedules')
-          .insert(batch)
-          .select();
-        
-        if (error) {
-          throw new Error(`Batch ${Math.floor(i / batchSize) + 1} failed: ${error.message}`);
-        }
-        
-        results.push(...(data || []));
-        
-        // Small delay between batches
-        await new Promise(resolve => setTimeout(resolve, 300));
+      const { first, last } = seasonWindow();
+
+      // Resolve the season row so every game carries season_id, not just the
+      // free-text label.
+      const { data: seasonRow, error: seasonError } = await supabase
+        .from('seasons')
+        .select('id')
+        .eq('label', SEASON_LABEL)
+        .maybeSingle();
+
+      if (seasonError) {
+        throw new Error(`Could not look up season "${SEASON_LABEL}": ${seasonError.message}`);
       }
-      
+      const seasonId = seasonRow?.id ?? null;
+
+      // What is already in the database for this season's date range?
+      const { data: existingGames, error: fetchError } = await supabase
+        .from('game_schedules')
+        .select('id, game_date, game_time, opponent')
+        .gte('game_date', first)
+        .lte('game_date', last);
+
+      if (fetchError) {
+        throw new Error(`Could not read existing games: ${fetchError.message}`);
+      }
+
+      const existingByKey = new Map<string, { id: string; opponent: string | null }>();
+      (existingGames || []).forEach(g => {
+        existingByKey.set(gameKey(g.game_date, g.game_time), { id: g.id, opponent: g.opponent });
+      });
+
+      let inserted = 0;
+      let updated = 0;
+      const warnings: string[] = [];
+
+      for (const game of schedule2026_2027) {
+        const payload = {
+          game_date: game.game_date,
+          game_time: game.game_time,
+          opponent: game.opponent,
+          location: game.location,
+          home_away: game.home_away,
+          game_type: game.game_type ?? null,
+          notes: game.notes ?? null,
+          season: SEASON_LABEL,
+          season_id: seasonId,
+          is_active: true
+        };
+
+        const match = existingByKey.get(gameKey(game.game_date, game.game_time));
+
+        if (match) {
+          // UPDATE, never delete-and-recreate. The row's id is the join key for
+          // game_highlights, player_game_stats and the game-photos bucket, so
+          // recreating it would orphan every recap attached to this game.
+          const { error } = await supabase
+            .from('game_schedules')
+            .update(payload)
+            .eq('id', match.id);
+
+          if (error) throw new Error(`Failed to update ${game.game_date}: ${error.message}`);
+          updated++;
+          existingByKey.delete(gameKey(game.game_date, game.game_time));
+        } else {
+          const { error } = await supabase
+            .from('game_schedules')
+            .insert([{ ...payload, status: 'Scheduled' }]);
+
+          if (error) throw new Error(`Failed to add ${game.game_date}: ${error.message}`);
+          inserted++;
+        }
+      }
+
+      // Anything left over is in the database but not in the import file. It is
+      // reported, never deleted - it may be a game the coaches added by hand.
+      for (const [key, leftover] of existingByKey) {
+        const [date, time] = key.split('|');
+        warnings.push(`In database but not in the import file: ${date} ${time} vs ${leftover.opponent || 'TBD'} - review and remove by hand if it is stale.`);
+      }
+
       setStatus({
         type: 'success',
-        message: `Successfully imported ${results.length} games!`,
+        message: `Schedule imported. ${inserted} added, ${updated} updated.`,
         details: [
-          `Season: 2025-2026`,
-          `Games imported: ${results.length}`,
-          `Date range: October 2025 - March 2026`
-        ]
+          `Season: ${SEASON_LABEL}`,
+          `Games in file: ${schedule2026_2027.length}`,
+          `Date range: ${first} to ${last}`,
+          'No games were deleted, so all existing recaps and player stats are intact.'
+        ],
+        warnings
       });
-      
     } catch (error) {
       setStatus({
         type: 'error',
@@ -88,6 +129,8 @@ const ScheduleBulkImport = () => {
   };
 
   const formatGameDate = (dateStr: string) => {
+    // 'T00:00:00' keeps this at local midnight. Without it the string parses as
+    // UTC and renders as the previous day for anyone west of Greenwich.
     const date = new Date(dateStr + 'T00:00:00');
     return date.toLocaleDateString('en-US', {
       weekday: 'short',
@@ -109,10 +152,11 @@ const ScheduleBulkImport = () => {
     <div className="bg-white rounded-lg shadow-md p-6">
       <div className="mb-6">
         <h3 className="text-xl font-semibold text-gray-900 mb-2">
-          Bulk Import 2025-2026 Schedule
+          Bulk Import {SEASON_LABEL} Schedule
         </h3>
         <p className="text-gray-600">
-          Import the complete 2025-2026 season schedule. This will replace any existing games for this season.
+          Import the complete {SEASON_LABEL} season schedule. Games already in the database are
+          updated in place; new games are added.
         </p>
       </div>
 
@@ -122,9 +166,9 @@ const ScheduleBulkImport = () => {
           onClick={() => setPreviewGames(!previewGames)}
           className="text-steel-blue hover:text-blue-700 underline text-sm"
         >
-          {previewGames ? 'Hide' : 'Show'} games to import ({schedule2025_2026.length} games)
+          {previewGames ? 'Hide' : 'Show'} games to import ({schedule2026_2027.length} games)
         </button>
-        
+
         {previewGames && (
           <div className="mt-4 max-h-96 overflow-y-auto border rounded-lg">
             <table className="w-full text-sm">
@@ -138,7 +182,7 @@ const ScheduleBulkImport = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {schedule2025_2026.map((game, index) => (
+                {schedule2026_2027.map((game, index) => (
                   <tr key={index} className="hover:bg-gray-50">
                     <td className="px-3 py-2">{formatGameDate(game.game_date)}</td>
                     <td className="px-3 py-2">{formatTime(game.game_time)}</td>
@@ -146,8 +190,8 @@ const ScheduleBulkImport = () => {
                     <td className="px-3 py-2 text-xs">{game.location}</td>
                     <td className="px-3 py-2 text-center">
                       <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${
-                        game.home_away === 'home' 
-                          ? 'bg-green-100 text-green-800' 
+                        game.home_away === 'home'
+                          ? 'bg-green-100 text-green-800'
                           : 'bg-blue-100 text-blue-800'
                       }`}>
                         {game.home_away?.toUpperCase()}
@@ -184,7 +228,7 @@ const ScheduleBulkImport = () => {
             {status.type === 'error' && (
               <FaTimes className="text-red-600 text-xl" />
             )}
-            
+
             <div className="flex-1">
               <p className={`font-medium ${
                 status.type === 'loading' ? 'text-blue-900' :
@@ -204,21 +248,42 @@ const ScheduleBulkImport = () => {
                   ))}
                 </ul>
               )}
+              {status.warnings && status.warnings.length > 0 && (
+                <ul className="mt-3 pt-3 border-t border-green-200 text-sm space-y-1">
+                  {status.warnings.map((warning, index) => (
+                    <li key={index} className="text-amber-700">⚠ {warning}</li>
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
         </motion.div>
       )}
 
-      {/* Warning Message */}
+      {/* Safety Message */}
+      <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <div className="flex items-start gap-3">
+          <FaShieldAlt className="text-blue-600 text-xl flex-shrink-0 mt-0.5" />
+          <div className="text-sm">
+            <p className="font-medium text-blue-900 mb-1">This import is safe to re-run:</p>
+            <ul className="text-blue-800 space-y-1">
+              <li>• Existing games are matched on date + time and updated in place</li>
+              <li>• Nothing is deleted, so game recaps, photos and player stats stay attached</li>
+              <li>• Games from other seasons are never touched</li>
+              <li>• Extra games found in the date range are reported, not removed</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
       <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
         <div className="flex items-start gap-3">
           <FaExclamationTriangle className="text-yellow-600 text-xl flex-shrink-0 mt-0.5" />
           <div className="text-sm">
-            <p className="font-medium text-yellow-900 mb-1">Important:</p>
+            <p className="font-medium text-yellow-900 mb-1">Before you import:</p>
             <ul className="text-yellow-800 space-y-1">
-              <li>• This will delete all existing games for the 2025-2026 season</li>
-              <li>• Games from other seasons will not be affected</li>
-              <li>• The import includes {schedule2025_2026.length} games from October 2025 to March 2026</li>
+              <li>• Changing a game's date or time creates a new row rather than moving the old one — edit those by hand so the recap stays attached</li>
+              <li>• {schedule2026_2027.length} games will be written, from {seasonWindow().first} to {seasonWindow().last}</li>
             </ul>
           </div>
         </div>
@@ -238,9 +303,9 @@ const ScheduleBulkImport = () => {
           }`}
         >
           <FaUpload />
-          {status.type === 'loading' ? 'Importing...' : 'Import 2025-2026 Schedule'}
+          {status.type === 'loading' ? 'Importing...' : `Import ${SEASON_LABEL} Schedule`}
         </motion.button>
-        
+
         {status.type === 'success' && (
           <button
             onClick={() => window.location.reload()}
