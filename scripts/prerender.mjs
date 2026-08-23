@@ -333,8 +333,19 @@ function generateRouteHTML(baseHTML, route) {
     html = html.replace('</head>', `    <link rel="canonical" href="${canonical}" />\n  </head>`);
   }
 
-  // Inject noscript SEO content inside <div id="root"> 
-  // React will replace this on hydration, but crawlers see real content
+  // SEO content for crawlers that do not execute JavaScript.
+  //
+  // This used to be injected bare inside <div id="root">, which meant every
+  // real visitor painted ~1000px of unstyled article text and then had React
+  // destroy it on mount and replace it with the 100vh hero. That swap was the
+  // bulk of the CLS 0.14 GTmetrix reported on 2026-08-23 (it stayed at exactly
+  // 0.14 across two runs — a deterministic structural swap, not image jitter).
+  //
+  // Wrapping it in a real <noscript> keeps it visible to non-JS crawlers while
+  // guaranteeing it never enters the layout for anyone running the app. The
+  // meta / Open Graph / JSON-LD blocks that carry the actual SEO weight live in
+  // <head> and are untouched either way, and Google renders JS so it indexes
+  // the real app regardless.
   const noscriptContent = `
     <div id="seo-content" style="max-width:800px;margin:0 auto;padding:2rem;font-family:system-ui,sans-serif;">
       <header>
@@ -361,7 +372,7 @@ function generateRouteHTML(baseHTML, route) {
 
   html = html.replace(
     '<div id="root"></div>',
-    `<div id="root">${noscriptContent}</div>`
+    `<div id="root"></div>\n    <noscript>${noscriptContent}</noscript>`
   );
 
   return html;
