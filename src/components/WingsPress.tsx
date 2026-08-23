@@ -4,7 +4,12 @@ import { FaNewspaper, FaArrowRight, FaTrophy, FaStar } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { usePressStories } from '../hooks/usePressStories';
 import { useGameHighlights, useGameSchedule } from '../hooks';
+import { storageImageUrl } from '../utils/avatar';
 import type { PressStory, GameHighlight } from '../types/database';
+
+// Story / highlight cards paint into a ~382px-wide, h-52 box. 800 covers that
+// at 2x without pulling the full-resolution original.
+const CARD_RENDER_WIDTH = 800;
 
 const formatDate = (date?: string) => {
   if (!date) return '';
@@ -25,9 +30,14 @@ function StoryCard({ story, index }: { story: PressStory; index: number }) {
         <article className="h-full rounded-xl overflow-hidden bg-steel-gray/30 border border-steel-blue/20 hover:border-ice-blue/60 transition-all duration-300 hover:shadow-xl hover:shadow-ice-blue/10 flex flex-col">
           <div className="relative h-52 overflow-hidden bg-dark-steel">
             {story.cover_photo_url ? (
+              // Cards render ~382px wide; ask Storage for 2x that rather than
+              // the full-size original (a 1178x670 JPEG at 209 KB). These sit
+              // below the fold, so let them load lazily too.
               <img
-                src={story.cover_photo_url}
+                src={storageImageUrl(story.cover_photo_url, CARD_RENDER_WIDTH)}
                 alt={story.title}
+                loading="lazy"
+                decoding="async"
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               />
             ) : (
@@ -86,8 +96,10 @@ function HighlightCard({
           <div className="relative h-52 overflow-hidden bg-dark-steel">
             {photoUrl ? (
               <img
-                src={photoUrl}
+                src={storageImageUrl(photoUrl, CARD_RENDER_WIDTH)}
                 alt={highlight.title || `vs ${opponent}`}
+                loading="lazy"
+                decoding="async"
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               />
             ) : (
