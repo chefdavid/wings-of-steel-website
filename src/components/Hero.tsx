@@ -117,7 +117,7 @@ const Hero = () => {
             </div>
             <div className="flex items-center justify-center gap-2.5 rounded-card border border-championship-gold/40 bg-steel-950/45 backdrop-blur-sm px-3 py-3 md:px-4 md:py-4 text-xs md:text-sm min-h-[56px] md:min-h-[64px]">
               <FaTrophy className="text-championship-gold flex-shrink-0 text-sm md:text-base" aria-hidden="true" />
-              <span className="text-center leading-snug text-white">{heroData?.award3 || '2026 New England Sled Hockey Tournament — 1st Place Juniors'}</span>
+              <span className="text-center leading-snug text-white">{heroData?.award3 || '2026 New England Sled Hockey Tournament — 1st Place'}</span>
             </div>
           </motion.div>
 

@@ -61,7 +61,7 @@ const HeroSectionEditor = () => {
           title: existingContent.title || 'Wings of Steel',
           award1: existingContent.subtitle || existingContent.award1 || '2023 National Champions',
           award2: existingContent.tagline || existingContent.award2 || '2025 USA Sled Hockey Champions 1st Place',
-          award3: existingContent.award3 || '2026 New England Sled Hockey Tournament — 1st Place Juniors',
+          award3: existingContent.award3 || '2026 New England Sled Hockey Tournament — 1st Place',
           undefeated: existingContent.undefeated || '2025 / 2026 Season — UNDEFEATED',
           description: existingContent.description || "New Jersey's premier youth sled hockey team, building champions on and off the ice",
           mission: existingContent.mission || 'NO CHILD PAYS TO PLAY'
