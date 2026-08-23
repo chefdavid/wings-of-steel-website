@@ -37,7 +37,19 @@ export default function Layout({ withFooter = true }: LayoutProps) {
             spinner. Now the nav and footer stay painted and only the content
             area swaps.
           */}
-          <Suspense fallback={<div className="min-h-[60vh]" aria-busy="true" />}>
+          {/*
+            The fallback reserves a full viewport, not 60vh, because that is
+            what the incoming content actually occupies — every page here opens
+            with a `min-h-screen` hero.
+
+            At 60vh (564px) the footer landed at ~628px, inside a 940px
+            viewport, and was then pushed below the fold once the real page
+            rendered. Lighthouse attributed 0.315 of the page's 0.330 CLS to
+            that single footer movement — 95% of the total (measured
+            2026-08-23). Reserving 100vh keeps the footer below the fold from
+            the first paint, so it never shifts anywhere the user can see.
+          */}
+          <Suspense fallback={<div className="min-h-screen" aria-busy="true" />}>
             <Outlet />
           </Suspense>
         </main>

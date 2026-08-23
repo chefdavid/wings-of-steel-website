@@ -229,9 +229,14 @@ const Navigation = () => {
                   <img
                     src="/assets/wings-logo.webp"
                     alt="Wings of Steel Youth Sled Hockey Team Logo - Home" 
+                    // The file is 238x96. Declaring 48x48 gave the browser a
+                    // 1:1 ratio to reserve while the real image is 2.48:1, so
+                    // the header re-laid-out on load — Lighthouse flagged this
+                    // as an unsized image contributing to CLS (2026-08-23).
+                    // `h-12 w-auto` still controls the rendered size.
                     className="h-12 w-auto mr-4 group-hover:scale-105 transition-transform duration-200"
-                    width="48"
-                    height="48"
+                    width="238"
+                    height="96"
                     loading="eager"
                   />
                   <div className="flex flex-col min-w-0">
