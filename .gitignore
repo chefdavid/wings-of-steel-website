@@ -39,3 +39,6 @@ nul
 
 # Transfer bundles used to move branches between environments
 *.bundle
+
+# Rollback dumps from scripts/migrate-base64-images.mjs — contain raw image data
+base64-image-backup-*.json

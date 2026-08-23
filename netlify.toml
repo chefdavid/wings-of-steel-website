@@ -17,3 +17,58 @@
   from = "/*"
   to = "/index.html"
   status = 200
+
+# ---------------------------------------------------------------------------
+# Cache policy.
+#
+# Netlify's default for every file is `public,max-age=0,must-revalidate`, which
+# means a repeat visitor re-validates all ~800 KB of JS/CSS on every load.
+# GTmetrix flagged this as "Serve static assets with an efficient cache policy"
+# (879 KB of potential savings) on 2026-08-23.
+#
+# Anything under /assets/ carries a Vite content hash in its filename, so a
+# changed file is a *different* URL — those are safe to freeze forever.
+# Un-hashed paths get a finite TTL instead so a re-upload still lands.
+# ---------------------------------------------------------------------------
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/fonts/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/images/*"
+  [headers.values]
+    Cache-Control = "public, max-age=2592000"
+
+[[headers]]
+  for = "/icons/*"
+  [headers.values]
+    Cache-Control = "public, max-age=2592000"
+
+[[headers]]
+  for = "/videos/*"
+  [headers.values]
+    Cache-Control = "public, max-age=2592000"
+
+# The service worker must never be cached, or clients get stuck on an old
+# worker that keeps serving an old build. Same for the HTML shell.
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/manifest.json"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"

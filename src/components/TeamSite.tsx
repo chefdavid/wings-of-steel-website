@@ -3,8 +3,14 @@ import { useParams, Link } from 'react-router-dom';
 import { FaExclamationTriangle, FaTimes } from 'react-icons/fa';
 import Hero from './Hero';
 import NationalsBanner from './NationalsBanner';
-import Admin from './Admin';
+import LoadingSpinner from './LoadingSpinner';
 import type { TeamType } from '../types/team';
+
+// Admin is only reachable via the `#admin` hash, but a static import put the
+// whole 291 KB admin bundle on the critical path of every public homepage load
+// — it was the single largest script GTmetrix saw on "/" (2026-08-23). Lazy so
+// it is fetched only when someone actually opens the hash route.
+const Admin = lazy(() => import('./Admin'));
 
 // Lazy load sections that are below the fold
 const TodayGameCard = lazy(() => import('./TodayGameCard'));
@@ -59,7 +65,11 @@ const TeamSite: React.FC = () => {
   }
 
   if (showAdmin) {
-    return <Admin />;
+    return (
+      <Suspense fallback={<LoadingSpinner />}>
+        <Admin />
+      </Suspense>
+    );
   }
 
   return (

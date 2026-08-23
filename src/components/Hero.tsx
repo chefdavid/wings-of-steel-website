@@ -56,9 +56,15 @@ const Hero = () => {
       {/* TB Logo in Top Right - Smaller on mobile */}
       <div className="absolute top-20 md:top-24 right-2 md:right-8 z-30 group">
         <div className="relative">
+          {/* Intrinsic width/height let the browser reserve the box before the
+              PNG lands. Without them this was the one image GTmetrix flagged
+              for CLS on 2026-08-23. Tailwind still drives the rendered size. */}
           <img
             src="/images/tb-logo.png"
-            alt="Tom Brake Memorial Logo - In loving memory" 
+            alt="Tom Brake Memorial Logo - In loving memory"
+            width={120}
+            height={122}
+            decoding="async"
             className="w-16 md:w-32 lg:w-40 h-auto opacity-90 group-hover:opacity-100 transition-opacity"
           />
           <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">

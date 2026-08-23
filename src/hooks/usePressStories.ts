@@ -176,7 +176,13 @@ export function usePressStories() {
   const uploadStoryPhoto = useCallback(async (file: File, storyId: string): Promise<string> => {
     const ext = file.name.split('.').pop() || 'jpg';
     const path = `press/${storyId}/${Date.now()}.${ext}`;
-    const { error } = await supabase.storage.from(PHOTO_BUCKET).upload(path, file);
+    // Supabase defaults uploads to `cache-control: max-age=3600`, which is why
+    // GTmetrix flagged every storage object with a 60-minute TTL (2026-08-23).
+    // The path is timestamped, so a replacement is always a new URL — these are
+    // safe to cache for a year.
+    const { error } = await supabase.storage
+      .from(PHOTO_BUCKET)
+      .upload(path, file, { cacheControl: '31536000' });
     if (error) throw error;
     const { data } = supabase.storage.from(PHOTO_BUCKET).getPublicUrl(path);
     return data.publicUrl;

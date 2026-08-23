@@ -51,7 +51,14 @@ const ImageUpload = ({ currentImage, onImageChange }: ImageUploadProps) => {
 
       const { error: uploadError } = await supabase.storage
         .from('game-photos')
-        .upload(path, blob, { upsert: false, contentType: 'image/jpeg' });
+        // `path` is timestamped + randomised, so a re-upload is always a new
+        // URL. Supabase's default TTL is 3600s, which had every player photo
+        // re-downloading hourly (GTmetrix, 2026-08-23).
+        .upload(path, blob, {
+          upsert: false,
+          contentType: 'image/jpeg',
+          cacheControl: '31536000',
+        });
 
       if (uploadError) throw uploadError;
 

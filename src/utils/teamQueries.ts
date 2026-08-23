@@ -10,18 +10,43 @@ import type { Player, Coach, PlayerWithTeams, CoachWithTeams } from '../types/da
  * Team-specific database query utilities using junction tables
  */
 
+// Columns the public roster actually renders.
+//
+// This view also carries `contacts`, `emergency_contact`, `medical_info`,
+// `player_notes` (disability / special-needs / coaching notes) and `birthdate`.
+// The previous `select('*')` served every one of those to anonymous visitors,
+// and bloated the response to 1.97 MB — the single largest item on the
+// homepage per GTmetrix (2026-08-23).
+//
+// Keep this list tight: anything added here becomes public. The columns below
+// are the live `player_team_details` schema as of 2026-08-23 — note it has no
+// `hometown` / `school`, despite what supabase/legacy/*.sql suggests.
+const PUBLIC_PLAYER_COLUMNS = [
+  'id',
+  'name',
+  'first_name',
+  'last_name',
+  'position',
+  'bio',
+  'image_url',
+  'jersey_number',
+  'tags',
+  'active',
+  'age',
+  'start_date',
+  'team_type',
+  'team_jersey_number',
+  'team_position',
+  'is_captain',
+].join(',');
+
 export const getTeamPlayers = async (teamType: TeamType): Promise<PlayerWithTeams[]> => {
   try {
-    // Add timestamp to force cache bypass
-    const timestamp = Date.now();
-
     const { data, error } = await supabase
       .from('player_team_details')
-      .select('*')
+      .select(PUBLIC_PLAYER_COLUMNS)
       .eq('team_type', teamType)
-      .order('team_jersey_number', { ascending: true })
-      .limit(100) // Add limit to force fresh query
-      .range(0, 99); // Add range to bypass cache
+      .order('team_jersey_number', { ascending: true });
 
     if (error) throw error;
 
@@ -56,7 +81,11 @@ export const getTeamCoaches = async (teamType: TeamType): Promise<CoachWithTeams
     
     const { data, error } = await supabase
       .from('coaches')
-      .select('*')
+      .select(
+        // Same reasoning as PUBLIC_PLAYER_COLUMNS — `*` was returning 355 KB
+        // for a handful of coaches. Only what Team.tsx actually renders.
+        'id,name,first_name,last_name,role,description,experience,achievements,image_url,start_date,created_at'
+      )
       .order('created_at', { ascending: true });
 
     if (error) throw error;
