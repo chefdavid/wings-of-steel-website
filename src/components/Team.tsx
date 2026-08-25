@@ -96,11 +96,11 @@ const Team = () => {
             viewport={{ once: true }}
             className="text-center mb-8 md:mb-16"
           >
-            <p className="font-display tracking-[0.3em] text-[11px] uppercase text-accent mb-3">
+            <p className="font-display tracking-[0.3em] text-xs uppercase text-accent mb-3">
               The Roster
             </p>
-            <h2 className="font-sport text-display-sm md:text-display-md text-ink mb-4">
-              The Championship Pedigree in this area, The Best Players on the ICE
+            <h2 className="font-sport text-display-md md:text-display-lg text-ink mb-4">
+              Championship Pedigree. Every Kind of Player.
             </h2>
             <p className="text-base md:text-lg text-ink-muted max-w-3xl mx-auto">
               These young players, each with their own unique challenges and abilities, exemplify the
@@ -108,7 +108,7 @@ const Team = () => {
               lead, and uplift their teammates.
             </p>
             <p className="text-base text-accent mt-4 font-semibold">
-              Click on a player or coach to learn more
+              Select a player or coach to learn more
             </p>
           </motion.div>
 
@@ -143,8 +143,17 @@ const Team = () => {
                 )}
 
                 <div
-                  className={`flip-card h-56 sm:h-64 md:h-72 w-full cursor-pointer ${flippedCard === `player-${player.id}` ? 'flipped' : ''}`}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`View ${player.first_name} ${player.last_name}'s full profile`}
+                  className={`flip-card h-56 sm:h-64 md:h-72 w-full cursor-pointer rounded-card focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-surface focus-visible:ring-accent ${flippedCard === `player-${player.id}` ? 'flipped' : ''}`}
                   onClick={() => handleCardClick(`player-${player.id}`, () => setSelectedPlayer(player))}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setSelectedPlayer(player);
+                    }
+                  }}
                 >
                   <div className="flip-card-inner">
 
@@ -169,8 +178,10 @@ const Team = () => {
                     </div>
                   </div>
 
-                  {/* Back — Stats */}
-                  <div className="flip-card-back bg-gradient-to-br from-team-primary to-team-secondary rounded-xl shadow-xl p-3 sm:p-4 md:p-6 flex items-center justify-center">
+                  {/* Back — Stats. aria-hidden: the front face and the card's
+                      accessible name already announce this player, so exposing
+                      the back too made screen readers read the roster twice. */}
+                  <div aria-hidden="true" className="flip-card-back bg-gradient-to-br from-team-primary to-team-secondary rounded-xl shadow-xl p-3 sm:p-4 md:p-6 flex items-center justify-center">
                     <div className="text-center text-white">
                       <img
                         src={getAvatarUrl(player.image_url, player.first_name, player.last_name, '#4682B4', 128)}
@@ -183,7 +194,7 @@ const Team = () => {
                       {player.start_date && (
                         <p className="text-[10px] sm:text-xs text-yellow-300 mt-0.5">{getYearsWithTeamDisplay(player.start_date)}</p>
                       )}
-                      <p className="text-[10px] sm:text-xs text-yellow-400 mt-1 sm:mt-2">Tap for full profile</p>
+                      <p className="text-[10px] sm:text-xs text-yellow-400 mt-1 sm:mt-2">See full profile</p>
                     </div>
                   </div>
                 </div>
@@ -213,7 +224,7 @@ const Team = () => {
               JOIN THE {teamConfig.name.toUpperCase()}!
               <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
             </motion.a>
-            <p className="text-gray-600 mt-3 md:mt-4 text-sm md:text-lg px-4">
+            <p className="text-ink-muted mt-3 md:mt-4 text-sm md:text-lg px-4">
               Ready to be part of something amazing? Come try sled hockey with us!
             </p>
           </motion.div>
@@ -226,7 +237,9 @@ const Team = () => {
             viewport={{ once: true }}
             className="mb-8 md:mb-16"
           >
-            <h3 className="text-2xl md:text-3xl font-bold text-center text-black mb-4 md:mb-8">
+            {/* text-ink, not text-black: this section sits on bg-surface,
+                which is dark in the default theme. */}
+            <h3 className="text-2xl md:text-3xl font-bold text-center text-ink mb-4 md:mb-8">
               Our Coaching Staff
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
@@ -237,8 +250,17 @@ const Team = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   viewport={{ once: true }}
-                  className={`flip-card h-56 sm:h-64 md:h-72 lg:h-80 w-full cursor-pointer ${flippedCard === `coach-${coach.id}` ? 'flipped' : ''}`}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`View ${coach.first_name} ${coach.last_name}'s full profile`}
+                  className={`flip-card h-56 sm:h-64 md:h-72 lg:h-80 w-full cursor-pointer rounded-card focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-surface focus-visible:ring-accent ${flippedCard === `coach-${coach.id}` ? 'flipped' : ''}`}
                   onClick={() => handleCardClick(`coach-${coach.id}`, () => setSelectedCoach(coach))}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setSelectedCoach(coach);
+                    }
+                  }}
                 >
                   <div className="flip-card-inner">
                     {/* Front — Photo trading card */}
@@ -256,8 +278,9 @@ const Team = () => {
                       </div>
                     </div>
 
-                    {/* Back — Info */}
-                    <div className="flip-card-back bg-gradient-to-br from-team-secondary to-team-background rounded-xl shadow-xl p-3 sm:p-4 md:p-6 flex items-center justify-center">
+                    {/* Back — Info. aria-hidden for the same reason as the
+                        player cards: no double announcement. */}
+                    <div aria-hidden="true" className="flip-card-back bg-gradient-to-br from-team-secondary to-team-background rounded-xl shadow-xl p-3 sm:p-4 md:p-6 flex items-center justify-center">
                       <div className="text-center text-white">
                         <img
                           src={getAvatarUrl(coach.image_url, coach.first_name, coach.last_name, '#2C3E50', 128)}
@@ -270,7 +293,7 @@ const Team = () => {
                           <p className="text-[10px] sm:text-xs text-yellow-300 mb-1">{getYearsWithTeamDisplay(coach.start_date)}</p>
                         )}
                         <p className="text-[10px] sm:text-xs px-1 sm:px-2 line-clamp-2 sm:line-clamp-3">{coach.description}</p>
-                        <p className="text-[10px] sm:text-xs text-yellow-400 mt-1 sm:mt-2">Tap for full profile</p>
+                        <p className="text-[10px] sm:text-xs text-yellow-400 mt-1 sm:mt-2">See full profile</p>
                       </div>
                     </div>
                   </div>
@@ -286,7 +309,7 @@ const Team = () => {
             viewport={{ once: true }}
             className="text-center"
           >
-            <p className="text-lg text-gray-600 mb-8">
+            <p className="text-lg text-ink-muted mb-8">
               Team work makes the dream work! Make your dream come true today!
             </p>
             <motion.a
@@ -324,7 +347,8 @@ const Team = () => {
                 <div className="bg-gradient-to-br from-team-primary to-team-secondary p-8 text-white rounded-t-2xl">
                   <button
                     onClick={() => setSelectedPlayer(null)}
-                    className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors"
+                    aria-label="Close player profile"
+                    className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white rounded-md"
                   >
                     <FaTimes className="text-2xl" />
                   </button>
@@ -422,7 +446,8 @@ const Team = () => {
                 <div className="bg-gradient-to-br from-team-secondary to-team-background p-8 text-white rounded-t-2xl">
                   <button
                     onClick={() => setSelectedCoach(null)}
-                    className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors"
+                    aria-label="Close coach profile"
+                    className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white rounded-md"
                   >
                     <FaTimes className="text-2xl" />
                   </button>

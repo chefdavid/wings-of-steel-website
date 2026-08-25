@@ -14,24 +14,23 @@ const DonationProgressBar = ({
 }: DonationProgressBarProps) => {
   const { activeGoal, loading } = useDonationGoals();
 
-  if (loading) {
-    return (
-      <div className={`animate-pulse ${className}`}>
-        <div className="h-4 bg-gray-300 rounded w-full"></div>
-      </div>
-    );
-  }
-
-  if (!activeGoal) {
-    return null; // No active goal to display
+  // While loading we render nothing rather than a skeleton: if the goal turns
+  // out to be empty the skeleton would flash in and vanish, shifting layout.
+  if (loading || !activeGoal) {
+    return null;
   }
 
   const {
     current_amount,
-    target_amount,
     percentage_complete,
     days_remaining
   } = activeGoal;
+
+  // A thermometer at "$0 raised · 0.0% complete" is negative social proof on
+  // the page's primary conversion. Stay hidden until there is real progress.
+  if (!current_amount || current_amount <= 0) {
+    return null;
+  }
 
   const formattedCurrent = new Intl.NumberFormat('en-US', {
     style: 'currency',

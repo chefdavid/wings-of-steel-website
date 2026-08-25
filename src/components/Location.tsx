@@ -158,7 +158,7 @@ const Location = () => {
           viewport={{ once: true }}
           className="text-center mb-8 md:mb-16"
         >
-          <h2 className="text-3xl md:text-5xl font-sport text-dark-steel mb-3 md:mb-4">
+          <h2 className="font-sport text-display-md md:text-display-lg text-dark-steel mb-3 md:mb-4">
             {locationData?.title || 'Find Us on the Ice'}
           </h2>
           <div className="w-16 md:w-24 h-1 bg-steel-blue mx-auto mb-4 md:mb-8"></div>

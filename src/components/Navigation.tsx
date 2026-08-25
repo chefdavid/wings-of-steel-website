@@ -256,11 +256,11 @@ const Navigation = () => {
                     to={item.href}
                     className={`px-4 py-2 ${
                       item.cta
-                        ? 'bg-yellow-500 text-black rounded-full hover:bg-yellow-400 shadow-lg px-6 font-bold animate-pulse'
+                        ? 'bg-yellow-500 text-black rounded-full hover:bg-yellow-400 shadow-lg px-6 font-bold'
                         : item.highlight
                         ? 'text-championship-gold hover:text-yellow-300 hover:bg-championship-gold/20'
                         : 'text-gray-300 hover:text-white hover:bg-steel-blue/20'
-                    } rounded-md transition-all duration-200 font-sport tracking-wider`}
+                    } rounded-md transition-all duration-200 font-sport tracking-wider focus:outline-none focus-visible:ring-2 focus-visible:ring-ice-blue`}
                   >
                     {item.name}
                   </Link>
@@ -322,7 +322,7 @@ const Navigation = () => {
                                           <a
                                             href={subItem.href}
                                             onClick={(e) => handleHashLinkClick(e, subItem.href)}
-                                            className="block group hover:bg-steel-blue/20 rounded-md p-2 transition-all duration-200"
+                                            className="block group hover:bg-steel-blue/20 rounded-md p-2 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-ice-blue"
                                           >
                                             <div className="text-gray-100 group-hover:text-ice-blue font-medium">
                                               {subItem.name}
@@ -336,7 +336,7 @@ const Navigation = () => {
                                         ) : (
                                           <Link
                                             to={subItem.href}
-                                            className="block group hover:bg-steel-blue/20 rounded-md p-2 transition-all duration-200"
+                                            className="block group hover:bg-steel-blue/20 rounded-md p-2 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-ice-blue"
                                             onClick={() => setActiveDropdown(null)}
                                           >
                                             <div className="text-gray-100 group-hover:text-ice-blue font-medium">
@@ -369,7 +369,7 @@ const Navigation = () => {
                   href="https://www.facebook.com/wingsofsteel"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-2 text-ice-blue hover:text-blue-400 hover:bg-steel-blue/20 rounded-full transition-all duration-200"
+                  className="p-2 text-ice-blue hover:text-blue-400 hover:bg-steel-blue/20 rounded-full transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-ice-blue"
                   aria-label="Follow us on Facebook"
                 >
                   <FaFacebook className="text-2xl" />
@@ -416,11 +416,11 @@ const Navigation = () => {
                       onClick={() => setIsOpen(false)}
                       className={`block px-3 py-2 ${
                         item.cta
-                          ? 'bg-yellow-500 text-black rounded-full hover:bg-yellow-400 shadow-lg font-bold text-center animate-pulse'
+                          ? 'bg-yellow-500 text-black rounded-full hover:bg-yellow-400 shadow-lg font-bold text-center'
                           : item.highlight
                           ? 'text-championship-gold hover:text-yellow-300'
                           : 'text-gray-300 hover:text-white hover:bg-steel-blue/20'
-                      } rounded-md font-sport tracking-wider`}
+                      } rounded-md font-sport tracking-wider focus:outline-none focus-visible:ring-2 focus-visible:ring-ice-blue`}
                     >
                       {item.name}
                     </Link>
@@ -472,7 +472,7 @@ const Navigation = () => {
                                       key={subItem.name}
                                       href={subItem.href}
                                       onClick={(e) => handleHashLinkClick(e, subItem.href)}
-                                      className="block pl-6 pr-3 py-2 text-sm text-gray-400 hover:text-white hover:bg-steel-blue/10 rounded-md"
+                                      className="block pl-6 pr-3 py-2 text-sm text-gray-400 hover:text-white hover:bg-steel-blue/10 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-ice-blue"
                                     >
                                       {subItem.name}
                                     </a>
@@ -481,7 +481,7 @@ const Navigation = () => {
                                       key={subItem.name}
                                       to={subItem.href}
                                       onClick={() => setIsOpen(false)}
-                                      className="block pl-6 pr-3 py-2 text-sm text-gray-400 hover:text-white hover:bg-steel-blue/10 rounded-md"
+                                      className="block pl-6 pr-3 py-2 text-sm text-gray-400 hover:text-white hover:bg-steel-blue/10 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-ice-blue"
                                     >
                                       {subItem.name}
                                     </Link>

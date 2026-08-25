@@ -22,7 +22,7 @@ const About = () => {
     {
       icon: <FaStar className="text-4xl text-yellow-500" />,
       title: "Championship Excellence",
-      description: "Back-to-back USA Sled Hockey Champions in 2024 and 2025"
+      description: "USA Sled Hockey National Champions three years running — 2024, 2025 and 2026"
     }
   ];
 
@@ -36,7 +36,7 @@ const About = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-sport text-dark-steel mb-4">
+          <h2 className="font-sport text-display-md md:text-display-lg text-dark-steel mb-4">
             About Wings of Steel
           </h2>
           <div className="w-24 h-1 bg-steel-blue mx-auto mb-8"></div>

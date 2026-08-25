@@ -11,6 +11,10 @@ const Schedule = () => {
   const { games, currentSeason, upcomingGames, pastGames, loading, error } = useGameSchedule();
   const { highlights } = useGameHighlights();
   const [showRinkModal, setShowRinkModal] = useState(false);
+  // A 15-game season dumped whole made this section the longest block on the
+  // homepage. Show the next few games and let the rest expand on demand.
+  const UPCOMING_PREVIEW_COUNT = 5;
+  const [showAllUpcoming, setShowAllUpcoming] = useState(false);
   const [selectedRink, setSelectedRink] = useState<{
     name: string;
     address: string;
@@ -202,7 +206,7 @@ const Schedule = () => {
   return (
     <section id="schedule" className="py-20 bg-gradient-to-br from-gray-50 via-white to-ice-blue/10 relative overflow-hidden">
       {/* Background decoration */}
-      <div className="absolute inset-0 opacity-5">
+      <div className="absolute inset-0 opacity-5" aria-hidden="true">
         <div className="absolute top-20 left-10 text-[200px] text-steel-blue transform rotate-12">
           <FaHockeyPuck />
         </div>
@@ -229,7 +233,7 @@ const Schedule = () => {
               {currentSeason?.label || SEASON_LABEL} Season
             </div>
           </motion.div>
-          <h2 className="text-5xl md:text-6xl font-sport text-dark-steel mb-4">
+          <h2 className="font-sport text-display-md md:text-display-lg text-dark-steel mb-4">
             GAME SCHEDULE
           </h2>
           <div className="flex items-center justify-center gap-4 mb-8">
@@ -291,12 +295,12 @@ const Schedule = () => {
               viewport={{ once: true }}
               className="text-3xl font-bold text-dark-steel mb-8 flex items-center gap-3"
             >
-              <FaCalendarAlt className="text-yellow-500" />
-              Game Schedule
+              <FaCalendarAlt className="text-yellow-500" aria-hidden="true" />
+              Upcoming Games
             </motion.h3>
             
             <div className="grid gap-6 max-w-5xl mx-auto">
-              {upcomingGames.map((game, index) => {
+              {(showAllUpcoming ? upcomingGames : upcomingGames.slice(0, UPCOMING_PREVIEW_COUNT)).map((game, index) => {
                 const dateInfo = formatDate(game.game_date || game.date || '');
                 const isHome = game.home_away === 'home' || game.home_game;
                 const isToday = isGameToday(game.game_date || game.date);
@@ -403,8 +407,11 @@ const Schedule = () => {
                               
                               {/* Team Names */}
                               <h3 className="text-xl md:text-2xl font-bold text-dark-steel mb-3 group-hover:text-steel-blue transition-colors">
+                                {/* The literal spaces around "vs" keep the
+                                    accessible name from reading
+                                    "Wings of SteelvsHammerheads". */}
                                 <span className="bg-gradient-to-r from-steel-blue to-dark-steel bg-clip-text text-transparent">Wings of Steel</span>
-                                <span className="text-gray-400 mx-2 text-lg">vs</span>
+                                <span className="text-gray-400 mx-2 text-lg"> vs </span>
                                 <span className="text-gray-700">{game.opponent}</span>
                               </h3>
                               
@@ -433,8 +440,10 @@ const Schedule = () => {
                                   }}
                                   className="flex items-center gap-2 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-full transition-colors group cursor-pointer"
                                 >
-                                  <FaMapMarkerAlt className="text-steel-blue" />
-                                  <span className="text-blue-700 font-medium group-hover:underline">{game.location}</span>
+                                  <FaMapMarkerAlt className="text-steel-blue" aria-hidden="true" />
+                                  {/* Always underlined so the venue reads as
+                                      clickable, not as a plain text label. */}
+                                  <span className="text-blue-700 font-medium underline underline-offset-2 decoration-blue-700/40 group-hover:decoration-blue-700">{game.location}</span>
                                 </button>
                               </div>
                             </div>
@@ -457,6 +466,20 @@ const Schedule = () => {
                 );
               })}
             </div>
+
+            {upcomingGames.length > UPCOMING_PREVIEW_COUNT && (
+              <div className="text-center mt-8">
+                <button
+                  onClick={() => setShowAllUpcoming(!showAllUpcoming)}
+                  aria-expanded={showAllUpcoming}
+                  className="inline-flex items-center gap-2 border-2 border-steel-blue text-steel-blue px-6 py-3 rounded-full font-semibold hover:bg-steel-blue hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-steel-blue"
+                >
+                  {showAllUpcoming
+                    ? 'Show fewer games'
+                    : `Show all ${upcomingGames.length} games`}
+                </button>
+              </div>
+            )}
           </div>
         )}
 
@@ -727,9 +750,10 @@ const Schedule = () => {
               <div className="relative p-6 border-b">
                 <button
                   onClick={() => setSelectedRink(null)}
-                  className="absolute top-4 right-4 p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+                  aria-label="Close rink details"
+                  className="absolute top-4 right-4 p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-steel-blue"
                 >
-                  <FaTimes className="w-5 h-5" />
+                  <FaTimes className="w-5 h-5" aria-hidden="true" />
                 </button>
 
                 <h2 className="text-2xl font-bold text-gray-900 pr-10">{selectedRink.name}</h2>
@@ -829,9 +853,10 @@ const Schedule = () => {
               <div className="relative p-6 border-b">
                 <button
                   onClick={() => setShowRinkModal(false)}
-                  className="absolute top-4 right-4 p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+                  aria-label="Close rink details"
+                  className="absolute top-4 right-4 p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-steel-blue"
                 >
-                  <FaTimes className="w-5 h-5" />
+                  <FaTimes className="w-5 h-5" aria-hidden="true" />
                 </button>
                 
                 <h2 className="text-2xl font-bold text-gray-900 pr-10">Flyers Skate Zone</h2>

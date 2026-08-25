@@ -80,17 +80,19 @@ const Hero = () => {
           {/* An eyebrow says who this is faster than a spinning puck did. */}
           <motion.p
             variants={fadeUpLg}
-            className="font-display tracking-[0.35em] text-[11px] md:text-xs uppercase text-accent"
+            className="font-display tracking-[0.35em] text-xs uppercase text-accent"
           >
             Youth Sled Hockey · New Jersey
           </motion.p>
 
           <motion.div variants={fadeUpLg} className="mb-4 md:mb-6">
-            {/* One h1 per page. The two visual lines are spans inside it. */}
+            {/* One h1 per page. The two visual lines are spans inside it. The
+                literal space between them keeps the accessible name from
+                reading "BARRIERS &BUILDING". */}
             <h1 className="font-sport tracking-wide text-display-sm sm:text-display-md md:text-display-lg lg:text-display-xl">
               <span className="block text-white">
                 {heroData?.heading1 || 'BREAKING BARRIERS &'}
-              </span>
+              </span>{' '}
               <span className="block text-championship-gold">
                 {heroData?.heading2 || 'BUILDING CHAMPIONS'}
               </span>
@@ -101,31 +103,21 @@ const Hero = () => {
             variants={fadeUpLg}
             className="text-base md:text-lg text-ice-200 max-w-2xl mx-auto leading-relaxed"
           >
-            {heroData?.description || teamConfig.description}
+            {heroData?.description || teamConfig.description}{' '}
+            <a
+              href="#get-involved"
+              className="whitespace-nowrap text-championship-gold underline underline-offset-4 decoration-championship-gold/50 transition-colors hover:decoration-championship-gold focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-steel-900 focus-visible:ring-championship-gold"
+            >
+              No child pays to play — ever.
+            </a>
           </motion.p>
 
           {/*
-            Trophies were three solid yellow slabs competing with the headline
-            for attention. As outlined cards they still read as a set, but the
-            gold now points at the words rather than shouting over them.
+            The three per-year trophy cards duplicated the ChampionsBanner that
+            renders directly above this hero ("National Champions — 3 Years
+            Running · 2024 · 2025 · 2026"), so the awards live there and only
+            the undefeated-season pill remains here as the single emphasis.
           */}
-          <motion.div
-            variants={fadeUpLg}
-            className="grid gap-2 md:gap-3 sm:grid-cols-3 max-w-4xl mx-auto"
-          >
-            <div className="flex items-center justify-center gap-2.5 rounded-card border border-championship-gold/40 bg-steel-950/45 backdrop-blur-sm px-3 py-3 md:px-4 md:py-4 text-xs md:text-sm min-h-[56px] md:min-h-[64px]">
-              <FaTrophy className="text-championship-gold flex-shrink-0 text-sm md:text-base" aria-hidden="true" />
-              <span className="text-center leading-snug text-white">{heroData?.award1 || heroData?.subtitle || '2023 National Champions'}</span>
-            </div>
-            <div className="flex items-center justify-center gap-2.5 rounded-card border border-championship-gold/40 bg-steel-950/45 backdrop-blur-sm px-3 py-3 md:px-4 md:py-4 text-xs md:text-sm min-h-[56px] md:min-h-[64px]">
-              <FaTrophy className="text-championship-gold flex-shrink-0 text-sm md:text-base" aria-hidden="true" />
-              <span className="text-center leading-snug text-white">{heroData?.award2 || heroData?.tagline || '2025 USA Sled Hockey Champions 1st Place'}</span>
-            </div>
-            <div className="flex items-center justify-center gap-2.5 rounded-card border border-championship-gold/40 bg-steel-950/45 backdrop-blur-sm px-3 py-3 md:px-4 md:py-4 text-xs md:text-sm min-h-[56px] md:min-h-[64px]">
-              <FaTrophy className="text-championship-gold flex-shrink-0 text-sm md:text-base" aria-hidden="true" />
-              <span className="text-center leading-snug text-white">{heroData?.award3 || '2026 New England Sled Hockey Tournament — 1st Place'}</span>
-            </div>
-          </motion.div>
 
           {/* Undefeated Season Callout */}
           <motion.div variants={scaleIn} className="max-w-2xl mx-auto">
@@ -165,13 +157,6 @@ const Hero = () => {
               <FaUsers aria-hidden="true" />
               JOIN THE TEAM
             </Link>
-            <a
-              href="#get-involved"
-              className="inline-flex items-center justify-center gap-2 rounded-pill border border-white/35 bg-white/5 px-7 py-3.5 font-sport text-lg tracking-wider text-white backdrop-blur-sm transition-colors duration-fast hover:bg-white/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-steel-900 focus-visible:ring-white"
-              aria-label="Learn about our no child pays to play mission"
-            >
-              NO CHILD PAYS TO PLAY
-            </a>
           </motion.div>
 
           <motion.div variants={fadeUpLg} className="max-w-xl mx-auto pt-2">

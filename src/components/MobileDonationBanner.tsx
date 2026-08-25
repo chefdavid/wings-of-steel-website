@@ -28,8 +28,6 @@ const MobileDonationBanner = ({ activeGoal, onDonateClick }: MobileDonationBanne
 
   if (!activeGoal || isDismissed) return null;
 
-  const percentage = activeGoal.percentage_complete || 0;
-
   return (
     <AnimatePresence>
       {isVisible && (

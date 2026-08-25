@@ -51,7 +51,7 @@ const GetInvolved = () => {
           viewport={{ once: true }}
           className="text-center mb-8 md:mb-16"
         >
-          <h2 className="text-3xl md:text-5xl font-sport mb-3 md:mb-4">
+          <h2 className="font-sport text-display-md md:text-display-lg mb-3 md:mb-4">
             {getInvolvedData?.title || 'Get Involved'}
           </h2>
           <div className="w-16 md:w-24 h-1 bg-steel-blue mx-auto mb-4 md:mb-8"></div>
@@ -155,8 +155,8 @@ const GetInvolved = () => {
               <motion.a
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                href="#contact"
-                className="inline-block w-full bg-transparent border-2 border-steel-blue text-steel-blue px-8 py-4 rounded-full font-medium text-center mt-6 hover:bg-steel-blue hover:text-white transition-all duration-300"
+                href="#contact-forms"
+                className="inline-block w-full bg-transparent border-2 border-steel-blue text-steel-blue px-8 py-4 rounded-full font-medium text-center mt-6 hover:bg-steel-blue hover:text-white transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-dark-steel focus-visible:ring-steel-blue"
               >
                 Contact Us to Volunteer
               </motion.a>
@@ -240,7 +240,8 @@ const GetInvolved = () => {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
           viewport={{ once: true }}
-          className="bg-gradient-to-r from-gray-800 to-gray-900 rounded-2xl p-8"
+          id="contact-forms"
+          className="bg-gradient-to-r from-gray-800 to-gray-900 rounded-2xl p-8 scroll-mt-24"
         >
           <div className="text-center mb-8">
             <h3 className="text-2xl font-bold mb-4 text-white">

@@ -3,20 +3,11 @@ import { motion } from 'framer-motion';
 import { FaEnvelope, FaPaperPlane, FaCheckCircle, FaExclamationTriangle } from 'react-icons/fa';
 import { supabase } from '../lib/supabaseClient';
 
-interface FormData {
-  name: string;
-  email: string;
-  message: string;
-  type: 'contact' | 'mailing_list';
-}
-
 const ContactForms = () => {
-  const [formData, setFormData] = useState<FormData>({
-    name: '',
-    email: '',
-    message: '',
-    type: 'contact'
-  });
+  // The two forms keep separate state: with one shared object, typing a name
+  // into the message form silently filled the mailing-list form too.
+  const [contactData, setContactData] = useState({ name: '', email: '', message: '' });
+  const [mailingData, setMailingData] = useState({ name: '', email: '' });
   const [submissionStatus, setSubmissionStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [statusMessage, setStatusMessage] = useState('');
 
@@ -30,55 +21,54 @@ const ContactForms = () => {
         const { error } = await supabase
           .from('mailing_list')
           .insert([{
-            name: formData.name,
-            email: formData.email,
+            name: mailingData.name,
+            email: mailingData.email,
             subscribed_at: new Date().toISOString()
           }]);
 
         if (error) throw error;
-        
+
         // Send email notifications
         try {
           await supabase.functions.invoke('send-contact-email', {
-            body: { ...formData, type: 'mailing_list' }
+            body: { ...mailingData, type: 'mailing_list' }
           });
         } catch (emailError) {
           console.error('Email notification failed:', emailError);
           // Continue - data was saved
         }
-        
-        console.log('Mailing list signup:', { name: formData.name, email: formData.email });
+
         setStatusMessage('Successfully subscribed to our mailing list!');
+        setMailingData({ name: '', email: '' });
       } else {
         // Handle contact form
         const { error } = await supabase
           .from('contact_submissions')
           .insert([{
-            name: formData.name,
-            email: formData.email,
-            message: formData.message,
+            name: contactData.name,
+            email: contactData.email,
+            message: contactData.message,
             submitted_at: new Date().toISOString()
           }]);
 
         if (error) throw error;
-        
+
         // Send email notifications
         try {
           await supabase.functions.invoke('send-contact-email', {
-            body: { ...formData, type: 'contact' }
+            body: { ...contactData, type: 'contact' }
           });
         } catch (emailError) {
           console.error('Email notification failed:', emailError);
           // Continue - data was saved
         }
-        
-        console.log('Contact form:', formData);
+
         setStatusMessage('Message sent successfully! We\'ll get back to you soon.');
+        setContactData({ name: '', email: '', message: '' });
       }
 
       setSubmissionStatus('success');
-      setFormData({ name: '', email: '', message: '', type: formType });
-      
+
       // Reset status after 5 seconds
       setTimeout(() => {
         setSubmissionStatus('idle');
@@ -89,7 +79,7 @@ const ContactForms = () => {
       console.error('Form submission error:', error);
       setSubmissionStatus('error');
       setStatusMessage('Sorry, there was an error. Please try again.');
-      
+
       setTimeout(() => {
         setSubmissionStatus('idle');
         setStatusMessage('');
@@ -97,9 +87,16 @@ const ContactForms = () => {
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData({
-      ...formData,
+  const handleContactChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setContactData({
+      ...contactData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleMailingChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setMailingData({
+      ...mailingData,
       [e.target.name]: e.target.value
     });
   };
@@ -127,8 +124,8 @@ const ContactForms = () => {
               type="text"
               id="contact-name"
               name="name"
-              value={formData.name}
-              onChange={handleInputChange}
+              value={contactData.name}
+              onChange={handleContactChange}
               required
               className="w-full px-4 py-3 bg-steel-gray/30 border border-steel-blue/30 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-steel-blue focus:border-transparent"
               placeholder="Enter your full name"
@@ -143,8 +140,8 @@ const ContactForms = () => {
               type="email"
               id="contact-email"
               name="email"
-              value={formData.email}
-              onChange={handleInputChange}
+              value={contactData.email}
+              onChange={handleContactChange}
               required
               className="w-full px-4 py-3 bg-steel-gray/30 border border-steel-blue/30 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-steel-blue focus:border-transparent"
               placeholder="your.email@example.com"
@@ -158,8 +155,8 @@ const ContactForms = () => {
             <textarea
               id="contact-message"
               name="message"
-              value={formData.message}
-              onChange={handleInputChange}
+              value={contactData.message}
+              onChange={handleContactChange}
               required
               rows={6}
               className="w-full px-4 py-3 bg-steel-gray/30 border border-steel-blue/30 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-steel-blue focus:border-transparent resize-none"
@@ -225,8 +222,8 @@ const ContactForms = () => {
               type="text"
               id="mailing-name"
               name="name"
-              value={formData.name}
-              onChange={handleInputChange}
+              value={mailingData.name}
+              onChange={handleMailingChange}
               required
               className="w-full px-4 py-3 bg-steel-gray/30 border border-steel-blue/30 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-steel-blue focus:border-transparent"
               placeholder="Enter your full name"
@@ -241,8 +238,8 @@ const ContactForms = () => {
               type="email"
               id="mailing-email"
               name="email"
-              value={formData.email}
-              onChange={handleInputChange}
+              value={mailingData.email}
+              onChange={handleMailingChange}
               required
               className="w-full px-4 py-3 bg-steel-gray/30 border border-steel-blue/30 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-steel-blue focus:border-transparent"
               placeholder="your.email@example.com"

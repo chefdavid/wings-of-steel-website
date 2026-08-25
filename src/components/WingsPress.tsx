@@ -195,7 +195,7 @@ export default function WingsPress() {
         >
           <div className="flex items-center justify-center gap-3 mb-2">
             <FaNewspaper className="text-ice-blue text-2xl" />
-            <h2 className="text-3xl md:text-4xl font-sport text-white">The Wings Press</h2>
+            <h2 className="font-sport text-display-md md:text-display-lg text-white">The Wings Press</h2>
           </div>
           <p className="text-ice-blue text-sm">Stories, recaps, and milestones from the team</p>
         </motion.div>

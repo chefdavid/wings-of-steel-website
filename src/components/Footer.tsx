@@ -48,16 +48,8 @@ const Footer = () => {
             </Link>
           </div>
 
-          <div className="mb-6">
-            <Link
-              to="/donate"
-              className="inline-flex items-center gap-2 bg-yellow-400 text-black px-6 py-3 rounded-full font-sport tracking-wider hover:bg-yellow-300 transition-all duration-200 shadow-lg hover:shadow-yellow-400/30"
-            >
-              <FaHeart aria-hidden="true" />
-              Donate Now
-            </Link>
-          </div>
-
+          {/* No Donate button here: the nav, hero, and Get Involved section
+              already carry the ask — a fourth gold CTA diluted all of them. */}
           <div className="flex items-center justify-center gap-2 text-sm text-gray-400">
             <span>© {new Date().getFullYear()} Wings of Steel. Made with</span>
             <FaHeart className="text-red-500" aria-hidden="true" />

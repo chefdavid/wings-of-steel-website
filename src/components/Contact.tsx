@@ -1,6 +1,10 @@
 import { motion } from 'framer-motion';
-import { FaMapMarkerAlt, FaEnvelope, FaFacebook, FaInstagram, FaTwitter } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaEnvelope, FaFacebook, FaPaperPlane } from 'react-icons/fa';
 
+// The working contact form (wired to Supabase + email) lives in the
+// Get Involved section's ContactForms. This section used to render a second,
+// identical-looking form with no submit handler — messages typed there went
+// nowhere. Now it holds the contact details and points at the real form.
 const Contact = () => {
   return (
     <section id="contact" className="py-20 bg-gray-100">
@@ -12,7 +16,7 @@ const Contact = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-sport text-dark-steel mb-4">
+          <h2 className="font-sport text-display-md md:text-display-lg text-dark-steel mb-4">
             Contact Us
           </h2>
           <div className="w-24 h-1 bg-steel-blue mx-auto mb-8"></div>
@@ -21,128 +25,58 @@ const Contact = () => {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-5xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="bg-white rounded-lg shadow-lg p-8"
-          >
-            <h3 className="text-2xl font-bold text-dark-steel mb-6">Get In Touch</h3>
-            
-            <div className="space-y-4">
-              <div className="flex items-start gap-4">
-                <FaMapMarkerAlt className="text-steel-blue text-xl mt-1" />
-                <div>
-                  <p className="font-medium text-gray-900">Location</p>
-                  <p className="text-gray-600">601 Laurel Oak Road</p>
-                  <p className="text-gray-600">Voorhees, New Jersey</p>
-                </div>
-              </div>
-              
-              <div className="flex items-start gap-4">
-                <FaEnvelope className="text-steel-blue text-xl mt-1" />
-                <div>
-                  <p className="font-medium text-gray-900">Email</p>
-                  <a 
-                    href="mailto:info@WingsofSteel.org" 
-                    className="text-steel-blue hover:text-blue-600 transition-colors"
-                  >
-                    info@WingsofSteel.org
-                  </a>
-                </div>
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+          className="bg-white rounded-lg shadow-lg p-8 max-w-3xl mx-auto"
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+            <div className="flex items-start gap-4">
+              <FaMapMarkerAlt className="text-steel-blue text-xl mt-1" aria-hidden="true" />
+              <div>
+                <p className="font-medium text-gray-900">Location</p>
+                <p className="text-gray-600">601 Laurel Oak Road</p>
+                <p className="text-gray-600">Voorhees, New Jersey</p>
               </div>
             </div>
 
-            <div className="mt-8">
-              <p className="font-medium text-gray-900 mb-4">Follow Us</p>
-              <div className="flex gap-4">
-                <motion.a
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                  href="#"
-                  className="bg-steel-blue text-white p-3 rounded-full hover:bg-blue-600 transition-colors"
+            <div className="flex items-start gap-4">
+              <FaEnvelope className="text-steel-blue text-xl mt-1" aria-hidden="true" />
+              <div>
+                <p className="font-medium text-gray-900">Email</p>
+                <a
+                  href="mailto:info@WingsofSteel.org"
+                  className="text-steel-blue underline underline-offset-2 hover:text-blue-600 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-steel-blue rounded-sm"
                 >
-                  <FaFacebook className="text-xl" />
-                </motion.a>
-                <motion.a
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                  href="#"
-                  className="bg-steel-blue text-white p-3 rounded-full hover:bg-blue-600 transition-colors"
-                >
-                  <FaInstagram className="text-xl" />
-                </motion.a>
-                <motion.a
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                  href="#"
-                  className="bg-steel-blue text-white p-3 rounded-full hover:bg-blue-600 transition-colors"
-                >
-                  <FaTwitter className="text-xl" />
-                </motion.a>
+                  info@WingsofSteel.org
+                </a>
               </div>
             </div>
-          </motion.div>
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="bg-white rounded-lg shadow-lg p-8"
-          >
-            <h3 className="text-2xl font-bold text-dark-steel mb-6">Send Us a Message</h3>
-            
-            <form className="space-y-4">
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                  Name
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-steel-blue focus:border-transparent"
-                  placeholder="Your Name"
-                />
-              </div>
-              
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-steel-blue focus:border-transparent"
-                  placeholder="your@email.com"
-                />
-              </div>
-              
-              <div>
-                <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
-                  Message
-                </label>
-                <textarea
-                  id="message"
-                  rows={4}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-steel-blue focus:border-transparent"
-                  placeholder="Your message..."
-                />
-              </div>
-              
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                type="submit"
-                className="w-full bg-steel-blue text-white py-3 rounded-lg font-medium hover:bg-blue-600 transition-colors duration-300"
-              >
-                Send Message
-              </motion.button>
-            </form>
-          </motion.div>
-        </div>
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-gray-200 pt-6">
+            <a
+              href="https://www.facebook.com/wingsofsteel"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-steel-blue hover:text-blue-600 transition-colors font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-steel-blue rounded-md px-2 py-1"
+              aria-label="Follow Wings of Steel on Facebook"
+            >
+              <FaFacebook className="text-2xl" aria-hidden="true" />
+              Follow us on Facebook
+            </a>
+
+            <a
+              href="#contact-forms"
+              className="inline-flex items-center gap-2 bg-steel-blue text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-600 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-steel-blue"
+            >
+              <FaPaperPlane aria-hidden="true" />
+              Send Us a Message
+            </a>
+          </div>
+        </motion.div>
       </div>
     </section>
   );
