@@ -8,7 +8,7 @@
 2. Select your project
 3. Navigate to **SQL Editor** (in the left sidebar)
 4. Click **New Query**
-5. Copy and paste the entire contents of `CREATE_TABLE.sql`
+5. Copy and paste the entire contents of `supabase/legacy/CREATE_TABLE.sql`
 6. Click **Run** to execute the SQL
 
 ### 2. Verify Table Creation

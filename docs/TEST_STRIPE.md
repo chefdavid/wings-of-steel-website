@@ -103,7 +103,7 @@ console.log(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 ### Issue: Database not updating
 **Solution:** Check Supabase connection:
 1. Verify `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`
-2. Run the CREATE_TABLE.sql in Supabase SQL editor
+2. Run the `supabase/legacy/CREATE_TABLE.sql` in Supabase SQL editor
 3. Check browser console for errors
 
 ## Testing Webhook (Production Only)

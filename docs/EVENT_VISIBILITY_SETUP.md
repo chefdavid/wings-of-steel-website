@@ -15,7 +15,7 @@ The event visibility system allows administrators to control which events are vi
 
 ```sql
 -- Run this in your Supabase SQL Editor
--- File: supabase/event-visibility-setup.sql
+-- File: supabase/legacy/event-visibility-setup.sql
 ```
 
 This script will:

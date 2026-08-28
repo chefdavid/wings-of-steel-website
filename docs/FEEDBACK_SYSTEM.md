@@ -8,7 +8,7 @@ A development-only feedback system that allows non-technical users to click anyw
 ### 1. Create the Feedback Table in Supabase
 1. Go to your Supabase dashboard
 2. Navigate to SQL Editor
-3. Run the SQL script in `supabase/create_feedback_table.sql`
+3. Run the SQL script in `supabase/legacy/create_feedback_table.sql`
 4. This creates a `feedback` table with proper permissions
 
 ### 2. Configure Environment Variables
@@ -86,8 +86,8 @@ To completely remove the feedback system:
 
 2. Delete these files:
    - `src/components/FeedbackWidget.tsx`
-   - `supabase/create_feedback_table.sql`
-   - `FEEDBACK_SYSTEM.md` (this file)
+   - `supabase/legacy/create_feedback_table.sql`
+   - `docs/FEEDBACK_SYSTEM.md` (this file)
    - Remove `VITE_ENABLE_FEEDBACK` from `.env.development`
 
 ## Troubleshooting
