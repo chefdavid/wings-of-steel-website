@@ -72,3 +72,29 @@ The app is a single-page application with sections rendered in App.tsx:
 - All components use TypeScript with strict mode enabled
 - Framer Motion is used extensively for animations
 - The site emphasizes the "No child pays to play" mission throughout
+<!-- OBSYDIAN-VAULT:BEGIN -->
+## Project memory
+
+Long-term memory for this project lives in the Obsidian vault at
+`~/Documents/GitHub/Obsydian` (git-synced across machines).
+
+**Read at the start of a session:**
+- `10-Projects/WingsWebsite/WingsWebsite.md` — what this is, status, links
+- `10-Projects/WingsWebsite/Context.md` — stack, env vars, deploy, integrations, gotchas
+- `10-Projects/WingsWebsite/Decisions.md` — last few decisions and why
+- `30-Knowledge/Gotchas/` — cross-project traps for this stack
+
+**Note:** this repo's folder is `wings-of-steel-website` but its vault notes live under
+`10-Projects/WingsWebsite/` — the folder name and the vault name differ, so the
+SessionStart hook (which maps by folder name) will not auto-load them. Open them by hand.
+`50-Archive/wings-of-steel-website/` describes a *different*, deleted Windows folder — not this repo.
+
+**Write when you finish something:**
+- A decision that changes direction → append a dated entry to `Decisions.md`
+- A non-obvious fix or constraint → `Context.md`, or `30-Knowledge/Gotchas/` if it would
+  bite another project too
+- A meaningful work session → `10-Projects/WingsWebsite/Sessions/YYYY-MM-DD.md`
+
+Never write secrets into the vault — record where a secret lives, not its value.
+Commit and push the vault in the same session you edit it.
+<!-- OBSYDIAN-VAULT:END -->
