@@ -42,3 +42,12 @@ nul
 
 # Rollback dumps from scripts/migrate-base64-images.mjs — contain raw image data
 base64-image-backup-*.json
+
+# Deno lockfile from Supabase Edge Functions tooling — regenerated locally
+deno.lock
+
+# Supabase CLI scratch state (machine-local).
+# NOTE: eight files under this path are already tracked (cli-latest,
+# project-ref, pooler-url, ...). This rule only stops *new* ones; untracking
+# the existing files needs `git rm --cached` and is a separate decision.
+supabase/.temp/
