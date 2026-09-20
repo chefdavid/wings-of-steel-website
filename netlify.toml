@@ -7,6 +7,14 @@
   publish = "dist"
 
 [build.environment]
+  # Pin Node. Nothing pinned it before, so the build silently followed whatever
+  # Netlify's default image shipped. The last green deploy (2026-08-25) produced
+  # functions on the nodejs22.x runtime, which is how we know that build ran on
+  # Node 22; the first build after it -- 2026-09-20, with no dependency or config
+  # change between them -- failed in the build stage with exit code 2. Pin it so
+  # the toolchain stops moving underneath us.
+  NODE_VERSION = "22"
+
   # Disable secrets scanning for expected environment variables
   SECRETS_SCAN_OMIT_KEYS = "VITE_SUPABASE_URL,VITE_SUPABASE_ANON_KEY,SUPABASE_SERVICE_ROLE_KEY"
   # Omit scripts directory from scanning
