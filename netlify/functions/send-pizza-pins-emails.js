@@ -2,7 +2,8 @@ import nodemailer from 'nodemailer';
 
 // Email configuration
 const ADMIN_EMAILS = [
-  'sjsledhockey@hotmail.com'
+  'sjsledhockey@hotmail.com',
+  'kristigonzales1977@yahoo.com'
 ];
 
 // Create a transporter using SMTP

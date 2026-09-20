@@ -403,7 +403,8 @@ async function handleInvoicePaymentFailed(invoice) {
 
 // Admin email addresses for notifications
 const ADMIN_EMAILS = [
-  'sjsledhockey@hotmail.com'
+  'sjsledhockey@hotmail.com',
+  'kristigonzales1977@yahoo.com'
 ];
 
 // Send admin notification email via Resend
