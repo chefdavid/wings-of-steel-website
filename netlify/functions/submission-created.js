@@ -10,7 +10,7 @@ const formatCurrency = (cents) => {
   return `$${(cents / 100).toFixed(2)}`;
 };
 
-exports.handler = async (event, context) => {
+export const handler = async (event, context) => {
   // Parse the form submission
   const { payload } = JSON.parse(event.body);
 
