@@ -112,13 +112,81 @@ const ROUTES = [
     `,
   },
   {
+    path: '/topgolf',
+    title: 'Topgolf Fundraiser — Oct 25, 2026 | Wings of Steel Sled Hockey',
+    description: 'Topgolf fundraiser for Wings of Steel youth sled hockey. Sunday, October 25, 2026, 11 AM-2 PM at Topgolf Mount Laurel, NJ. $25 to play. Food and drink available for purchase.',
+    h1: 'Topgolf Fundraiser — Sunday, October 25, 2026',
+    // Event schema so the date, place and ticket price can surface as a rich
+    // result. Keep startDate/endDate/price in step with src/pages/TopGolf.tsx;
+    // `validFrom` matches that page's REGISTRATION_CUTOFF being a week out.
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@type': 'Event',
+      name: 'Wings of Steel Topgolf Fundraiser',
+      description:
+        'Topgolf fundraiser benefiting the Wings of Steel youth sled hockey team. $25 to play, with a basket raffle, 50/50 and silent auction on site.',
+      startDate: '2026-10-25T11:00:00-04:00',
+      endDate: '2026-10-25T14:00:00-04:00',
+      eventStatus: 'https://schema.org/EventScheduled',
+      eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+      image: 'https://wingsofsteel.org/images/topgolf-hero.webp',
+      location: {
+        '@type': 'Place',
+        name: 'Topgolf Mount Laurel',
+        address: {
+          '@type': 'PostalAddress',
+          streetAddress: '104 Centerton Rd',
+          addressLocality: 'Mount Laurel',
+          addressRegion: 'NJ',
+          postalCode: '08054',
+          addressCountry: 'US',
+        },
+      },
+      organizer: {
+        '@type': 'Organization',
+        name: 'Wings of Steel Youth Sled Hockey',
+        url: 'https://wingsofsteel.org',
+      },
+      offers: {
+        '@type': 'Offer',
+        name: 'Event ticket',
+        price: '25',
+        priceCurrency: 'USD',
+        availability: 'https://schema.org/InStock',
+        url: 'https://wingsofsteel.org/topgolf',
+        validThrough: '2026-10-18T12:00:00-04:00',
+      },
+    },
+    content: `
+      <p>Join Wings of Steel for an afternoon at Topgolf to raise money for our youth sled
+      hockey team.</p>
+      <h2>Event Details</h2>
+      <p><strong>Date:</strong> Sunday, October 25, 2026<br>
+      <strong>Time:</strong> 11:00 AM - 2:00 PM<br>
+      <strong>Location:</strong> Topgolf Mount Laurel, 104 Centerton Rd, Mount Laurel, NJ 08054<br>
+      <strong>Cost:</strong> $25 per person</p>
+      <p>Food and drink are available for purchase at the venue. A basket raffle, 50/50 and
+      silent auction run all afternoon.</p>
+      <h2>Where the Money Goes</h2>
+      <p>Every ticket benefits the youth team directly — ice time, sled and equipment
+      maintenance, and travel to tournaments. <strong>No child pays to play.</strong></p>
+      <p>No golf experience is needed. Topgolf is built for players of every age and skill level.</p>
+      <p>Online registration closes October 18, 2026 at noon.</p>
+      <p><a href="/events">All events</a> | <a href="/donate">Make a donation</a> |
+      <a href="/">Back to home</a></p>
+    `,
+  },
+  {
     path: '/events',
     title: 'Events | Wings of Steel Sled Hockey',
-    description: 'Upcoming Wings of Steel events, fundraisers, and games. Golf outings, community events, and more.',
+    description: 'Upcoming Wings of Steel events and fundraisers, including the Topgolf fundraiser on October 25, 2026 in Mount Laurel, NJ. Golf outings, community events, and more.',
     h1: 'Events',
     content: `
       <p>Wings of Steel hosts fundraising events throughout the year to support the team and keep 
       hockey free for all children.</p>
+      <h2>Topgolf Fundraiser</h2>
+      <p>Sunday, October 25, 2026, 11:00 AM - 2:00 PM at Topgolf Mount Laurel, NJ. $25 to play.
+      <a href="/topgolf">Details and tickets</a>.</p>
       <p><a href="/donate">Make a donation</a> | <a href="/">Back to home</a></p>
     `,
   },
@@ -331,6 +399,16 @@ function generateRouteHTML(baseHTML, route) {
     );
   } else {
     html = html.replace('</head>', `    <link rel="canonical" href="${canonical}" />\n  </head>`);
+  }
+
+  // Structured data, for routes that define it. Injected as its own script so
+  // it does not disturb the organisation JSON-LD already in index.html.
+  if (route.jsonLd) {
+    html = html.replace(
+      '</head>',
+      `    <script type="application/ld+json">${JSON.stringify(route.jsonLd)}</script>
+  </head>`
+    );
   }
 
   // SEO content for crawlers that do not execute JavaScript.
