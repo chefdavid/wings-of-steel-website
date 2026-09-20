@@ -6,8 +6,14 @@ Graphics in `assets/`:
 
 | File | Size | Use |
 |---|---|---|
-| `topgolf-oct-2026-square.png` | 1080×1080 | Facebook/Instagram feed post |
+| `topgolf-oct-2026-square.png` | 1080×1080 | Facebook/Instagram feed post — the default |
 | `topgolf-oct-2026-link.png` | 1200×630 | Link preview / shared-link card / event cover |
+
+**Layout, revised 2026-09-20.** The first version laid a full-frame scrim over the
+photo and put the type across the middle, which buried the player. Both cards now
+darken only the right-hand side and keep all type in a right-hand column, so the
+hockey player swinging a stick at the tee — the whole reason the photo works — is
+completely unobstructed.
 | `fb-card-template.html` | — | Source. Re-render to change the copy (see below). |
 
 To re-render after editing the template, from the repo root with a Node script that
@@ -43,43 +49,47 @@ algorithm tends to prefer):
 
 ---
 
-## 2. A supporting business page (e.g. 322 BBQ)
+## 2. 322 BBQ page
 
-Post as the business, in the business's own voice. A local business backing a local
-youth team reads as genuine; a copy-pasted charity ask reads as a forward.
+The real hook: **the owner's son is the team captain.** That is a far stronger
+reason for a restaurant to post this than a generic endorsement, and it is true.
+Do not name him — he is a minor and the post does not need it.
 
 Attach: `topgolf-oct-2026-square.png`
 
-> We're proud to be behind Wings of Steel Sled Hockey — a South Jersey youth team
-> where no child pays to play.
+> Some of you know our owner's son is the captain of Wings of Steel — a South
+> Jersey youth sled hockey team where no child ever pays to play.
 >
-> They're holding their Topgolf fundraiser on **Sunday, October 25, 11 AM – 2 PM at
-> Topgolf Mount Laurel**. $25 to play, and every dollar goes to the kids' ice time,
-> sleds and travel.
+> They're holding their Topgolf fundraiser on **Sunday, October 25, 11 AM – 2 PM
+> at Topgolf Mount Laurel**. $25 to play, and every dollar goes to the kids — ice
+> time, sleds and travel to tournaments.
 >
 > We'll be there. Come swing with us 👉 wingsofsteel.org/topgolf
 
-**Make it concrete before posting.** If the business is donating a raffle basket,
-food, or sponsoring a bay, say so in one line — that is what turns a share into a
-reason for their customers to care. If nothing is being donated, soften "We're proud
-to be behind" to "We're big fans of".
+If 322 is donating something concrete — a raffle basket, food, sponsoring a bay —
+add one line saying so. That turns a share into a reason for their customers to
+show up.
 
 ---
 
 ## 3. Personal share
 
-Shortest version. A personal post outperforms a page post with the same words
-because it reaches friends rather than followers — write it as yourself.
+Write it as yourself. A personal post beats a page post with identical words,
+because it reaches friends rather than followers — and this one has something no
+page post has.
 
-> My friends at Wings of Steel are running their Topgolf fundraiser on Sunday,
-> October 25 (11–2, Topgolf Mount Laurel). $25 to play, and it keeps sled hockey
-> free for every kid on the team.
+> My son is the captain of Wings of Steel, a youth sled hockey team where no kid
+> has ever had to pay to play. Watching that team is the best part of my year.
 >
-> I'm going. Come hit some balls with us — wingsofsteel.org/topgolf
+> They're running their Topgolf fundraiser on Sunday, October 25, 11–2, at
+> Topgolf Mount Laurel. $25 to play. That money is ice time, sleds, and getting
+> these kids to tournaments.
+>
+> I'll be there. Come hit some balls with us — wingsofsteel.org/topgolf
 
-Alternative: hit **Share** on the Wings of Steel page's post and add that text above
-it. A share carries the page's post to your friends and sends the engagement back to
-the team's page rather than splitting it across two posts.
+Alternative: hit **Share** on the Wings of Steel page's post and put that text
+above it. The share carries the page's post to your friends and sends the
+engagement back to the team's page instead of splitting it across two posts.
 
 ---
 
