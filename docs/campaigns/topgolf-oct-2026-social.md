@@ -27,20 +27,25 @@ load `file://` assets.
 
 Attach: `topgolf-oct-2026-square.png`
 
-> 🏌️ We're going back to Topgolf — and you're invited.
+> We're going back to Topgolf — and you're invited.
 >
 > **Sunday, October 25 · 11 AM – 2 PM · Topgolf Mount Laurel**
 > $25 to play. Food and drink available for purchase.
 >
 > Basket raffle, 50/50 and a silent auction going all afternoon.
 >
-> Every ticket benefits our youth team — ice time, sleds, and travel — so that no
-> child ever pays to play. You don't need to have swung a club before. Honestly,
-> most of the fun is watching the people who haven't.
+> Everyone should get a chance to play sports. What these kids overcome just to
+> get on the ice is the whole reason this team exists — and every ticket goes
+> straight to them: ice time, sleds and travel, so that no child ever pays to play.
 >
-> Grab your spot 👉 wingsofsteel.org/topgolf
+> Come support these amazing athletes. You don't need to have swung a club
+> before — honestly, most of the fun is watching the people who haven't.
 >
-> #SledHockey #WingsOfSteel #MountLaurel #SouthJersey #Topgolf #NoChildPaysToPlay
+> Tickets and details: wingsofsteel.org/topgolf
+
+Hashtags are optional and were left off the live post — Facebook gives them
+almost no reach, and they read as clutter on a sincere post. If you want them:
+`#SledHockey #WingsOfSteel #MountLaurel #SouthJersey #Topgolf`
 
 **First comment** (keeps the link out of the post body, which Facebook's reach
 algorithm tends to prefer):

@@ -7,48 +7,38 @@ FACES
   .card { position:relative; width:100%; height:100%; font-family:'Oswald',sans-serif; color:#fff; overflow:hidden; }
   .bg { position:absolute; inset:0; }
   .bg img { width:100%; height:100%; object-fit:cover; object-position:var(--imgpos); }
-
-  /* Darken ONLY where type sits, so the player stays untouched. */
   .scrim { position:absolute; inset:0; background:var(--scrim); }
 
   .panel {
-    position:absolute; z-index:2;
-    right:var(--pad); bottom:var(--pad); top:var(--pad);
+    position:absolute; z-index:2; right:var(--pad); top:var(--pad); bottom:var(--pad);
     width:var(--panelw);
-    display:flex; flex-direction:column; justify-content:center;
-    text-align:right;
+    display:flex; flex-direction:column; justify-content:center; text-align:right;
   }
-  .eyebrow { font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:#fbbf24; font-size:var(--eyebrow); }
-  .kicker { font-family:'Bebas Neue',sans-serif; letter-spacing:.03em; line-height:.95; font-size:var(--kicker); margin-top:var(--g1); }
-  .headline { font-family:'Bebas Neue',sans-serif; letter-spacing:.02em; line-height:.88; font-size:var(--headline); color:#34d399; }
-  .price { align-self:flex-end; margin-top:var(--g1); background:#fbbf24; color:#0f1c2e;
+  .eyebrow { font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:#fbbf24; font-size:var(--eyebrow); }
+  .kicker { font-family:'Bebas Neue',sans-serif; letter-spacing:.03em; line-height:1; font-size:var(--kicker); margin-top:var(--g); }
+  .headline { font-family:'Bebas Neue',sans-serif; letter-spacing:.02em; line-height:.86; font-size:var(--headline); color:#34d399; }
+  .price { align-self:flex-end; margin-top:var(--g); background:#fbbf24; color:#0f1c2e;
     font-family:'Bebas Neue',sans-serif; font-size:var(--price); letter-spacing:.03em; line-height:1;
-    padding:var(--pricePad); border-radius:8px; }
-  .price small { font-family:'Oswald',sans-serif; font-weight:600; font-size:var(--priceSmall); }
-  .when { margin-top:var(--g1); font-size:var(--detail); font-weight:600; line-height:1.45; }
-  .when .b { color:#fff; }
-  .when .s { color:#cbd5e1; font-weight:400; }
-  .extras { margin-top:6px; font-size:var(--extras); color:#cbd5e1; font-weight:400; }
-  .foot { margin-top:var(--g1); display:flex; flex-direction:column; align-items:flex-end; gap:8px; }
-  .mission { font-size:var(--mission); color:#e2e8f0; font-weight:400; line-height:1.3; }
-  .mission b { color:#fbbf24; font-weight:700; }
-  .url { font-family:'Bebas Neue',sans-serif; font-size:var(--url); letter-spacing:.04em; background:#047857; padding:var(--urlPad); border-radius:8px; white-space:nowrap; }
+    padding:var(--pricePad); border-radius:10px; }
+  .when { margin-top:var(--g); font-size:var(--detail); font-weight:700; line-height:1.3; }
+  .where { font-size:var(--where); font-weight:400; color:#e2e8f0; line-height:1.35; margin-top:4px; }
+  .extras { margin-top:var(--g2); font-size:var(--extras); color:#cbd5e1; font-weight:400; line-height:1.35; }
+  .rally { margin-top:var(--g); font-size:var(--rally); font-weight:600; color:#fff; line-height:1.3; }
+  .rally b { color:#fbbf24; font-weight:700; display:block; }
+  .url { align-self:flex-end; margin-top:var(--g); font-family:'Bebas Neue',sans-serif; font-size:var(--url);
+    letter-spacing:.04em; background:#047857; padding:var(--urlPad); border-radius:8px; white-space:nowrap; }
 </style></head>
 <body><div class="card">
   <div class="bg"><img src="IMGSRC" alt=""><div class="scrim"></div></div>
   <div class="panel">
     <div class="eyebrow">Wings of Steel Sled Hockey</div>
     <div class="kicker">Swing for a cause</div>
-    <div class="headline">Topgolf Fundraiser</div>
+    <div class="headline">Topgolf<br>Fundraiser</div>
     <div class="price">$25 TO PLAY</div>
-    <div class="when">
-      <span class="b">Sunday, October 25 &nbsp;·&nbsp; 11 AM – 2 PM</span><br>
-      <span class="s">Topgolf Mount Laurel · 104 Centerton Rd, NJ</span>
-    </div>
-    <div class="extras">Food &amp; drink available · Basket raffle · 50/50 · Silent auction</div>
-    <div class="foot">
-      <div class="mission">Benefiting our youth team.<br><b>No child pays to play.</b></div>
-      <div class="url">WINGSOFSTEEL.ORG/TOPGOLF</div>
-    </div>
+    <div class="when">Sunday, October 25<br>11 AM &ndash; 2 PM</div>
+    <div class="where">Topgolf Mount Laurel, NJ</div>
+    <div class="extras">Food &amp; drink available<br>Basket raffle &middot; 50/50 &middot; Silent auction</div>
+    <div class="rally">Come support these amazing athletes.<b>No child pays to play.</b></div>
+    <div class="url">WINGSOFSTEEL.ORG/TOPGOLF</div>
   </div>
 </div></body></html>
