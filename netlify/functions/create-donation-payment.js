@@ -46,7 +46,10 @@ export const handler = async (event, context) => {
       isRecurring = false,
       eventTag = null,
       itemName = null,
-      golfRegistrationId = null
+      golfRegistrationId = null,
+      ticketCount = null,
+      ticketAmount = null,
+      donationAmount = null
     } = JSON.parse(event.body);
 
     // Validate required fields
@@ -129,11 +132,19 @@ export const handler = async (event, context) => {
 
       paymentIntent = subscription.latest_invoice.payment_intent;
     } else {
-      // Determine the description based on eventTag
+      // Determine the description based on eventTag.
+      // Keep the event name in the description -- it is what shows on the Stripe
+      // dashboard, the payout report and the cardholder's statement, and it is the
+      // only way to tell two years of Topgolf revenue apart at a glance.
       let description;
-      if (eventTag && eventTag.startsWith('topgolf')) {
+      if (eventTag === 'topgolf-oct-2026') {
+        const parts = [];
+        if (ticketCount) parts.push(`${ticketCount} x $25 ticket${ticketCount === 1 ? '' : 's'}`);
+        if (donationAmount > 0) parts.push(`$${donationAmount} donation`);
+        description = `Topgolf Fundraiser Oct 25 2026 (Youth Team)${parts.length ? ` - ${parts.join(' + ')}` : ''} - Wings of Steel`;
+      } else if (eventTag && eventTag.startsWith('topgolf')) {
         const team = eventTag.includes('youth') ? 'Youth' : eventTag.includes('adult') ? 'Adult' : '';
-        description = `TopGolf Fundraiser Registration${team ? ` - ${team} Team` : ''} - Wings of Steel`;
+        description = `TopGolf Fundraiser Mar 8 2026 Registration${team ? ` - ${team} Team` : ''} - Wings of Steel`;
       } else if (eventTag === 'golf-outing') {
         description = itemName
           ? `Golf Outing Sponsorship: ${itemName} - Wings of Steel`
@@ -164,7 +175,10 @@ export const handler = async (event, context) => {
           event_tag: eventTag || '',
           item_name: itemName || '',
           is_anonymous: donorInfo.isAnonymous ? 'true' : 'false',
-          golf_registration_id: golfRegistrationId || ''
+          golf_registration_id: golfRegistrationId || '',
+          ticket_count: ticketCount != null ? String(ticketCount) : '',
+          ticket_amount: ticketAmount != null ? String(ticketAmount) : '',
+          addon_donation: donationAmount != null ? String(donationAmount) : ''
         },
         receipt_email: donorInfo.email,
       });
@@ -187,7 +201,10 @@ export const handler = async (event, context) => {
       stripe_subscription_id: subscription ? subscription.id : null,
       payment_status: 'pending',
       campaign_id: campaignId || null,
-      event_tag: eventTag || null
+      event_tag: eventTag || null,
+      ticket_count: ticketCount ?? null,
+      ticket_amount: ticketAmount ?? null,
+      addon_donation: donationAmount ?? null
     };
 
     const { data: donation, error: insertError } = await supabase

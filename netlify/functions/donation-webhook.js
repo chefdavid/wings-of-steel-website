@@ -403,9 +403,7 @@ async function handleInvoicePaymentFailed(invoice) {
 
 // Admin email addresses for notifications
 const ADMIN_EMAILS = [
-  'jeanmwiederholt@gmail.com',
-  'sjsledhockey@hotmail.com',
-  'pkjlp@comcast.net'
+  'sjsledhockey@hotmail.com'
 ];
 
 // Send admin notification email via Resend
@@ -426,8 +424,9 @@ async function sendAdminNotification(donation) {
 
   const isRecurring = donation.donation_type === 'recurring';
   const eventTag = donation.event_tag;
-  const eventSource = eventTag === 'topgolf-youth' ? 'TopGolf Fundraiser — Youth'
-    : eventTag === 'topgolf-adult' ? 'TopGolf Fundraiser — Adult'
+  const eventSource = eventTag === 'topgolf-oct-2026' ? 'Topgolf Fundraiser — Oct 25, 2026 (Youth)'
+    : eventTag === 'topgolf-youth' ? 'TopGolf Fundraiser — Mar 2026 Youth'
+    : eventTag === 'topgolf-adult' ? 'TopGolf Fundraiser — Mar 2026 Adult'
     : eventTag === 'golf-outing' ? 'Tom Brake Memorial Golf Outing'
     : eventTag === 'hockey-for-a-cause' ? 'Hockey for a Cause'
     : eventTag ? eventTag.replace(/-/g, ' ')
@@ -482,6 +481,18 @@ async function sendAdminNotification(donation) {
             <td style="padding: 10px; border-bottom: 1px solid #eee; font-weight: bold;">Source:</td>
             <td style="padding: 10px; border-bottom: 1px solid #eee;">${eventSource}</td>
           </tr>
+          ${donation.ticket_count != null ? `
+          <tr>
+            <td style="padding: 10px; border-bottom: 1px solid #eee; font-weight: bold;">Tickets:</td>
+            <td style="padding: 10px; border-bottom: 1px solid #eee;">${donation.ticket_count} ($${Number(donation.ticket_amount ?? 0).toFixed(2)})</td>
+          </tr>
+          ` : ''}
+          ${Number(donation.addon_donation ?? 0) > 0 ? `
+          <tr>
+            <td style="padding: 10px; border-bottom: 1px solid #eee; font-weight: bold;">Add-on donation:</td>
+            <td style="padding: 10px; border-bottom: 1px solid #eee; color: #b7791f; font-weight: bold;">$${Number(donation.addon_donation).toFixed(2)}</td>
+          </tr>
+          ` : ''}
           <tr>
             <td style="padding: 10px; border-bottom: 1px solid #eee; font-weight: bold;">Date:</td>
             <td style="padding: 10px; border-bottom: 1px solid #eee;">${new Date(donation.created_at).toLocaleString()}</td>
@@ -562,9 +573,23 @@ async function sendThankYouEmail(donation) {
     ? `Thank You for Registering — Tom Brake Memorial Golf Outing - ${amount}`
     : thankYouEventTag === 'hockey-for-a-cause'
     ? `Thank You — Hockey for a Cause - ${amount}`
+    : thankYouEventTag === 'topgolf-oct-2026'
+    ? `You're Registered — Topgolf Fundraiser, Oct 25 - ${amount}`
     : thankYouEventTag && thankYouEventTag.startsWith('topgolf')
     ? `Thank You for Registering — TopGolf Fundraiser - ${amount}`
     : `Thank You for Your Donation to Wings of Steel - ${amount}`;
+
+  // Topgolf Oct 2026: the payment can be tickets, a gift, or both. Spell out
+  // exactly what the person paid for and what it buys -- a bare "donation of $75"
+  // tells a ticket buyer nothing about what they actually signed up for.
+  const isTopgolfOct = thankYouEventTag === 'topgolf-oct-2026';
+  const ticketCount = donation.ticket_count ?? 0;
+  const addonDonation = Number(donation.addon_donation ?? 0);
+  const ticketTotal = Number(donation.ticket_amount ?? 0);
+  const fmt = (n) => new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+  }).format(n);
 
   const emailHtml = `
     <!DOCTYPE html>
@@ -572,7 +597,7 @@ async function sendThankYouEmail(donation) {
     <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Thank You for Your Donation</title>
+      <title>${isTopgolfOct ? "You're Registered — Topgolf Fundraiser" : 'Thank You for Your Donation'}</title>
     </head>
     <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
       <div style="background: linear-gradient(135deg, #1e3a5f 0%, #2d4a6b 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
@@ -582,9 +607,54 @@ async function sendThankYouEmail(donation) {
       <div style="background: #fff; padding: 30px; border: 1px solid #e0e0e0; border-top: none; border-radius: 0 0 10px 10px;">
         <p style="font-size: 18px; margin-bottom: 20px;">Dear ${donorName},</p>
         
+        ${isTopgolfOct ? `
+        <p style="margin-bottom: 20px;">
+          You're in! Thank you for supporting the Wings of Steel <strong>youth team</strong> at our Topgolf fundraiser${companyName}.
+        </p>
+
+        <div style="background: #e8f5e9; padding: 20px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #2e7d32;">
+          <h3 style="margin-top: 0; color: #1b5e20;">Your Support</h3>
+          <table style="width: 100%; border-collapse: collapse;">
+            ${ticketCount ? `
+            <tr>
+              <td style="padding: 8px 0;">${ticketCount} &times; event ticket</td>
+              <td style="padding: 8px 0; text-align: right;">${fmt(ticketTotal)}</td>
+            </tr>
+            ` : ''}
+            ${addonDonation > 0 ? `
+            <tr>
+              <td style="padding: 8px 0;">Additional donation to the team</td>
+              <td style="padding: 8px 0; text-align: right;">${fmt(addonDonation)}</td>
+            </tr>
+            ` : ''}
+            <tr style="border-top: 2px solid #2e7d32;">
+              <td style="padding: 8px 0; font-weight: bold;">Total</td>
+              <td style="padding: 8px 0; text-align: right; font-weight: bold;">${amount}</td>
+            </tr>
+          </table>
+        </div>
+
+        <div style="background: #f5f5f5; padding: 20px; border-radius: 5px; margin: 20px 0;">
+          <h3 style="margin-top: 0; color: #1e3a5f;">Where &amp; When</h3>
+          <p style="margin: 0 0 6px 0;"><strong>Sunday, October 25, 2026 &bull; 11:00 AM - 2:00 PM</strong></p>
+          <p style="margin: 0 0 6px 0;">Topgolf Mount Laurel<br>104 Centerton Rd, Mount Laurel, NJ 08054</p>
+          <p style="margin: 12px 0 0 0; color: #555; font-size: 14px;">
+            Food and drink are available for purchase at the venue. Basket raffle,
+            50/50 and silent auction on site.
+          </p>
+        </div>
+
+        <p style="margin-bottom: 20px;">
+          <strong>What your support pays for:</strong> ice time, sled and equipment
+          maintenance, and travel for our youth athletes. Wings of Steel has never
+          charged a child to play, and money raised at this event is what keeps that
+          true for the 2026-2027 season.
+        </p>
+        ` : `
         <p style="margin-bottom: 20px;">
           On behalf of Wings of Steel, we want to express our heartfelt gratitude for your generous donation of <strong>${amount}</strong>${playerHonor}${companyName}.
         </p>
+        `}
 
         ${isRecurring ? `
         <div style="background: #e3f2fd; padding: 15px; border-radius: 5px; margin: 20px 0;">
@@ -597,12 +667,14 @@ async function sendThankYouEmail(donation) {
         </div>
         ` : ''}
 
+        ${isTopgolfOct ? '' : `
         <p style="margin-bottom: 20px;">
           Your support makes it possible for us to provide equipment, ice time, and opportunities to athletes with disabilities. <strong>100% of your donation goes directly to supporting our players</strong> - we cover all processing fees.
         </p>
+        `}
 
         <div style="background: #f5f5f5; padding: 20px; border-radius: 5px; margin: 20px 0;">
-          <h3 style="margin-top: 0; color: #1e3a5f;">Donation Details</h3>
+          <h3 style="margin-top: 0; color: #1e3a5f;">${isTopgolfOct ? 'Receipt' : 'Donation Details'}</h3>
           <table style="width: 100%; border-collapse: collapse;">
             <tr>
               <td style="padding: 8px 0; font-weight: bold;">Amount:</td>
@@ -635,9 +707,19 @@ async function sendThankYouEmail(donation) {
           </table>
         </div>
 
+        ${isTopgolfOct ? `
+        <p style="margin-bottom: 20px;">
+          <strong>Tax Note:</strong> Wings of Steel is a 501(c)(3) nonprofit organization.
+          Event tickets cover goods and services you receive, so they are generally not
+          tax-deductible.${addonDonation > 0 ? ` The ${fmt(addonDonation)} you added as a
+          donation is.` : ''} Please keep this email for your records and check with your
+          tax advisor.
+        </p>
+        ` : `
         <p style="margin-bottom: 20px;">
           <strong>Tax Deduction:</strong> Wings of Steel is a 501(c)(3) nonprofit organization. This receipt serves as documentation for your tax-deductible donation. Please keep this email for your records.
         </p>
+        `}
 
         ${donation.message ? `
         <div style="background: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 20px 0;">
@@ -646,7 +728,9 @@ async function sendThankYouEmail(donation) {
         ` : ''}
 
         <p style="margin-bottom: 20px;">
-          Thank you again for your generosity and for helping us break barriers and build champions!
+          ${isTopgolfOct
+            ? 'See you at Topgolf on October 25 &mdash; thank you for helping us break barriers and build champions!'
+            : 'Thank you again for your generosity and for helping us break barriers and build champions!'}
         </p>
 
         <p style="margin-bottom: 0;">

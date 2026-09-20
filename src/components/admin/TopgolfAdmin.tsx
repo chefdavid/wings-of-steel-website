@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabaseClient';
-import { Download, Search, Mail, X, CheckCircle, Users, DollarSign, Trash2, RefreshCw } from 'lucide-react';
+import { Download, Search, Mail, X, CheckCircle, Users, DollarSign, Trash2, RefreshCw, Heart } from 'lucide-react';
 
 interface TopgolfRegistration {
   id: string;
@@ -11,11 +11,46 @@ interface TopgolfRegistration {
   event_tag: string;
   payment_status: string;
   created_at: string;
+  ticket_count?: number | null;
+  ticket_amount?: number | null;
+  addon_donation?: number | null;
 }
+
+// One entry per Topgolf event. Registrations for every event live in the same
+// `donations` table, told apart only by event_tag -- without this the October
+// numbers would silently fold in the March outing's 37 registrations.
+const EVENTS = [
+  {
+    key: 'topgolf-oct-2026',
+    label: 'Oct 25, 2026 — Youth',
+    tags: ['topgolf-oct-2026'],
+    price: 25,
+  },
+  {
+    key: 'topgolf-mar-2026',
+    label: 'Mar 8, 2026 — Youth & Adult',
+    tags: ['topgolf-youth', 'topgolf-adult'],
+    price: 20,
+  },
+] as const;
+
+const CURRENT_EVENT_KEY = 'topgolf-oct-2026';
+
+const teamLabel = (tag: string) =>
+  tag === 'topgolf-adult' ? 'Adult' : 'Youth';
+
+// Tickets sold on a row. Rows written before migration 019 have no ticket_count,
+// so fall back to dividing by that event's ticket price.
+const ticketsOn = (reg: TopgolfRegistration, price: number) => {
+  if (reg.ticket_count != null) return reg.ticket_count;
+  const ticketPortion = reg.ticket_amount ?? reg.amount;
+  return Math.max(1, Math.round(ticketPortion / price));
+};
 
 const TopgolfAdmin = () => {
   const [registrations, setRegistrations] = useState<TopgolfRegistration[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filterEvent, setFilterEvent] = useState<string>(CURRENT_EVENT_KEY);
   const [filterTeam, setFilterTeam] = useState<'all' | 'youth' | 'adult'>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRegistration, setSelectedRegistration] = useState<TopgolfRegistration | null>(null);
@@ -25,7 +60,13 @@ const TopgolfAdmin = () => {
     totalPlayers: 0,
     youthPlayers: 0,
     adultPlayers: 0,
+    ticketRevenue: 0,
+    donationRevenue: 0,
+    donorCount: 0,
   });
+
+  const activeEvent =
+    EVENTS.find((e) => e.key === filterEvent) ?? EVENTS[0];
 
   useEffect(() => {
     fetchRegistrations();
@@ -42,20 +83,21 @@ const TopgolfAdmin = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterEvent]);
 
   const fetchRegistrations = async () => {
     try {
       const { data, error } = await supabase
         .from('donations')
         .select('*')
-        .like('event_tag', 'topgolf%')
+        .in('event_tag', [...activeEvent.tags])
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
       setRegistrations(data || []);
-      calculateStats(data || []);
+      calculateStats(data || [], activeEvent.price);
     } catch (error) {
       console.error('Error fetching registrations:', error);
     } finally {
@@ -63,20 +105,24 @@ const TopgolfAdmin = () => {
     }
   };
 
-  const PRICE_PER_PERSON = 20;
-
-  const calculateStats = (data: TopgolfRegistration[]) => {
+  const calculateStats = (data: TopgolfRegistration[], price: number) => {
     const stats = data.reduce((acc, reg) => {
       // Count all registrations except failed/canceled
       if (reg.payment_status !== 'failed' && reg.payment_status !== 'canceled') {
         acc.totalRegistrations++;
         acc.totalRevenue += reg.amount;
-        const playerCount = Math.round(reg.amount / PRICE_PER_PERSON);
-        acc.totalPlayers += playerCount;
-        if (reg.event_tag === 'topgolf-youth') {
-          acc.youthPlayers += playerCount;
-        } else if (reg.event_tag === 'topgolf-adult') {
-          acc.adultPlayers += playerCount;
+
+        const addon = reg.addon_donation ?? 0;
+        const tickets = ticketsOn(reg, price);
+        acc.donationRevenue += addon;
+        acc.ticketRevenue += reg.ticket_amount ?? reg.amount - addon;
+        if (addon > 0) acc.donorCount++;
+
+        acc.totalPlayers += tickets;
+        if (reg.event_tag === 'topgolf-adult') {
+          acc.adultPlayers += tickets;
+        } else {
+          acc.youthPlayers += tickets;
         }
       }
       return acc;
@@ -86,6 +132,9 @@ const TopgolfAdmin = () => {
       totalPlayers: 0,
       youthPlayers: 0,
       adultPlayers: 0,
+      ticketRevenue: 0,
+      donationRevenue: 0,
+      donorCount: 0,
     });
 
     setStats(stats);
@@ -156,7 +205,9 @@ const TopgolfAdmin = () => {
       'Phone',
       'Team',
       'Players',
-      'Amount',
+      'Tickets',
+      'Donation',
+      'Total',
       'Status',
     ];
 
@@ -165,8 +216,10 @@ const TopgolfAdmin = () => {
       r.donor_name,
       r.donor_email,
       r.donor_phone || '',
-      r.event_tag === 'topgolf-youth' ? 'Youth' : 'Adult',
-      Math.round(r.amount / PRICE_PER_PERSON),
+      teamLabel(r.event_tag),
+      ticketsOn(r, activeEvent.price),
+      `$${(r.ticket_amount ?? r.amount - (r.addon_donation ?? 0)).toFixed(2)}`,
+      `$${(r.addon_donation ?? 0).toFixed(2)}`,
       `$${r.amount.toFixed(2)}`,
       r.payment_status,
     ]);
@@ -180,7 +233,7 @@ const TopgolfAdmin = () => {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `topgolf-registrations-${new Date().toISOString().split('T')[0]}.csv`;
+    a.download = `${activeEvent.key}-registrations-${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
   };
 
@@ -193,8 +246,7 @@ const TopgolfAdmin = () => {
 
   const filteredRegistrations = registrations.filter(reg => {
     const matchesTeam = filterTeam === 'all' ||
-      (filterTeam === 'youth' && reg.event_tag === 'topgolf-youth') ||
-      (filterTeam === 'adult' && reg.event_tag === 'topgolf-adult');
+      teamLabel(reg.event_tag).toLowerCase() === filterTeam;
 
     const matchesSearch = !searchTerm ||
       reg.donor_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -216,7 +268,10 @@ const TopgolfAdmin = () => {
     <div className="p-6 bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-dark-steel">Topgolf Registrations</h1>
+          <div>
+            <h1 className="text-3xl font-bold text-dark-steel">Topgolf Registrations</h1>
+            <p className="text-gray-500 text-sm mt-1">{activeEvent.label}</p>
+          </div>
           <div className="flex gap-3">
             <button
               onClick={syncPayments}
@@ -267,6 +322,11 @@ const TopgolfAdmin = () => {
               <div>
                 <p className="text-gray-500 text-sm">Total Revenue</p>
                 <p className="text-2xl font-bold text-dark-steel">{formatCurrency(stats.totalRevenue)}</p>
+                <p className="text-gray-400 text-xs mt-1">
+                  {formatCurrency(stats.ticketRevenue)} tickets
+                  {stats.donationRevenue > 0 &&
+                    ` + ${formatCurrency(stats.donationRevenue)} donations`}
+                </p>
               </div>
               <div className="bg-green-100 p-3 rounded-full">
                 <DollarSign className="text-green-600" size={24} />
@@ -286,22 +346,41 @@ const TopgolfAdmin = () => {
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-500 text-sm">Adult Players</p>
-                <p className="text-2xl font-bold text-dark-steel">{stats.adultPlayers}</p>
-              </div>
-              <div className="bg-purple-100 p-3 rounded-full">
-                <span className="text-2xl">🛷</span>
+          {activeEvent.key === CURRENT_EVENT_KEY ? (
+            <div className="bg-white rounded-lg shadow p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-500 text-sm">Add-on Donations</p>
+                  <p className="text-2xl font-bold text-dark-steel">
+                    {formatCurrency(stats.donationRevenue)}
+                  </p>
+                  <p className="text-gray-400 text-xs mt-1">
+                    from {stats.donorCount} of {stats.totalRegistrations} buyers
+                  </p>
+                </div>
+                <div className="bg-yellow-100 p-3 rounded-full">
+                  <Heart className="text-yellow-600" size={24} />
+                </div>
               </div>
             </div>
-          </div>
+          ) : (
+            <div className="bg-white rounded-lg shadow p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-500 text-sm">Adult Players</p>
+                  <p className="text-2xl font-bold text-dark-steel">{stats.adultPlayers}</p>
+                </div>
+                <div className="bg-purple-100 p-3 rounded-full">
+                  <span className="text-2xl">🛷</span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Filters */}
         <div className="bg-white rounded-lg shadow p-4 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
               <input
@@ -314,14 +393,33 @@ const TopgolfAdmin = () => {
             </div>
 
             <select
-              value={filterTeam}
-              onChange={(e) => setFilterTeam(e.target.value as any)}
+              value={filterEvent}
+              onChange={(e) => {
+                setFilterEvent(e.target.value);
+                setFilterTeam('all');
+              }}
+              aria-label="Event"
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-steel-blue focus:border-transparent"
             >
-              <option value="all">All Teams</option>
-              <option value="youth">Youth Team</option>
-              <option value="adult">Adult Team</option>
+              {EVENTS.map((e) => (
+                <option key={e.key} value={e.key}>
+                  {e.label}
+                </option>
+              ))}
             </select>
+
+            {activeEvent.tags.length > 1 && (
+              <select
+                value={filterTeam}
+                onChange={(e) => setFilterTeam(e.target.value as any)}
+                aria-label="Team"
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-steel-blue focus:border-transparent"
+              >
+                <option value="all">All Teams</option>
+                <option value="youth">Youth Team</option>
+                <option value="adult">Adult Team</option>
+              </select>
+            )}
           </div>
         </div>
 
@@ -336,6 +434,7 @@ const TopgolfAdmin = () => {
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Team</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Players</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Donation</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
@@ -355,15 +454,24 @@ const TopgolfAdmin = () => {
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
                       <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        reg.event_tag === 'topgolf-youth'
+                        teamLabel(reg.event_tag) === 'Youth'
                           ? 'bg-emerald-100 text-emerald-800'
                           : 'bg-purple-100 text-purple-800'
                       }`}>
-                        {reg.event_tag === 'topgolf-youth' ? 'Youth' : 'Adult'}
+                        {teamLabel(reg.event_tag)}
                       </span>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {Math.round(reg.amount / PRICE_PER_PERSON)}
+                      {ticketsOn(reg, activeEvent.price)}
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap text-sm">
+                      {reg.addon_donation ? (
+                        <span className="font-semibold text-yellow-700">
+                          {formatCurrency(reg.addon_donation)}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400">—</span>
+                      )}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
                       {formatCurrency(reg.amount)}
@@ -440,7 +548,7 @@ const TopgolfAdmin = () => {
                 <div>
                   <label className="text-sm font-medium text-gray-500">Team</label>
                   <p className="text-gray-900">
-                    {selectedRegistration.event_tag === 'topgolf-youth' ? 'Youth Team' : 'Adult Team'}
+                    {teamLabel(selectedRegistration.event_tag)} Team
                   </p>
                 </div>
                 <div>

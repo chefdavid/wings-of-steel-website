@@ -1,6 +1,5 @@
 const ADMIN_EMAILS = [
-  'jeanmwiederholt@gmail.com',
-  'sjsledhockey@hotmail.com',
+  'sjsledhockey@hotmail.com'
 ];
 
 export const handler = async (event) => {

@@ -1,8 +1,6 @@
 // Admin email addresses for store order notifications
 const ADMIN_EMAILS = [
-  'jeanmwiederholt@gmail.com',
-  'sjsledhockey@hotmail.com',
-  'pkjlp@comcast.net'
+  'sjsledhockey@hotmail.com'
 ];
 
 export const handler = async (event, context) => {

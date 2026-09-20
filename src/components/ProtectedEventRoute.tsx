@@ -1,6 +1,7 @@
 import { Navigate } from 'react-router-dom';
 import { useEventVisibility } from '../hooks/useEventVisibility';
 import LoadingSpinner from './LoadingSpinner';
+import { isDevPreview } from '../utils/devPreview';
 
 interface ProtectedEventRouteProps {
   eventKey: string;
@@ -14,7 +15,7 @@ const ProtectedEventRoute = ({ eventKey, children }: ProtectedEventRouteProps) =
     return <LoadingSpinner />;
   }
 
-  if (!isEventVisible(eventKey)) {
+  if (!isEventVisible(eventKey) && !isDevPreview()) {
     // Redirect to home if event is not visible
     return <Navigate to="/" replace />;
   }

@@ -15,6 +15,7 @@ import {
   Loader,
   CheckCircle,
   Lock,
+  Heart,
 } from 'lucide-react'
 import { FaGolfBall } from 'react-icons/fa'
 import {
@@ -24,8 +25,6 @@ import {
   useElements,
 } from '@stripe/react-stripe-js'
 import { stripeService } from '../services/stripe'
-
-type TeamChoice = 'youth' | 'adult' | null
 
 /* ------------------------------------------------------------------ */
 /*  Stripe Payment sub-form (rendered inside <Elements>)              */
@@ -135,12 +134,20 @@ function PaymentForm({
 /* ------------------------------------------------------------------ */
 /*  Main page component                                                */
 /* ------------------------------------------------------------------ */
-// Registration cutoff: March 1, 2026 at 12:00 PM EST
-const REGISTRATION_CUTOFF = new Date('2026-03-01T12:00:00-05:00')
+// Event identity. The tag is what every Stripe payment, admin report and CSV
+// export keys off, so it must stay unique per event -- the March 2026 outing
+// used topgolf-youth / topgolf-adult and its registrations must not mix in.
+const EVENT_TAG = 'topgolf-oct-2026'
+const PRICE_PER_PERSON = 25
+// Registration cutoff: October 18, 2026 at 12:00 PM EDT (one week before the event)
+const REGISTRATION_CUTOFF = new Date('2026-10-18T12:00:00-04:00')
+// Preset add-on donation amounts offered at checkout
+const DONATION_PRESETS = [10, 25, 50, 100]
 
 const TopGolf = () => {
-  const [selectedTeam, setSelectedTeam] = useState<TeamChoice>(null)
   const [quantity, setQuantity] = useState(1)
+  const [donation, setDonation] = useState(0)
+  const [customDonation, setCustomDonation] = useState('')
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
@@ -158,31 +165,42 @@ const TopGolf = () => {
     () => new Date() >= REGISTRATION_CUTOFF
   )
 
-  const PRICE_PER_PERSON = 20
-  const totalAmount = quantity * PRICE_PER_PERSON
+  const ticketAmount = quantity * PRICE_PER_PERSON
+  const totalAmount = ticketAmount + donation
 
   useEffect(() => {
     stripeService.getStripe().then((s) => setStripePromise(s))
   }, [])
 
-  // Auto-close registration at cutoff time
+  // Auto-close registration at cutoff time.
+  //
+  // setTimeout stores its delay in a signed 32-bit int, so anything over
+  // ~24.85 days overflows and fires IMMEDIATELY. The March 2026 cutoff was
+  // always set within that window so it never showed; an October event opened
+  // 28+ days ahead trips it, and the page renders "REGISTRATION CLOSED" the
+  // instant it loads. Chunk the wait instead of trusting one long timer.
   useEffect(() => {
     if (registrationClosed) return
-    const msUntilCutoff = REGISTRATION_CUTOFF.getTime() - Date.now()
-    if (msUntilCutoff <= 0) {
-      setRegistrationClosed(true)
-      return
+
+    const MAX_TIMEOUT = 2147483647 // setTimeout's ceiling, ~24.85 days
+
+    let timer: ReturnType<typeof setTimeout>
+
+    const scheduleCheck = () => {
+      const msUntilCutoff = REGISTRATION_CUTOFF.getTime() - Date.now()
+      if (msUntilCutoff <= 0) {
+        setRegistrationClosed(true)
+        return
+      }
+      timer = setTimeout(scheduleCheck, Math.min(msUntilCutoff, MAX_TIMEOUT))
     }
-    const timer = setTimeout(() => setRegistrationClosed(true), msUntilCutoff)
+
+    scheduleCheck()
     return () => clearTimeout(timer)
   }, [registrationClosed])
 
   const handleContinueToPayment = async () => {
     // Validate
-    if (!selectedTeam) {
-      setFormError('Please select which team you want to support')
-      return
-    }
     if (!firstName.trim() || !lastName.trim()) {
       setFormError('Please enter your first and last name')
       return
@@ -211,7 +229,10 @@ const TopGolf = () => {
             donationType: 'one-time',
             isRecurring: false,
             campaignId: null,
-            eventTag: `topgolf-${selectedTeam}`,
+            eventTag: EVENT_TAG,
+            ticketCount: quantity,
+            ticketAmount,
+            donationAmount: donation,
           }),
         }
       )
@@ -276,23 +297,23 @@ const TopGolf = () => {
               <span className="block text-4xl md:text-5xl lg:text-6xl text-yellow-400 mt-2">TOPGOLF FUNDRAISER</span>
             </h1>
             <p className="text-xl md:text-2xl text-ice-blue font-display mb-2">
-              Swing for a Cause — Support Sled Hockey
+              Swing for a Cause — Benefiting the Youth Team
             </p>
             <p className="text-gray-300 text-lg mb-6">
-              $20 per person &bull; Golf, Drinks & Fun
+              $25 to play &bull; Food & drink available for purchase
             </p>
             {/* Event Details Bar */}
             <div className="bg-white/10 backdrop-blur-md rounded-lg p-4 md:p-6 max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="flex items-center justify-center space-x-2">
                 <Calendar className="text-emerald-400" size={24} />
                 <span className="text-white font-semibold">
-                  March 8, 2026
+                  October 25, 2026
                 </span>
               </div>
               <div className="flex items-center justify-center space-x-2">
                 <Clock className="text-emerald-400" size={24} />
                 <span className="text-white font-semibold">
-                  1 PM - 3 PM
+                  11 AM - 2 PM
                 </span>
               </div>
               <div className="flex items-center justify-center space-x-2">
@@ -304,7 +325,7 @@ const TopGolf = () => {
               <div className="flex items-center justify-center space-x-2">
                 <DollarSign className="text-yellow-400" size={24} />
                 <span className="text-yellow-400 font-bold">
-                  $20 / Person
+                  $25 / Person
                 </span>
               </div>
             </div>
@@ -325,8 +346,8 @@ const TopGolf = () => {
             </h2>
             <p className="text-ice-blue text-center mb-8">
               {registrationClosed
-                ? 'Online registration for this event has closed. See you at Topgolf on March 8!'
-                : '$20 per person — select your team and complete your registration below.'}
+                ? 'Online registration for this event has closed. See you at Topgolf on October 25!'
+                : '$25 per person — every ticket helps keep sled hockey free for our youth team.'}
             </p>
             {/* Registration closed state */}
             {registrationClosed && step !== 'success' && (
@@ -366,54 +387,17 @@ const TopGolf = () => {
                   .
                 </p>
                 <p className="text-gray-400 text-sm">
-                  {quantity} {quantity === 1 ? 'ticket' : 'tickets'} —{' '}
-                  {selectedTeam === 'youth' ? 'Youth' : 'Adult'} Team — $
-                  {totalAmount}
+                  {quantity} {quantity === 1 ? 'ticket' : 'tickets'}
+                  {donation > 0 && ` + $${donation} donation`} — ${totalAmount}
+                </p>
+                <p className="text-gray-400 text-sm mt-2">
+                  October 25, 2026 &bull; 11 AM - 2 PM &bull; Topgolf Mt. Laurel
                 </p>
               </motion.div>
             )}
             {/* Info + Payment form */}
             {step !== 'success' && !registrationClosed && (
               <div className="bg-dark-steel/60 border border-steel-blue/30 rounded-2xl p-6 md:p-8 space-y-6">
-                {/* ---------- TEAM SELECTION ---------- */}
-                <div>
-                  <label className="block text-sm font-medium text-ice-blue mb-3">
-                    Which team are you supporting?{' '}
-                    <span className="text-yellow-400">*</span>
-                  </label>
-                  <div className="grid grid-cols-2 gap-4">
-                    <button
-                      type="button"
-                      disabled={step === 'payment'}
-                      onClick={() => setSelectedTeam('youth')}
-                      className={`rounded-xl p-5 text-center transition-all duration-300 border-2 ${
-                        selectedTeam === 'youth'
-                          ? 'border-emerald-400 bg-emerald-500/20 shadow-lg shadow-emerald-400/20'
-                          : 'border-steel-blue/30 bg-dark-steel/60 hover:border-emerald-400/50'
-                      } ${step === 'payment' ? 'opacity-60 cursor-not-allowed' : ''}`}
-                    >
-                      <div className="text-3xl mb-2">🏒</div>
-                      <h3 className="text-lg font-sport text-white tracking-wide">
-                        YOUTH
-                      </h3>
-                    </button>
-                    <button
-                      type="button"
-                      disabled={step === 'payment'}
-                      onClick={() => setSelectedTeam('adult')}
-                      className={`rounded-xl p-5 text-center transition-all duration-300 border-2 ${
-                        selectedTeam === 'adult'
-                          ? 'border-emerald-400 bg-emerald-500/20 shadow-lg shadow-emerald-400/20'
-                          : 'border-steel-blue/30 bg-dark-steel/60 hover:border-emerald-400/50'
-                      } ${step === 'payment' ? 'opacity-60 cursor-not-allowed' : ''}`}
-                    >
-                      <div className="text-3xl mb-2">🛷</div>
-                      <h3 className="text-lg font-sport text-white tracking-wide">
-                        ADULT
-                      </h3>
-                    </button>
-                  </div>
-                </div>
                 {/* ---------- QUANTITY ---------- */}
                 <div>
                   <label className="block text-sm font-medium text-ice-blue mb-3">
@@ -443,7 +427,7 @@ const TopGolf = () => {
                   <p className="text-gray-400 text-xs text-center mt-2">
                     ${PRICE_PER_PERSON} x {quantity} ={' '}
                     <span className="text-emerald-400 font-bold">
-                      ${totalAmount}
+                      ${ticketAmount}
                     </span>
                   </p>
                 </div>
@@ -502,17 +486,104 @@ const TopGolf = () => {
                     />
                   </div>
                 </div>
+                {/* ---------- ADD-ON DONATION ---------- */}
+                <div className="bg-yellow-400/10 border border-yellow-400/30 rounded-xl p-5">
+                  <div className="flex items-start gap-3 mb-4">
+                    <Heart className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-white font-semibold">
+                        Want to add a donation to help support the team?
+                      </p>
+                      <p className="text-gray-400 text-sm mt-1">
+                        Optional — 100% goes toward keeping sled hockey free for
+                        every child. Sleds, ice time and travel cost far more
+                        than a ticket covers.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-5 gap-2">
+                    <button
+                      type="button"
+                      disabled={step === 'payment'}
+                      onClick={() => {
+                        setDonation(0)
+                        setCustomDonation('')
+                      }}
+                      aria-pressed={donation === 0 && customDonation === ''}
+                      className={`py-2 rounded-lg text-sm font-semibold border-2 transition-all ${
+                        donation === 0 && customDonation === ''
+                          ? 'border-yellow-400 bg-yellow-400/20 text-white'
+                          : 'border-steel-blue/30 bg-dark-steel/60 text-gray-300 hover:border-yellow-400/50'
+                      } ${step === 'payment' ? 'opacity-60 cursor-not-allowed' : ''}`}
+                    >
+                      No thanks
+                    </button>
+                    {DONATION_PRESETS.map((amt) => (
+                      <button
+                        key={amt}
+                        type="button"
+                        disabled={step === 'payment'}
+                        onClick={() => {
+                          setDonation(amt)
+                          setCustomDonation('')
+                        }}
+                        aria-pressed={donation === amt && customDonation === ''}
+                        className={`py-2 rounded-lg text-sm font-semibold border-2 transition-all ${
+                          donation === amt && customDonation === ''
+                            ? 'border-yellow-400 bg-yellow-400/20 text-white'
+                            : 'border-steel-blue/30 bg-dark-steel/60 text-gray-300 hover:border-yellow-400/50'
+                        } ${step === 'payment' ? 'opacity-60 cursor-not-allowed' : ''}`}
+                      >
+                        ${amt}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="mt-3">
+                    <label
+                      htmlFor="custom-donation"
+                      className="block text-xs text-gray-400 mb-1"
+                    >
+                      Or enter your own amount
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                        $
+                      </span>
+                      <input
+                        id="custom-donation"
+                        type="number"
+                        min="0"
+                        step="1"
+                        inputMode="numeric"
+                        value={customDonation}
+                        disabled={step === 'payment'}
+                        onChange={(e) => {
+                          const raw = e.target.value
+                          setCustomDonation(raw)
+                          const parsed = Math.max(0, Math.floor(Number(raw) || 0))
+                          setDonation(parsed)
+                        }}
+                        placeholder="0"
+                        className="w-full pl-7 pr-4 py-2 bg-dark-steel border-2 border-steel-blue rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/40 disabled:opacity-60"
+                      />
+                    </div>
+                  </div>
+                </div>
+
                 {/* ---------- SUMMARY BAR ---------- */}
                 <div className="bg-emerald-500/15 border border-emerald-400/30 rounded-lg px-4 py-3 flex items-center justify-between">
                   <div className="text-sm text-gray-300">
                     <span className="text-white font-semibold">
                       {quantity} {quantity === 1 ? 'ticket' : 'tickets'}
                     </span>
-                    {selectedTeam && (
+                    {' '}&times; ${PRICE_PER_PERSON}
+                    {donation > 0 && (
                       <>
-                        {' — '}
-                        <span className="text-emerald-400">
-                          {selectedTeam === 'youth' ? 'Youth' : 'Adult'} Team
+                        {' + '}
+                        <span className="text-yellow-400">
+                          ${donation} donation
                         </span>
                       </>
                     )}
@@ -598,20 +669,20 @@ const TopGolf = () => {
               {
                 icon: <Calendar size={28} />,
                 title: 'Date',
-                value: 'March 8, 2026',
+                value: 'October 25, 2026',
                 sub: 'Sunday',
               },
               {
                 icon: <Clock size={28} />,
                 title: 'Time',
-                value: '1 PM - 3 PM',
+                value: '11 AM - 2 PM',
                 sub: '',
               },
               {
                 icon: <MapPin size={28} />,
                 title: 'Location',
-                value: 'Topgolf',
-                sub: '104 Centerton Rd, Mt Laurel, NJ 08054',
+                value: 'Topgolf Mt. Laurel',
+                sub: '104 Centerton Rd, Mount Laurel, NJ 08054',
               },
               {
                 icon: <Phone size={28} />,
@@ -658,16 +729,16 @@ const TopGolf = () => {
                     "Hit balls at high-tech targets at Topgolf's state-of-the-art driving range bays. Fun for all skill levels!",
                 },
                 {
-                  icon: <Gift size={24} />,
-                  title: 'Unlimited Soda & Lemonade',
+                  icon: <Heart size={24} />,
+                  title: 'Supporting the Youth Team',
                   description:
-                    'Stay refreshed with unlimited soft drinks and lemonade included with your registration.',
+                    'Every $25 ticket goes straight to the youth team — ice time, sleds and travel — so no child ever pays to play.',
                 },
                 {
                   icon: <DollarSign size={24} />,
-                  title: 'Food Available for Purchase',
+                  title: 'Food & Drink Available for Purchase',
                   description:
-                    'Topgolf offers a full menu of appetizers, entrees, and more available for purchase at the venue.',
+                    'Topgolf offers a full menu of appetizers, entrees and drinks available for purchase at the venue.',
                 },
                 {
                   icon: <Users size={24} />,

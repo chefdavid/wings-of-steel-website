@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { FaExclamationTriangle, FaTimes } from 'react-icons/fa';
 import Hero from './Hero';
 import NationalsBanner from './NationalsBanner';
+import TopgolfBanner from './TopgolfBanner';
 import LoadingSpinner from './LoadingSpinner';
 import type { TeamType } from '../types/team';
 
@@ -75,6 +76,7 @@ const TeamSite: React.FC = () => {
   return (
     <>
       <NationalsBanner />
+      <TopgolfBanner />
       <Hero />
       <Suspense fallback={<div className="h-32" />}>
         <TodayGameCard />

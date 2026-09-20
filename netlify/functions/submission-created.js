@@ -2,9 +2,7 @@
 // It handles email notifications for the Pizza, Pins & Pop event
 
 const ADMIN_EMAILS = [
-  'jeanmwiederholt@gmail.com',
-  'sjsledhockey@hotmail.com',
-  'pkjlp@comcast.net'
+  'sjsledhockey@hotmail.com'
 ];
 
 // Format currency

@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Calendar, MapPin, ArrowRight, Heart } from 'lucide-react'
+import { Calendar, MapPin, ArrowRight } from 'lucide-react'
 import { FaGolfBall, FaHockeyPuck } from 'react-icons/fa'
 import { Link } from 'react-router-dom'
 import { useEventVisibility } from '../hooks/useEventVisibility'
@@ -34,11 +34,11 @@ const allEvents: EventCard[] = [
   {
     key: 'topgolf',
     name: 'Topgolf Fundraiser',
-    tagline: 'Swing for a cause — support sled hockey',
-    date: 'March 8, 2026',
+    tagline: 'Swing for a cause — benefiting the youth team',
+    date: 'October 25, 2026 — 11 AM - 2 PM',
     location: 'Topgolf Mt. Laurel, NJ',
     description:
-      '$20 per person includes golf and unlimited soda & lemonade. Baskets, 50/50, and silent auction on-site. Choose to support the youth or adult team when you register!',
+      '$25 to play. Food and drink available for purchase. Baskets, 50/50 and a silent auction on-site. Every ticket helps keep sled hockey free for our youth athletes.',
     href: '/topgolf',
     icon: <FaGolfBall className="text-3xl" />,
     color: 'from-emerald-600 to-emerald-800',
