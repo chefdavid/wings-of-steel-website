@@ -134,7 +134,7 @@ const Navigation = () => {
           {
             title: 'Upcoming Events',
             items: [
-              { name: 'Topgolf Fundraiser', href: '/topgolf', isHashLink: false, description: 'Mar 8 — $20/person', eventKey: 'topgolf' },
+              { name: 'Topgolf Fundraiser', href: '/topgolf', isHashLink: false, description: 'Oct 25 — $25/person', eventKey: 'topgolf' },
               { name: 'Hockey for a Cause', href: '/hockey-for-a-cause', isHashLink: false, description: 'Mar 22 — Entry by Donation', eventKey: 'hockey-for-a-cause' },
               { name: 'Golf Outing', href: '/golf-outing', isHashLink: false, description: 'Tom Brake Memorial — Apr 2026', eventKey: 'golf-outing' },
             ]

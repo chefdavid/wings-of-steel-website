@@ -341,7 +341,8 @@ const DonationManagement = () => {
                             ? 'bg-green-100 text-green-800'
                             : 'bg-purple-100 text-purple-800'
                         }`}>
-                          {donation.event_tag === 'topgolf-youth' ? 'Topgolf — Youth'
+                          {donation.event_tag === 'topgolf-oct-2026' ? 'Topgolf — Oct 2026'
+                            : donation.event_tag === 'topgolf-youth' ? 'Topgolf — Youth'
                             : donation.event_tag === 'topgolf-adult' ? 'Topgolf — Adult'
                             : donation.event_tag === 'hockey-for-a-cause' ? 'Hockey for a Cause'
                             : donation.event_tag === 'golf-outing'
@@ -447,7 +448,8 @@ const DonationManagement = () => {
                   <div>
                     <label className="text-sm font-medium text-gray-500">Event</label>
                     <p className="text-gray-900">
-                      {selectedDonation.event_tag === 'topgolf-youth' ? 'Topgolf Fundraiser — Youth Team'
+                      {selectedDonation.event_tag === 'topgolf-oct-2026' ? 'Topgolf Fundraiser — Oct 25, 2026'
+                        : selectedDonation.event_tag === 'topgolf-youth' ? 'Topgolf Fundraiser — Youth Team'
                         : selectedDonation.event_tag === 'topgolf-adult' ? 'Topgolf Fundraiser — Adult Team'
                         : selectedDonation.event_tag === 'hockey-for-a-cause' ? 'Hockey for a Cause'
                         : selectedDonation.event_tag === 'golf-outing' ? 'Golf Outing'

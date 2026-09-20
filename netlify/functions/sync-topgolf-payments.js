@@ -68,13 +68,28 @@ export const handler = async (event, context) => {
         console.log(`Donation ${donation.id}: Stripe status = ${paymentIntent.status}`);
 
         if (paymentIntent.status === 'succeeded') {
+          // Backfill the ticket/donation split from the payment intent's metadata.
+          // A row rescued here never went through the webhook, so these columns
+          // would stay NULL -- and the admin then infers ticket count by dividing
+          // the amount by the ticket price, which over-counts players whenever an
+          // add-on donation is present ($75 = 1 ticket + a $50 gift reads as 3).
+          const meta = paymentIntent.metadata || {};
+          const num = (v) => (v === '' || v == null ? null : Number(v));
+
+          const update = {
+            payment_status: 'succeeded',
+            updated_at: new Date().toISOString()
+          };
+          if (donation.ticket_count == null && num(meta.ticket_count) != null) {
+            update.ticket_count = num(meta.ticket_count);
+            update.ticket_amount = num(meta.ticket_amount);
+            update.addon_donation = num(meta.addon_donation) ?? 0;
+          }
+
           // Update the database
           const { error: updateError } = await supabase
             .from('donations')
-            .update({
-              payment_status: 'succeeded',
-              updated_at: new Date().toISOString()
-            })
+            .update(update)
             .eq('id', donation.id);
 
           if (updateError) {

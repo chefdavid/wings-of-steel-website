@@ -79,6 +79,8 @@ const DonationModal = ({ isOpen, onClose, onSuccess, initialAmount, eventTag }: 
                     <p className="text-yellow-400 font-sport tracking-wide text-lg md:text-xl uppercase">
                       {eventTag === 'hockey-for-a-cause'
                         ? 'Hockey for a Cause — Entry by Donation'
+                        : eventTag === 'topgolf-oct-2026'
+                        ? 'Topgolf Fundraiser — Oct 25, 2026'
                         : eventTag === 'topgolf-youth'
                         ? 'Topgolf Fundraiser — Youth Team'
                         : eventTag === 'topgolf-adult'
