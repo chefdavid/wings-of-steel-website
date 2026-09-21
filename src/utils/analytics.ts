@@ -9,7 +9,13 @@
 // classic way to undo that work. Loading it async, after mount, keeps it off
 // the critical path.
 
-const MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID as string | undefined;
+// The property for wingsofsteel.org. A GA measurement ID is not a secret -- it
+// ships in the page source of every site that uses GA -- so it lives here as the
+// default rather than in Netlify config, which removes a whole failure mode
+// where a forgotten env var silently records nothing. The env var still wins if
+// it is set, so a future property swap needs no code change.
+const MEASUREMENT_ID =
+  (import.meta.env.VITE_GA_MEASUREMENT_ID as string | undefined) || 'G-BS34BBTWDK';
 
 // GA is disabled in dev so local clicking around never pollutes the numbers.
 const ENABLED = Boolean(MEASUREMENT_ID) && import.meta.env.PROD;
