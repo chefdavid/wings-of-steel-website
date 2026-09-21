@@ -25,6 +25,7 @@ import {
   useElements,
 } from '@stripe/react-stripe-js'
 import { stripeService } from '../services/stripe'
+import { trackEvent } from '../utils/analytics'
 
 /* ------------------------------------------------------------------ */
 /*  Stripe Payment sub-form (rendered inside <Elements>)              */
@@ -62,6 +63,11 @@ function PaymentForm({
 
       if (stripeError) {
         setError(stripeError.message || 'Payment failed')
+        trackEvent('payment_failed', {
+          currency: 'USD',
+          value: amount,
+          reason: stripeError.code || stripeError.type || 'unknown',
+        })
         setLoading(false)
         return
       }
@@ -253,6 +259,16 @@ const TopGolf = () => {
         throw new Error(data.error || 'Failed to create payment')
       }
 
+      // The funnel step that matters: everyone who reaches the card form. The
+      // gap between this and `purchase` is the drop-off the page can fix.
+      trackEvent('begin_checkout', {
+        currency: 'USD',
+        value: totalAmount,
+        event_tag: EVENT_TAG,
+        ticket_count: quantity,
+        addon_donation: donation,
+      })
+
       setClientSecret(data.clientSecret)
       setStep('payment')
     } catch (err: any) {
@@ -265,6 +281,13 @@ const TopGolf = () => {
   }
 
   const handlePaymentSuccess = () => {
+    trackEvent('purchase', {
+      currency: 'USD',
+      value: totalAmount,
+      event_tag: EVENT_TAG,
+      ticket_count: quantity,
+      addon_donation: donation,
+    })
     setStep('success')
   }
 

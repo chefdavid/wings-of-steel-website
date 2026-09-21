@@ -8,6 +8,7 @@ import ModalEscapeHandler from './components/ModalEscapeHandler'
 import { GlobalAriaLive } from './components/AriaLiveRegion'
 import ProtectedEventRoute from './components/ProtectedEventRoute'
 import Layout from './components/layout/Layout'
+import AnalyticsTracker from './components/AnalyticsTracker'
 
 // Lazy load heavy components
 const TeamSite = lazy(() => import('./components/TeamSite'))
@@ -61,6 +62,7 @@ function App() {
         <DonationModalProvider>
           <GlobalAriaLive />
           <ModalEscapeHandler />
+          <AnalyticsTracker />
           <Suspense fallback={<LoadingSpinner />}>
             <Routes>
               {/* Admin renders its own chrome — deliberately outside Layout. */}
