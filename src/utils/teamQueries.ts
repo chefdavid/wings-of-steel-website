@@ -20,7 +20,13 @@ import type { Player, Coach, PlayerWithTeams, CoachWithTeams } from '../types/da
 //
 // Keep this list tight: anything added here becomes public. The columns below
 // are the live `player_team_details` schema as of 2026-08-23 — note it has no
-// `hometown` / `school`, despite what supabase/legacy/*.sql suggests.
+// `school`, despite what supabase/legacy/*.sql suggests.
+//
+// `hometown` exists on `players` from 2026-09-29 but is deliberately NOT on
+// this view and not in this list: it is an admin field for the coaches, and
+// publishing where a child lives is the owner's call to make on purpose, not
+// something that should arrive as a side effect of adding a roster field.
+// Making it public means adding it to the view AND to this list.
 const PUBLIC_PLAYER_COLUMNS = [
   'id',
   'name',

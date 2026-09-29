@@ -44,6 +44,8 @@ export interface Player {
   start_date: string; // ISO date string - when player joined team
   position: string;
   bio: string;
+  /** Where they came from, free text: "Deptford, NJ". Admin-only, not on the public roster. */
+  hometown?: string;
   image_url?: string;
   jersey_number: number;
   tags?: string[];

@@ -33,6 +33,7 @@ const PlayerManagement = () => {
     start_date: '',
     position: '',
     bio: '',
+    hometown: '',
     image_url: '',
     jersey_number: '',
     tags: [''],
@@ -98,6 +99,7 @@ const PlayerManagement = () => {
         start_date: formData.start_date,
         position: formData.position,
         bio: formData.bio,
+        hometown: formData.hometown.trim() || null,
         image_url: formData.image_url || '',
         jersey_number: parseInt(formData.jersey_number),
         tags: filteredTags,
@@ -153,6 +155,7 @@ const PlayerManagement = () => {
       start_date: player.start_date ? toInputDate(player.start_date) : '',
       position: player.position,
       bio: player.bio,
+      hometown: player.hometown || '',
       image_url: player.image_url || '',
       jersey_number: player.jersey_number.toString(),
       tags: player.tags && player.tags.length > 0 ? player.tags : [''],
@@ -187,6 +190,7 @@ const PlayerManagement = () => {
       start_date: '',
       position: '',
       bio: '',
+      hometown: '',
       image_url: '',
       jersey_number: '',
       tags: [''],
@@ -237,6 +241,7 @@ const PlayerManagement = () => {
       filtered = filtered.filter(p => 
         p.name.toLowerCase().includes(term) ||
         p.position.toLowerCase().includes(term) ||
+        (p.hometown ?? '').toLowerCase().includes(term) ||
         (p.tags && p.tags.some(tag => tag.toLowerCase().includes(term)))
       );
     }
@@ -532,6 +537,7 @@ const PlayerManagement = () => {
               
               <h3 className="font-bold text-xl mb-2">{player.first_name} {player.last_name}</h3>
               <p className="text-gray-600 mb-2">Age: {player.birthdate ? calculateAge(player.birthdate) : player.age || 'Unknown'}</p>
+              {player.hometown && <p className="text-gray-600 mb-2">From {player.hometown}</p>}
               {player.start_date && (
                 <p className="text-gray-600 mb-2">{getTenureDisplay(player.start_date)}</p>
               )}
@@ -584,6 +590,7 @@ const PlayerManagement = () => {
               </div>
               <h4 className="font-bold text-lg mb-1">#{player.jersey_number === 0 ? 'TBD' : player.jersey_number}</h4>
               <h3 className="font-semibold text-sm mb-1">{player.first_name} {player.last_name}</h3>
+              {player.hometown && <p className="mb-1 text-xs text-gray-600">From {player.hometown}</p>}
               <div className="flex items-center gap-1 mb-1">
                 <p className="text-xs text-gray-600">{player.position}</p>
                 <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${
@@ -703,6 +710,7 @@ const PlayerManagement = () => {
                         </div>
                         <div className="ml-4">
                           <div className="text-sm font-medium text-gray-900">{player.first_name} {player.last_name}</div>
+                          {player.hometown && <div className="text-xs text-gray-600">{player.hometown}</div>}
                         </div>
                       </div>
                     </td>
@@ -887,6 +895,24 @@ const PlayerManagement = () => {
                       <option value="Defense">Defense</option>
                       <option value="Goalie">Goalie</option>
                     </select>
+                  </div>
+
+                  {/* Free text on purpose: "Deptford, NJ", "Philadelphia" and
+                      "originally from Buffalo" are all things a coach will
+                      type, and a dropdown would just get in the way. Admin
+                      only — it is not on the public roster. */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Hometown
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.hometown}
+                      onChange={(e) => setFormData({ ...formData, hometown: e.target.value })}
+                      placeholder="Deptford, NJ"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-steel-blue focus:border-transparent outline-none"
+                    />
+                    <p className="mt-1 text-xs text-gray-500">Where they came from. Staff only.</p>
                   </div>
                 </div>
 
