@@ -375,7 +375,11 @@ const PlayerManagement = () => {
   }
 
   return (
-    <div className="space-y-6">
+    // text-gray-900: the site's global theme defaults body text to white
+    // (--wos-ink on :root, applied by `body`), and these cards are bg-white,
+    // so anything without its own colour renders white on white. The player
+    // names and jersey numbers were invisible. Same fix as ca741dc.
+    <div className="space-y-6 text-gray-900">
       {/* Active Column Missing Warning */}
       {activeColumnMissing && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
