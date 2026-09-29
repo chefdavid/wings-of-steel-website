@@ -612,6 +612,23 @@ export default function GameHighlightsManagement() {
   const getHighlightsForTournament = (tournamentId: string) =>
     highlights.filter(h => h.tournament_id === tournamentId);
 
+  // Split scheduled games into played and upcoming. The raw list is every game
+  // ever, oldest first, so the game that was just played sat below all of last
+  // season in a scrolling box and looked missing. Played games go first, newest
+  // first, so the one that needs a recap is at the top. "Today" is the rink's
+  // date (America/New_York); a game played today counts as played.
+  const todayIso = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/New_York',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date());
+  const gameDateOf = (game: Game) => game.game_date || game.date || '';
+  const playedGames = games
+    .filter(g => gameDateOf(g) && gameDateOf(g) <= todayIso)
+    .sort((a, b) => gameDateOf(b).localeCompare(gameDateOf(a)));
+  const upcomingGames = games.filter(g => !gameDateOf(g) || gameDateOf(g) > todayIso);
+
   if (gamesLoading || highlightsLoading || tournamentsLoading) {
     return <div className="p-6">Loading...</div>;
   }
@@ -619,7 +636,9 @@ export default function GameHighlightsManagement() {
   const showEditor = selectedGame || isStandalone;
 
   return (
-    <div className="max-w-7xl mx-auto p-6">
+    // text-gray-900: the site's global theme defaults body text to white, which
+    // every unstyled label here inherited — white on the white admin cards.
+    <div className="max-w-7xl mx-auto p-6 text-gray-900">
       <h1 className="text-3xl font-bold mb-6">Game Highlights Management</h1>
 
       {message && (
@@ -786,7 +805,7 @@ export default function GameHighlightsManagement() {
                           {isExpanded && (
                             <div className="p-1 space-y-1">
                               {tournamentHighlights.length === 0 ? (
-                                <div className="text-xs text-gray-400 p-2 text-center">No games yet</div>
+                                <div className="text-xs text-gray-600 p-2 text-center">No games yet</div>
                               ) : (
                                 tournamentHighlights.map((h) => (
                                   <button
@@ -795,14 +814,14 @@ export default function GameHighlightsManagement() {
                                     className={`w-full text-left p-2 rounded text-sm transition-colors ${
                                       currentHighlight?.id === h.id
                                         ? 'bg-steel-blue text-white'
-                                        : 'bg-gray-50 hover:bg-gray-100'
+                                        : 'bg-gray-50 text-gray-900 hover:bg-gray-100'
                                     }`}
                                   >
                                     <div className="font-semibold">
                                       vs {h.opponent || 'TBD'}
                                       {h.is_featured && <span className="ml-1 text-yellow-400">★</span>}
                                     </div>
-                                    <div className="text-xs opacity-80">
+                                    <div className={`text-xs ${currentHighlight?.id === h.id ? 'text-white' : 'text-gray-700'}`}>
                                       {h.game_date && new Date(h.game_date + 'T00:00:00').toLocaleDateString()}
                                       {h.final_score && ` · ${h.final_score}`}
                                     </div>
@@ -830,7 +849,7 @@ export default function GameHighlightsManagement() {
                         className={`w-full text-left p-3 rounded-lg transition-colors ${
                           currentHighlight?.id === h.id
                             ? 'bg-steel-blue text-white'
-                            : 'bg-gray-100 hover:bg-gray-200'
+                            : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
                         }`}
                       >
                         <div className="flex justify-between items-start">
@@ -839,7 +858,7 @@ export default function GameHighlightsManagement() {
                               vs {h.opponent || 'Unknown'}
                               {h.is_featured && <span className="ml-1 text-yellow-400">★</span>}
                             </div>
-                            <div className="text-sm opacity-80">
+                            <div className={`text-sm ${currentHighlight?.id === h.id ? 'text-white' : 'text-gray-700'}`}>
                               {h.game_date && new Date(h.game_date + 'T00:00:00').toLocaleDateString()}
                               {h.game_type && ` · ${h.game_type}`}
                             </div>
@@ -854,50 +873,65 @@ export default function GameHighlightsManagement() {
                 </div>
               )}
 
-              {/* Scheduled Games Section */}
-              <div>
-                <h3 className="text-sm font-bold text-steel-blue uppercase tracking-wide mb-2">Scheduled Games</h3>
-                <div className="space-y-1">
-                  {games.map((game) => {
-                    const hasHighlight = highlights.some((h) => h.game_id === game.id);
-                    const dateString = game.game_date || game.date || '';
-                    const gameDate = new Date(dateString + 'T00:00:00');
-                    const isPastGame = gameDate < new Date();
-                    const formattedDate = `${gameDate.getMonth() + 1}/${gameDate.getDate()}/${gameDate.getFullYear()}`;
+              {/* Scheduled Games — played first (newest on top), then upcoming */}
+              {[
+                { key: 'played', label: 'Played Games', list: playedGames, isPlayed: true },
+                { key: 'upcoming', label: 'Upcoming Games', list: upcomingGames, isPlayed: false },
+              ].map(({ key, label, list, isPlayed }) => list.length > 0 && (
+                <div key={key}>
+                  <h3 className="text-sm font-bold text-steel-blue uppercase tracking-wide mb-2">
+                    {label} <span className="text-gray-600 font-semibold">({list.length})</span>
+                  </h3>
+                  <div className="space-y-1">
+                    {list.map((game) => {
+                      const hasHighlight = highlights.some((h) => h.game_id === game.id);
+                      const dateString = gameDateOf(game);
+                      const gameDate = new Date(dateString + 'T00:00:00');
+                      const formattedDate = dateString
+                        ? `${gameDate.getMonth() + 1}/${gameDate.getDate()}/${gameDate.getFullYear()}`
+                        : 'Date TBD';
+                      const isSelected = selectedGame?.id === game.id;
 
-                    return (
-                      <button
-                        key={game.id}
-                        onClick={() => {
-                          setSelectedGame(game);
-                          setIsStandalone(false);
-                          setSelectedHighlight(null);
-                          setStandaloneFields(emptyStandaloneFields);
-                        }}
-                        className={`w-full text-left p-3 rounded-lg transition-colors ${
-                          selectedGame?.id === game.id
-                            ? 'bg-steel-blue text-white'
-                            : 'bg-gray-100 hover:bg-gray-200'
-                        }`}
-                      >
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <div className="font-semibold">vs {game.opponent}</div>
-                            <div className="text-sm opacity-80">{formattedDate}</div>
-                            {game.result && <div className="text-sm opacity-80">Score: {game.result}</div>}
+                      return (
+                        <button
+                          key={game.id}
+                          onClick={() => {
+                            setSelectedGame(game);
+                            setIsStandalone(false);
+                            setSelectedHighlight(null);
+                            setStandaloneFields(emptyStandaloneFields);
+                          }}
+                          className={`w-full text-left p-3 rounded-lg border transition-colors ${
+                            isSelected
+                              ? 'bg-steel-blue border-steel-blue text-white'
+                              : 'bg-gray-50 border-gray-200 text-gray-900 hover:bg-gray-100 hover:border-gray-300'
+                          }`}
+                        >
+                          <div className="flex justify-between items-start gap-2">
+                            <div>
+                              <div className="font-semibold">vs {game.opponent}</div>
+                              <div className={`text-sm ${isSelected ? 'text-white' : 'text-gray-700'}`}>
+                                {formattedDate}
+                                {isPlayed && ' · Played'}
+                              </div>
+                              {game.result && (
+                                <div className={`text-sm ${isSelected ? 'text-white' : 'text-gray-700'}`}>
+                                  Score: {game.result}
+                                </div>
+                              )}
+                            </div>
+                            {hasHighlight ? (
+                              <span className="shrink-0 bg-green-700 text-white text-xs font-semibold px-2 py-1 rounded">Has Highlight</span>
+                            ) : isPlayed ? (
+                              <span className="shrink-0 bg-amber-100 text-amber-900 text-xs font-semibold px-2 py-1 rounded">Needs Highlight</span>
+                            ) : null}
                           </div>
-                          {hasHighlight && (
-                            <span className="bg-green-500 text-white text-xs px-2 py-1 rounded">Has Highlight</span>
-                          )}
-                        </div>
-                        {!isPastGame && (
-                          <div className="text-xs mt-1 opacity-70">Upcoming Game</div>
-                        )}
-                      </button>
-                    );
-                  })}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
