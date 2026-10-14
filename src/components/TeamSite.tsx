@@ -2,6 +2,7 @@ import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { FaExclamationTriangle, FaTimes } from 'react-icons/fa';
 import Hero from './Hero';
+import NoPracticeBanner from './NoPracticeBanner';
 import NationalsBanner from './NationalsBanner';
 import TopgolfBanner from './TopgolfBanner';
 import LoadingSpinner from './LoadingSpinner';
@@ -75,6 +76,7 @@ const TeamSite: React.FC = () => {
 
   return (
     <>
+      <NoPracticeBanner />
       <NationalsBanner />
       <TopgolfBanner />
       <Hero />
