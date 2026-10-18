@@ -145,8 +145,9 @@ function PaymentForm({
 // used topgolf-youth / topgolf-adult and its registrations must not mix in.
 const EVENT_TAG = 'topgolf-oct-2026'
 const PRICE_PER_PERSON = 25
-// Registration cutoff: October 18, 2026 at 12:00 PM EDT (one week before the event)
-const REGISTRATION_CUTOFF = new Date('2026-10-18T12:00:00-04:00')
+// Registration cutoff: October 18, 2026 at 11:59:59 PM EDT. It was noon; David reopened sales
+// until midnight on 2026-10-18.
+const REGISTRATION_CUTOFF = new Date('2026-10-18T23:59:59-04:00')
 // Preset add-on donation amounts offered at checkout
 const DONATION_PRESETS = [10, 25, 50, 100]
 
