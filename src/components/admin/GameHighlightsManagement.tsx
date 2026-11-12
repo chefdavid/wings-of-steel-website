@@ -638,7 +638,10 @@ export default function GameHighlightsManagement() {
   return (
     // text-gray-900: the site's global theme defaults body text to white, which
     // every unstyled label here inherited — white on the white admin cards.
-    <div className="max-w-7xl mx-auto p-6 text-gray-900">
+    // colorScheme light: the global theme also sets `color-scheme: dark`, so the
+    // browser painted every input/select/textarea with a dark background. With
+    // the dark text above, typed values were dark-on-dark and unreadable.
+    <div className="max-w-7xl mx-auto p-6 text-gray-900" style={{ colorScheme: 'light' }}>
       <h1 className="text-3xl font-bold mb-6">Game Highlights Management</h1>
 
       {message && (
@@ -958,7 +961,7 @@ export default function GameHighlightsManagement() {
               {selectedGame && !isStandalone && (
                 <div className="mb-4 p-4 bg-gray-100 rounded-lg">
                   <h3 className="font-semibold">Game: Wings of Steel vs {selectedGame.opponent}</h3>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-800">
                     {(() => {
                       const dateString = selectedGame.game_date || selectedGame.date || '';
                       const gameDate = new Date(dateString + 'T00:00:00');
@@ -1205,7 +1208,7 @@ export default function GameHighlightsManagement() {
                   <div className="flex flex-wrap justify-between items-start gap-3 mb-3">
                     <div>
                       <label className="block font-semibold text-lg">Who played &amp; what they did</label>
-                      <p className="text-sm text-gray-600 mt-0.5">
+                      <p className="text-sm text-gray-700 mt-0.5">
                         Tick <strong>Played</strong> for everyone in the lineup — even if they did not score.
                         That is what lets the site count games played. Typing a number ticks it for you.
                       </p>
@@ -1278,7 +1281,7 @@ export default function GameHighlightsManagement() {
                                     <span className="inline-flex items-center justify-center min-w-[2rem] h-7 px-1.5 rounded-full bg-steel-blue text-white text-xs font-bold mr-2">
                                       {player.jersey_number ?? '—'}
                                     </span>
-                                    <span className={stat.played ? 'font-medium text-gray-900' : 'text-gray-500'}>
+                                    <span className={stat.played ? 'font-medium text-gray-900' : 'text-gray-700'}>
                                       {name}
                                     </span>
                                     {player.is_goalie && (
@@ -1305,7 +1308,7 @@ export default function GameHighlightsManagement() {
                           </tbody>
                         </table>
                       </div>
-                      <p className="mt-2 text-xs text-gray-500">
+                      <p className="mt-2 text-xs text-gray-700">
                         Saves are only editable for players marked as a goalie on the roster.
                         Unticking Played removes that player&rsquo;s line for this game.
                       </p>
@@ -1480,7 +1483,7 @@ function StatInput({
         disabled={disabled}
         value={value}
         onChange={(e) => onChange(parseInt(e.target.value, 10))}
-        className="w-16 px-2 py-1.5 border border-gray-300 rounded text-center disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+        className="w-16 px-2 py-1.5 border border-gray-300 rounded text-center bg-white text-gray-900 disabled:bg-gray-100 disabled:text-gray-600 disabled:cursor-not-allowed"
       />
     </td>
   );
