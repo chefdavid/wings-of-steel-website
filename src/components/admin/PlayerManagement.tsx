@@ -384,7 +384,10 @@ const PlayerManagement = () => {
     // (--wos-ink on :root, applied by `body`), and these cards are bg-white,
     // so anything without its own colour renders white on white. The player
     // names and jersey numbers were invisible. Same fix as ca741dc.
-    <div className="space-y-6 text-gray-900">
+    // colorScheme light: the theme also sets `color-scheme: dark`, so inputs with
+    // no background of their own were painted dark, hiding the dark text typed
+    // into them. Same fix as the Game Highlights admin (e5848f4).
+    <div className="space-y-6 text-gray-900" style={{ colorScheme: 'light' }}>
       {/* Active Column Missing Warning */}
       {activeColumnMissing && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
@@ -419,7 +422,7 @@ const PlayerManagement = () => {
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
           <h3 className="text-xl font-semibold text-gray-900">Team Roster Management</h3>
-          <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
+          <div className="flex items-center gap-4 mt-2 text-sm text-gray-700">
             <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full">
               {playerStats.active} Active
             </span>
@@ -493,7 +496,7 @@ const PlayerManagement = () => {
               <option value="active-asc">Status (Inactive First)</option>
             </select>
           </div>
-          <div className="text-sm text-gray-600 flex items-center">
+          <div className="text-sm text-gray-700 flex items-center">
             Showing {filteredAndSortedPlayers.length} of {players.length} players
           </div>
         </div>
@@ -531,15 +534,15 @@ const PlayerManagement = () => {
                       {player.active === false ? 'Inactive' : 'Active'}
                     </span>
                   </div>
-                  <p className="text-gray-600">{player.position}</p>
+                  <p className="text-gray-700">{player.position}</p>
                 </div>
               </div>
               
               <h3 className="font-bold text-xl mb-2">{player.first_name} {player.last_name}</h3>
-              <p className="text-gray-600 mb-2">Age: {player.birthdate ? calculateAge(player.birthdate) : player.age || 'Unknown'}</p>
-              {player.hometown && <p className="text-gray-600 mb-2">From {player.hometown}</p>}
+              <p className="text-gray-700 mb-2">Age: {player.birthdate ? calculateAge(player.birthdate) : player.age || 'Unknown'}</p>
+              {player.hometown && <p className="text-gray-700 mb-2">From {player.hometown}</p>}
               {player.start_date && (
-                <p className="text-gray-600 mb-2">{getTenureDisplay(player.start_date)}</p>
+                <p className="text-gray-700 mb-2">{getTenureDisplay(player.start_date)}</p>
               )}
               {player.tags && player.tags.length > 0 && (
                 <div className="flex flex-wrap gap-1 mb-2">
@@ -590,9 +593,9 @@ const PlayerManagement = () => {
               </div>
               <h4 className="font-bold text-lg mb-1">#{player.jersey_number === 0 ? 'TBD' : player.jersey_number}</h4>
               <h3 className="font-semibold text-sm mb-1">{player.first_name} {player.last_name}</h3>
-              {player.hometown && <p className="mb-1 text-xs text-gray-600">From {player.hometown}</p>}
+              {player.hometown && <p className="mb-1 text-xs text-gray-700">From {player.hometown}</p>}
               <div className="flex items-center gap-1 mb-1">
-                <p className="text-xs text-gray-600">{player.position}</p>
+                <p className="text-xs text-gray-700">{player.position}</p>
                 <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${
                   player.active === false 
                     ? 'bg-red-100 text-red-800' 
@@ -612,7 +615,7 @@ const PlayerManagement = () => {
                     </span>
                   ))}
                   {player.tags.length > 2 && (
-                    <span className="text-xs text-gray-500">+{player.tags.length - 2}</span>
+                    <span className="text-xs text-gray-700">+{player.tags.length - 2}</span>
                   )}
                 </div>
               )}
@@ -638,7 +641,7 @@ const PlayerManagement = () => {
               <thead className="bg-gray-50">
                 <tr>
                   <th 
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
                     onClick={() => handleSort('name')}
                   >
                     <div className="flex items-center gap-1">
@@ -647,7 +650,7 @@ const PlayerManagement = () => {
                     </div>
                   </th>
                   <th 
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
                     onClick={() => handleSort('jersey_number')}
                   >
                     <div className="flex items-center gap-1">
@@ -656,7 +659,7 @@ const PlayerManagement = () => {
                     </div>
                   </th>
                   <th 
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
                     onClick={() => handleSort('position')}
                   >
                     <div className="flex items-center gap-1">
@@ -665,7 +668,7 @@ const PlayerManagement = () => {
                     </div>
                   </th>
                   <th 
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
                     onClick={() => handleSort('age')}
                   >
                     <div className="flex items-center gap-1">
@@ -674,7 +677,7 @@ const PlayerManagement = () => {
                     </div>
                   </th>
                   <th 
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
                     onClick={() => handleSort('active')}
                   >
                     <div className="flex items-center gap-1">
@@ -682,9 +685,9 @@ const PlayerManagement = () => {
                       {getSortIcon('active')}
                     </div>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tags</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bio</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Tags</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Bio</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -710,7 +713,7 @@ const PlayerManagement = () => {
                         </div>
                         <div className="ml-4">
                           <div className="text-sm font-medium text-gray-900">{player.first_name} {player.last_name}</div>
-                          {player.hometown && <div className="text-xs text-gray-600">{player.hometown}</div>}
+                          {player.hometown && <div className="text-xs text-gray-700">{player.hometown}</div>}
                         </div>
                       </div>
                     </td>
@@ -741,7 +744,7 @@ const PlayerManagement = () => {
                           ))}
                         </div>
                       ) : (
-                        <span className="text-gray-400 text-sm">No tags</span>
+                        <span className="text-gray-600 text-sm">No tags</span>
                       )}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-700 max-w-xs truncate">{player.bio}</td>
@@ -856,7 +859,7 @@ const PlayerManagement = () => {
                       required
                     />
                     {formData.birthdate && (
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-xs text-gray-700 mt-1">
                         Age: {calculateAge(formData.birthdate)} years old
                       </p>
                     )}
@@ -874,7 +877,7 @@ const PlayerManagement = () => {
                       required
                     />
                     {formData.start_date && (
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-xs text-gray-700 mt-1">
                         {getTenureDisplay(formData.start_date)}
                       </p>
                     )}
@@ -912,7 +915,7 @@ const PlayerManagement = () => {
                       placeholder="Deptford, NJ"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-steel-blue focus:border-transparent outline-none"
                     />
-                    <p className="mt-1 text-xs text-gray-500">Where they came from. Staff only.</p>
+                    <p className="mt-1 text-xs text-gray-700">Where they came from. Staff only.</p>
                   </div>
                 </div>
 
@@ -933,7 +936,7 @@ const PlayerManagement = () => {
                       <div className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 transition-colors ${
                         formData.active === true 
                           ? 'border-green-500 bg-green-50 text-green-800' 
-                          : 'border-gray-300 bg-white text-gray-600 hover:border-green-300'
+                          : 'border-gray-300 bg-white text-gray-700 hover:border-green-300'
                       }`}>
                         <div className="w-3 h-3 rounded-full bg-green-500" />
                         <span className="font-medium">Active</span>
@@ -950,14 +953,14 @@ const PlayerManagement = () => {
                       <div className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 transition-colors ${
                         formData.active === false 
                           ? 'border-red-500 bg-red-50 text-red-800' 
-                          : 'border-gray-300 bg-white text-gray-600 hover:border-red-300'
+                          : 'border-gray-300 bg-white text-gray-700 hover:border-red-300'
                       }`}>
                         <div className="w-3 h-3 rounded-full bg-red-500" />
                         <span className="font-medium">Inactive</span>
                       </div>
                     </label>
                   </div>
-                  <p className="text-xs text-gray-500 mt-2">
+                  <p className="text-xs text-gray-700 mt-2">
                     Active players appear on the public website, inactive players are kept for historical records.
                   </p>
                   {editingPlayer && (
@@ -1036,7 +1039,7 @@ const PlayerManagement = () => {
                               onChange={(e) => updateContact(index, 'primary', e.target.checked)}
                               className="rounded"
                             />
-                            <span className={contact.primary ? 'text-steel-blue font-medium' : 'text-gray-600'}>
+                            <span className={contact.primary ? 'text-steel-blue font-medium' : 'text-gray-700'}>
                               Primary Contact
                             </span>
                           </label>
@@ -1149,7 +1152,7 @@ const PlayerManagement = () => {
                   ))}
                   
                   {formData.contacts.length === 0 && (
-                    <div className="text-center py-6 text-gray-500 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                    <div className="text-center py-6 text-gray-700 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
                       <p className="text-sm">No contacts added yet</p>
                       <p className="text-xs">Click "Add Contact" to add parent/guardian information</p>
                     </div>
@@ -1181,7 +1184,7 @@ const PlayerManagement = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-steel-blue focus:border-transparent outline-none"
                     placeholder="Special accommodations, disabilities, coaching notes, medical needs, equipment requirements, etc."
                   />
-                  <div className="mt-2 text-xs text-gray-500 bg-blue-50 p-2 rounded border border-blue-200">
+                  <div className="mt-2 text-xs text-gray-700 bg-blue-50 p-2 rounded border border-blue-200">
                     <p className="font-medium text-blue-800 mb-1">📝 Use this section for:</p>
                     <ul className="text-blue-700 space-y-0.5">
                       <li>• Disability accommodations or equipment needs</li>
