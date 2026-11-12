@@ -204,11 +204,11 @@ export default function PizzaPinsDashboard() {
     switch (status) {
       case 'completed':
       case 'succeeded':
-        return 'text-green-500 bg-green-500/20';
+        return 'text-green-800 bg-green-100';
       case 'pending':
-        return 'text-yellow-500 bg-yellow-500/20';
+        return 'text-yellow-800 bg-yellow-100';
       case 'failed':
-        return 'text-red-500 bg-red-500/20';
+        return 'text-red-800 bg-red-100';
       default:
         return 'text-gray-500 bg-gray-500/20';
     }
@@ -523,7 +523,7 @@ export default function PizzaPinsDashboard() {
                             {formatCurrency(registration.total_amount / 100)}
                           </div>
                           {registration.donation_amount > 0 && (
-                            <div className="text-xs text-green-400">
+                            <div className="text-xs text-green-700">
                               +{formatCurrency(registration.donation_amount / 100)} donation
                             </div>
                           )}
@@ -573,9 +573,9 @@ export default function PizzaPinsDashboard() {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-dark-steel rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            className="bg-white text-gray-900 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto"
           >
-            <div className="p-6 border-b border-steel-gray/30">
+            <div className="p-6 border-b border-gray-200">
               <div className="flex justify-between items-start">
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900">Registration Details</h2>
@@ -604,26 +604,26 @@ export default function PizzaPinsDashboard() {
             <div className="p-6 space-y-6">
               {/* Customer Information */}
               <div>
-                <h3 className="text-lg font-bebas text-ice-blue mb-3">Customer Information</h3>
+                <h3 className="text-lg font-bebas text-steel-blue mb-3">Customer Information</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-xs text-steel-gray">Name</p>
-                    <p className="text-white">{selectedRegistration.customer_name}</p>
+                    <p className="text-xs text-gray-600">Name</p>
+                    <p className="text-gray-900">{selectedRegistration.customer_name}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-steel-gray">Email</p>
-                    <p className="text-white">{selectedRegistration.customer_email}</p>
+                    <p className="text-xs text-gray-600">Email</p>
+                    <p className="text-gray-900">{selectedRegistration.customer_email}</p>
                   </div>
                   {selectedRegistration.customer_phone && (
                     <div>
-                      <p className="text-xs text-steel-gray">Phone</p>
-                      <p className="text-white">{selectedRegistration.customer_phone}</p>
+                      <p className="text-xs text-gray-600">Phone</p>
+                      <p className="text-gray-900">{selectedRegistration.customer_phone}</p>
                     </div>
                   )}
                   {selectedRegistration.customer_company && (
                     <div>
-                      <p className="text-xs text-steel-gray">Company</p>
-                      <p className="text-white">{selectedRegistration.customer_company}</p>
+                      <p className="text-xs text-gray-600">Company</p>
+                      <p className="text-gray-900">{selectedRegistration.customer_company}</p>
                     </div>
                   )}
                 </div>
@@ -631,19 +631,19 @@ export default function PizzaPinsDashboard() {
 
               {/* Order Details */}
               <div>
-                <h3 className="text-lg font-bebas text-ice-blue mb-3">Order Details</h3>
+                <h3 className="text-lg font-bebas text-steel-blue mb-3">Order Details</h3>
                 <div className="space-y-2">
                   <div className="flex justify-between">
-                    <span className="text-steel-gray">Package</span>
-                    <span className="text-white">{selectedRegistration.package_name}</span>
+                    <span className="text-gray-600">Package</span>
+                    <span className="text-gray-900">{selectedRegistration.package_name}</span>
                   </div>
                   {selectedRegistration.addons && selectedRegistration.addons.length > 0 && (
                     <div>
-                      <p className="text-steel-gray mb-1">Add-ons:</p>
+                      <p className="text-gray-600 mb-1">Add-ons:</p>
                       {selectedRegistration.addons.map((addon, idx) => (
                         <div key={idx} className="flex justify-between pl-4">
-                          <span className="text-sm text-steel-gray">{addon.name}</span>
-                          <span className="text-sm text-white">
+                          <span className="text-sm text-gray-600">{addon.name}</span>
+                          <span className="text-sm text-gray-900">
                             {formatCurrency((addon.price || 0) / 100)}
                           </span>
                         </div>
@@ -652,15 +652,15 @@ export default function PizzaPinsDashboard() {
                   )}
                   {selectedRegistration.donation_amount > 0 && (
                     <div className="flex justify-between">
-                      <span className="text-steel-gray">Donation</span>
-                      <span className="text-green-400">
+                      <span className="text-gray-600">Donation</span>
+                      <span className="text-green-700">
                         {formatCurrency(selectedRegistration.donation_amount / 100)}
                       </span>
                     </div>
                   )}
-                  <div className="flex justify-between pt-2 border-t border-steel-gray/30">
-                    <span className="text-white font-bold">Total</span>
-                    <span className="text-ice-blue font-bold">
+                  <div className="flex justify-between pt-2 border-t border-gray-200">
+                    <span className="text-gray-900 font-bold">Total</span>
+                    <span className="text-steel-blue font-bold">
                       {formatCurrency(selectedRegistration.total_amount / 100)}
                     </span>
                   </div>
@@ -670,8 +670,8 @@ export default function PizzaPinsDashboard() {
               {/* Team Members */}
               {selectedRegistration.team_members && (
                 <div>
-                  <h3 className="text-lg font-bebas text-ice-blue mb-3">Team Members</h3>
-                  <p className="text-white whitespace-pre-wrap bg-black/30 p-3 rounded">
+                  <h3 className="text-lg font-bebas text-steel-blue mb-3">Team Members</h3>
+                  <p className="text-gray-900 whitespace-pre-wrap bg-gray-100 p-3 rounded">
                     {selectedRegistration.team_members}
                   </p>
                 </div>
@@ -680,8 +680,8 @@ export default function PizzaPinsDashboard() {
               {/* Special Requests */}
               {selectedRegistration.special_requests && (
                 <div>
-                  <h3 className="text-lg font-bebas text-ice-blue mb-3">Special Requests</h3>
-                  <p className="text-white whitespace-pre-wrap bg-yellow-500/10 p-3 rounded">
+                  <h3 className="text-lg font-bebas text-steel-blue mb-3">Special Requests</h3>
+                  <p className="text-gray-900 whitespace-pre-wrap bg-yellow-50 p-3 rounded">
                     {selectedRegistration.special_requests}
                   </p>
                 </div>
@@ -689,28 +689,28 @@ export default function PizzaPinsDashboard() {
 
               {/* Payment Information */}
               <div>
-                <h3 className="text-lg font-bebas text-ice-blue mb-3">Payment Information</h3>
+                <h3 className="text-lg font-bebas text-steel-blue mb-3">Payment Information</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-xs text-steel-gray">Status</p>
+                    <p className="text-xs text-gray-600">Status</p>
                     <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-sm font-semibold ${getStatusColor(selectedRegistration.payment_status)}`}>
                       {getStatusIcon(selectedRegistration.payment_status)}
                       {selectedRegistration.payment_status}
                     </span>
                   </div>
                   <div>
-                    <p className="text-xs text-steel-gray">Payment ID</p>
-                    <p className="text-white text-sm font-mono">
+                    <p className="text-xs text-gray-600">Payment ID</p>
+                    <p className="text-gray-900 text-sm font-mono">
                       {selectedRegistration.payment_intent_id?.substring(0, 20)}...
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-steel-gray">Created</p>
-                    <p className="text-white">{formatDate(selectedRegistration.created_at)}</p>
+                    <p className="text-xs text-gray-600">Created</p>
+                    <p className="text-gray-900">{formatDate(selectedRegistration.created_at)}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-steel-gray">Updated</p>
-                    <p className="text-white">{formatDate(selectedRegistration.updated_at)}</p>
+                    <p className="text-xs text-gray-600">Updated</p>
+                    <p className="text-gray-900">{formatDate(selectedRegistration.updated_at)}</p>
                   </div>
                 </div>
               </div>

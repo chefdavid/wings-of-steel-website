@@ -137,7 +137,7 @@ const HeroSectionEditor = () => {
 
   const renderPreview = () => {
     return (
-      <div className="bg-gradient-to-b from-dark-steel to-black rounded-lg overflow-hidden">
+      <div className="bg-gradient-to-b from-dark-steel to-black rounded-lg overflow-hidden text-white">
         <div className="relative min-h-[400px] flex items-center justify-center p-8">
           <div className="text-center space-y-4 max-w-2xl">
             {/* Hockey Puck Icon */}

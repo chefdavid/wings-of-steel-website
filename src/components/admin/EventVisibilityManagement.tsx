@@ -205,7 +205,7 @@ const EventVisibilityManagement = () => {
         <p className="text-sm text-gray-500">
           Event Key: <code className="bg-gray-100 px-2 py-1 rounded">{event.event_key}</code>
         </p>
-        <p className="text-xs text-gray-400 mt-2">
+        <p className="text-xs text-gray-600 mt-2">
           Last updated: {new Date(event.updated_at).toLocaleString()}
         </p>
       </div>
@@ -359,7 +359,7 @@ const EventVisibilityManagement = () => {
               <div className="bg-white rounded-lg shadow overflow-hidden">
                 <div className="divide-y divide-gray-200">
                   {activeEvents.length === 0 ? (
-                    <div className="p-6 text-center text-gray-400">No active events</div>
+                    <div className="p-6 text-center text-gray-600">No active events</div>
                   ) : (
                     activeEvents.map((event) => renderEventRow(event))
                   )}

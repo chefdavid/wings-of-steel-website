@@ -335,7 +335,7 @@ const RegistrationManagement = () => {
                     <td className="px-4 py-3 text-sm text-gray-600 hidden md:table-cell">{reg.parent_name}</td>
                     <td className="px-4 py-3 hidden lg:table-cell">
                       <div className="text-sm text-gray-600">{reg.email}</div>
-                      <div className="text-xs text-gray-400">{reg.phone}</div>
+                      <div className="text-xs text-gray-600">{reg.phone}</div>
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-600 hidden lg:table-cell">
                       {experienceLabelMap[reg.experience_level] || reg.experience_level}

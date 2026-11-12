@@ -313,7 +313,7 @@ const GolfOutingAdmin = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-500 text-sm">Attempted</p>
-                <p className="text-2xl font-bold text-yellow-600">${stats.attemptedAmount.toFixed(2)}</p>
+                <p className="text-2xl font-bold text-yellow-700">${stats.attemptedAmount.toFixed(2)}</p>
               </div>
               <AlertCircle className="text-yellow-600" size={32} />
             </div>
@@ -440,7 +440,7 @@ const GolfOutingAdmin = () => {
                     {reg.payment_status !== 'completed' && (
                       <button
                         onClick={() => updatePaymentStatus(reg.id, 'completed')}
-                        className="text-green-600 hover:text-green-800 mr-3"
+                        className="text-green-700 hover:text-green-900 mr-3"
                       >
                         Mark Paid
                       </button>

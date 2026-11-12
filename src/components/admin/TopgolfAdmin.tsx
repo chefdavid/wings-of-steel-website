@@ -322,7 +322,7 @@ const TopgolfAdmin = () => {
               <div>
                 <p className="text-gray-500 text-sm">Total Revenue</p>
                 <p className="text-2xl font-bold text-dark-steel">{formatCurrency(stats.totalRevenue)}</p>
-                <p className="text-gray-400 text-xs mt-1">
+                <p className="text-gray-600 text-xs mt-1">
                   {formatCurrency(stats.ticketRevenue)} tickets
                   {stats.donationRevenue > 0 &&
                     ` + ${formatCurrency(stats.donationRevenue)} donations`}
@@ -354,7 +354,7 @@ const TopgolfAdmin = () => {
                   <p className="text-2xl font-bold text-dark-steel">
                     {formatCurrency(stats.donationRevenue)}
                   </p>
-                  <p className="text-gray-400 text-xs mt-1">
+                  <p className="text-gray-600 text-xs mt-1">
                     from {stats.donorCount} of {stats.totalRegistrations} buyers
                   </p>
                 </div>
@@ -470,7 +470,7 @@ const TopgolfAdmin = () => {
                           {formatCurrency(reg.addon_donation)}
                         </span>
                       ) : (
-                        <span className="text-gray-400">—</span>
+                        <span className="text-gray-500">—</span>
                       )}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">

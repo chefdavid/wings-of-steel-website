@@ -295,7 +295,11 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
         </header>
 
         {/* Content */}
-        <main className="flex-1 p-6 overflow-auto">
+        {/* Every admin screen renders in here. The site theme defaults text to
+            white and sets `color-scheme: dark`, which made unstyled text
+            white-on-white and form fields dark-on-dark on these light cards.
+            Setting both here fixes all screens at once. */}
+        <main className="flex-1 p-6 overflow-auto text-gray-900" style={{ colorScheme: 'light' }}>
           {renderContent()}
         </main>
       </div>

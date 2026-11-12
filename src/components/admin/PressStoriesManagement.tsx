@@ -258,7 +258,7 @@ export default function PressStoriesManagement() {
                         {s.is_published ? (
                           <span className="text-green-600 font-semibold">Live</span>
                         ) : (
-                          <span className="text-gray-400">Draft</span>
+                          <span className="text-gray-600">Draft</span>
                         )}
                       </div>
                     </div>
@@ -494,7 +494,7 @@ export default function PressStoriesManagement() {
           </p>
         )}
 
-        <div className="mt-4 text-xs text-gray-400">
+        <div className="mt-4 text-xs text-gray-600">
           Tip: After saving and publishing, refresh the home page to see the story under <strong>The Wings Press</strong>.
         </div>
 
