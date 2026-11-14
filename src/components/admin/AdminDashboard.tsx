@@ -16,10 +16,11 @@ import EventVisibilityManagement from './EventVisibilityManagement';
 import DonationManagement from './DonationManagement';
 import DonationGoalManagement from './DonationGoalManagement';
 import TopgolfAdmin from './TopgolfAdmin';
+import AlumniGameAdmin from './AlumniGameAdmin';
 import RegistrationManagement from './RegistrationManagement';
 import PressStoriesManagement from './PressStoriesManagement';
 
-type AdminSection = 'players' | 'coaches' | 'site-sections' | 'schedule' | 'game-highlights' | 'press-stories' | 'practice' | 'opponents' | 'settings' | 'batch-images' | 'golf-outing' | 'pizza-pins' | 'topgolf' | 'event-visibility' | 'donations' | 'donation-goals' | 'registrations';
+type AdminSection = 'players' | 'coaches' | 'site-sections' | 'schedule' | 'game-highlights' | 'press-stories' | 'practice' | 'opponents' | 'settings' | 'batch-images' | 'golf-outing' | 'pizza-pins' | 'topgolf' | 'alumni-game' | 'event-visibility' | 'donations' | 'donation-goals' | 'registrations';
 
 interface AdminDashboardProps {
   onLogout: () => void;
@@ -31,6 +32,7 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
   const [eventsExpanded, setEventsExpanded] = useState(true);
 
   const eventItems = [
+    { id: 'alumni-game' as AdminSection, label: 'Alumni Game Sign-Ups', icon: FaHockeyPuck },
     { id: 'pizza-pins' as AdminSection, label: 'Pizza Pins Sales', icon: FaPizzaSlice },
     { id: 'golf-outing' as AdminSection, label: 'Golf Outing', icon: FaGolfBall },
     { id: 'topgolf' as AdminSection, label: 'Topgolf', icon: FaGolfBall },
@@ -63,6 +65,8 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
         return <GolfOutingAdmin />;
       case 'topgolf':
         return <TopgolfAdmin />;
+      case 'alumni-game':
+        return <AlumniGameAdmin />;
       case 'event-visibility':
         return <EventVisibilityManagement />;
       case 'registrations':
