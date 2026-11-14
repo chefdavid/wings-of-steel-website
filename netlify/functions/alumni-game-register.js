@@ -5,7 +5,7 @@ import { createClient } from '@supabase/supabase-js';
 // the team and the person who signed up. A failed email never fails the
 // sign-up: the row is already saved.
 
-const TEAM_EMAILS = ['sjsledhockey@hotmail.com'];
+const TEAM_EMAILS = ['sjsledhockey@hotmail.com', 'kristigonzales1977@yahoo.com'];
 
 const EVENT = {
   name: '25th Anniversary Alumni Game',
