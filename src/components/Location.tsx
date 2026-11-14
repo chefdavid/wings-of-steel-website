@@ -86,10 +86,10 @@ const Location = () => {
 
   // Default data with CMS fallbacks
   const rinkInfo = {
-    name: locationData?.rink_name || "Flyers Skate Zone",
+    name: locationData?.rink_name || "Flyers Training Center",
     address: locationData?.address || "601 Laurel Oak Rd, Voorhees Township, NJ 08043",
-    phone: locationData?.phone || "(856) 751-9161",
-    website: locationData?.website || "https://flyersskatezone.com/",
+    phone: locationData?.phone || "(856) 309-4400",
+    website: locationData?.website || "https://www.flyerstrainingcenter.com/",
     googleMapsUrl: locationData?.google_maps_url || "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d12185.776868620458!2d-75.04284768459386!3d39.84582267943893!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c6dd4c3b1c1c3b%3A0x8e8e8e8e8e8e8e8e!2s601%20Laurel%20Oak%20Rd%2C%20Voorhees%20Township%2C%20NJ%2008043!5e0!3m2!1sen!2sus!4v1643000000000!5m2!1sen!2sus"
   };
 
@@ -474,7 +474,7 @@ const Location = () => {
                   <FaTimes className="w-5 h-5" />
                 </button>
                 
-                <h2 className="text-2xl font-bold text-gray-900 pr-10">Flyers Skate Zone</h2>
+                <h2 className="text-2xl font-bold text-gray-900 pr-10">Flyers Training Center</h2>
                 <p className="text-gray-600 mt-1">Home of Wings of Steel Sled Hockey</p>
               </div>
 
@@ -503,9 +503,9 @@ const Location = () => {
                       <FaPhone className="text-steel-blue" />
                       Contact
                     </h3>
-                    <p className="text-gray-700">Phone: (856) 751-9161</p>
+                    <p className="text-gray-700">Phone: (856) 309-4400</p>
                     <a 
-                      href="https://flyersskatezone.com/"
+                      href="https://www.flyerstrainingcenter.com/"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1 mt-2 text-blue-600 hover:text-blue-700 text-sm"

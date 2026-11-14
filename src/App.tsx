@@ -19,6 +19,7 @@ const LocalGallery = lazy(() => import('./pages/LocalGallery'))
 const GolfOuting = lazy(() => import('./pages/GolfOuting'))
 const HockeyForACause = lazy(() => import('./pages/HockeyForACause'))
 const TopGolf = lazy(() => import('./pages/TopGolf'))
+const AlumniGame = lazy(() => import('./pages/AlumniGame'))
 const JoinTeam = lazy(() => import('./pages/JoinTeam'))
 const PracticeSchedule = lazy(() => import('./pages/PracticeSchedule'))
 const Events = lazy(() => import('./pages/Events'))
@@ -87,6 +88,11 @@ function App() {
                 <Route path="/topgolf" element={
                   <ProtectedEventRoute eventKey="topgolf">
                     <TopGolf />
+                  </ProtectedEventRoute>
+                } />
+                <Route path="/alumni-game" element={
+                  <ProtectedEventRoute eventKey="alumni-game">
+                    <AlumniGame />
                   </ProtectedEventRoute>
                 } />
                 <Route path="/join-team" element={<JoinTeam />} />

@@ -82,10 +82,11 @@ const Schedule = () => {
   };
 
   const homeRink = {
-    name: 'Flyers Skate Zone',
+    // Renamed from Flyers Skate Zone. Phone and site checked against flyerstrainingcenter.com on 2026-11-14.
+    name: 'Flyers Training Center',
     address: '601 Laurel Oak Rd, Voorhees Township, NJ 08043',
-    phone: '(856) 751-9161',
-    website: 'https://flyersskatezone.com/'
+    phone: '(856) 309-4400',
+    website: 'https://www.flyerstrainingcenter.com/'
   };
 
   // The rinks the team still has to travel to, in schedule order and
@@ -457,6 +458,18 @@ const Schedule = () => {
                                 </p>
                               </div>
                             )}
+
+                            {/* The alumni game takes sign-ups on its own page. */}
+                            {game.game_type === 'Alumni Game' && game.status !== 'Cancelled' && (
+                              <div className="mt-3">
+                                <Link
+                                  to="/alumni-game"
+                                  className="inline-flex items-center gap-2 bg-red-700 hover:bg-red-800 text-white text-sm font-bold px-4 py-2 rounded-full transition-colors"
+                                >
+                                  Register for the Alumni Game
+                                </Link>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -682,7 +695,7 @@ const Schedule = () => {
               <div className="bg-gradient-to-r from-ice-blue/20 to-steel-blue/10 rounded-xl p-6 text-center">
                 <h4 className="font-bold text-lg text-dark-steel mb-2">
                   <FaHome className="inline mr-2 text-steel-blue" />
-                  Home Games - Flyers Skate Zone
+                  Home Games - Flyers Training Center
                 </h4>
                 <p className="text-gray-600 mb-3">601 Laurel Oak Rd, Voorhees Township, NJ 08043</p>
                 <a
@@ -859,7 +872,7 @@ const Schedule = () => {
                   <FaTimes className="w-5 h-5" aria-hidden="true" />
                 </button>
                 
-                <h2 className="text-2xl font-bold text-gray-900 pr-10">Flyers Skate Zone</h2>
+                <h2 className="text-2xl font-bold text-gray-900 pr-10">Flyers Training Center</h2>
                 <p className="text-gray-600 mt-1">Home of Wings of Steel Sled Hockey</p>
               </div>
 
@@ -888,9 +901,9 @@ const Schedule = () => {
                       <FaPhone className="text-steel-blue" />
                       Contact
                     </h3>
-                    <p className="text-gray-700">Phone: (856) 751-9161</p>
+                    <p className="text-gray-700">Phone: (856) 309-4400</p>
                     <a 
-                      href="https://flyersskatezone.com/"
+                      href="https://www.flyerstrainingcenter.com/"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1 mt-2 text-blue-600 hover:text-blue-700 text-sm"
