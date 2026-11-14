@@ -97,32 +97,81 @@ export const handler = async (event) => {
   }
 
   const fromEmail = process.env.RESEND_FROM_EMAIL || 'Wings of Steel <noreply@wingsofsteel.org>';
-  const row = (label, value) =>
-    value
-      ? `<tr><td style="padding:6px 12px 6px 0;color:#6b7280;vertical-align:top">${label}</td><td style="padding:6px 0;color:#111827">${escapeHtml(value)}</td></tr>`
-      : '';
+  const firstName = registration.full_name.split(/\s+/)[0];
+  const FONT = "font-family:Arial,Helvetica,sans-serif";
 
-  const teamHtml = `<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;color:#111827;line-height:1.5">
-    <h2 style="margin:0 0 4px">New Alumni Game sign-up</h2>
-    <p style="margin:0 0 16px;color:#6b7280">${EVENT.when}</p>
-    <table style="border-collapse:collapse;font-size:15px">
-      ${row('Name', registration.full_name)}
-      ${row('Phone', registration.phone)}
-      ${row('Email', registration.email)}
-      ${row('Shirt size', registration.shirt_size)}
-      ${row('Years played', registration.years_played)}
+  // Email clients ignore most CSS, so both emails are plain tables with inline
+  // styles: a 600px card, a navy header with a red rule, then the details.
+  const shell = (eyebrow, title, body) => `<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#eef1f5;${FONT}">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#eef1f5">
+  <tr><td align="center" style="padding:24px 12px">
+    <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:100%;max-width:600px;background:#ffffff;border-radius:12px;overflow:hidden">
+      <tr><td style="background:#0b1f3a;padding:28px 32px;border-bottom:5px solid #c8102e">
+        <div style="${FONT};font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#f2b84b;font-weight:bold">${eyebrow}</div>
+        <div style="${FONT};font-size:26px;line-height:1.2;color:#ffffff;font-weight:bold;margin-top:6px">${title}</div>
+      </td></tr>
+      <tr><td style="padding:28px 32px;${FONT};font-size:16px;line-height:1.6;color:#1f2937">${body}</td></tr>
+      <tr><td style="background:#f3f4f6;padding:18px 32px;${FONT};font-size:13px;line-height:1.5;color:#4b5563;text-align:center">
+        <strong style="color:#0b1f3a">Wings of Steel Sled Hockey</strong><br>
+        Celebrating 25 years &middot; <a href="https://wingsofsteel.org" style="color:#0b1f3a">wingsofsteel.org</a>
+      </td></tr>
     </table>
-    <p style="margin-top:16px;color:#6b7280;font-size:13px">Reply to this email to write back to ${escapeHtml(registration.full_name)}.</p>
-  </body></html>`;
+  </td></tr>
+</table>
+</body></html>`;
 
-  const confirmHtml = `<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;color:#111827;line-height:1.6">
-    <h2 style="margin:0 0 12px">You're signed up for the Alumni Game</h2>
-    <p>Hi ${escapeHtml(registration.full_name)},</p>
-    <p>Thanks for signing up for the Wings of Steel ${EVENT.name}. We have you down for a size ${escapeHtml(registration.shirt_size)} shirt.</p>
-    <p><strong>When:</strong> ${EVENT.when}<br><strong>Where:</strong> ${EVENT.where}</p>
-    <p>We'll be in touch by email with anything else you need to know before the game. If your plans change, just reply to this email.</p>
-    <p>Wings of Steel Sled Hockey</p>
-  </body></html>`;
+  const detailRow = (label, value, last) =>
+    `<tr>
+      <td style="padding:10px 16px;${FONT};font-size:13px;text-transform:uppercase;letter-spacing:1px;color:#6b7280;width:38%;vertical-align:top${last ? '' : ';border-bottom:1px solid #e5e7eb'}">${label}</td>
+      <td style="padding:10px 16px;${FONT};font-size:16px;color:#111827;font-weight:bold;vertical-align:top${last ? '' : ';border-bottom:1px solid #e5e7eb'}">${value}</td>
+    </tr>`;
+
+  const detailTable = (rows) =>
+    `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e5e7eb;border-radius:8px;margin:18px 0">${rows
+      .map(([label, value], i) => detailRow(label, value, i === rows.length - 1))
+      .join('')}</table>`;
+
+  const safe = {
+    name: escapeHtml(registration.full_name),
+    first: escapeHtml(firstName),
+    phone: escapeHtml(registration.phone),
+    email: escapeHtml(registration.email),
+    shirt: escapeHtml(registration.shirt_size),
+    years: escapeHtml(registration.years_played),
+  };
+
+  const teamHtml = shell(
+    'New sign-up',
+    '25th Anniversary Alumni Game',
+    `<p style="margin:0"><strong>${safe.name}</strong> just signed up to play.</p>
+     ${detailTable([
+       ['Name', safe.name],
+       ['Phone', `<a href="tel:${safe.phone}" style="color:#0b1f3a">${safe.phone}</a>`],
+       ['Email', `<a href="mailto:${safe.email}" style="color:#0b1f3a">${safe.email}</a>`],
+       ['Shirt size', safe.shirt],
+       ['Years played', safe.years],
+     ])}
+     <p style="margin:0;font-size:14px;color:#4b5563">Reply to this email to write back to ${safe.first}. The full list is in the website admin under Events, Alumni Game Sign-Ups.</p>`
+  );
+
+  const confirmHtml = shell(
+    "You're signed up",
+    '25th Anniversary Alumni Game',
+    `<p style="margin:0 0 12px">Hi ${safe.first},</p>
+     <p style="margin:0">Thanks for signing up for the Wings of Steel 25th Anniversary Alumni Game. We can't wait to see you back on the ice.</p>
+     ${detailTable([
+       ['When', 'Saturday, February 20, 2027<br>2:00 PM'],
+       ['Where', 'Flyers Training Center<br><span style="font-weight:normal">601 Laurel Oak Rd, Voorhees, NJ 08043</span>'],
+       ['Your shirt size', safe.shirt],
+     ])}
+     <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 20px"><tr><td style="background:#c8102e;border-radius:6px">
+       <a href="https://www.google.com/maps/dir/?api=1&amp;destination=Flyers%20Training%20Center%2C%20601%20Laurel%20Oak%20Rd%2C%20Voorhees%2C%20NJ%2008043" style="display:inline-block;padding:12px 22px;${FONT};font-size:15px;font-weight:bold;color:#ffffff;text-decoration:none">Get directions</a>
+     </td></tr></table>
+     <p style="margin:0 0 12px">This game honors Tom Brake and all of our players who are no longer with us.</p>
+     <p style="margin:0;font-size:14px;color:#4b5563">We'll email you anything else you need to know before the game. If your plans change, just reply to this email.</p>`
+  );
 
   try {
     const response = await fetch('https://api.resend.com/emails/batch', {
