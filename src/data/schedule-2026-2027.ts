@@ -6,8 +6,7 @@ import type { PracticeSchedule } from '../types/practice-schedule';
 // Games come from "Games 2026.2027.xlsx" (league master schedule), then the
 // revised schedule graphic dated 11.13.26, which moved the Alumni Game to
 // 2027-02-20, made 2026-12-20 the Families v. Kids game and holiday party,
-// and named 2027-02-28 as the Gloucester Catholic game. It also omits
-// 2027-02-14, which is kept below until the team confirms.
+// named 2027-02-28 as the Gloucester Catholic game and dropped 2027-02-14.
 // Practices come from the 2026-2027 team practice flyer.
 //
 // Every date below has been verified against its intended day of the week by
@@ -119,19 +118,9 @@ export const schedule2026_2027: Omit<Game, 'id'>[] = [
   },
 
   // February 2027
-  // 2027-02-14 is missing from the schedule revised 2026-11-13. It stays here
-  // as scheduled until the team confirms whether it is off.
-  {
-    game_date: '2027-02-14', // Sunday
-    game_time: '15:30',
-    opponent: 'TBD',
-    location: HOME_RINK,
-    home_away: 'home',
-    game_type: 'Regular',
-    notes: 'Flyers Ice. Opponent to be announced.',
-    season: SEASON_LABEL,
-    is_active: true
-  },
+  // The 2027-02-14 game is off: it is not on the schedule revised 2026-11-13
+  // and the owner deleted it in admin on 2026-11-14. Do not add it back here,
+  // or the bulk import will re-create it.
   {
     // game_type 'Alumni Game' is what makes the schedule card link to /alumni-game.
     game_date: '2027-02-20', // Saturday

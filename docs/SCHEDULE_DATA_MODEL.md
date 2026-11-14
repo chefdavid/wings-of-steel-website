@@ -278,7 +278,7 @@ Rows were updated in place so their UUIDs survive:
 | Date | Was | Now |
 |---|---|---|
 | 2026-12-20 | Alumni Game | Families v. Kids Game and Holiday Party (`Exhibition`) |
-| 2027-02-14 | TBD opponent | Not on the revised schedule. Left as scheduled until the team confirms whether it is off |
+| 2027-02-14 | TBD opponent | Dropped. The owner deleted the row in admin on 2026-11-14 (it had no recap, stats or photos) |
 | 2027-02-20 | TBD opponent | 25th Anniversary Alumni Game (`Alumni Game`) |
 | 2027-02-28 | TBD opponent | Gloucester Catholic Game (`Exhibition`) |
 
