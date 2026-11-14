@@ -270,6 +270,25 @@ range cannot. `useGameSchedule` and `useCurrentSeason` both compare
 4. Pre-existing DB row `2026-09-28` "Hammerheads / location TBD" was a
    placeholder off by one day; replaced by the verified `2026-09-27` game.
 
+### Revised schedule, 2026-11-13
+
+A revised schedule graphic ("Schedule-REVISED 11.13.26") replaced four entries.
+Rows were updated in place so their UUIDs survive:
+
+| Date | Was | Now |
+|---|---|---|
+| 2026-12-20 | Alumni Game | Families v. Kids Game and Holiday Party (`Exhibition`) |
+| 2027-02-14 | TBD opponent | Not on the revised schedule. Row kept, `status = 'Cancelled'` |
+| 2027-02-20 | TBD opponent | 25th Anniversary Alumni Game (`Alumni Game`) |
+| 2027-02-28 | TBD opponent | Gloucester Catholic Game (`Exhibition`) |
+
+`game_type = 'Alumni Game'` makes the schedule card show a link to
+`/alumni-game`, where the sign-up form lives.
+
+The revised graphic still lists 2026-10-10 vs Bennett Blazers, but the database
+had no row for that date on 2026-11-14. It was left alone: the date had passed
+and nobody had said whether the game was played.
+
 ### Known data issue: a duplicate Amelia Park recap
 
 `game_highlights` holds two near-identical published recaps of the 2026-03-29

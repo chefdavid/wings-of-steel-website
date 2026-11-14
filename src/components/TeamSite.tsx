@@ -5,6 +5,7 @@ import Hero from './Hero';
 import NoPracticeBanner from './NoPracticeBanner';
 import NationalsBanner from './NationalsBanner';
 import TopgolfBanner from './TopgolfBanner';
+import AlumniGameBanner from './AlumniGameBanner';
 import LoadingSpinner from './LoadingSpinner';
 import type { TeamType } from '../types/team';
 
@@ -79,6 +80,7 @@ const TeamSite: React.FC = () => {
       <NoPracticeBanner />
       <NationalsBanner />
       <TopgolfBanner />
+      <AlumniGameBanner />
       <Hero />
       <Suspense fallback={<div className="h-32" />}>
         <TodayGameCard />

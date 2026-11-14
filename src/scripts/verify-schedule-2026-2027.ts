@@ -29,7 +29,6 @@ const EXPECTED_GAME_DAYS: Record<string, string> = {
   '2026-11-28': 'Saturday',
   '2026-12-20': 'Sunday',
   '2027-01-30': 'Saturday',
-  '2027-02-14': 'Sunday',
   '2027-02-20': 'Saturday',
   '2027-02-27': 'Saturday',
   '2027-02-28': 'Sunday',

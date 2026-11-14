@@ -19,6 +19,19 @@ interface EventCard {
 
 const allEvents: EventCard[] = [
   {
+    key: 'alumni-game',
+    name: '25th Anniversary Alumni Game',
+    tagline: 'Celebrating 25 years of the Wings of Steel',
+    date: 'February 20, 2027 — 2:00 PM',
+    location: 'Flyers Training Center, Voorhees',
+    description:
+      'All players, past and present, who have ever played for the Wings of Steel are invited to lace up and take the ice. Honoring Tom Brake and all of our players who are no longer with us.',
+    href: '/alumni-game',
+    icon: <FaHockeyPuck className="text-3xl" />,
+    color: 'from-red-600 to-red-800',
+    image: '/images/alumni-game-poster.jpg',
+  },
+  {
     key: 'hockey-for-a-cause',
     name: 'Hockey for a Cause',
     tagline: 'Wings of Steel vs Gloucester Catholic',

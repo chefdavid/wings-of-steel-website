@@ -3,7 +3,10 @@ import type { PracticeSchedule } from '../types/practice-schedule';
 
 // Wings of Steel 2026-2027 Season
 //
-// Games come from "Games 2026.2027.xlsx" (league master schedule).
+// Games come from "Games 2026.2027.xlsx" (league master schedule), then the
+// revised schedule graphic dated 11.13.26, which moved the Alumni Game to
+// 2027-02-20, made 2026-12-20 the Families v. Kids game and holiday party,
+// named 2027-02-28 as the Gloucester Catholic game and dropped 2027-02-14.
 // Practices come from the 2026-2027 team practice flyer.
 //
 // Every date below has been verified against its intended day of the week by
@@ -93,11 +96,11 @@ export const schedule2026_2027: Omit<Game, 'id'>[] = [
   {
     game_date: '2026-12-20', // Sunday
     game_time: '12:10',
-    opponent: 'Wings of Steel Alumni',
+    opponent: 'Families',
     location: HOME_RINK,
     home_away: 'home',
-    game_type: 'Alumni Game',
-    notes: 'Annual Alumni Game on Flyers Ice Rink.',
+    game_type: 'Exhibition',
+    notes: 'Families v. Kids Game and Holiday Party. Flyers Ice Rink.',
     season: SEASON_LABEL,
     is_active: true
   },
@@ -115,25 +118,17 @@ export const schedule2026_2027: Omit<Game, 'id'>[] = [
   },
 
   // February 2027
+  // The 2027-02-14 game was dropped in the schedule revised 2026-11-13. Its
+  // database row is kept and marked Cancelled rather than deleted.
   {
-    game_date: '2027-02-14', // Sunday
-    game_time: '15:30',
-    opponent: 'TBD',
-    location: HOME_RINK,
-    home_away: 'home',
-    game_type: 'Regular',
-    notes: 'Flyers Ice. Opponent to be announced.',
-    season: SEASON_LABEL,
-    is_active: true
-  },
-  {
+    // game_type 'Alumni Game' is what makes the schedule card link to /alumni-game.
     game_date: '2027-02-20', // Saturday
     game_time: '14:00',
-    opponent: 'TBD',
+    opponent: 'Wings of Steel Alumni',
     location: HOME_RINK,
     home_away: 'home',
-    game_type: 'Regular',
-    notes: 'Flyers Ice. Opponent to be announced.',
+    game_type: 'Alumni Game',
+    notes: '25th Anniversary Alumni Game on Flyers Ice, honoring Tom Brake.',
     season: SEASON_LABEL,
     is_active: true
   },
@@ -162,11 +157,11 @@ export const schedule2026_2027: Omit<Game, 'id'>[] = [
   {
     game_date: '2027-02-28', // Sunday
     game_time: '14:00',
-    opponent: 'TBD',
+    opponent: 'Gloucester Catholic',
     location: HOME_RINK,
     home_away: 'home',
-    game_type: 'Regular',
-    notes: 'Flyers Ice. Opponent to be announced.',
+    game_type: 'Exhibition',
+    notes: 'Gloucester Catholic Game. Flyers Ice.',
     season: SEASON_LABEL,
     is_active: true
   },
