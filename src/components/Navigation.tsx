@@ -50,6 +50,7 @@ const Navigation = () => {
 
   // Lookup map for featured event CTA
   const featuredEventMeta: Record<string, { name: string; href: string }> = {
+    'alumni-game': { name: 'Alumni Game', href: '/alumni-game' },
     'topgolf': { name: 'Topgolf', href: '/topgolf' },
     'golf-outing': { name: 'Golf Outing', href: '/golf-outing' },
     'hockey-for-a-cause': { name: 'Hockey for a Cause', href: '/hockey-for-a-cause' },
@@ -134,6 +135,7 @@ const Navigation = () => {
           {
             title: 'Upcoming Events',
             items: [
+              { name: '25th Anniversary Alumni Game', href: '/alumni-game', isHashLink: false, description: 'Feb 20 — Register to play', eventKey: 'alumni-game' },
               { name: 'Topgolf Fundraiser', href: '/topgolf', isHashLink: false, description: 'Oct 25 — $25/person', eventKey: 'topgolf' },
               { name: 'Hockey for a Cause', href: '/hockey-for-a-cause', isHashLink: false, description: 'Mar 22 — Entry by Donation', eventKey: 'hockey-for-a-cause' },
               { name: 'Golf Outing', href: '/golf-outing', isHashLink: false, description: 'Tom Brake Memorial — Apr 2026', eventKey: 'golf-outing' },
