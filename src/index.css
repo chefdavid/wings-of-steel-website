@@ -341,6 +341,170 @@ body {
   line-height: 1;
 }
 
+/* Card back ("Cardboard"): cream stock, one blue ink. Markup is in
+   src/components/PlayerCardBack.tsx. */
+.pb-in {
+  position: absolute;
+  inset: 4.5cqw;
+  display: flex;
+  flex-direction: column;
+  gap: 3.4cqw;
+  padding: 4.5cqw;
+  overflow: hidden;
+  border: 1.3cqw solid var(--pc-navy);
+  color: var(--pc-navy-deep);
+  font-family: 'Oswald', 'Arial Narrow', sans-serif;
+}
+
+.pb-head {
+  display: flex;
+  align-items: center;
+  gap: 3.5cqw;
+}
+
+.pb-no {
+  flex: none;
+  width: 18cqw;
+  height: 18cqw;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--pc-navy);
+  color: #F8DA84;
+  font-family: 'Alfa Slab One', Rockwell, Georgia, serif;
+  font-size: 6.4cqw;
+  line-height: 1;
+}
+
+.pb-name {
+  min-width: 0;
+}
+
+.pb-name strong {
+  display: block;
+  font-family: 'Alfa Slab One', Rockwell, Georgia, serif;
+  font-weight: 400;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.pb-name span {
+  font-size: 3.4cqw;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.pb-facts {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  background: var(--pc-gold);
+  border: 0.8cqw solid var(--pc-navy);
+}
+
+.pb-facts div {
+  padding: 2cqw 0;
+  text-align: center;
+}
+
+.pb-facts div + div {
+  border-left: 0.8cqw solid var(--pc-navy);
+}
+
+.pb-facts dt {
+  font-size: 3cqw;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.pb-facts dd {
+  margin: 0;
+  font-family: 'Bebas Neue', 'Bebas Neue Fallback', 'Arial Narrow', sans-serif;
+  font-size: 10cqw;
+  line-height: 1;
+}
+
+.pb-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 3.9cqw;
+  font-variant-numeric: tabular-nums;
+}
+
+.pb-table th {
+  padding: 1.2cqw 0;
+  background: var(--pc-navy);
+  color: var(--pc-cream);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.pb-table td {
+  padding: 1.5cqw 0;
+  text-align: center;
+  border-bottom: 0.4cqw solid var(--pc-navy);
+}
+
+.pb-table th:first-child,
+.pb-table td:first-child {
+  padding-left: 2cqw;
+  text-align: left;
+}
+
+.pb-table .pb-total td {
+  font-weight: 600;
+  border-bottom: 0;
+}
+
+.pb-nogames {
+  margin: 0;
+  padding: 3cqw 0;
+  border-block: 0.4cqw solid var(--pc-navy);
+  font-size: 3.8cqw;
+  letter-spacing: 0.16em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+/* Clamped so a long bio can never push the footer off the card. */
+.pb-bio {
+  margin: 0;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  overflow: hidden;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  font-size: 4.1cqw;
+  line-height: 1.45;
+  text-align: left;
+}
+
+.pb-foot {
+  margin-top: auto;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 2cqw;
+}
+
+.pb-script {
+  font-family: 'Yellowtail', 'Brush Script MT', cursive;
+  font-size: 7.4cqw;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--pc-navy);
+}
+
+.pb-more {
+  font-size: 3.1cqw;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
 /* -------------------------------------------------------- accessibility */
 
 /*
