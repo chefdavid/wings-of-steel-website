@@ -12,11 +12,12 @@ import type { Player, Coach, PlayerWithTeams, CoachWithTeams } from '../types/da
 
 // Columns the public roster actually renders.
 //
-// This view also carries `contacts`, `emergency_contact`, `medical_info`,
-// `player_notes` (disability / special-needs / coaching notes) and `birthdate`.
-// The previous `select('*')` served every one of those to anonymous visitors,
-// and bloated the response to 1.97 MB — the single largest item on the
-// homepage per GTmetrix (2026-08-23).
+// The public roster reads this view, never `players`. Until 2026-11-23 the view
+// also carried `contacts`, `emergency_contact`, `medical_info`, `player_notes`
+// and `birthdate`; a `select('*')` once served all of that to anonymous
+// visitors (1.97 MB, GTmetrix 2026-08-23). Those columns are now gone from the
+// view itself, and `age` is worked out from birthdate inside the view, so the
+// site shows a current age without ever receiving a birthdate.
 //
 // Keep this list tight: anything added here becomes public. The columns below
 // are the live `player_team_details` schema as of 2026-08-23 — note it has no
