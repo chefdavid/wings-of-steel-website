@@ -41,6 +41,19 @@ const Team = () => {
     }
   }, [flippedCard]);
 
+  // Player cards on a phone are about 165px wide, which puts the stat table on
+  // the back at 6px type. So on touch devices a tap does not flip the small
+  // card: it lifts the back out at full width (see the overlay below), and the
+  // button under it opens the profile. Desktop keeps hover-to-flip.
+  const [zoomedPlayer, setZoomedPlayer] = useState<PlayerWithTeams | null>(null);
+  const handlePlayerClick = useCallback((player: PlayerWithTeams) => {
+    if (window.matchMedia('(hover: none)').matches) {
+      setZoomedPlayer(player);
+    } else {
+      setSelectedPlayer(player);
+    }
+  }, []);
+
   useEffect(() => {
     fetchCoaches();
   }, [currentTeam]);
@@ -136,7 +149,7 @@ const Team = () => {
                   tabIndex={0}
                   aria-label={`View ${player.first_name} ${player.last_name}'s full profile`}
                   className={`flip-card aspect-[5/7] w-full cursor-pointer rounded-card focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-surface focus-visible:ring-accent ${flippedCard === `player-${player.id}` ? 'flipped' : ''}`}
-                  onClick={() => handleCardClick(`player-${player.id}`, () => setSelectedPlayer(player))}
+                  onClick={() => handlePlayerClick(player)}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault();
@@ -290,6 +303,56 @@ const Team = () => {
       </section>
 
       {/* Player Modal */}
+      {/* Phone: the back of the tapped card, lifted out at a readable size. */}
+      <AnimatePresence>
+        {zoomedPlayer && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            role="dialog"
+            aria-modal="true"
+            aria-label={`${zoomedPlayer.first_name} ${zoomedPlayer.last_name}, back of card`}
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 bg-black/80 p-6"
+            onClick={() => setZoomedPlayer(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.8, rotateY: -90 }}
+              animate={{ scale: 1, rotateY: 0 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="player-card relative w-full max-w-[21rem] aspect-[5/7] rounded-card shadow-card overflow-hidden"
+            >
+              <PlayerCardBack
+                player={zoomedPlayer}
+                seasons={seasonTotals.filter((t) => t.player_id === zoomedPlayer.id)}
+              />
+            </motion.div>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                className="rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-accent-ink"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const player = zoomedPlayer;
+                  setZoomedPlayer(null);
+                  setSelectedPlayer(player);
+                }}
+              >
+                Full profile
+              </button>
+              <button
+                type="button"
+                className="rounded-full border border-white/40 px-5 py-2.5 text-sm font-semibold text-white"
+                onClick={() => setZoomedPlayer(null)}
+              >
+                Close
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <AnimatePresence>
         {selectedPlayer && (
           <motion.div
