@@ -39,3 +39,20 @@
   font-display: swap;
   src: url('/fonts/inter-500.woff2') format('woff2');
 }
+
+/* Player trading cards only (Team roster). `swap` so the card never renders blank. */
+@font-face {
+  font-family: 'Yellowtail';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/yellowtail-400.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Alfa Slab One';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/alfa-slab-one-400.woff2') format('woff2');
+}
