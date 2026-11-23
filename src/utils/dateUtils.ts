@@ -90,23 +90,28 @@ export function calculateYearsWithTeam(startDate: string | Date): number {
   return Math.max(0, years); // Ensure no negative years
 }
 
+/** 1 -> "1st", 2 -> "2nd", 11 -> "11th", 21 -> "21st". */
+function ordinal(n: number): string {
+  const suffixes = ['th', 'st', 'nd', 'rd'];
+  const v = n % 100;
+  return n + (suffixes[(v - 20) % 10] || suffixes[v] || suffixes[0]);
+}
+
+/**
+ * Which season with the team this is, as an ordinal: "1st", "7th".
+ * The season a player joins counts as their 1st.
+ */
+export function getTeamYearOrdinal(startDate: string): string {
+  return ordinal(calculateYearsWithTeam(startDate) + 1);
+}
+
 /**
  * Get years with team display string
  * @param startDate - ISO date string when person joined team
- * @returns string like "3 years with team" or "1st year" for new members
+ * @returns string like "1st year" or "7th year"
  */
 export function getYearsWithTeamDisplay(startDate: string): string {
-  const years = calculateYearsWithTeam(startDate);
-  
-  if (years === 0) {
-    return '1st year';
-  } else if (years === 1) {
-    return '2nd year';
-  } else if (years === 2) {
-    return '3rd year';
-  } else {
-    return `${years + 1}th year`;
-  }
+  return `${getTeamYearOrdinal(startDate)} year`;
 }
 
 /**

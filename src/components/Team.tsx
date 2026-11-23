@@ -8,6 +8,7 @@ import { getTeamCoaches } from '../utils/teamQueries';
 import { getAvatarUrl } from '../utils/avatar';
 import type { PlayerWithTeams, CoachWithTeams } from '../types/database';
 import PlayerStatsSection from './PlayerStatsSection';
+import PlayerCardFront from './PlayerCardFront';
 
 const Team = () => {
   const [selectedPlayer, setSelectedPlayer] = useState<PlayerWithTeams | null>(null);
@@ -126,27 +127,11 @@ const Team = () => {
                 viewport={{ once: true }}
                 className="relative"
               >
-                {/* Captain/Tags Badge */}
-                {player.tags && player.tags.length > 0 && (
-                  <div className="absolute -top-2 -right-2 sm:-top-3 sm:-right-3 z-20">
-                    {player.tags.map((tag, tagIndex) => (
-                      <div
-                        key={tagIndex}
-                        className={`bg-red-600 text-white text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full font-bold shadow-lg mb-0.5 sm:mb-1 ${
-                          tagIndex > 0 ? 'mt-0.5 sm:mt-1' : ''
-                        }`}
-                      >
-                        {tag}
-                      </div>
-                    ))}
-                  </div>
-                )}
-
                 <div
                   role="button"
                   tabIndex={0}
                   aria-label={`View ${player.first_name} ${player.last_name}'s full profile`}
-                  className={`flip-card h-56 sm:h-64 md:h-72 w-full cursor-pointer rounded-card focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-surface focus-visible:ring-accent ${flippedCard === `player-${player.id}` ? 'flipped' : ''}`}
+                  className={`flip-card aspect-[5/7] w-full cursor-pointer rounded-card focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-surface focus-visible:ring-accent ${flippedCard === `player-${player.id}` ? 'flipped' : ''}`}
                   onClick={() => handleCardClick(`player-${player.id}`, () => setSelectedPlayer(player))}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
@@ -157,25 +142,10 @@ const Team = () => {
                 >
                   <div className="flip-card-inner">
 
-                  {/* Front — Photo trading card */}
-                  <div className="flip-card-front rounded-card shadow-card overflow-hidden relative ring-1 ring-subtle">
-                    <img
-                      src={getAvatarUrl(player.image_url, player.first_name, player.last_name, '#4682B4', 320)}
-                      alt={`${player.first_name} ${player.last_name}`}
-                      className="w-full h-full object-cover"
-                    />
-                    {/* Gradient overlay at bottom */}
-                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent pt-16 pb-3 px-3">
-                      <h3 className="text-white font-bold text-sm sm:text-base md:text-lg leading-tight drop-shadow-lg">
-                        {player.first_name} {player.last_name}
-                      </h3>
-                      <div className="flex items-center justify-between mt-1">
-                        <p className="text-white/80 text-[10px] sm:text-xs">{player.position}</p>
-                        <span className="bg-team-primary text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full">
-                          #{player.jersey_number === 0 ? 'TBD' : player.jersey_number}
-                        </span>
-                      </div>
-                    </div>
+                  {/* Front — trading card. Captain letter, number and season
+                      with the team are all drawn on the card itself. */}
+                  <div className="flip-card-front player-card rounded-card shadow-card overflow-hidden">
+                    <PlayerCardFront player={player} />
                   </div>
 
                   {/* Back — Stats. aria-hidden: the front face and the card's
