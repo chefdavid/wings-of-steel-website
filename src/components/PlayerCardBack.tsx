@@ -36,6 +36,7 @@ const PlayerCardBack = ({ player, seasons }: PlayerCardBackProps) => {
   const ordered = [...seasons].sort((a, b) => (a.season_label || '').localeCompare(b.season_label || ''));
   const shown = ordered.slice(-MAX_SEASON_ROWS);
   const bio = player.bio?.trim();
+  const bioLines = shown.length >= 3 ? 2 : shown.length === 2 ? 3 : 4;
 
   return (
     <div className="pb-in">
@@ -120,7 +121,12 @@ const PlayerCardBack = ({ player, seasons }: PlayerCardBackProps) => {
         <p className="pb-nogames">First games coming up</p>
       )}
 
-      {bio && <p className="pb-bio">{bio}</p>}
+      {/* More stat rows leave less room: cap the bio so it never runs under the footer. */}
+      {bio && (
+        <p className="pb-bio" style={{ WebkitLineClamp: bioLines, lineClamp: bioLines }}>
+          {bio}
+        </p>
+      )}
 
       <div className="pb-foot">
         <span className="pb-script">No child pays to play</span>

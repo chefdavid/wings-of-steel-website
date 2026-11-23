@@ -348,7 +348,7 @@ body {
   inset: 4.5cqw;
   display: flex;
   flex-direction: column;
-  gap: 3.4cqw;
+  gap: 3cqw;
   padding: 4.5cqw;
   overflow: hidden;
   border: 1.3cqw solid var(--pc-navy);
@@ -428,6 +428,7 @@ body {
   width: 100%;
   border-collapse: collapse;
   font-size: 3.9cqw;
+  line-height: 1.2;
   font-variant-numeric: tabular-nums;
 }
 
@@ -441,7 +442,7 @@ body {
 }
 
 .pb-table td {
-  padding: 1.5cqw 0;
+  padding: 1.1cqw 0;
   text-align: center;
   border-bottom: 0.4cqw solid var(--pc-navy);
 }
@@ -474,6 +475,7 @@ body {
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 4;
   line-clamp: 4;
+  flex-shrink: 0;
   overflow: hidden;
   font-family: Georgia, 'Times New Roman', serif;
   font-style: italic;
