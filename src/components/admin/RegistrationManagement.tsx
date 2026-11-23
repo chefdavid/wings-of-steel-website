@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Download, Search, Eye, X, RefreshCw, CheckCircle, Clock, XCircle, Phone, Mail, MapPin, AlertTriangle } from 'lucide-react';
+import { Download, Search, Eye, X, RefreshCw, CheckCircle, Clock, XCircle, Phone, Mail, MapPin, AlertTriangle, UserPlus } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
 import { insertAdminPlayer } from '../../services/adminPlayersService';
 
@@ -373,20 +373,32 @@ const RegistrationManagement = () => {
               {filteredRegistrations.map(reg => {
                 const sc = statusConfig[reg.status] || statusConfig.pending;
                 return (
-                  <tr key={reg.id} className="hover:bg-gray-50">
+                  <tr
+                    key={reg.id}
+                    className="hover:bg-blue-50 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-steel-blue"
+                    tabIndex={0}
+                    title="Open this registration"
+                    onClick={() => setSelectedRegistration(reg)}
+                    onKeyDown={e => {
+                      if (e.target === e.currentTarget && (e.key === 'Enter' || e.key === ' ')) {
+                        e.preventDefault();
+                        setSelectedRegistration(reg);
+                      }
+                    }}
+                  >
                     <td className="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">
                       {new Date(reg.submitted_at).toLocaleDateString()}
                     </td>
                     <td className="px-4 py-3">
-                      <div className="text-sm font-medium text-gray-900">{reg.player_name}</div>
+                      <div className="text-sm font-medium text-steel-blue underline decoration-dotted underline-offset-2">{reg.player_name}</div>
                       <div className="text-xs text-gray-500">
                         Age {reg.date_of_birth ? calculateAge(reg.date_of_birth) : '?'}
                       </div>
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-600 hidden md:table-cell">{reg.parent_name}</td>
                     <td className="px-4 py-3 hidden lg:table-cell">
-                      <div className="text-sm text-gray-600">{reg.email}</div>
-                      <div className="text-xs text-gray-600">{reg.phone}</div>
+                      <a href={`mailto:${reg.email}`} onClick={e => e.stopPropagation()} className="block text-sm text-gray-600 hover:text-steel-blue hover:underline">{reg.email}</a>
+                      <a href={`tel:${reg.phone}`} onClick={e => e.stopPropagation()} className="block text-xs text-gray-600 hover:text-steel-blue hover:underline">{reg.phone}</a>
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-600 hidden lg:table-cell">
                       {experienceLabelMap[reg.experience_level] || reg.experience_level}
@@ -396,8 +408,21 @@ const RegistrationManagement = () => {
                         {sc.label}
                       </span>
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
                       <div className="flex items-center gap-1">
+                        {reg.status === 'active' ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-green-700 whitespace-nowrap">
+                            <CheckCircle className="w-4 h-4" /> On roster
+                          </span>
+                        ) : (
+                          <button
+                            onClick={() => { setSelectedRegistration(reg); updateStatus(reg.id, 'active'); }}
+                            className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-white bg-green-600 rounded-lg hover:bg-green-700 whitespace-nowrap"
+                            title="Add this player to the team roster"
+                          >
+                            <UserPlus className="w-4 h-4" /> Add to roster
+                          </button>
+                        )}
                         <button
                           onClick={() => setSelectedRegistration(reg)}
                           className="p-1.5 text-gray-500 hover:text-steel-blue hover:bg-blue-50 rounded"
@@ -458,6 +483,15 @@ const RegistrationManagement = () => {
               <div className="p-6 space-y-6">
                 {/* Status Update */}
                 <div>
+                  {selectedRegistration.status !== 'active' && confirmingActive !== selectedRegistration.id && (
+                    <button
+                      disabled={updating}
+                      onClick={() => updateStatus(selectedRegistration.id, 'active')}
+                      className="mb-4 inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-50"
+                    >
+                      <UserPlus className="w-4 h-4" /> Add to team roster
+                    </button>
+                  )}
                   <label className="block text-sm font-medium text-gray-700 mb-2">Update Status</label>
                   <div className="flex flex-wrap gap-2">
                     {Object.entries(statusConfig).map(([key, config]) => (
