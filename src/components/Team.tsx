@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { FaTimes, FaHockeyPuck, FaBirthdayCake } from 'react-icons/fa';
 import { useTeamRoster } from '../hooks';
 import { useTeam } from '../hooks/useTeam';
-import { calculateAge, getYearsWithTeamDisplay } from '../utils/dateUtils';
+import { getYearsWithTeamDisplay } from '../utils/dateUtils';
 import { getTeamCoaches } from '../utils/teamQueries';
 import { getAvatarUrl } from '../utils/avatar';
 import type { PlayerWithTeams, CoachWithTeams } from '../types/database';
@@ -190,7 +190,7 @@ const Team = () => {
                       />
                       <p className="font-bold text-xs sm:text-sm md:text-lg mb-0.5 sm:mb-1">{player.first_name} {player.last_name}</p>
                       <p className="text-xs sm:text-sm md:text-base font-semibold">#{player.jersey_number === 0 ? 'TBD' : player.jersey_number}</p>
-                      <p className="text-[10px] sm:text-xs text-ice-blue mt-0.5 sm:mt-1">{player.position} {player.birthdate ? `\u2022 Age ${calculateAge(player.birthdate)}` : ''}</p>
+                      <p className="text-[10px] sm:text-xs text-ice-blue mt-0.5 sm:mt-1">{player.position} {player.age ? `\u2022 Age ${player.age}` : ''}</p>
                       {player.start_date && (
                         <p className="text-[10px] sm:text-xs text-yellow-300 mt-0.5">{getYearsWithTeamDisplay(player.start_date)}</p>
                       )}
@@ -388,7 +388,7 @@ const Team = () => {
                       <FaBirthdayCake className="text-steel-blue text-xl" />
                       <div>
                         <p className="font-semibold">Age</p>
-                        <p className="text-gray-600">{selectedPlayer.birthdate ? calculateAge(selectedPlayer.birthdate) : selectedPlayer.age || 'Unknown'} years old</p>
+                        <p className="text-gray-600">{selectedPlayer.age ? `${selectedPlayer.age} years old` : 'Unknown'}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
