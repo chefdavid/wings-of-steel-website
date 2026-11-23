@@ -275,7 +275,7 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
       </motion.div>
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 min-w-0 flex flex-col">
         {/* Header */}
         <header className="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
           <div className="flex items-center justify-between">
@@ -303,7 +303,7 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
             white and sets `color-scheme: dark`, which made unstyled text
             white-on-white and form fields dark-on-dark on these light cards.
             Setting both here fixes all screens at once. */}
-        <main className="flex-1 p-6 overflow-auto text-gray-900" style={{ colorScheme: 'light' }}>
+        <main className="flex-1 p-3 sm:p-6 overflow-auto text-gray-900" style={{ colorScheme: 'light' }}>
           {renderContent()}
         </main>
       </div>

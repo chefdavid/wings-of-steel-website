@@ -66,6 +66,15 @@ body {
   color: var(--wos-ink);
 }
 
+/*
+ * Slide-in animations start 30-50px off to one side, which made phones scroll
+ * sideways until each block had animated in. `clip` (not `hidden`) so #root
+ * does not become a scroll container and sticky headers keep working.
+ */
+#root {
+  overflow-x: clip;
+}
+
 * {
   box-sizing: border-box;
 }
