@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Download, Search, Eye, X, RefreshCw, CheckCircle, Clock, XCircle, Phone, Mail, MapPin, AlertTriangle, UserPlus } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
 import { insertAdminPlayer } from '../../services/adminPlayersService';
@@ -22,7 +22,38 @@ interface Registration {
   how_heard: string | null;
   submitted_at: string;
   status: 'pending' | 'contacted' | 'scheduled' | 'active' | 'declined';
+  /** Every sign-up for this child, newest first. Set on consolidated rows only. */
+  signups?: Registration[];
 }
+
+// Families often send the form more than once. Same child = same name and birthdate.
+const childKey = (r: Registration) =>
+  `${r.player_name.trim().replace(/\s+/g, ' ').toLowerCase()}|${r.date_of_birth}`;
+
+// One status for a child with several sign-ups: the furthest any of them got,
+// otherwise whatever the newest one says.
+const combinedStatus = (signups: Registration[]): Registration['status'] => {
+  for (const status of ['active', 'scheduled', 'contacted'] as const) {
+    if (signups.some(r => r.status === status)) return status;
+  }
+  return signups[0].status;
+};
+
+/** One row per child: the newest sign-up, carrying the older ones along. */
+const consolidate = (rows: Registration[]): Registration[] => {
+  const byChild = new Map<string, Registration[]>();
+  for (const r of rows) {
+    const list = byChild.get(childKey(r));
+    if (list) list.push(r);
+    else byChild.set(childKey(r), [r]);
+  }
+  return [...byChild.values()]
+    .map(list => {
+      const signups = [...list].sort((a, b) => b.submitted_at.localeCompare(a.submitted_at));
+      return { ...signups[0], status: combinedStatus(signups), signups };
+    })
+    .sort((a, b) => b.submitted_at.localeCompare(a.submitted_at));
+};
 
 const experienceLabelMap: Record<string, string> = {
   beginner: 'No Experience / Beginner',
@@ -98,6 +129,9 @@ const RegistrationManagement = () => {
     fetchRegistrations();
   }, []);
 
+  // Everything below works on one row per child, not one per form sent.
+  const children = useMemo(() => consolidate(registrations), [registrations]);
+
   const addPlayerToRoster = async (reg: Registration, form: RosterForm) => {
     const jerseyNumber = form.jerseyNumber === '' ? 0 : parseInt(form.jerseyNumber, 10);
     const position = form.position || 'TBD';
@@ -169,7 +203,7 @@ const RegistrationManagement = () => {
   };
 
   const updateStatus = async (id: string, newStatus: string) => {
-    const reg = registrations.find(r => r.id === id);
+    const reg = children.find(r => r.id === id);
 
     // Already on the roster: clicking Active Player again must not add a second copy.
     if (newStatus === 'active' && reg?.status === 'active') return;
@@ -190,7 +224,9 @@ const RegistrationManagement = () => {
   };
 
   const performStatusUpdate = async (id: string, newStatus: string) => {
-    const reg = registrations.find(r => r.id === id);
+    const reg = children.find(r => r.id === id);
+    // A status change covers every sign-up for this child, so none is left behind as pending.
+    const ids = reg?.signups?.map(r => r.id) ?? [id];
     setUpdating(true);
     setSuccessMessage(null);
     try {
@@ -202,12 +238,12 @@ const RegistrationManagement = () => {
       const { error } = await supabase
         .from('team_registrations')
         .update({ status: newStatus })
-        .eq('id', id);
+        .in('id', ids);
 
       if (error) throw error;
 
       setRegistrations(prev =>
-        prev.map(r => (r.id === id ? { ...r, status: newStatus as Registration['status'] } : r))
+        prev.map(r => (ids.includes(r.id) ? { ...r, status: newStatus as Registration['status'] } : r))
       );
 
       if (selectedRegistration?.id === id) {
@@ -246,7 +282,7 @@ const RegistrationManagement = () => {
       );
   const fieldClass = 'w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-900 bg-white focus:ring-2 focus:ring-steel-blue focus:border-transparent outline-none';
 
-  const filteredRegistrations = registrations.filter(r => {
+  const filteredRegistrations = children.filter(r => {
     const matchesSearch =
       !searchTerm ||
       r.player_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -257,9 +293,10 @@ const RegistrationManagement = () => {
   });
 
   const exportToCSV = () => {
-    const headers = ['Submitted', 'Player Name', 'Age', 'Parent Name', 'Email', 'Phone', 'City', 'State', 'Experience', 'Diagnosis', 'Status', 'How Heard'];
+    const headers = ['Submitted', 'Sign-ups', 'Player Name', 'Age', 'Parent Name', 'Email', 'Phone', 'City', 'State', 'Experience', 'Diagnosis', 'Status', 'How Heard'];
     const rows = filteredRegistrations.map(r => [
       new Date(r.submitted_at).toLocaleDateString(),
+      (r.signups?.length ?? 1).toString(),
       r.player_name,
       r.date_of_birth ? calculateAge(r.date_of_birth).toString() : '',
       r.parent_name,
@@ -282,7 +319,7 @@ const RegistrationManagement = () => {
     URL.revokeObjectURL(url);
   };
 
-  const statusCounts = registrations.reduce(
+  const statusCounts = children.reduce(
     (acc, r) => {
       acc[r.status] = (acc[r.status] || 0) + 1;
       return acc;
@@ -360,13 +397,13 @@ const RegistrationManagement = () => {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Player</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden md:table-cell">Parent</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden lg:table-cell">Contact</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden lg:table-cell">Experience</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                <th className="px-2 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden sm:table-cell">Date</th>
+                <th className="px-2 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Player</th>
+                <th className="px-2 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden md:table-cell">Parent</th>
+                <th className="px-2 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden lg:table-cell">Contact</th>
+                <th className="px-2 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden lg:table-cell">Experience</th>
+                <th className="px-2 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                <th className="px-2 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -386,29 +423,35 @@ const RegistrationManagement = () => {
                       }
                     }}
                   >
-                    <td className="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">
+                    <td className="px-2 sm:px-4 py-3 text-sm text-gray-600 whitespace-nowrap hidden sm:table-cell">
                       {new Date(reg.submitted_at).toLocaleDateString()}
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-2 sm:px-4 py-3">
                       <div className="text-sm font-medium text-steel-blue underline decoration-dotted underline-offset-2">{reg.player_name}</div>
                       <div className="text-xs text-gray-500">
                         Age {reg.date_of_birth ? calculateAge(reg.date_of_birth) : '?'}
+                        <span className="sm:hidden"> &middot; {new Date(reg.submitted_at).toLocaleDateString()}</span>
                       </div>
+                      {(reg.signups?.length ?? 1) > 1 && (
+                        <div className="mt-0.5 text-xs text-gray-500 whitespace-nowrap">
+                          Signed up {reg.signups!.length} times
+                        </div>
+                      )}
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-600 hidden md:table-cell">{reg.parent_name}</td>
-                    <td className="px-4 py-3 hidden lg:table-cell">
+                    <td className="px-2 sm:px-4 py-3 text-sm text-gray-600 hidden md:table-cell">{reg.parent_name}</td>
+                    <td className="px-2 sm:px-4 py-3 hidden lg:table-cell">
                       <a href={`mailto:${reg.email}`} onClick={e => e.stopPropagation()} className="block text-sm text-gray-600 hover:text-steel-blue hover:underline">{reg.email}</a>
                       <a href={`tel:${reg.phone}`} onClick={e => e.stopPropagation()} className="block text-xs text-gray-600 hover:text-steel-blue hover:underline">{reg.phone}</a>
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-600 hidden lg:table-cell">
+                    <td className="px-2 sm:px-4 py-3 text-sm text-gray-600 hidden lg:table-cell">
                       {experienceLabelMap[reg.experience_level] || reg.experience_level}
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap">
+                    <td className="px-2 sm:px-4 py-3 whitespace-nowrap">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${sc.color}`}>
                         {sc.label}
                       </span>
                     </td>
-                    <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
+                    <td className="px-2 sm:px-4 py-3" onClick={e => e.stopPropagation()}>
                       <div className="flex items-center gap-1">
                         {reg.status === 'active' ? (
                           <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-green-700 whitespace-nowrap">
@@ -420,26 +463,26 @@ const RegistrationManagement = () => {
                             className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-white bg-green-600 rounded-lg hover:bg-green-700 whitespace-nowrap"
                             title="Add this player to the team roster"
                           >
-                            <UserPlus className="w-4 h-4" /> Add to roster
+                            <UserPlus className="w-4 h-4" /> Add<span className="hidden min-[380px]:inline"> to roster</span>
                           </button>
                         )}
                         <button
                           onClick={() => setSelectedRegistration(reg)}
-                          className="p-1.5 text-gray-500 hover:text-steel-blue hover:bg-blue-50 rounded"
+                          className="hidden sm:block p-1.5 text-gray-500 hover:text-steel-blue hover:bg-blue-50 rounded"
                           title="View details"
                         >
                           <Eye className="w-4 h-4" />
                         </button>
                         <a
                           href={`mailto:${reg.email}`}
-                          className="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded"
+                          className="hidden sm:block p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded"
                           title="Send email"
                         >
                           <Mail className="w-4 h-4" />
                         </a>
                         <a
                           href={`tel:${reg.phone}`}
-                          className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded"
+                          className="hidden sm:block p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded"
                           title="Call"
                         >
                           <Phone className="w-4 h-4" />
@@ -612,6 +655,29 @@ const RegistrationManagement = () => {
                     </div>
                   )}
                 </div>
+
+                {/* Repeat sign-ups for the same child */}
+                {(selectedRegistration.signups?.length ?? 1) > 1 && (
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">
+                      Signed up {selectedRegistration.signups!.length} times
+                    </h3>
+                    <p className="text-xs text-gray-500 mb-2">
+                      The details below are from the newest form. A status change applies to all of them.
+                    </p>
+                    <ul className="space-y-2">
+                      {selectedRegistration.signups!.map((s, i) => (
+                        <li key={s.id} className="text-sm text-gray-900">
+                          <span className="font-medium">{new Date(s.submitted_at).toLocaleDateString()}</span>
+                          {i === 0 && <span className="text-gray-500"> (newest)</span>}
+                          {i > 0 && s.additional_info && s.additional_info !== selectedRegistration.additional_info && (
+                            <p className="text-gray-600 mt-0.5">Notes on this form: {s.additional_info}</p>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
 
                 {/* Parent/Guardian */}
                 <div className="grid md:grid-cols-2 gap-4">
