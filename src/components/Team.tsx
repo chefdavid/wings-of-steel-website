@@ -9,6 +9,8 @@ import { getAvatarUrl } from '../utils/avatar';
 import type { PlayerWithTeams, CoachWithTeams } from '../types/database';
 import PlayerStatsSection from './PlayerStatsSection';
 import PlayerCardFront from './PlayerCardFront';
+import PlayerCardBack from './PlayerCardBack';
+import { usePlayerSeasonTotals } from '../hooks/useStats';
 
 const Team = () => {
   const [selectedPlayer, setSelectedPlayer] = useState<PlayerWithTeams | null>(null);
@@ -18,6 +20,8 @@ const Team = () => {
   const [flippedCard, setFlippedCard] = useState<string | null>(null);
   const { players, loading, error, refetch } = useTeamRoster();
   const { currentTeam, teamConfig } = useTeam();
+  // Every season's totals in one request, for the stat table on the card backs.
+  const { players: seasonTotals } = usePlayerSeasonTotals(null);
 
   // Handle card tap on mobile: first tap flips, second tap opens modal
   const handleCardClick = useCallback((id: string, openModal: () => void) => {
@@ -148,24 +152,15 @@ const Team = () => {
                     <PlayerCardFront player={player} />
                   </div>
 
-                  {/* Back — Stats. aria-hidden: the front face and the card's
-                      accessible name already announce this player, so exposing
-                      the back too made screen readers read the roster twice. */}
-                  <div aria-hidden="true" className="flip-card-back bg-gradient-to-br from-team-primary to-team-secondary rounded-xl shadow-xl p-3 sm:p-4 md:p-6 flex items-center justify-center">
-                    <div className="text-center text-white">
-                      <img
-                        src={getAvatarUrl(player.image_url, player.first_name, player.last_name, '#4682B4', 128)}
-                        alt={`${player.first_name} ${player.last_name}`}
-                        className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-full mx-auto mb-2 sm:mb-3 border-2 sm:border-3 md:border-4 border-white shadow-lg object-cover"
-                      />
-                      <p className="font-bold text-xs sm:text-sm md:text-lg mb-0.5 sm:mb-1">{player.first_name} {player.last_name}</p>
-                      <p className="text-xs sm:text-sm md:text-base font-semibold">#{player.jersey_number === 0 ? 'TBD' : player.jersey_number}</p>
-                      <p className="text-[10px] sm:text-xs text-ice-blue mt-0.5 sm:mt-1">{player.position} {player.age ? `\u2022 Age ${player.age}` : ''}</p>
-                      {player.start_date && (
-                        <p className="text-[10px] sm:text-xs text-yellow-300 mt-0.5">{getYearsWithTeamDisplay(player.start_date)}</p>
-                      )}
-                      <p className="text-[10px] sm:text-xs text-yellow-400 mt-1 sm:mt-2">See full profile</p>
-                    </div>
+                  {/* Back — card back with the stat table. aria-hidden: the
+                      front face and the card's accessible name already
+                      announce this player, so exposing the back too made
+                      screen readers read the roster twice. */}
+                  <div aria-hidden="true" className="flip-card-back player-card rounded-card shadow-card overflow-hidden">
+                    <PlayerCardBack
+                      player={player}
+                      seasons={seasonTotals.filter((t) => t.player_id === player.id)}
+                    />
                   </div>
                 </div>
                 </div>
