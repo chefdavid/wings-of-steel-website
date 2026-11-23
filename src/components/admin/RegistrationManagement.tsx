@@ -39,6 +39,32 @@ const statusConfig: Record<string, { label: string; color: string; icon: typeof 
   declined: { label: 'Declined', color: 'bg-red-100 text-red-800', icon: XCircle },
 };
 
+type TeamType = 'youth' | 'adult';
+
+interface RosterForm {
+  startDate: string;
+  jerseyNumber: string;
+  position: string;
+  teamType: TeamType;
+}
+
+interface RosterNumber {
+  first_name: string;
+  last_name: string;
+  team_type: TeamType;
+  team_jersey_number: number | null;
+}
+
+// Local calendar date, not UTC: toISOString() rolls over to tomorrow in the evening.
+const todayLocal = () => new Date().toLocaleDateString('en-CA');
+
+const emptyRosterForm = (): RosterForm => ({
+  startDate: todayLocal(),
+  jerseyNumber: '',
+  position: '',
+  teamType: 'youth',
+});
+
 const RegistrationManagement = () => {
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [loading, setLoading] = useState(true);
@@ -48,6 +74,8 @@ const RegistrationManagement = () => {
   const [updating, setUpdating] = useState(false);
   const [confirmingActive, setConfirmingActive] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [rosterForm, setRosterForm] = useState<RosterForm>(emptyRosterForm);
+  const [rosterNumbers, setRosterNumbers] = useState<RosterNumber[]>([]);
 
   const fetchRegistrations = async () => {
     try {
@@ -70,7 +98,10 @@ const RegistrationManagement = () => {
     fetchRegistrations();
   }, []);
 
-  const addPlayerToRoster = async (reg: Registration) => {
+  const addPlayerToRoster = async (reg: Registration, form: RosterForm) => {
+    const jerseyNumber = form.jerseyNumber === '' ? 0 : parseInt(form.jerseyNumber, 10);
+    const position = form.position || 'TBD';
+
     // Split player name into first/last
     const nameParts = reg.player_name.trim().split(/\s+/);
     const firstName = nameParts[0] || '';
@@ -89,11 +120,11 @@ const RegistrationManagement = () => {
       name: reg.player_name,
       age,
       birthdate: reg.date_of_birth,
-      start_date: new Date().toISOString().split('T')[0],
-      position: 'TBD',
+      start_date: form.startDate || todayLocal(),
+      position,
       bio: '',
       image_url: '',
-      jersey_number: 0,
+      jersey_number: jerseyNumber,
       tags: [],
       active: true,
       contacts: [{
@@ -124,9 +155,10 @@ const RegistrationManagement = () => {
     };
 
     const { player, warning } = await insertAdminPlayer(playerPayload, {
-      jersey_number: 0,
-      position: 'TBD',
+      jersey_number: jerseyNumber,
+      position,
       tags: [],
+      team_type: form.teamType,
     });
 
     if (warning) {
@@ -139,9 +171,18 @@ const RegistrationManagement = () => {
   const updateStatus = async (id: string, newStatus: string) => {
     const reg = registrations.find(r => r.id === id);
 
-    // If marking as active, show inline confirmation first
+    // Already on the roster: clicking Active Player again must not add a second copy.
+    if (newStatus === 'active' && reg?.status === 'active') return;
+
+    // If marking as active, collect the roster details first
     if (newStatus === 'active' && reg) {
+      setRosterForm(emptyRosterForm());
+      setSuccessMessage(null);
       setConfirmingActive(id);
+      const { data } = await supabase
+        .from('player_team_details')
+        .select('first_name,last_name,team_type,team_jersey_number');
+      setRosterNumbers((data as RosterNumber[] | null) || []);
       return;
     }
 
@@ -155,7 +196,7 @@ const RegistrationManagement = () => {
     try {
       // If activating, create the player first
       if (newStatus === 'active' && reg) {
-        await addPlayerToRoster(reg);
+        await addPlayerToRoster(reg, rosterForm);
       }
 
       const { error } = await supabase
@@ -176,7 +217,7 @@ const RegistrationManagement = () => {
       setConfirmingActive(null);
 
       if (newStatus === 'active') {
-        setSuccessMessage(`${reg!.player_name} has been added to the team roster! Go to Team Roster to assign their jersey number and position.`);
+        setSuccessMessage(`${reg!.player_name} is on the team roster. Add a photo and bio in Team Roster.`);
       }
     } catch (err) {
       console.error('Error updating status:', err);
@@ -194,6 +235,16 @@ const RegistrationManagement = () => {
     if (m < 0 || (m === 0 && now.getDate() < birth.getDate())) age--;
     return age;
   };
+
+  // Who already wears the number typed into the roster form, on the chosen team.
+  const numberHolder = rosterForm.jerseyNumber === ''
+    ? undefined
+    : rosterNumbers.find(
+        n => n.team_type === rosterForm.teamType &&
+          n.team_jersey_number === parseInt(rosterForm.jerseyNumber, 10) &&
+          n.team_jersey_number !== 0
+      );
+  const fieldClass = 'w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-900 bg-white focus:ring-2 focus:ring-steel-blue focus:border-transparent outline-none';
 
   const filteredRegistrations = registrations.filter(r => {
     const matchesSearch =
@@ -425,24 +476,86 @@ const RegistrationManagement = () => {
                     ))}
                   </div>
 
-                  {/* Inline confirmation for Active Player */}
+                  {/* Roster details for Active Player */}
                   {confirmingActive === selectedRegistration.id && (
-                    <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
-                      <p className="text-sm text-green-800 font-medium mb-2">
-                        Add {selectedRegistration.player_name} to the team roster?
+                    <form
+                      className="mt-3 p-4 bg-green-50 border border-green-200 rounded-lg"
+                      onSubmit={e => { e.preventDefault(); if (!numberHolder) performStatusUpdate(selectedRegistration.id, 'active'); }}
+                    >
+                      <p className="text-sm text-green-800 font-medium mb-3">
+                        Add {selectedRegistration.player_name} to the team roster
                       </p>
-                      <p className="text-xs text-green-600 mb-3">
-                        This will create a new player with jersey #0 and position TBD. You can update these in Team Roster.
+                      <div className="grid sm:grid-cols-2 gap-3">
+                        <div>
+                          <label htmlFor="roster-start" className="block text-xs font-medium text-gray-700 mb-1">Started with the team</label>
+                          <input
+                            id="roster-start"
+                            type="date"
+                            required
+                            max={todayLocal()}
+                            value={rosterForm.startDate}
+                            onChange={e => setRosterForm({ ...rosterForm, startDate: e.target.value })}
+                            className={fieldClass}
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="roster-number" className="block text-xs font-medium text-gray-700 mb-1">Player number</label>
+                          <input
+                            id="roster-number"
+                            type="number"
+                            min={1}
+                            max={99}
+                            placeholder="Leave blank if not assigned"
+                            value={rosterForm.jerseyNumber}
+                            onChange={e => setRosterForm({ ...rosterForm, jerseyNumber: e.target.value })}
+                            className={fieldClass}
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="roster-position" className="block text-xs font-medium text-gray-700 mb-1">Position</label>
+                          <select
+                            id="roster-position"
+                            value={rosterForm.position}
+                            onChange={e => setRosterForm({ ...rosterForm, position: e.target.value })}
+                            className={fieldClass}
+                          >
+                            <option value="">Not decided yet</option>
+                            <option value="Offense">Offense</option>
+                            <option value="Defense">Defense</option>
+                            <option value="Goalie">Goalie</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label htmlFor="roster-team" className="block text-xs font-medium text-gray-700 mb-1">Team</label>
+                          <select
+                            id="roster-team"
+                            value={rosterForm.teamType}
+                            onChange={e => setRosterForm({ ...rosterForm, teamType: e.target.value as TeamType })}
+                            className={fieldClass}
+                          >
+                            <option value="youth">Youth</option>
+                            <option value="adult">Adult</option>
+                          </select>
+                        </div>
+                      </div>
+                      {numberHolder && (
+                        <p className="mt-2 text-xs text-red-700">
+                          #{rosterForm.jerseyNumber} is already worn by {numberHolder.first_name} {numberHolder.last_name} on the {rosterForm.teamType} team. Pick another number or leave it blank.
+                        </p>
+                      )}
+                      <p className="mt-2 text-xs text-green-700">
+                        Name, birthdate, parent and emergency contacts and notes copy over from this registration.
                       </p>
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 mt-3">
                         <button
-                          disabled={updating}
-                          onClick={() => performStatusUpdate(selectedRegistration.id, 'active')}
+                          type="submit"
+                          disabled={updating || !!numberHolder}
                           className="px-3 py-1.5 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 disabled:opacity-50"
                         >
-                          {updating ? 'Adding...' : 'Yes, Add to Roster'}
+                          {updating ? 'Adding...' : 'Add to Roster'}
                         </button>
                         <button
+                          type="button"
                           disabled={updating}
                           onClick={() => setConfirmingActive(null)}
                           className="px-3 py-1.5 bg-gray-200 text-gray-700 text-sm rounded-lg hover:bg-gray-300"
@@ -450,7 +563,7 @@ const RegistrationManagement = () => {
                           Cancel
                         </button>
                       </div>
-                    </div>
+                    </form>
                   )}
 
                   {/* Success/Error message */}
